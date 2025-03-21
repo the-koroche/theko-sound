@@ -9,8 +9,10 @@ public class AudioEncodeResult {
     private final byte[] fileData;
     private final AudioFormat format;
     private final List<AudioTag> tags;
+    private final AudioCodecInfo codecInfo;
 
-    public AudioEncodeResult (byte[] fileData, AudioFormat format, List<AudioTag> tags) {
+    public AudioEncodeResult (AudioCodecInfo codecInfo, byte[] fileData, AudioFormat format, List<AudioTag> tags) {
+        this.codecInfo = codecInfo;
         this.fileData = fileData;
         this.format = format;
         this.tags = tags;
@@ -28,14 +30,10 @@ public class AudioEncodeResult {
         return Collections.unmodifiableList(tags);
     }
 
-    protected String getEncoderName() {
-        return "UNKNOWN";
-    }
-
     public String getInfo() {
         StringBuilder outString = new StringBuilder();
         String tab = "  ";
-        outString.append("--- ").append(getEncoderName() + " CODEC").append(" ---\n");
+        outString.append("--- ").append(codecInfo.getName() + " CODEC").append(" ---\n");
         outString.append(tab).append("--- AUDIO FORMAT ---\n");
         outString.append(tab).append(format.toString()).append('\n');
         outString.append(tab).append("--- TAGS ---\n");
@@ -47,6 +45,6 @@ public class AudioEncodeResult {
 
     @Override
     public String toString() {
-        return "AudioEncodeResult {Encoder: " + getEncoderName() + ", " + format.toString() + ", Tags: " + tags.toString() + "}";
+        return "AudioEncodeResult {Encoder: " + codecInfo.getName() + ", " + format.toString() + ", Tags: " + tags.toString() + "}";
     }
 }
