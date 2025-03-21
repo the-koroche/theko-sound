@@ -96,7 +96,6 @@ public class WAVECodec implements AudioCodec {
         }
     }
 
-    @SuppressWarnings("unused")
     protected static AudioFormat parseFormatChunk(byte[] fmtData) throws AudioCodecException {
         ByteBuffer bb = ByteBuffer.wrap(fmtData).order(ByteOrder.LITTLE_ENDIAN);
         int audioFormat = bb.getShort() & 0xffff; // формат аудио
@@ -136,7 +135,9 @@ public class WAVECodec implements AudioCodec {
             bitsPerSample,
             channels,
             encoding,
-            false
+            false, 
+            blockAlign,
+            byteRate
         );
     }
 
