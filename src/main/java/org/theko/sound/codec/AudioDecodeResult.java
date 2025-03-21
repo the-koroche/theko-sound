@@ -11,8 +11,10 @@ public class AudioDecodeResult {
     private final byte[] data;
     private final AudioFormat format;
     private final List<AudioTag> tags;
+    private final AudioCodecInfo codecInfo;
 
-    public AudioDecodeResult (byte[] data, AudioFormat format, List<AudioTag> tags) {
+    public AudioDecodeResult (AudioCodecInfo codecInfo, byte[] data, AudioFormat format, List<AudioTag> tags) {
+        this.codecInfo = codecInfo;
         this.data = data;
         this.format = format;
         this.tags = tags;
@@ -34,14 +36,10 @@ public class AudioDecodeResult {
         return Collections.unmodifiableList(tags);
     }
 
-    protected String getDecoderName() {
-        return "UNKNOWN";
-    }
-
     public String getInfo() {
         StringBuilder outString = new StringBuilder();
         String tab = "  ";
-        outString.append("--- ").append(getDecoderName() + " CODEC").append(" ---\n");
+        outString.append("--- ").append(codecInfo.getName() + " CODEC").append(" ---\n");
         outString.append(tab).append("--- AUDIO FORMAT ---\n");
         outString.append(tab).append(format.toString()).append('\n');
         outString.append(tab).append("--- TAGS ---\n");
@@ -53,6 +51,6 @@ public class AudioDecodeResult {
 
     @Override
     public String toString() {
-        return "AudioDecodeResult {Decoder: " + getDecoderName() + ", " + format.toString() + ", Tags: " + tags.toString() + "}";
+        return "AudioDecodeResult {Decoder: " + codecInfo.getName() + ", " + format.toString() + ", Tags: " + tags.toString() + "}";
     }
 }
