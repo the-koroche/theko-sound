@@ -15,32 +15,30 @@ import org.theko.sound.AudioFormat;
 import org.theko.sound.UnsupportedAudioEncodingException;
 import org.theko.sound.codec.AudioCodec;
 import org.theko.sound.codec.AudioCodecException;
+import org.theko.sound.codec.AudioCodecInfo;
 import org.theko.sound.codec.AudioCodecType;
 import org.theko.sound.codec.AudioDecodeResult;
 import org.theko.sound.codec.AudioEncodeResult;
 import org.theko.sound.codec.AudioTag;
 
-
 @AudioCodecType(name = "WAVE", extension = "wav", version = "1.0")
 public class WAVECodec implements AudioCodec {
-
-    // ======== DECODING ========
     @Override
     public AudioDecodeResult decode(InputStream is) throws AudioCodecException {
         try {
             DataInputStream dis = new DataInputStream(is);
 
-            // Проверяем заголовок RIFF
+            // Check RIFF header
             byte[] riffHeader = new byte[4];
             dis.readFully(riffHeader);
             if (!"RIFF".equals(new String(riffHeader, "US-ASCII"))) {
                 throw new AudioCodecException("Not a valid RIFF file.");
             }
 
-            // Пропускаем размер файла (не используется)
+            // Skip file size (not used)
             readLittleEndianInt(dis);
 
-            // Проверяем формат WAVE
+            // Check WAVE header
             byte[] waveHeader = new byte[4];
             dis.readFully(waveHeader);
             if (!"WAVE".equals(new String(waveHeader, "US-ASCII"))) {
@@ -51,34 +49,34 @@ public class WAVECodec implements AudioCodec {
             byte[] audioData = null;
             List<AudioTag> tags = new ArrayList<>();
 
-            // Читаем чанки
+            // Read chunks
             while (true) {
                 byte[] chunkIdBytes = new byte[4];
                 int read = dis.read(chunkIdBytes);
-                if (read == -1) break; // Конец файла
+                if (read == -1) break; // EOF
 
                 String chunkId = new String(chunkIdBytes, "US-ASCII");
                 int chunkSize = readLittleEndianInt(dis);
 
                 if ("fmt ".equals(chunkId)) {
-                    // Чанк с форматом аудио
+                    // Audio format
                     byte[] fmtData = new byte[chunkSize];
                     dis.readFully(fmtData);
                     format = parseFormatChunk(fmtData);
                     skipPadding(dis, chunkSize);
                 } else if ("data".equals(chunkId)) {
-                    // Чанк с аудиоданными
+                    // Audio data
                     audioData = new byte[chunkSize];
                     dis.readFully(audioData);
                     skipPadding(dis, chunkSize);
                 } else if ("LIST".equals(chunkId)) {
-                    // Чанк с метаданными
+                    // Metadata
                     byte[] listData = new byte[chunkSize];
                     dis.readFully(listData);
                     parseListChunk(listData, tags);
                     skipPadding(dis, chunkSize);
                 } else {
-                    // Пропускаем неизвестные чанки
+                    // Skip unknown chunks
                     skipChunkData(dis, chunkSize);
                 }
             }
@@ -90,7 +88,7 @@ public class WAVECodec implements AudioCodec {
             if (audioData == null) {
                 throw new AudioCodecException("Invalid WAV file: missing 'data' chunk.");
             }
-            return new AudioDecodeResult(audioData, format, Collections.unmodifiableList(tags));
+            return new AudioDecodeResult(new AudioCodecInfo(this.getClass()), audioData, format, Collections.unmodifiableList(tags));
         } catch (IOException ex) {
             throw new AudioCodecException(ex);
         }
@@ -98,16 +96,14 @@ public class WAVECodec implements AudioCodec {
 
     protected static AudioFormat parseFormatChunk(byte[] fmtData) throws AudioCodecException {
         ByteBuffer bb = ByteBuffer.wrap(fmtData).order(ByteOrder.LITTLE_ENDIAN);
-        int audioFormat = bb.getShort() & 0xffff; // формат аудио
-        int channels = bb.getShort() & 0xffff; // количество каналов
-        int sampleRate = bb.getInt(); // частота дискретизации
-        int byteRate = bb.getInt(); // байтовая скорость
-        int blockAlign = bb.getShort() & 0xffff; // выравнивание блока
-        int bitsPerSample = bb.getShort() & 0xffff; // биты на сэмпл
-    
+        int audioFormat = bb.getShort() & 0xffff;
+        int channels = bb.getShort() & 0xffff;
+        int sampleRate = bb.getInt();
+        int byteRate = bb.getInt();
+        int blockAlign = bb.getShort() & 0xffff;
+        int bitsPerSample = bb.getShort() & 0xffff;
         AudioFormat.Encoding encoding;
-    
-        // Определяем кодировку (encoding) на основе audioFormat и bitsPerSample
+
         switch (audioFormat) {
             case 1: // PCM
                 if (bitsPerSample == 8) {
@@ -126,10 +122,9 @@ public class WAVECodec implements AudioCodec {
                 encoding = AudioFormat.Encoding.ALAW;
                 break;
             default:
-                throw new AudioCodecException(new UnsupportedAudioEncodingException("Не поддерживаемый формат аудио"));
+                throw new AudioCodecException(new UnsupportedAudioEncodingException("Not supported audio format."));
         }
-    
-        // Возвращаем новый AudioFormat с указанными параметрами
+
         return new AudioFormat(
             sampleRate,
             bitsPerSample,
@@ -143,20 +138,18 @@ public class WAVECodec implements AudioCodec {
 
     protected static String mapInfoIdToTag(String id) {
             switch (id) {
-                case "INAM": return "Title";
+                case "INAM": case "TITL": return "Title";
                 case "IART": return "Artist";
-                case "IPRD": return "Album";
-                case "ICRD": return "Year"; // Для даты можно использовать "Year"
+                case "IPRD": case "ALBM": return "Album";
+                case "ICRD": return "Year";
                 case "ITRK": return "Track";
                 case "ICMT": return "Comment";
                 case "IGNR": return "Genre";
-                case "IENG": return "Engineer";  // Добавлено
-                case "ISRC": return "SRC";      // Добавлено
-                case "ICOP": return "Copyright"; // Добавить поддержку авторских прав
-                case "ISFT": return "Software"; // Информация о программе (например, FL Studio)
-                case "ITCH": return "Technician"; 
-                case "ALBM": return "Album";   // Добавление вариаций
-                case "TITL": return "Title";   // Добавить титул (в случае вариации)
+                case "IENG": return "Engineer";
+                case "ISRC": return "SRC";
+                case "ICOP": return "Copyright";
+                case "ISFT": return "Software";
+                case "ITCH": return "Technician";
                 default: return id.startsWith("I") ? id.substring(1) : null;
             }
         }
@@ -178,30 +171,28 @@ public class WAVECodec implements AudioCodec {
                 byte[] valueBytes = new byte[size];
                 bb.get(valueBytes);
         
-                // Пропустить паддинг (1 байт, если размер нечетный)
+                // Skip padding (1 byte, if size isn't odd)
                 if (size % 2 != 0 && bb.remaining() > 0) {
                     bb.get();
                 }
         
                 String value = cleanText(new String(valueBytes, StandardCharsets.UTF_8));
-                            String tag = mapInfoIdToTag(id);
-                        if (tag != null) {
-                            tags.add(new AudioTag(tag, value));
-                        } else {
-                            System.out.println("Unknown tag: " + id + " = " + value);
-                        }
-                    }
-                }
-                
-                protected static String cleanText(String text) {
-        // Удаляем нулевые байты и непечатаемые символы
+                String tag = mapInfoIdToTag(id);
+            if (tag != null) {
+                tags.add(new AudioTag(tag, value));
+            } else {
+                System.out.println("Unknown tag: " + id + " = " + value);
+            }
+        }
+    }
+
+    protected static String cleanText(String text) {
         text = text.replaceAll("\0", "")
                    .replaceAll("[\\p{Cntrl}&&[^\n\t\r]]", "")
                    .trim();
-    
-        // Удаляем лишние пробелы и нежелательные символы
+
         text = text.replaceAll("\\s+", " ")
-                   .replaceAll("[^\\x20-\\x7E]", ""); // Удаляем не-ASCII символы*.
+                   .replaceAll("[^\\x20-\\x7E]", ""); // Remove non-ASCII characters
     
         return text;
     }
@@ -228,7 +219,28 @@ public class WAVECodec implements AudioCodec {
 
     @Override
     public AudioEncodeResult encode(byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException {
-        return null;
+        try {
+            // Check supported encodings
+            int audioFormatCode = getAudioFormatCode(format.getEncoding());
+
+            byte[] fmtChunkData = createFmtChunk(audioFormatCode, format);
+            byte[] listChunkData = createListChunk(tags);
+
+            // Build all chunks
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            writeRiffHeader(outputStream);
+            writeChunk(outputStream, "fmt ", fmtChunkData);
+            writeChunk(outputStream, "data", data);
+            if (listChunkData.length > 4) {
+                writeChunk(outputStream, "LIST", listChunkData);
+            }
+
+            updateRiffSize(outputStream);
+
+            return new AudioEncodeResult(new AudioCodecInfo(this.getClass()), outputStream.toByteArray(), format, tags);
+        } catch (IOException e) {
+            throw new AudioCodecException(e);
+        }
     }
 
     protected static byte[] createFmtChunk(int audioFormatCode, AudioFormat format) {
@@ -279,8 +291,41 @@ public class WAVECodec implements AudioCodec {
             case ALAW: // ALAW (8-bit)
                 return 6;
             default:
-                throw new AudioCodecException("Не поддерживаемый формат ");
+                throw new AudioCodecException("Not supported encoding.");
         }
+    }
+
+    private void writeRiffHeader(ByteArrayOutputStream outputStream) throws IOException {
+        outputStream.write("RIFF".getBytes(StandardCharsets.US_ASCII));
+        writeLittleEndianInt(outputStream, 0); // Placeholder for RIFF size
+        outputStream.write("WAVE".getBytes(StandardCharsets.US_ASCII));
+    }
+
+    private void updateRiffSize(ByteArrayOutputStream outputStream) {
+        byte[] wavData = outputStream.toByteArray();
+        int riffSize = wavData.length - 8;
+        byte[] riffSizeBytes = ByteBuffer.allocate(4)
+                .order(ByteOrder.LITTLE_ENDIAN)
+                .putInt(riffSize)
+                .array();
+        System.arraycopy(riffSizeBytes, 0, wavData, 4, 4);
+    }
+
+    private void writeChunk(ByteArrayOutputStream outputStream, String chunkId, byte[] chunkData) throws IOException {
+        outputStream.write(chunkId.getBytes(StandardCharsets.US_ASCII));
+        writeLittleEndianInt(outputStream, chunkData.length);
+        outputStream.write(chunkData);
+        if (chunkData.length % 2 != 0) {
+            outputStream.write(0); // Паддинг
+        }
+    }
+
+    private void writeLittleEndianInt(ByteArrayOutputStream stream, int value) throws IOException {
+        byte[] bytes = ByteBuffer.allocate(4)
+                .order(ByteOrder.LITTLE_ENDIAN)
+                .putInt(value)
+                .array();
+        stream.write(bytes);
     }
 
     protected static String mapTagToInfoId(String tag) {
