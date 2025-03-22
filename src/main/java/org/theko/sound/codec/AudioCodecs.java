@@ -1,5 +1,6 @@
 package org.theko.sound.codec;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -61,6 +62,28 @@ public class AudioCodecs {
             }
         }
         throw new AudioCodecNotFoundException("No audio codecs found by name: '" + name + "'.");
+    }
+
+    /**
+     * Get an AudioCodecInfo by its exception
+     * @param name File extension without a dot or an asterisk.
+     */
+    public static AudioCodecInfo fromExtension(String extension) throws AudioCodecNotFoundException {
+        for (AudioCodecInfo audioCodec : audioCodecs) {
+            if (audioCodec.getExtension().equalsIgnoreCase(extension)) {
+                return audioCodec;
+            }
+        }
+        throw new AudioCodecNotFoundException("No audio codecs found by extension: '" + extension + "'.");
+    }
+
+    public static AudioCodec getCodec(AudioCodecInfo codecInfo) throws AudioCodecCreationException {
+        try {
+            return codecInfo.getCodecClass().getConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException e) {
+            throw new AudioCodecCreationException(e);
+        }
     }
 
     /**
