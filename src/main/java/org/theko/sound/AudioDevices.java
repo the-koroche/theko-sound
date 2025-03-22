@@ -78,18 +78,19 @@ public class AudioDevices {
      */
     public static AudioInputDevice getInputDevice(Class<? extends AudioDevice> audioDeviceClass) throws AudioDeviceNotFoundException, AudioDeviceCreationException {
         for (AudioDeviceInfo deviceInfo : audioDevices) {
-            if (deviceInfo.getDeviceClass().equals(audioDeviceClass)) { // && AudioInputDevice.class.isAssignableFrom(audioDeviceClass)) {
+            if (deviceInfo.getDeviceClass().equals(audioDeviceClass)) {
                 try {
                     Constructor<? extends AudioDevice> constructor = audioDeviceClass.getDeclaredConstructor();
                     if (!Modifier.isAbstract(audioDeviceClass.getModifiers()) && Modifier.isPublic(constructor.getModifiers())) {
                         return constructor.newInstance().getInputDevice();
                     }
-                } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                    throw new AudioDeviceCreationException("Failed to instantiate input device: " + audioDeviceClass.getName(), e);
+                } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                        | NoSuchMethodException | SecurityException e) {
+                    throw new AudioDeviceCreationException("Failed to instantiate input device: " + audioDeviceClass.getSimpleName(), e);
                 }
             }
         }
-        throw new AudioDeviceNotFoundException("No input device found for class: " + audioDeviceClass.getName());
+        throw new AudioDeviceNotFoundException("No input device found for class: " + audioDeviceClass.getSimpleName());
     }
 
     /**
@@ -97,18 +98,19 @@ public class AudioDevices {
      */
     public static AudioOutputDevice getOutputDevice(Class<? extends AudioDevice> audioDeviceClass) throws AudioDeviceNotFoundException, AudioDeviceCreationException {
         for (AudioDeviceInfo deviceInfo : audioDevices) {
-            if (deviceInfo.getDeviceClass().equals(audioDeviceClass)) { // && AudioOutputDevice.class.isAssignableFrom(audioDeviceClass)) {
+            if (deviceInfo.getDeviceClass().equals(audioDeviceClass)) {
                 try {
                     Constructor<? extends AudioDevice> constructor = audioDeviceClass.getDeclaredConstructor();
                     if (!Modifier.isAbstract(audioDeviceClass.getModifiers()) && Modifier.isPublic(constructor.getModifiers())) {
                         return constructor.newInstance().getOutputDevice();
                     }
-                } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                    throw new AudioDeviceCreationException("Failed to instantiate output device: " + audioDeviceClass.getName(), e);
+                } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                        | NoSuchMethodException | SecurityException e) {
+                    throw new AudioDeviceCreationException("Failed to instantiate output device: " + audioDeviceClass.getSimpleName(), e);
                 }
             }
         }
-        throw new AudioDeviceNotFoundException("No output device found for class: " + audioDeviceClass.getName());
+        throw new AudioDeviceNotFoundException("No output device found for class: " + audioDeviceClass.getSimpleName());
     }
 
     /**
