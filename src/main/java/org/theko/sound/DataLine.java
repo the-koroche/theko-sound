@@ -1,8 +1,6 @@
 package org.theko.sound;
 
 import java.lang.ref.Cleaner;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -14,13 +12,12 @@ import org.theko.sound.event.DataLineListener;
 
 public class DataLine implements AutoCloseable {
     private final BlockingQueue<byte[]> queue;
-    private final List<WeakReference<DataLineListener>> listeners = new ArrayList<>();
-    private final ReferenceQueue<DataLineListener> referenceQueue = new ReferenceQueue<>();
+    private final List<DataLineListener> listeners = new ArrayList<>();
     private final AudioFormat audioFormat;
 
     protected boolean closed = true;
 
-    private static final Cleaner cleaner = Cleaner.create();
+    private static final Cleaner cleaner = Cleaner.create(Thread.ofVirtual().factory());
 
     /** Constructor with specified capacity */
     public DataLine(AudioFormat audioFormat, int capacity) {
@@ -130,13 +127,12 @@ public class DataLine implements AutoCloseable {
     /** Add a listener to receive notifications */
     public void addDataLineListener(DataLineListener listener) {
         cleanListeners();
-        this.listeners.add(new WeakReference<DataLineListener>(listener, referenceQueue));
+        this.listeners.add(listener);
     }
 
     /** Remove a listener from receiving notifications */
     public void removeDataLineListener(DataLineListener listener) {
-        listeners.removeIf(ref -> {
-            DataLineListener current = ref.get();
+        listeners.removeIf(current -> {
             return current == null || current.equals(listener);
         });
     }
@@ -149,13 +145,12 @@ public class DataLine implements AutoCloseable {
     }
 
     private void cleanListeners() {
-        listeners.removeIf(ref -> ref.get() == null);
+        listeners.removeIf(listener -> listener == null);
     }
 
     /** Notify all listeners that data has been sent */
     private void notifySendListeners(DataLineEvent e) {
-        for (WeakReference<DataLineListener> listenerReference : listeners) {
-            DataLineListener listener = listenerReference.get();
+        for (DataLineListener listener : listeners) {
             try {
                 if (listener != null) listener.onSend(e);
             } catch (Exception ex) {
@@ -166,8 +161,7 @@ public class DataLine implements AutoCloseable {
 
     /** Notify all listeners that data has been received */
     private void notifyReceiveListeners(DataLineEvent e) {
-        for (WeakReference<DataLineListener> listenerReference : listeners) {
-            DataLineListener listener = listenerReference.get();
+        for (DataLineListener listener : listeners) {
             try {
                 if (listener != null) listener.onReceive(e);
             } catch (Exception ex) {
@@ -178,8 +172,7 @@ public class DataLine implements AutoCloseable {
 
     /** Notify all listeners that the send operation has timed out */
     private void notifySendTimeoutListeners(DataLineEvent e) {
-        for (WeakReference<DataLineListener> listenerReference : listeners) {
-            DataLineListener listener = listenerReference.get();
+        for (DataLineListener listener : listeners) {
             try {
                 if (listener != null) listener.onSendTimeout(e);
             } catch (Exception ex) {
@@ -190,8 +183,7 @@ public class DataLine implements AutoCloseable {
 
     /** Notify all listeners that the receive operation has timed out */
     private void notifyReceiveTimeoutListeners(DataLineEvent e) {
-        for (WeakReference<DataLineListener> listenerReference : listeners) {
-            DataLineListener listener = listenerReference.get();
+        for (DataLineListener listener : listeners) {
             try {
                 if (listener != null) listener.onReceiveTimeout(e);
             } catch (Exception ex) {
