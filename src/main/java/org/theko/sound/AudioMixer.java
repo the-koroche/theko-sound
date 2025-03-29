@@ -25,18 +25,19 @@ public class AudioMixer implements AutoCloseable {
     protected final List<AudioEffect> effects;
     private final Thread mixerThread;
 
-    protected AudioFormat audioFormat;
-    protected AudioFormat outAudioFormat;
+    protected AudioFormat processAudioFormat;
 
     private final Map<DataLine, DataLineAdapter> inputListeners = new ConcurrentHashMap<>();
 
     protected final FloatController preGain;
     protected final FloatController postGain;
+    protected final FloatController pan;
 
-    private static final Cleaner cleaner = Cleaner.create();
+    private static final Cleaner cleaner = Cleaner.create(Thread.ofVirtual().factory());
 
-    public AudioMixer(Mode mixerMode) {
+    public AudioMixer(Mode mixerMode, AudioFormat processAudioFormat) {
         this.mixerMode = mixerMode;
+        this.processAudioFormat = processAudioFormat;
         inputs = new CopyOnWriteArrayList<>();
         outputs = new CopyOnWriteArrayList<>();
         effects = new CopyOnWriteArrayList<>();
@@ -46,17 +47,12 @@ public class AudioMixer implements AutoCloseable {
 
         this.preGain = new FloatController("PRE-GAIN", 0.0f, 1.0f, 1.0f);
         this.postGain = new FloatController("POST-GAIN", 0.0f, 1.0f, 1.0f);
+        this.pan = new FloatController("PAN", -1.0f, 1.0f, 0.0f);
 
         cleaner.register(this, this::shutdown);
     }
 
     public void addInput(DataLine input) throws UnsupportedAudioFormatException {
-        if (audioFormat == null || inputs.isEmpty()) {
-            audioFormat = input.getAudioFormat();
-        }
-        if (!input.getAudioFormat().equals(audioFormat)) {
-            throw new UnsupportedAudioFormatException("Audio formats are not equal.");
-        }
         inputs.add(input);
         if (mixerMode == Mode.EVENT) {
             DataLineAdapter adapter = new DataLineAdapter() {
@@ -79,7 +75,7 @@ public class AudioMixer implements AutoCloseable {
     }
 
     public void addEffect(AudioEffect effect) throws UnsupportedAudioEffectException {
-        if (effect.getType() == AudioEffect.Type.PROCESS) {
+        if (effect.getType() == AudioEffect.Type.OFFLINE_PROCESSING) {
             throw new UnsupportedAudioEffectException("Only AudioEffect.Type.REALTIME is supported to use in mixer.");
         }
         effects.add(effect);
@@ -108,12 +104,16 @@ public class AudioMixer implements AutoCloseable {
         effects.remove(effect);
     }
 
-    public FloatController getPreGain() {
+    public FloatController getPreGainController() {
         return preGain;
     }
 
-    public FloatController getPostGain() {
+    public FloatController getPostGainController() {
         return postGain;
+    }
+
+    public FloatController getPanController() {
+        return pan;
     }
 
     private void processLoop() {
@@ -131,63 +131,69 @@ public class AudioMixer implements AutoCloseable {
     }
 
     private void process() throws InterruptedException {
-        if (inputs.isEmpty() || outputs.isEmpty()) {
-            return;
-        }
-
-        byte[][] data = new byte[inputs.size()][]; 
+        if (inputs.isEmpty() || outputs.isEmpty()) return;
+    
+        float[][][] samples = new float[inputs.size()][][];
         int maxLength = 0;
-
+    
         for (int i = 0; i < inputs.size(); i++) {
             DataLine dl = inputs.get(i);
             if (dl != null) {
-                data[i] = dl.receiveWithTimeout(500, TimeUnit.MILLISECONDS);
-                if (data[i] != null) {
-                    maxLength = Math.max(maxLength, data[i].length);
+                samples[i] = SampleConverter.toSamples(dl.receiveWithTimeout(50, TimeUnit.MILLISECONDS), dl.getAudioFormat());
+                if (samples[i] != null) {
+                    for (float[] channel : samples[i]) {
+                        maxLength = Math.max(maxLength, channel.length);
+                    }
                 }
             }
         }
-
+    
         if (maxLength == 0) return; // Нет данных — выход
-
-        byte[] mixed = new byte[maxLength];
-
-        for (int i = 0; i < maxLength; i++) {
-            int sum = 0;
-            int count = 0;
-
-            for (int j = 0; j < inputs.size(); j++) {
-                if (data[j] != null && i < data[j].length) {
-                    sum += data[j][i];
-                    count++;
+    
+        int channels = processAudioFormat.getChannels();
+        float[][] mixed = new float[channels][maxLength];
+    
+        // Смешивание с использованием preGain
+        for (int k = 0; k < samples.length; k++) {
+            if (samples[k] == null) continue;
+            for (int ch = 0; ch < Math.min(channels, samples[k].length); ch++) {
+                for (int j = 0; j < samples[k][ch].length; j++) {
+                    mixed[ch][j] += samples[k][ch][j] * preGain.getValue();
                 }
             }
-
-            double avg = ((double) sum / Math.max(1, count));
-            mixed[i] = clampToByte(avg);
+        }
+    
+        if (!effects.isEmpty()) {
+            mixed = applyEffects(mixed);
         }
 
-        //long t1 = System.nanoTime();
-        float[][] sample = SampleConverter.toSamples(mixed, audioFormat, 0.5f);//preGain.getValue());
-        sample = applyEffects(sample);
-        mixed = SampleConverter.fromSamples(sample, audioFormat);//, postGain.getValue());
-        //System.out.println("ELAPSED: " + (System.nanoTime() - t1) + " ns.");
-
-        for (int i = 0; i < mixed.length; i++) {
-            mixed[i] = clampToByte(mixed[i] * postGain.getValue());
+        float leftVol = 1.0f;
+        float rightVol = 1.0f;
+    
+        // Переход от панорамы (-1.0 для полного левого, 1.0 для полного правого)
+        if (pan.getValue() < 0) {
+            leftVol = 1.0f;
+            rightVol = 1.0f + pan.getValue(); // Уменьшаем громкость правого канала при панораме влево
+        } else if (pan.getValue() > 0) {
+            leftVol = 1.0f - pan.getValue(); // Уменьшаем громкость левого канала при панораме вправо
+            rightVol = 1.0f;
+        } else {
+            leftVol = 1.0f;
+            rightVol = 1.0f;
         }
-
+    
+        // Нормализация и отправка данных
+        float gain = postGain.getValue();
         for (DataLine output : outputs) {
             if (output != null) {
-                if (!output.sendWithTimeout(mixed, 200, TimeUnit.MILLISECONDS)) {
-                    System.err.println("Warning: Data dropped for output: " + output);
+                for (int ch = 0; ch < mixed.length; ch++) {
+                    for (int j = 0; j < mixed[ch].length; j++) {
+                        mixed[ch][j] = Math.max(-1.0f, Math.min(1.0f, mixed[ch][j] * gain));
+                    }
                 }
+                output.send(SampleConverter.fromSamples(mixed, output.getAudioFormat(), leftVol, rightVol));
             }
         }
-    }
-
-    private static byte clampToByte(double value) {
-        return (byte) Math.max(Math.min(Math.round(value), 127), -128);
     }
 
     private float[][] applyEffects(float[][] sample) {
