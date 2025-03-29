@@ -19,7 +19,7 @@ import org.theko.sound.direct.AudioDeviceType;
 import org.theko.sound.direct.AudioInputDevice;
 import org.theko.sound.direct.AudioOutputDevice;
 
-@AudioDeviceType(name = "JavaSound", version = "0.3b")
+@AudioDeviceType(name = "JavaSound", version = "1.0")
 public class JavaSoundDevice implements AudioDevice {
     @Override
     public Collection<AudioPort> getAllPorts() {
@@ -124,6 +124,9 @@ public class JavaSoundDevice implements AudioDevice {
     }
 
     protected static Mixer getMixerForPort(AudioPort port) {
+        if (port == null) {
+            return AudioSystem.getMixer(null);
+        }
         for (Mixer.Info info : AudioSystem.getMixerInfo()) {
             if (info.getName().equals(port.getName())) {
                 return AudioSystem.getMixer(info);
