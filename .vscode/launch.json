@@ -1,0 +1,29 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "ZWAVCoderTest",
+            "request": "launch",
+            "mainClass": "ZWAVCoderTest",
+            "projectName": "theko-sound"
+        },
+        {
+            "type": "java",
+            "name": "FFT",
+            "request": "launch",
+            "mainClass": "org.theko.sound.fft.FFT",
+            "projectName": "theko-sound"
+        },
+        {
+            "type": "java",
+            "name": "SoundTest",
+            "request": "launch",
+            "mainClass": "SoundTest",
+            "projectName": "theko-sound"
+        }
+    ]
+}
