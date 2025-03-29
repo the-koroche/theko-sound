@@ -13,6 +13,6 @@ public abstract class AudioController {
 
     @Override
     public String toString() {
-        return String.format("AudioController {%s}", name);
+        return String.format("AudioController {Name: %s}", name);
     }
 }
