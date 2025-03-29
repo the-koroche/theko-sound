@@ -2,7 +2,6 @@ package org.theko.sound.effects;
 
 import org.theko.sound.AudioEffect;
 import org.theko.sound.AudioFormat;
-import org.theko.sound.SampleConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +15,7 @@ public class ReverbEffect extends AudioEffect {
     private final float[] decayFactors;
     
     public ReverbEffect(AudioFormat audioFormat) {
-        super(audioFormat);
+        super(AudioEffect.Type.REALTIME, audioFormat);
         this.sampleRate = (int) audioFormat.getSampleRate();
         this.numChannels = audioFormat.getChannels();
         
@@ -42,10 +41,11 @@ public class ReverbEffect extends AudioEffect {
     }
 
     @Override
-    public byte[] process(byte[] data) {
-        float[] amplitudes = SampleConverter.toAmplitude(data, audioFormat);
-        float[] processed = applyReverb(amplitudes);
-        return SampleConverter.fromAmplitude(amplitudes, audioFormat);
+    public float[][] process(float[][] samples) {
+        for (int ch = 0; ch < samples.length; ch++) {
+            samples[ch] = applyReverb(samples[ch]);
+        }
+        return samples;
     }
 
     private float[] applyReverb(float[] input) {
