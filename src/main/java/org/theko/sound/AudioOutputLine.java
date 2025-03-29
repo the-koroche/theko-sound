@@ -16,13 +16,13 @@ public class AudioOutputLine implements AutoCloseable {
     protected DataLine input;
     private final Lock inputLock = new ReentrantLock();
 
-    private static final Cleaner cleaner = Cleaner.create();
+    private static final Cleaner cleaner = Cleaner.create(Thread.ofVirtual().factory());
 
     private final DataLineListener dataLineAdapter = new DataLineAdapter() {
         @Override
         public void onSend(DataLineEvent e) {
             byte[] bytes = e.getDataLine().forceReceive();
-            write0(bytes, 0, bytes.length);
+            dwrite(bytes, 0, bytes.length);
         }
     };
 
@@ -59,12 +59,23 @@ public class AudioOutputLine implements AutoCloseable {
         }
     }
 
-    public void open(AudioPort port, AudioFormat audioFormat, int bufferSize) {
-        aod.open(port, audioFormat, bufferSize);
+    public void open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioDeviceException, AudioPortsNotFoundException, UnsupportedAudioFormatException {
+        aod.open(
+            port == null ?
+            Objects.requireNonNull(aod.getDefaultPort(AudioFlow.OUT, audioFormat)).get() :
+            port,
+            audioFormat,
+            bufferSize
+        );
     }
 
-    public void open(AudioPort port, AudioFormat audioFormat) {
-        aod.open(port, audioFormat);
+    public void open(AudioPort port, AudioFormat audioFormat) throws AudioDeviceException, AudioPortsNotFoundException, UnsupportedAudioFormatException {
+        aod.open(
+            port == null ?
+            Objects.requireNonNull(aod.getDefaultPort(AudioFlow.OUT, audioFormat)).get() :
+            port,
+            audioFormat
+        );
     }
 
     public void open(AudioFormat audioFormat) throws AudioDeviceException, AudioPortsNotFoundException, UnsupportedAudioFormatException {
@@ -105,7 +116,7 @@ public class AudioOutputLine implements AutoCloseable {
         aod.drain();
     }
 
-    protected int write0(byte[] data, int offset, int length) {
+    protected int dwrite(byte[] data, int offset, int length) {
         if (!aod.isOpen()) {
             throw new IllegalStateException("Cannot write. AudioOutputDevice is not open.");
         }
@@ -122,7 +133,7 @@ public class AudioOutputLine implements AutoCloseable {
         if (input != null) {
             return -1;
         }
-        return write0(data, offset, length);
+        return dwrite(data, offset, length);
     }
 
     public int available() {
