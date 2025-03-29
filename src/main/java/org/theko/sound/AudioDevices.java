@@ -20,38 +20,41 @@ import org.theko.sound.direct.AudioDeviceType;
 import org.theko.sound.direct.AudioInputDevice;
 import org.theko.sound.direct.AudioOutputDevice;
 
+/**
+ * A utility class for managing and retrieving available audio devices.
+ */
 public class AudioDevices {
     private AudioDevices() { }
 
-    // A collection to hold all registered audio devices
+    // A thread-safe collection to store registered audio devices.
     private static final Collection<AudioDeviceInfo> audioDevices = Collections.synchronizedSet(new LinkedHashSet<>());
-
 
     static {
         registerDevices();
     }
 
     /**
-     * Register all audio devices that are annotated with AudioDeviceType
+     * Scans and registers all available audio devices that are annotated with {@link AudioDeviceType}.
      */
     private static void registerDevices() {
-        // Use Reflections to find all classes implementing AudioDevice
+        // Attempt to scan all available packages for audio devices.
         Reflections reflections = null;
         try {
             reflections = new Reflections(new ConfigurationBuilder()
-                    .forPackages("") // Сканировать всё
-                    .addScanners(Scanners.SubTypes) // Искать подтипы
+                    .forPackages("") // Scan all packages.
+                    .addScanners(Scanners.SubTypes) // Look for subtypes of AudioDevice.
             );
         } catch (ReflectionsException ex) {
             ex.printStackTrace();
             reflections = new Reflections(new ConfigurationBuilder()
-                .forPackages("org.theko.sound") // Сканировать только установленные классы (пропустить пользовательские)
-                .addScanners(Scanners.SubTypes) // Искать подтипы
+                .forPackages("org.theko.sound") // Fallback: scan only predefined classes.
+                .addScanners(Scanners.SubTypes)
             );
         }
         audioDevices.clear();
         Set<Class<? extends AudioDevice>> allAudioDevices = reflections.getSubTypesOf(AudioDevice.class);
 
+        // Register all found audio devices.
         for (Class<? extends AudioDevice> audioDeviceClass : allAudioDevices) {
             if (audioDeviceClass.isAnnotationPresent(AudioDeviceType.class)) {
                 AudioDeviceInfo deviceInfo = new AudioDeviceInfo(audioDeviceClass);
@@ -62,7 +65,11 @@ public class AudioDevices {
     }
 
     /**
-     * Get an AudioDeviceInfo by its name
+     * Retrieves an {@link AudioDeviceInfo} by its name.
+     *
+     * @param name The name of the audio device.
+     * @return The corresponding {@link AudioDeviceInfo}.
+     * @throws AudioDeviceNotFoundException If no device is found with the given name.
      */
     public static AudioDeviceInfo fromName(String name) throws AudioDeviceNotFoundException {
         for (AudioDeviceInfo audioDevice : audioDevices) {
@@ -74,7 +81,12 @@ public class AudioDevices {
     }
 
     /**
-     * Get an AudioInputDevice by its class type
+     * Retrieves an {@link AudioInputDevice} instance by its class type.
+     *
+     * @param audioDeviceClass The class of the desired input device.
+     * @return The instantiated {@link AudioInputDevice}.
+     * @throws AudioDeviceNotFoundException If the device is not registered.
+     * @throws AudioDeviceCreationException If an error occurs during instantiation.
      */
     public static AudioInputDevice getInputDevice(Class<? extends AudioDevice> audioDeviceClass) throws AudioDeviceNotFoundException, AudioDeviceCreationException {
         for (AudioDeviceInfo deviceInfo : audioDevices) {
@@ -94,7 +106,12 @@ public class AudioDevices {
     }
 
     /**
-     * Get an AudioOutputDevice by its class type
+     * Retrieves an {@link AudioOutputDevice} instance by its class type.
+     *
+     * @param audioDeviceClass The class of the desired output device.
+     * @return The instantiated {@link AudioOutputDevice}.
+     * @throws AudioDeviceNotFoundException If the device is not registered.
+     * @throws AudioDeviceCreationException If an error occurs during instantiation.
      */
     public static AudioOutputDevice getOutputDevice(Class<? extends AudioDevice> audioDeviceClass) throws AudioDeviceNotFoundException, AudioDeviceCreationException {
         for (AudioDeviceInfo deviceInfo : audioDevices) {
@@ -114,12 +131,20 @@ public class AudioDevices {
     }
 
     /**
-     * Get all registered audio devices
+     * Returns all registered audio devices.
+     *
+     * @return A collection of all registered {@link AudioDeviceInfo} instances.
      */
     public static Collection<AudioDeviceInfo> getAllDevices() {
         return audioDevices;
     }
 
+    /**
+     * Retrieves the default platform-specific audio device.
+     *
+     * @return The best matching platform-specific audio device.
+     * @throws AudioDeviceNotFoundException If no suitable device is found.
+     */
     public static AudioDeviceInfo getPlatformDevice() throws AudioDeviceNotFoundException {
         String name = System.getProperty("os.name").toLowerCase();
     
@@ -139,7 +164,7 @@ public class AudioDevices {
             }
         }
     
-        // Фоллбек к JavaSound
+        // Fallback to JavaSound if no platform-specific device is found.
         return fromName("JavaSound");
     }
 }
