@@ -13,28 +13,39 @@ import org.theko.sound.effects.VisualAudioEffect;
 import org.theko.sound.event.DataLineAdapter;
 import org.theko.sound.event.DataLineEvent;
 
+/**
+ * AudioMixer class provides functionality for mixing audio input lines with optional effects, pre-gain, post-gain, and pan controls.
+ * It supports two modes of operation: using threads or events to process audio.
+ */
 public class AudioMixer implements AutoCloseable {
 
+    /** Defines the two available modes for audio mixing. */
     public enum Mode {
         THREAD, EVENT
     }
 
     protected final Mode mixerMode;
-    protected final List<DataLine> inputs;
-    protected final List<DataLine> outputs;
-    protected final List<AudioEffect> effects;
-    private final Thread mixerThread;
+    protected final List<DataLine> inputs;  // List of input data lines (audio sources)
+    protected final List<DataLine> outputs; // List of output data lines (audio sinks)
+    protected final List<AudioEffect> effects; // List of audio effects to apply
+    private final Thread mixerThread; // Thread used for audio processing in THREAD mode
 
-    protected AudioFormat processAudioFormat;
+    protected AudioFormat processAudioFormat; // The format to process the audio data
 
-    private final Map<DataLine, DataLineAdapter> inputListeners = new ConcurrentHashMap<>();
+    private final Map<DataLine, DataLineAdapter> inputListeners = new ConcurrentHashMap<>(); // Listeners for input data lines
 
-    protected final FloatController preGain;
-    protected final FloatController postGain;
-    protected final FloatController pan;
+    protected final FloatController preGain;  // Pre-gain control
+    protected final FloatController postGain; // Post-gain control
+    protected final FloatController pan; // Pan control for stereo balance
 
-    private static final Cleaner cleaner = Cleaner.create(Thread.ofVirtual().factory());
+    private static final Cleaner cleaner = Cleaner.create(Thread.ofVirtual().factory()); // Virtual thread cleaner for resource management
 
+    /**
+     * Constructs an AudioMixer with the specified mode and audio format.
+     * 
+     * @param mixerMode The mode to use for processing audio (THREAD or EVENT).
+     * @param processAudioFormat The audio format to process.
+     */
     public AudioMixer(Mode mixerMode, AudioFormat processAudioFormat) {
         this.mixerMode = mixerMode;
         this.processAudioFormat = processAudioFormat;
@@ -49,9 +60,16 @@ public class AudioMixer implements AutoCloseable {
         this.postGain = new FloatController("POST-GAIN", 0.0f, 1.0f, 1.0f);
         this.pan = new FloatController("PAN", -1.0f, 1.0f, 0.0f);
 
+        // Register a cleaner to shut down the mixer when it's no longer needed
         cleaner.register(this, this::shutdown);
     }
 
+    /**
+     * Adds an input data line to the mixer. In EVENT mode, a listener will be added to process the data.
+     *
+     * @param input The data line to add.
+     * @throws UnsupportedAudioFormatException If the audio format is not supported.
+     */
     public void addInput(DataLine input) throws UnsupportedAudioFormatException {
         inputs.add(input);
         if (mixerMode == Mode.EVENT) {
@@ -70,10 +88,21 @@ public class AudioMixer implements AutoCloseable {
         }
     }
 
+    /**
+     * Adds an output data line to the mixer.
+     * 
+     * @param output The output data line to add.
+     */
     public void addOutput(DataLine output) {
         outputs.add(output);
     }
 
+    /**
+     * Adds an audio effect to the mixer. Only real-time effects are supported.
+     *
+     * @param effect The audio effect to add.
+     * @throws UnsupportedAudioEffectException If the effect type is not supported.
+     */
     public void addEffect(AudioEffect effect) throws UnsupportedAudioEffectException {
         if (effect.getType() == AudioEffect.Type.OFFLINE_PROCESSING) {
             throw new UnsupportedAudioEffectException("Only AudioEffect.Type.REALTIME is supported to use in mixer.");
@@ -81,11 +110,22 @@ public class AudioMixer implements AutoCloseable {
         effects.add(effect);
     }
 
+    /**
+     * Deprecated method to add a visual audio effect. This method is kept for compatibility.
+     * 
+     * @param effect The visual audio effect to add.
+     * @throws UnsupportedAudioEffectException If the effect type is not supported.
+     */
     @Deprecated
     public void addEffect(VisualAudioEffect effect) throws UnsupportedAudioEffectException {
         addEffect(effect);
     }
 
+    /**
+     * Removes an input data line from the mixer.
+     * 
+     * @param input The input data line to remove.
+     */
     public void removeInput(DataLine input) {
         inputs.remove(input);
         if (mixerMode == Mode.EVENT) {
@@ -96,33 +136,62 @@ public class AudioMixer implements AutoCloseable {
         }
     }
 
+    /**
+     * Removes an output data line from the mixer.
+     * 
+     * @param output The output data line to remove.
+     */
     public void removeOutput(DataLine output) {
         outputs.remove(output);
     }
 
+    /**
+     * Removes an audio effect from the mixer.
+     * 
+     * @param effect The audio effect to remove.
+     */
     public void removeEffect(AudioEffect effect) {
         effects.remove(effect);
     }
 
+    /**
+     * Gets the pre-gain controller for adjusting the gain before processing.
+     * 
+     * @return The pre-gain controller.
+     */
     public FloatController getPreGainController() {
         return preGain;
     }
 
+    /**
+     * Gets the post-gain controller for adjusting the gain after processing.
+     * 
+     * @return The post-gain controller.
+     */
     public FloatController getPostGainController() {
         return postGain;
     }
 
+    /**
+     * Gets the pan controller for adjusting the stereo balance.
+     * 
+     * @return The pan controller.
+     */
     public FloatController getPanController() {
         return pan;
     }
 
+    /**
+     * Main loop for processing audio when operating in THREAD mode.
+     * This method keeps running and processes the audio when inputs are available.
+     */
     private void processLoop() {
         try {
             while (!Thread.currentThread().isInterrupted()) {
                 if (!inputs.isEmpty()) {
                     process();
                 } else {
-                    Thread.yield();
+                    Thread.yield(); // Yield the thread if no inputs are available
                 }
             }
         } catch (InterruptedException e) {
@@ -130,12 +199,19 @@ public class AudioMixer implements AutoCloseable {
         }
     }
 
+    /**
+     * Processes the audio data from inputs, applies effects, adjusts gain and pan, 
+     * and sends the mixed audio to the outputs.
+     * 
+     * @throws InterruptedException If the thread is interrupted during processing.
+     */
     private void process() throws InterruptedException {
         if (inputs.isEmpty() || outputs.isEmpty()) return;
-    
+
+        // Collect samples from all input data lines
         float[][][] samples = new float[inputs.size()][][];
         int maxLength = 0;
-    
+
         for (int i = 0; i < inputs.size(); i++) {
             DataLine dl = inputs.get(i);
             if (dl != null) {
@@ -147,13 +223,13 @@ public class AudioMixer implements AutoCloseable {
                 }
             }
         }
-    
-        if (maxLength == 0) return; // Нет данных — выход
-    
+
+        if (maxLength == 0) return; // No data to process
+
         int channels = processAudioFormat.getChannels();
         float[][] mixed = new float[channels][maxLength];
-    
-        // Смешивание с использованием preGain
+
+        // Mixing the samples with pre-gain applied
         for (int k = 0; k < samples.length; k++) {
             if (samples[k] == null) continue;
             for (int ch = 0; ch < Math.min(channels, samples[k].length); ch++) {
@@ -162,27 +238,24 @@ public class AudioMixer implements AutoCloseable {
                 }
             }
         }
-    
+
+        // Apply audio effects
         if (!effects.isEmpty()) {
             mixed = applyEffects(mixed);
         }
 
+        // Calculate left and right volume based on pan control
         float leftVol = 1.0f;
         float rightVol = 1.0f;
-    
-        // Переход от панорамы (-1.0 для полного левого, 1.0 для полного правого)
         if (pan.getValue() < 0) {
             leftVol = 1.0f;
-            rightVol = 1.0f + pan.getValue(); // Уменьшаем громкость правого канала при панораме влево
+            rightVol = 1.0f + pan.getValue(); // Decrease right volume when pan is to the left
         } else if (pan.getValue() > 0) {
-            leftVol = 1.0f - pan.getValue(); // Уменьшаем громкость левого канала при панораме вправо
-            rightVol = 1.0f;
-        } else {
-            leftVol = 1.0f;
+            leftVol = 1.0f - pan.getValue(); // Decrease left volume when pan is to the right
             rightVol = 1.0f;
         }
-    
-        // Нормализация и отправка данных
+
+        // Normalize and send the mixed audio data to outputs
         float gain = postGain.getValue();
         for (DataLine output : outputs) {
             if (output != null) {
@@ -196,8 +269,14 @@ public class AudioMixer implements AutoCloseable {
         }
     }
 
+    /**
+     * Applies all added effects to the audio sample sequentially.
+     * 
+     * @param sample The audio sample to process.
+     * @return The processed audio sample.
+     */
     private float[][] applyEffects(float[][] sample) {
-        // Обрабатываем эффекты по очереди, а не параллельно
+        // Process effects one by one
         for (AudioEffect effect : effects) {
             if (effect != null) {
                 sample = effect.process(sample);
@@ -206,6 +285,10 @@ public class AudioMixer implements AutoCloseable {
         return sample;
     }
 
+    /**
+     * Shuts down the mixer and stops the mixer thread if running.
+     * Cleans up any resources used by the mixer.
+     */
     public void shutdown() {
         if (mixerThread != null) {
             mixerThread.interrupt();
@@ -220,6 +303,9 @@ public class AudioMixer implements AutoCloseable {
         }
     }
 
+    /**
+     * Closes the mixer and shuts down all resources.
+     */
     @Override
     public void close() {
         shutdown();

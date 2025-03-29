@@ -330,6 +330,93 @@ public class SoundSource implements AutoCloseable {
     }
 
     /**
+     * Returns the current position in microseconds, based on the current frame position.
+     * The calculation is based on the frame size and the byte rate of the audio format.
+     * 
+     * @return The current position in microseconds.
+     */
+    public long getMicrosecondPosition() {
+        return (long)(((double)(getFramePosition() * audioFormat.getFrameSize()) / audioFormat.getByteRate()) * 1_000_000);
+    }
+
+    /**
+     * Returns the current position in microseconds, taking into account the modified speed effect.
+     * The position is adjusted by the speed controller value, which affects playback speed.
+     * 
+     * @return The current position in microseconds, with speed modifications applied.
+     */
+    public long getModifiedMicrosecondPosition() {
+        return (long)(((double)(getFramePosition() * audioFormat.getFrameSize()) / speedEffect.getSpeedController().getValue() / audioFormat.getByteRate()) * 1_000_000);
+    }
+
+    /**
+     * Returns the total length of the audio in frames.
+     * The frame length is determined by dividing the total length in bytes by the frame size.
+     * 
+     * @return The total length of the audio in frames.
+     */
+    public long getFrameLength() {
+        return length / audioFormat.getFrameSize();
+    }
+
+    /**
+     * Returns the total length of the audio in microseconds.
+     * The calculation takes the length in bytes and divides it by the byte rate of the audio format.
+     * 
+     * @return The total length of the audio in microseconds.
+     */
+    public long getMicrosecondLength() {
+        return (long)((double)(length) / audioFormat.getByteRate() * 1_000_000);
+    }
+
+    /**
+     * Returns the total length of the audio in microseconds, with the modified speed effect applied.
+     * This method adjusts the length by the speed controller value.
+     * 
+     * @return The total length of the audio in microseconds, with speed modifications applied.
+     */
+    public long getModifiedMicrosecondLength() {
+        return (long)((double)(length) / speedEffect.getSpeedController().getValue() / audioFormat.getByteRate() * 1_000_000);
+    }
+
+    /**
+     * Returns the buffer size used for playback.
+     * 
+     * @return The buffer size in bytes.
+     */
+    public int getBufferSize() {
+        return bufferSize;
+    }
+
+    /**
+     * Returns the audio format used by this sound source.
+     * The audio format includes details such as sample rate, number of channels, and encoding.
+     * 
+     * @return The audio format.
+     */
+    public AudioFormat getAudioFormat() {
+        return audioFormat;
+    }
+
+    /**
+     * Returns whether the sound is currently playing.
+     * 
+     * @return True if the sound is playing, false otherwise.
+     */
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
+    /**
+     * Returns whether the sound source is open and ready for playback.
+     * 
+     * @return True if the sound source is open, false otherwise.
+     */
+    public boolean isOpen() {
+        return isOpen;
+    }
+
+    /**
      * Returns the output line for audio playback.
      * 
      * @return The {@link DataLine} representing the output line, or {@code null} if the sound source is not open.

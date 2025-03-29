@@ -10,6 +10,12 @@ import java.util.concurrent.TimeUnit;
 import org.theko.sound.event.DataLineEvent;
 import org.theko.sound.event.DataLineListener;
 
+/**
+ * Represents a data line for sending and receiving audio data.
+ * Supports blocking, forceful sending/receiving, and timeout-based operations.
+ * This class is used for managing audio data flow, and notifying listeners
+ * about various events like data sent, received, or timeouts.
+ */
 public class DataLine implements AutoCloseable {
     private final BlockingQueue<byte[]> queue;
     private final List<DataLineListener> listeners = new ArrayList<>();
@@ -19,175 +25,261 @@ public class DataLine implements AutoCloseable {
 
     private static final Cleaner cleaner = Cleaner.create(Thread.ofVirtual().factory());
 
-    /** Constructor with specified capacity */
+    /**
+     * Constructor with specified queue capacity.
+     * 
+     * @param audioFormat The audio format to be used for the data.
+     * @param capacity The capacity of the queue for storing data.
+     */
     public DataLine(AudioFormat audioFormat, int capacity) {
         this.queue = new LinkedBlockingQueue<>(capacity);
         this.audioFormat = audioFormat;
         closed = false;
-        cleaner.register(this, this::close);
+        cleaner.register(this, this::close);  // Register the cleaner to close this DataLine when no longer in use
     }
 
-    /** Default constructor with capacity of 1 */
+    /**
+     * Default constructor with a queue capacity of 1.
+     * 
+     * @param audioFormat The audio format to be used for the data.
+     */
     public DataLine(AudioFormat audioFormat) {
         this(audioFormat, 1);
     }
 
-    /** Puts data into the queue, blocking if necessary */
+    /**
+     * Puts data into the queue, blocking if necessary until space is available.
+     * 
+     * @param data The data to be sent.
+     * @throws InterruptedException if the thread is interrupted while waiting.
+     */
     public void send(byte[] data) throws InterruptedException {
-        if (closed) return;
-        cleanListeners();
-        queue.put(data);  // Blocking until space is available
-        notifySendListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));
+        if (closed) return;  // Don't send if closed
+        cleanListeners();  // Remove any null listeners before continuing
+        queue.put(data);  // Blocking call to add data to the queue
+        notifySendListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));  // Notify listeners about sent data
     }
 
-    /** Takes data from the queue, blocking if necessary */
+    /**
+     * Takes data from the queue, blocking if necessary until data is available.
+     * 
+     * @return The received data.
+     * @throws InterruptedException if the thread is interrupted while waiting.
+     */
     public byte[] receive() throws InterruptedException {
-        if (closed) return null;
-        byte[] data = queue.take();  // Blocking until data is available
+        if (closed) return null;  // Return null if closed
+        byte[] data = queue.take();  // Blocking call to take data from the queue
         if (data != null) {
-            notifyReceiveListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));
+            notifyReceiveListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));  // Notify listeners about received data
         }
         return data;
     }
 
-    /** Set the data in the queue, forcefully overwriting existing data */
+    /**
+     * Forcefully sends data, overwriting existing data in the queue if necessary.
+     * 
+     * @param data The data to be forcefully sent.
+     */
     public void forceSend(byte[] data) {
-        if (closed) return;
-        cleanListeners();
+        if (closed) return;  // Don't force send if closed
+        cleanListeners();  // Remove any null listeners before continuing
         if (queue.size() > 0) {
-            queue.poll();  // Discard the oldest data
+            queue.poll();  // Remove the oldest data if the queue is full
         }
         try {
-            queue.put(data);  // Add new data
-            notifySendListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));
+            queue.put(data);  // Add new data to the queue
+            notifySendListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));  // Notify listeners about sent data
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();  // Preserve interruption status
         }
     }
 
-    /** Get data from the queue, return an empty byte array if no data is available */
+    /**
+     * Forcefully receives data from the queue. Returns an empty byte array if no data is available.
+     * 
+     * @return The received data or an empty byte array if no data is available.
+     */
     public byte[] forceReceive() {
-        if (closed) return null;
+        if (closed) return null;  // Return null if closed
         byte[] data = queue.poll();  // Non-blocking attempt to get data
         if (data != null) {
-            notifyReceiveListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));
+            notifyReceiveListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));  // Notify listeners about received data
             return data;
         }
-        return new byte[0];  // Return empty array if no data
+        return new byte[0];  // Return empty array if no data is available
     }
 
-    /** Try to take data from the queue with a timeout */
+    /**
+     * Attempts to send data with a timeout. Returns whether the data was successfully sent.
+     * 
+     * @param data The data to be sent.
+     * @param timeout The maximum time to wait for space in the queue.
+     * @param unit The time unit for the timeout.
+     * @return True if the data was successfully sent, false otherwise.
+     * @throws InterruptedException if the thread is interrupted while waiting.
+     */
     public boolean sendWithTimeout(byte[] data, long timeout, TimeUnit unit) throws InterruptedException {
-        if (closed) return false;
-        cleanListeners();
-        // Пытаемся добавить данные в очередь с указанным тайм-аутом
-        boolean success = queue.offer(data, timeout, unit);
-    
+        if (closed) return false;  // Don't send if closed
+        cleanListeners();  // Remove any null listeners before continuing
+        boolean success = queue.offer(data, timeout, unit);  // Attempt to add data to the queue with timeout
+        
         if (success) {
-            notifySendListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));
+            notifySendListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));  // Notify listeners about sent data
         } else {
-            notifySendTimeoutListeners(new DataLineEvent(this, new AudioData(data, audioFormat), timeout, unit));
+            notifySendTimeoutListeners(new DataLineEvent(this, new AudioData(data, audioFormat), timeout, unit));  // Notify about timeout
         }
-    
+        
         return success;
     }
 
-    /** Try to take data from the queue with a timeout */
+    /**
+     * Attempts to receive data with a timeout. Returns either the data or an empty byte array if no data is received.
+     * 
+     * @param timeout The maximum time to wait for data.
+     * @param unit The time unit for the timeout.
+     * @return The received data or an empty byte array if no data is received.
+     * @throws InterruptedException if the thread is interrupted while waiting.
+     */
     public byte[] receiveWithTimeout(long timeout, TimeUnit unit) throws InterruptedException {
-        if (closed) return null;
+        if (closed) return null;  // Return null if closed
         byte[] data = queue.poll(timeout, unit);  // Non-blocking attempt with timeout
         if (data != null) {
-            notifyReceiveListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));
+            notifyReceiveListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));  // Notify listeners about received data
             return data;
         } else {
-            notifyReceiveTimeoutListeners(new DataLineEvent(this, null, timeout, unit));
+            notifyReceiveTimeoutListeners(new DataLineEvent(this, null, timeout, unit));  // Notify about timeout
             return new byte[0];
         }
     }
 
-    /** Check if the queue is empty */
+    /**
+     * Checks if the queue is empty.
+     * 
+     * @return True if the queue is empty, false otherwise.
+     */
     public boolean isEmpty() {
         return queue.isEmpty();
     }
 
-    /** Check the current size of the queue */
+    /**
+     * Returns the current size of the queue.
+     * 
+     * @return The size of the queue.
+     */
     public int size() {
         return queue.size();
     }
 
-    /** Clear the queue */
+    /**
+     * Clears all data from the queue.
+     */
     public void clear() {
         queue.clear();
     }
 
+    /**
+     * Returns the audio format associated with this data line.
+     * 
+     * @return The audio format.
+     */
     public AudioFormat getAudioFormat() {
         return audioFormat;
     }
 
-    /** Add a listener to receive notifications */
+    /**
+     * Adds a listener to be notified of events related to data sending and receiving.
+     * 
+     * @param listener The listener to be added.
+     */
     public void addDataLineListener(DataLineListener listener) {
-        cleanListeners();
+        cleanListeners();  // Remove any null listeners before adding
         this.listeners.add(listener);
     }
 
-    /** Remove a listener from receiving notifications */
+    /**
+     * Removes a listener from the list of listeners.
+     * 
+     * @param listener The listener to be removed.
+     */
     public void removeDataLineListener(DataLineListener listener) {
         listeners.removeIf(current -> {
-            return current == null || current.equals(listener);
+            return current == null || current.equals(listener);  // Remove null or matching listener
         });
     }
 
+    /**
+     * Closes the data line, cleaning up resources and clearing the queue and listeners.
+     */
     @Override
     public void close() {
         closed = true;
-        queue.clear();
-        listeners.clear();
+        queue.clear();  // Clear the queue when closing
+        listeners.clear();  // Remove all listeners when closing
     }
 
+    /**
+     * Cleans up null listeners from the listeners list.
+     */
     private void cleanListeners() {
-        listeners.removeIf(listener -> listener == null);
+        listeners.removeIf(listener -> listener == null);  // Remove null listeners
     }
 
-    /** Notify all listeners that data has been sent */
+    /**
+     * Notifies all listeners that data has been sent.
+     * 
+     * @param e The event containing information about the sent data.
+     */
     private void notifySendListeners(DataLineEvent e) {
         for (DataLineListener listener : listeners) {
             try {
-                if (listener != null) listener.onSend(e);
+                if (listener != null) listener.onSend(e);  // Notify each listener about sent data
             } catch (Exception ex) {
-                throw new RuntimeException(ex);
+                throw new RuntimeException(ex);  // Handle any listener exceptions
             }
         }
     }
 
-    /** Notify all listeners that data has been received */
+    /**
+     * Notifies all listeners that data has been received.
+     * 
+     * @param e The event containing information about the received data.
+     */
     private void notifyReceiveListeners(DataLineEvent e) {
         for (DataLineListener listener : listeners) {
             try {
-                if (listener != null) listener.onReceive(e);
+                if (listener != null) listener.onReceive(e);  // Notify each listener about received data
             } catch (Exception ex) {
-                throw new RuntimeException(ex);
+                throw new RuntimeException(ex);  // Handle any listener exceptions
             }
         }
     }
 
-    /** Notify all listeners that the send operation has timed out */
+    /**
+     * Notifies all listeners that the send operation has timed out.
+     * 
+     * @param e The event containing information about the send timeout.
+     */
     private void notifySendTimeoutListeners(DataLineEvent e) {
         for (DataLineListener listener : listeners) {
             try {
-                if (listener != null) listener.onSendTimeout(e);
+                if (listener != null) listener.onSendTimeout(e);  // Notify each listener about send timeout
             } catch (Exception ex) {
-                throw new RuntimeException(ex);
+                throw new RuntimeException(ex);  // Handle any listener exceptions
             }
         }
     }
 
-    /** Notify all listeners that the receive operation has timed out */
+    /**
+     * Notifies all listeners that the receive operation has timed out.
+     * 
+     * @param e The event containing information about the receive timeout.
+     */
     private void notifyReceiveTimeoutListeners(DataLineEvent e) {
         for (DataLineListener listener : listeners) {
             try {
-                if (listener != null) listener.onReceiveTimeout(e);
+                if (listener != null) listener.onReceiveTimeout(e);  // Notify each listener about receive timeout
             } catch (Exception ex) {
-                throw new RuntimeException(ex);
+                throw new RuntimeException(ex);  // Handle any listener exceptions
             }
         }
     }
