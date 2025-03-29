@@ -6,7 +6,42 @@
 
     <groupId>theko.sound</groupId>
     <artifactId>theko-sound</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>v1.0.0</version>
+
+    <name>Theko-Sound</name>
+    <description>НАПИШИ МЕНЯ</description>
+    <url>https://github.com/the-koro/theko-sound</url>
+
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>the-koro</id>
+            <name>Alex Soloviov</name>
+            <email>thekoroche@gmail.com</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/the-koro/theko-sound</url>
+        <connection>scm:git:git://github.com/the-koro/theko-sound.git</connection>
+        <developerConnection>scm:git:ssh://github.com/your-github-username/your-repo.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/your-github-username/your-repo/issues</url>
+    </issueManagement>
 
     <properties>
         <maven.compiler.source>14</maven.compiler.source>
@@ -20,4 +55,31 @@
             <version>0.10.2</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>licenses/**</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
