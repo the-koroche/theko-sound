@@ -29,6 +29,6 @@ public class FloatController extends AudioController {
 
     @Override
     public String toString() {
-        return String.format("FloatController {%s, %f.2}", name, value);
+        return String.format("AudioController {Name: %s, Value: %f.2, Min: %f.2, Max: %f.2}", name, value, min, max);
     }
 }
