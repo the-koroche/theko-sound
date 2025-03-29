@@ -27,9 +27,12 @@ public class SampleConverter {
             System.arraycopy(volumes, 0, appliedVolumes, 0, channels);
         }
 
-        for (int i = 0, offset = 0; i < samples[0].length; i++, offset += bytesPerSample * channels) {
+        ByteBuffer buffer = ByteBuffer.wrap(data).order(order);
+
+        for (int i = 0; i < samples[0].length; i++) {
             for (int channelIndex = 0; channelIndex < channels; channelIndex++) {
-                ByteBuffer buffer = ByteBuffer.wrap(data, offset + channelIndex * bytesPerSample, bytesPerSample).order(order);
+                int pos = i * bytesPerSample * channels + channelIndex * bytesPerSample;
+                buffer.position(pos);
                 float volume = appliedVolumes[channelIndex];
 
                 switch (audioFormat.getEncoding()) {
@@ -37,7 +40,7 @@ public class SampleConverter {
                         samples[channelIndex][i] = unsignedToFloat(buffer, bytesPerSample) * volume;
                         break;
                     case PCM_SIGNED:
-                        samples[channelIndex][i] = signedToFloat(buffer, bytesPerSample) * volume;
+                        samples[channelIndex][i] = signedToFloat(buffer, bytesPerSample) * volume * volume;
                         break;
                     case PCM_FLOAT:
                         samples[channelIndex][i] = buffer.getFloat() * volume;
