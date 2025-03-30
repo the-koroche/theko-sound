@@ -4,20 +4,32 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
+/**
+ * Utility class for converting audio samples between different formats.
+ * Supports conversion between PCM (signed, unsigned, float), ULAW, and ALAW.
+ */
 public class SampleConverter {
 
+    /**
+     * Converts raw byte data to normalized floating-point samples.
+     *
+     * @param data        The raw audio byte array.
+     * @param audioFormat The format of the audio data.
+     * @param volumes     Optional per-channel volume multipliers.
+     * @return A 2D float array where each row represents a channel.
+     * @throws IllegalArgumentException If volume array length is invalid.
+     */
     public static float[][] toSamples(byte[] data, AudioFormat audioFormat, float... volumes) {
         int bytesPerSample = audioFormat.getBytesPerSample();
         boolean isBigEndian = audioFormat.isBigEndian();
         int channels = audioFormat.getChannels();
 
-        float[][] samples = new float[channels][data.length / bytesPerSample / channels];
-        ByteOrder order = isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
-
+        // Validate volume multipliers
         if (volumes.length != 0 && volumes.length != 1 && volumes.length != channels) {
             throw new IllegalArgumentException("Volumes array must have 0, 1, or 'channels' elements.");
         }
 
+        // Apply volume multipliers
         float[] appliedVolumes = new float[channels];
         if (volumes.length == 0) {
             Arrays.fill(appliedVolumes, 1.0f);
@@ -27,8 +39,10 @@ public class SampleConverter {
             System.arraycopy(volumes, 0, appliedVolumes, 0, channels);
         }
 
-        ByteBuffer buffer = ByteBuffer.wrap(data).order(order);
+        float[][] samples = new float[channels][data.length / bytesPerSample / channels];
+        ByteBuffer buffer = ByteBuffer.wrap(data).order(isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
 
+        // Read audio data and convert to float samples
         for (int i = 0; i < samples[0].length; i++) {
             for (int channelIndex = 0; channelIndex < channels; channelIndex++) {
                 int pos = i * bytesPerSample * channels + channelIndex * bytesPerSample;
@@ -40,7 +54,7 @@ public class SampleConverter {
                         samples[channelIndex][i] = unsignedToFloat(buffer, bytesPerSample) * volume;
                         break;
                     case PCM_SIGNED:
-                        samples[channelIndex][i] = signedToFloat(buffer, bytesPerSample) * volume * volume;
+                        samples[channelIndex][i] = signedToFloat(buffer, bytesPerSample) * volume;
                         break;
                     case PCM_FLOAT:
                         samples[channelIndex][i] = buffer.getFloat() * volume;
@@ -59,16 +73,27 @@ public class SampleConverter {
         return samples;
     }
 
+    /**
+     * Converts floating-point samples to raw byte data.
+     *
+     * @param samples      A 2D float array of audio samples.
+     * @param targetFormat The target audio format.
+     * @param volumes      Optional per-channel volume multipliers.
+     * @return The encoded byte array.
+     * @throws IllegalArgumentException If volume array length is invalid.
+     */
     public static byte[] fromSamples(float[][] samples, AudioFormat targetFormat, float... volumes) {
         int bytesPerSample = targetFormat.getBytesPerSample();
         boolean isBigEndian = targetFormat.isBigEndian();
         byte[] data = new byte[samples[0].length * bytesPerSample * targetFormat.getChannels()];
         ByteOrder order = isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
 
+        // Validate volume multipliers
         if (volumes.length != 0 && volumes.length != 1 && volumes.length != targetFormat.getChannels()) {
             throw new IllegalArgumentException("Volumes array must have 0, 1, or 'channels' elements.");
         }
 
+        // Apply volume multipliers
         float[] appliedVolumes = new float[targetFormat.getChannels()];
         if (volumes.length == 0) {
             Arrays.fill(appliedVolumes, 1.0f);
@@ -78,6 +103,7 @@ public class SampleConverter {
             System.arraycopy(volumes, 0, appliedVolumes, 0, appliedVolumes.length);
         }
 
+        // Convert samples to bytes
         for (int i = 0, offset = 0; i < samples[0].length; i++, offset += bytesPerSample * targetFormat.getChannels()) {
             for (int channelIndex = 0; channelIndex < targetFormat.getChannels(); channelIndex++) {
                 ByteBuffer buffer = ByteBuffer.wrap(data, offset + channelIndex * bytesPerSample, bytesPerSample).order(order);
@@ -108,7 +134,6 @@ public class SampleConverter {
         return data;
     }
     
-    // Преобразование ULAW в плавающую точку
     private static float ulawToFloat(ByteBuffer buffer) {
         int ulawByte = buffer.get() & 0xFF;
         int sign = (ulawByte & 0x80) != 0 ? -1 : 1;
@@ -116,10 +141,9 @@ public class SampleConverter {
         int mantissa = ulawByte & 0x0F;
         int sample = (mantissa << (exponent + 3)) + (0x70 << exponent);
 
-        return Math.max(-1.0f, Math.min(1.0f, sign * sample / 32768.0f));  // Возвращаем нормализованное значение
+        return Math.max(-1.0f, Math.min(1.0f, sign * sample / 32768.0f));  // Return normalized value
     }
 
-    // Преобразование ALAW в плавающую точку
     private static float alawToFloat(ByteBuffer buffer) {
         int alawByte = buffer.get() & 0xFF;
         int sign = (alawByte & 0x80) != 0 ? -1 : 1;
@@ -127,13 +151,12 @@ public class SampleConverter {
         int mantissa = alawByte & 0x0F;
         int sample = (mantissa << (exponent + 3)) + (0x70 << exponent);
 
-        return Math.max(-1.0f, Math.min(1.0f, sign * sample / 32768.0f));  // Возвращаем нормализованное значение
+        return Math.max(-1.0f, Math.min(1.0f, sign * sample / 32768.0f));  // Return normalized value
     }
 
-    // Преобразование плавающей точки в ULAW
     private static void floatToUlaw(ByteBuffer buffer, float sample) {
-        sample = Math.max(-1.0f, Math.min(1.0f, sample));  // Ограничение в пределах [-1, 1]
-        sample *= 32768.0f;  // Масштабируем в диапазон
+        sample = Math.max(-1.0f, Math.min(1.0f, sample));
+        sample *= 32768.0f;
 
         int sign = sample < 0 ? 0x80 : 0x00;
         sample = Math.abs(sample);
@@ -145,13 +168,12 @@ public class SampleConverter {
         }
 
         int mantissa = (int) (sample / 2) & 0x0F;
-        buffer.put((byte) (sign | (exponent << 4) | mantissa));  // Записываем ULAW байт
+        buffer.put((byte) (sign | (exponent << 4) | mantissa));
     }
 
-    // Преобразование плавающей точки в ALAW
     private static void floatToAlaw(ByteBuffer buffer, float sample) {
-        sample = Math.max(-1.0f, Math.min(1.0f, sample));  // Ограничение в пределах [-1, 1]
-        sample *= 32768.0f;  // Масштабируем в диапазон
+        sample = Math.max(-1.0f, Math.min(1.0f, sample));
+        sample *= 32768.0f;
 
         int sign = sample < 0 ? 0x80 : 0x00;
         sample = Math.abs(sample);
@@ -163,7 +185,7 @@ public class SampleConverter {
         }
 
         int mantissa = (int) (sample / 2) & 0x0F;
-        buffer.put((byte) (sign | (exponent << 4) | mantissa));  // Записываем ALAW байт
+        buffer.put((byte) (sign | (exponent << 4) | mantissa));
     }
 
     private static float unsignedToFloat(ByteBuffer buffer, int bytesPerSample) {
@@ -219,19 +241,16 @@ public class SampleConverter {
     }
 
     private static void floatToSigned(ByteBuffer buffer, float sample, int bytesPerSample) {
-        // Нормализация в диапазоне [-1.0, 1.0]
         sample = Math.max(-1.0f, Math.min(1.0f, sample));
         
-        // Вычисляем максимальное значение в зависимости от разрядности
-        long max = (1L << (bytesPerSample * 8 - 1)) - 1; // 32767 для 16 бит
-        long min = -(1L << (bytesPerSample * 8 - 1));   // -32768 для 16 бит
+        // Calculate max value based on sample size
+        long max = (1L << (bytesPerSample * 8 - 1)) - 1; // 32767 for 16 бит
+        long min = -(1L << (bytesPerSample * 8 - 1));   // -32768 for 16 бит
     
-        // Масштабирование с учетом смещения для отрицательных значений
         long value = Math.round(sample * max);
         if (value > max) value = max;
         if (value < min) value = min;
     
-        // Запись в буфер с учетом порядка байтов
         if (buffer.order() == ByteOrder.BIG_ENDIAN) {
             for (int i = bytesPerSample - 1; i >= 0; i--) {
                 buffer.put((byte) ((value >> (i * 8)) & 0xFF));
@@ -242,6 +261,4 @@ public class SampleConverter {
             }
         }
     }
-    
-    
 }
