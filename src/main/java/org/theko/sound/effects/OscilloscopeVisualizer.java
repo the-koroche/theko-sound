@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class OscilloscopeVisualizer extends VisualAudioEffect {
+    protected OscilloscopePanel oscilloscopePanel;
     protected List<Color> waveColors;  // List to store colors for each channel
     protected Color backgroundColor = Color.BLACK;
 
@@ -21,13 +22,8 @@ public class OscilloscopeVisualizer extends VisualAudioEffect {
     }
 
     @Override
-    public void initializeFrame() {
-        frame = new JFrame("Oscilloscope Visualizer");
-
-        frame.setSize(600, 300); // Set size for oscilloscope
-        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        frame.add(new OscilloscopePanel());
-        SwingUtilities.invokeLater(() -> frame.setVisible(true));
+    public void initializePanel() {
+        SwingUtilities.invokeLater(() -> oscilloscopePanel.setVisible(true));
     }
 
     public void setWaveColors(List<Color> waveColors) {
@@ -40,9 +36,7 @@ public class OscilloscopeVisualizer extends VisualAudioEffect {
 
     @Override
     public void repaint() {
-        // This method should be called to update the oscilloscope
-        // Update the samples to be displayed
-        SwingUtilities.invokeLater(() -> frame.repaint());
+        SwingUtilities.invokeLater(() -> oscilloscopePanel.repaint());
     }
 
     @Override
@@ -100,5 +94,10 @@ public class OscilloscopeVisualizer extends VisualAudioEffect {
                 default: return Color.CYAN;
             }
         }
+    }
+
+    @Override
+    public JPanel getPanel() {
+        return oscilloscopePanel;
     }
 }
