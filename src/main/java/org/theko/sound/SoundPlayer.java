@@ -116,7 +116,7 @@ public class SoundPlayer extends SoundSource {
         if (!isOpen) {
             return -1;  // Return -1 if the sound source is not open
         }
-        // Calculate the frame position based on played buffer, available samples, and the offset
+        // Calculate the frame position based on played buffer, available bytes, and the offset
         return (bufferSize * played + aol.available() + offset) / audioFormat.getFrameSize();
     }
 
