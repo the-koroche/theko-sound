@@ -70,26 +70,4 @@ public class FFT {
         arr[i] = arr[j];
         arr[j] = temp;
     }
-
-    public static void main(String[] args) {
-        int N = 32768;
-        float[] real = new float[N];
-        float[] imag = new float[N];
-
-        // Тестовый сигнал
-        for (int i = 0; i < N; i++) {
-            real[i] = (float) Math.sin(2 * Math.PI * i / N);
-        }
-
-        long start = System.nanoTime();
-        fft(real, imag);
-        long fftTime = System.nanoTime() - start;
-
-        start = System.nanoTime();
-        ifft(real, imag);
-        long ifftTime = System.nanoTime() - start;
-
-        System.out.println("FFT: " + (fftTime / 1_000_000.0) + " ms");
-        System.out.println("IFFT: " + (ifftTime / 1_000_000.0) + " ms");
-    }
 }
