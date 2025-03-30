@@ -1,0 +1,8 @@
+NOTICE
+
+This project includes the following third-party library:
+
+- Reflections (org.reflections)  
+  Licensed under the Apache License, Version 2.0  
+  License URL: https://www.apache.org/licenses/LICENSE-2.0.txt  
+  Copyright 2010-2025 Reflections Authors
