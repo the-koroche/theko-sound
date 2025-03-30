@@ -2,6 +2,7 @@ package org.theko.sound.effects;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -15,25 +16,61 @@ public class SpectrogramVisualizer extends VisualAudioEffect {
     private float[] imag;
     private float[] magnitudes;
 
-    private SpectrogramPanel spectrogramPanel;
-    private BufferedImage spectrogramImage;
-    private Timer resizeTimer;
+    protected SpectrogramPanel spectrogramPanel;
+    protected BufferedImage spectrogramImage;
+    protected Timer resizeTimer;
+
+    protected SpectrogramColor spectrogramColor;
+    protected Orientation orientation = Orientation.RIGHT;
+    protected boolean reverse = true;
+
+    public enum Orientation {
+        TOP, BOTTOM, LEFT, RIGHT
+    }
 
     public SpectrogramVisualizer(AudioFormat audioFormat) {
         super(Type.REALTIME, audioFormat);
         this.real = new float[fftSize];
         this.imag = new float[fftSize];
         this.magnitudes = new float[fftSize / 2];
+        this.spectrogramColor = new SpectrogramColor() {
+            public Color getColor(float magnitude, float frequency) {
+                // Нормализуем magnitude в диапазон 0..1
+                float value = Math.min(1.0f, Math.max(0.0f, magnitude));
+                
+                // Палитра: черный -> темно-синий -> фиолетовый -> розовый -> белый
+                float r, g, b;
+                
+                if (value < 0.25f) {
+                    // Черный -> Темно-синий
+                    r = 0.0f;
+                    g = 0.0f;
+                    b = value * 4.0f;
+                } else if (value < 0.5f) {
+                    // Темно-синий -> Фиолетовый
+                    r = (value - 0.25f) * 4.0f;
+                    g = 0.0f;
+                    b = 1.0f;
+                } else if (value < 0.75f) {
+                    // Фиолетовый -> Розовый
+                    r = 1.0f;
+                    g = 0.0f;
+                    b = 1.0f - (value - 0.5f) * 4.0f;
+                } else {
+                    // Розовый -> Белый
+                    r = 1.0f;
+                    g = (value - 0.75f) * 4.0f;
+                    b = 1.0f;
+                }
+                
+                return new Color(r, g, b);
+            }
+        };
     }
 
     @Override
-    public void initializeFrame() {
-        frame = new JFrame("Spectrogram Visualizer");
-        frame.setSize(600, 300);
-        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        
+    public void initializePanel() {
         spectrogramPanel = new SpectrogramPanel();
-        frame.add(spectrogramPanel);
         
         resizeTimer = new Timer(true);
         resizeTimer.scheduleAtFixedRate(new TimerTask() {
@@ -42,8 +79,8 @@ public class SpectrogramVisualizer extends VisualAudioEffect {
 
             @Override
             public void run() {
-                int newWidth = Math.max(1, frame.getWidth());
-                int newHeight = Math.max(1, frame.getHeight());
+                int newWidth = Math.max(1, spectrogramPanel.getWidth());
+                int newHeight = Math.max(1, spectrogramPanel.getHeight());
                 if (newWidth != lastWidth || newHeight != lastHeight) {
                     lastWidth = newWidth;
                     lastHeight = newHeight;
@@ -52,7 +89,7 @@ public class SpectrogramVisualizer extends VisualAudioEffect {
             }
         }, 0, 500);
         
-        SwingUtilities.invokeLater(() -> frame.setVisible(true));
+        SwingUtilities.invokeLater(() -> spectrogramPanel.setVisible(true));
     }
 
     private void updateSpectrogramSize(int width, int height) {
@@ -83,7 +120,7 @@ public class SpectrogramVisualizer extends VisualAudioEffect {
     
             for (int i = 0; i < fftSize / 2; i++) {
                 float amplitude = (float) Math.sqrt(real[i] * real[i] + imag[i] * imag[i]);
-                magnitudes[i] = (float) (Math.log(amplitude + 1e-6) * 0.3);
+                magnitudes[i] = (float) (Math.log(amplitude + 1e-6) * 0.25);
             }
     
             updateSpectrogramImage();
@@ -97,15 +134,21 @@ public class SpectrogramVisualizer extends VisualAudioEffect {
         }
     
         Graphics2D g2d = spectrogramImage.createGraphics();
+    
+        boolean isHorz = orientation == Orientation.LEFT || orientation == Orientation.RIGHT;
+        boolean isVert = orientation == Orientation.TOP || orientation == Orientation.BOTTOM;
+    
         int width = spectrogramImage.getWidth();
         int height = spectrogramImage.getHeight();
     
-        BufferedImage currentLine = new BufferedImage(width, 1, BufferedImage.TYPE_INT_ARGB);
-        int[] pixels = new int[width];
+        int targetAxis = (isVert ? width : height); // Используем ширину для вертикальной ориентации, высоту для горизонтальной
+    
+        // Массив пикселей, его длина зависит от targetAxis
+        int[] pixels = new int[targetAxis];
         int maxBinIndex = fftSize / 2 - 1;
     
-        for (int x = 0; x < width; x++) {
-            double logPos = (double) x / (width - 1) * Math.log(maxBinIndex + 1);
+        for (int x = 0; x < targetAxis; x++) {
+            double logPos = (double) x / (targetAxis - 1) * Math.log(maxBinIndex + 1);
             double binPos = Math.exp(logPos) - 1;
     
             int binLow = (int) Math.floor(binPos);
@@ -118,18 +161,46 @@ public class SpectrogramVisualizer extends VisualAudioEffect {
             float magnitude = (binLow == binHigh) ? magnitudes[binLow] :
                     (1 - alpha) * magnitudes[binLow] + alpha * magnitudes[binHigh];
     
-            int colorValue = (int) (Math.max(0, Math.min(255, magnitude * 255)));
-            Color color = new Color(colorValue, colorValue / 2, 255 - colorValue);
-            pixels[x] = color.getRGB();
+            Color color = spectrogramColor.getColor(magnitude, ((float)(x) / targetAxis) * 22000);
+            if (reverse) {
+                pixels[targetAxis-x-1] = color.getRGB();
+            } else {
+                pixels[x] = color.getRGB();
+            }
         }
     
-        currentLine.setRGB(0, 0, width, 1, pixels, 0, width);
+        // Создаём новое изображение с учетом ориентации
+        BufferedImage currentLine = new BufferedImage(isHorz ? 1 : width, isVert ? 1 : height, BufferedImage.TYPE_INT_ARGB);
     
-        g2d.drawImage(spectrogramImage, 0, -1, width, height, null);
-        g2d.drawImage(currentLine, 0, height - 1, null);
+        if (isVert) {
+            currentLine.setRGB(0, 0, width, 1, pixels, 0, width); // Вертикальная ориентация
+        } else {
+            currentLine.setRGB(0, 0, 1, height, pixels, 0, 1); // Горизонтальная ориентация
+        }
+    
+        // Обновляем изображение в зависимости от ориентации
+        switch (orientation) {
+            case BOTTOM:
+                g2d.copyArea(0, 0, width, height, 0, -1);
+                g2d.drawImage(currentLine, 0, height - 1, null);
+                break;
+            case TOP:
+                g2d.copyArea(0, 0, width, height, 0, 1);
+                g2d.drawImage(currentLine, 0, 0, null);
+                break;
+            case RIGHT:
+                g2d.copyArea(0, 0, width, height, -1, 0);
+                g2d.drawImage(currentLine, width - 1, 0, null);
+                break;
+            case LEFT:
+                g2d.copyArea(0, 0, width, height, 1, 0);
+                g2d.drawImage(currentLine, 0, 0, null);
+                break;
+        }
     
         g2d.dispose();
     }
+    
 
     private class SpectrogramPanel extends JPanel {
         @Override
@@ -139,5 +210,14 @@ public class SpectrogramVisualizer extends VisualAudioEffect {
                 g.drawImage(spectrogramImage, 0, 0, getWidth(), getHeight(), null);
             }
         }
+    }
+
+    @Override
+    public JPanel getPanel() {
+        return spectrogramPanel;
+    }
+
+    public interface SpectrogramColor {
+        Color getColor(float magnitude, float frequency);
     }
 }
