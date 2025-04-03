@@ -1,6 +1,8 @@
 package org.theko.sound.fft;
 
 public class FFT {
+    private FFT () {
+    }
 
     // Прямое быстрое преобразование Фурье (FFT)
     public static void fft(float[] real, float[] imag) {
