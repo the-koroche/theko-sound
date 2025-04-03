@@ -79,8 +79,7 @@ public class JavaSoundDevice implements AudioDevice {
 
     @Override
     public AudioInputDevice getInputDevice() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getInputDevice'");
+        return new JavaSoundInput();
     }
 
     @Override
