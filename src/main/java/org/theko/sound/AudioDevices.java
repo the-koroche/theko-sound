@@ -11,9 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.reflections.Reflections;
-import org.reflections.ReflectionsException;
-import org.reflections.scanners.Scanners;
-import org.reflections.util.ConfigurationBuilder;
 import org.theko.sound.direct.AudioDevice;
 import org.theko.sound.direct.AudioDeviceInfo;
 import org.theko.sound.direct.AudioDeviceType;
@@ -38,19 +35,7 @@ public class AudioDevices {
      */
     private static void registerDevices() {
         // Attempt to scan all available packages for audio devices.
-        Reflections reflections = null;
-        try {
-            reflections = new Reflections(new ConfigurationBuilder()
-                    .forPackages("") // Scan all packages.
-                    .addScanners(Scanners.SubTypes) // Look for subtypes of AudioDevice.
-            );
-        } catch (ReflectionsException ex) {
-            ex.printStackTrace();
-            reflections = new Reflections(new ConfigurationBuilder()
-                .forPackages("org.theko.sound") // Fallback: scan only predefined classes.
-                .addScanners(Scanners.SubTypes)
-            );
-        }
+        Reflections reflections = AudioClassLoader.getReflections();
         audioDevices.clear();
         Set<Class<? extends AudioDevice>> allAudioDevices = reflections.getSubTypesOf(AudioDevice.class);
 
