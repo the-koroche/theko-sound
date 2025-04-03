@@ -9,7 +9,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 import org.theko.sound.control.FloatController;
-import org.theko.sound.effects.VisualAudioEffect;
 import org.theko.sound.event.DataLineAdapter;
 import org.theko.sound.event.DataLineEvent;
 
@@ -108,17 +107,6 @@ public class AudioMixer implements AutoCloseable {
             throw new UnsupportedAudioEffectException("Only AudioEffect.Type.REALTIME is supported to use in mixer.");
         }
         effects.add(effect);
-    }
-
-    /**
-     * Deprecated method to add a visual audio effect. This method is kept for compatibility.
-     * 
-     * @param effect The visual audio effect to add.
-     * @throws UnsupportedAudioEffectException If the effect type is not supported.
-     */
-    @Deprecated
-    public void addEffect(VisualAudioEffect effect) throws UnsupportedAudioEffectException {
-        addEffect(effect);
     }
 
     /**
@@ -272,17 +260,25 @@ public class AudioMixer implements AutoCloseable {
     /**
      * Applies all added effects to the audio sample sequentially.
      * 
-     * @param sample The audio sample to process.
+     * @param samples The audio samples to process.
      * @return The processed audio sample.
      */
-    private float[][] applyEffects(float[][] sample) {
+    private float[][] applyEffects(float[][] samples) {
         // Process effects one by one
         for (AudioEffect effect : effects) {
             if (effect != null) {
-                sample = effect.process(sample);
+                samples = effect.process(samples);
             }
         }
-        return sample;
+        return samples;
+    }
+
+    public void performProcess() {
+        try {
+            process();
+        } catch (InterruptedException e) {
+            throw new MixingException(e);
+        }
     }
 
     /**
