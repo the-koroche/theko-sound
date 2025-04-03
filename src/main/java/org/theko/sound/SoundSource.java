@@ -35,6 +35,9 @@ public class SoundSource implements AutoCloseable {
     protected int offset;
     protected long length;
 
+    protected int loop;
+    protected int loopCount;
+
     private DataLine mixerIn, audioOut;
     protected boolean pendingFrameSeek = false;
     
@@ -53,6 +56,12 @@ public class SoundSource implements AutoCloseable {
     public static final int BUFFER_SIZE_512MS = -14;
     public static final int BUFFER_SIZE_1024MS = -15;
     public static final int BUFFER_SIZE_2048MS = -16;
+
+    public static final int NO_LOOP = 0;
+    public static final int LOOP_CONTINUOUSLY = -1;
+
+    // Time-out values
+    protected static final int SEND_TIMEOUT = 500; // ms
 
     /**
      * Constructor for SoundSource. Increments soundInstances counter.
@@ -182,6 +191,9 @@ public class SoundSource implements AutoCloseable {
 
         isOpen = true;
         isPlaying = false;
+        
+        loop = 0;
+        loopCount = NO_LOOP;
     }
 
     /**
@@ -245,14 +257,25 @@ public class SoundSource implements AutoCloseable {
                     continue;
                 }
                 if (offset <= 0) {
-                    mixerIn.sendWithTimeout(audioData[played], 500, TimeUnit.MILLISECONDS); // Send data to mixer
+                    mixerIn.sendWithTimeout(audioData[played], SEND_TIMEOUT, TimeUnit.MILLISECONDS); // Send data to mixer
                 } else {
                     byte[] audioData = new byte[bufferSize - offset];
                     System.arraycopy(this.audioData[played], offset, audioData, 0, audioData.length); // Handle offset
                     offset = 0;
-                    mixerIn.sendWithTimeout(audioData, 500, TimeUnit.MILLISECONDS);
+                    mixerIn.sendWithTimeout(audioData, SEND_TIMEOUT, TimeUnit.MILLISECONDS);
                 }
                 played++;
+                if (played >= audioData.length - 1) {
+                    switch (loopCount) {
+                        case NO_LOOP: /* no action */ break;
+                        case LOOP_CONTINUOUSLY: played = 0; break;
+                        default:
+                            if (loop < loopCount) {
+                                loop++;
+                                played = 0;
+                            }
+                    }
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (Exception e) {
@@ -270,10 +293,17 @@ public class SoundSource implements AutoCloseable {
      * Adds an audio effect to the sound source.
      *
      * @param effect The effect to add.
-     * @throws UnsupportedAudioEffectException if the effect is unsupported.
+     * @throws UnsupportedAudioEffectException if the effect type is not supported.
      */
     public void addEffect(AudioEffect effect) throws UnsupportedAudioEffectException {
         mixer.addEffect(effect);
+    }
+
+    public void setLoop(int loopCount) {
+        this.loopCount = loopCount;
+        if (loop > loopCount) {
+            loop = 0;
+        }
     }
 
     /**
