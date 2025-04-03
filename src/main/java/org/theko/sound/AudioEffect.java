@@ -10,7 +10,7 @@ public abstract class AudioEffect {
     public enum Type {
         /** Effect applied in real-time during playback. */
         REALTIME,
-        /** Effect applied as a post-processing step. */
+        /** Effect applied as a long time step. */
         OFFLINE_PROCESSING
     }
 
@@ -40,11 +40,29 @@ public abstract class AudioEffect {
     public abstract float[][] process(float[][] samples);
 
     /**
+     * Gets the audio format of this audio effect.
+     *
+     * @return The audio format of the audio effect.
+     */
+    public AudioFormat getAudioFormat() {
+        return audioFormat;
+    }
+
+    /**
      * Gets the type of this audio effect.
      *
      * @return The type of the audio effect.
      */
     public Type getType() {
         return type;
+    }
+
+    /**
+     * Does this audio effect is realtime.
+     *
+     * @return Is it realtime (true), or offline-processing (false).
+     */
+    public boolean isRealTime() {
+        return type == AudioEffect.Type.REALTIME;
     }
 }
