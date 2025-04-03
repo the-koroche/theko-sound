@@ -7,16 +7,13 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.reflections.Reflections;
-import org.reflections.ReflectionsException;
-import org.reflections.scanners.Scanners;
-import org.reflections.util.ConfigurationBuilder;
+import org.theko.sound.AudioClassLoader;
 
 public class AudioCodecs {
     private AudioCodecs() { }
 
     // A collection to hold all registered audio codecs
     private static final Collection<AudioCodecInfo> audioCodecs = Collections.synchronizedSet(new LinkedHashSet<>());
-
 
     static {
         registerCodecs();
@@ -27,19 +24,7 @@ public class AudioCodecs {
      */
     private static void registerCodecs() {
         // Use Reflections to find all classes implementing AudioCodec
-        Reflections reflections = null;
-        try {
-            reflections = new Reflections(new ConfigurationBuilder()
-                    .forPackages("") // Сканировать всё
-                    .addScanners(Scanners.SubTypes) // Искать подтипы
-            );
-        } catch (ReflectionsException ex) {
-            ex.printStackTrace();
-            reflections = new Reflections(new ConfigurationBuilder()
-                .forPackages("org.theko.sound.codec.formats") // Сканировать только установленные классы (пропустить пользовательские)
-                .addScanners(Scanners.SubTypes) // Искать подтипы
-            );
-        }
+        Reflections reflections = AudioClassLoader.getReflections();
         audioCodecs.clear();
         Set<Class<? extends AudioCodec>> allAudioCodecs = reflections.getSubTypesOf(AudioCodec.class);
 
