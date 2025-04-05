@@ -44,7 +44,7 @@ public class JavaSoundOutput extends JavaSoundDevice implements AudioOutputDevic
 
     @Override
     public void open(AudioPort port, AudioFormat audioFormat) throws AudioDeviceException {
-        open(port, audioFormat, audioFormat.getByteRate());
+        open(port, audioFormat, audioFormat.getByteRate() / 5);
     }
 
     @Override
