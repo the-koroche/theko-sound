@@ -34,13 +34,13 @@
     <scm>
         <url>https://github.com/the-koro/theko-sound</url>
         <connection>scm:git:git://github.com/the-koro/theko-sound.git</connection>
-        <developerConnection>scm:git:ssh://github.com/your-github-username/your-repo.git</developerConnection>
+        <developerConnection>scm:git:git://github.com/the-koro/theko-sound.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/your-github-username/your-repo/issues</url>
+        <url>scm:git:git://github.com/the-koro/theko-sound/issues</url>
     </issueManagement>
 
     <properties>
