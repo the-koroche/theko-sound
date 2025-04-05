@@ -13,7 +13,7 @@ public interface AudioDevice {
     default void initialize() throws AudioDeviceException { };
     Collection<AudioPort> getAllPorts();
     Collection<AudioPort> getAvailablePorts(AudioFlow flow, AudioFormat audioFormat) throws AudioPortsNotFoundException, UnsupportedAudioFormatException;
-    boolean isPortSupporting(AudioPort port, AudioFormat audioFormat) throws AudioPortsNotFoundException, UnsupportedAudioFormatException;
+    boolean isPortSupporting(AudioPort port, AudioFormat audioFormat);
     Optional<AudioPort> getDefaultPort(AudioFlow flow, AudioFormat audioFormat) throws AudioPortsNotFoundException, UnsupportedAudioFormatException;
 
     AudioInputDevice getInputDevice();
