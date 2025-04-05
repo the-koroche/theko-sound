@@ -60,7 +60,8 @@ public class JavaSoundDevice implements AudioDevice {
     }
 
     @Override
-    public boolean isPortSupporting(AudioPort port, AudioFormat audioFormat) throws UnsupportedAudioFormatException {
+    public boolean isPortSupporting(AudioPort port, AudioFormat audioFormat) {
+        try {
         Mixer mixer = getMixerForPort(port);
         if (mixer == null) return false;
 
@@ -69,6 +70,9 @@ public class JavaSoundDevice implements AudioDevice {
                 new DataLine.Info(TargetDataLine.class, getJavaAudioFormat(audioFormat));
 
         return mixer.isLineSupported(lineInfo);
+        } catch (UnsupportedAudioFormatException ex) {
+            return false;
+        }
     }
 
     @Override
