@@ -1,19 +1,10 @@
 import java.awt.FileDialog;
 import java.awt.Frame;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
 
 import org.theko.sound.*;
 import org.theko.sound.codec.*;
-import org.theko.sound.codec.formats.ZWAVCodec;
-import org.theko.sound.direct.AudioDeviceException;
-import org.theko.sound.direct.javasound.JavaSoundOutput;
-import org.theko.sound.effects.InvertEffect;
-import org.theko.sound.effects.OscilloscopeVisualizerEffect;
-import org.theko.sound.effects.ReverbEffect;
-
+import org.theko.sound.effects.SpeedChangeEffect;
 public class Test {
     public static void main(String[] args) throws Exception {
 
@@ -25,18 +16,13 @@ public class Test {
         }
 
         // Decoding file
-        AudioDecodeResult r = AudioCodecs.fromName("WAVE").getCodecClass().newInstance().decode(new FileInputStream(filepath));
+        AudioCodec codec = AudioCodecs.getCodec(AudioCodecs.fromExtension(getFileExtension(filepath)));
+        AudioDecodeResult r = codec.decode(new FileInputStream(filepath));
         // print audio file info
-        System.out.println(r);
+        System.out.println(r.getInfo());
 
         byte[] data = r.getBytes();
         AudioFormat format = r.getAudioFormat();
-
-        float[][] s = SampleConverter.toSamples(data, format);
-        AudioFormat target = new AudioFormat(format.getSampleRate(), 8, format.getChannels(), AudioFormat.Encoding.ULAW, false);
-        data = SampleConverter.fromSamples(s, target);
-        s = SampleConverter.toSamples(data, target);
-        data = SampleConverter.fromSamples(s, format);
 
               // Create output line
         try (AudioOutputLine aol = new AudioOutputLine()) {
@@ -54,9 +40,13 @@ public class Test {
             DataLine out = new DataLine(format);
 
             // creating mixer
-            AudioMixer mixer = new AudioMixer(AudioMixer.Mode.EVENT);
+            AudioMixer mixer = new AudioMixer(AudioMixer.Mode.EVENT, format);
             mixer.addInput(in);
             mixer.addOutput(out);
+
+            SpeedChangeEffect spe = new SpeedChangeEffect(format);
+            spe.getSpeedController().setValue(0.9f);
+            mixer.addEffect(spe);
             
             ///mixer.addEffect(new ReverbEffect(format));
             //OscilloscopeVisualizerEffect effect = new OscilloscopeVisualizerEffect(format);
@@ -68,7 +58,6 @@ public class Test {
             // set out from mixer as input to aol
             aol.setInput(out);
             int i = 0;
-            Holder<Integer> h = new Holder<>(0);
 
             /*new Thread(() -> {
                 while (h.value < buffers.length) {
@@ -76,7 +65,7 @@ public class Test {
                 }
             }).start();*/
 
-            mixer.getPreGain().setValue(0.001f);
+            mixer.getPreGainController().setValue(1f);
 
             //in.send(data);
             while (!Thread.currentThread().isInterrupted() && i < buffers.length) {
@@ -84,7 +73,6 @@ public class Test {
                     // send data to 'in' line.
                     System.out.print(i + ", ");
                     in.send(buffers[i]);
-                    h.value = i;
                     //effect.process(buffers[Math.max(0, i)]);
                     //System.out.println("UD");
                     //Thread.sleep(16);
@@ -95,6 +83,7 @@ public class Test {
             }
 
             System.out.println("\nPlayback completed.");
+            mixer.close();
         }
     }
 
@@ -112,20 +101,11 @@ public class Test {
         return path;
     }
     
-    public static class Holder<T> {
-        private T value; // хранимый объект
-    
-        public Holder(T value) {
-            this.value = value;
+    private static String getFileExtension(String filepath) {
+        int index = filepath.lastIndexOf(".");
+        if (index > 0) {
+            return filepath.substring(index + 1);
         }
-    
-        public T get() {
-            return value;
-        }
-    
-        public void set(T value) {
-            this.value = value;
-        }
+        return ""; // Return empty string if no extension
     }
-    
 }
