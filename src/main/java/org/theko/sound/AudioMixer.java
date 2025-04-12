@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
+import org.theko.sound.control.AudioController;
 import org.theko.sound.control.FloatController;
 import org.theko.sound.event.DataLineAdapter;
 import org.theko.sound.event.DataLineEvent;
@@ -33,9 +34,9 @@ public class AudioMixer implements AutoCloseable {
 
     private final Map<DataLine, DataLineAdapter> inputListeners = new ConcurrentHashMap<>(); // Listeners for input data lines
 
-    protected final FloatController preGain;  // Pre-gain control
-    protected final FloatController postGain; // Post-gain control
-    protected final FloatController pan; // Pan control for stereo balance
+    protected final FloatController preGainController;  // Pre-gain control
+    protected final FloatController postGainController; // Post-gain control
+    protected final FloatController panController; // Pan control for stereo balance
 
     private static final Cleaner cleaner = Cleaner.create(Thread.ofVirtual().factory()); // Virtual thread cleaner for resource management
 
@@ -55,9 +56,9 @@ public class AudioMixer implements AutoCloseable {
         mixerThread = (mixerMode == Mode.THREAD) ? new Thread(this::processLoop, "AudioMixer") : null;
         if (mixerThread != null) mixerThread.start();
 
-        this.preGain = new FloatController("PRE-GAIN", 0.0f, 1.0f, 1.0f);
-        this.postGain = new FloatController("POST-GAIN", 0.0f, 1.0f, 1.0f);
-        this.pan = new FloatController("PAN", -1.0f, 1.0f, 0.0f);
+        this.preGainController = new FloatController("Pre-Gain", 0.0f, 1.0f, 1.0f);
+        this.postGainController = new FloatController("Post-Gain", 0.0f, 1.0f, 1.0f);
+        this.panController = new FloatController("Pan", -1.0f, 1.0f, 0.0f);
 
         // Register a cleaner to shut down the mixer when it's no longer needed
         cleaner.register(this, this::shutdown);
@@ -142,13 +143,25 @@ public class AudioMixer implements AutoCloseable {
         effects.remove(effect);
     }
 
+    public List<DataLine> getInputs() {
+        return inputs;
+    }
+
+    public List<DataLine> getOutputs() {
+        return outputs;
+    }
+
+    public List<AudioEffect> getEffects() {
+        return effects;
+    }
+
     /**
      * Gets the pre-gain controller for adjusting the gain before processing.
      * 
      * @return The pre-gain controller.
      */
     public FloatController getPreGainController() {
-        return preGain;
+        return preGainController;
     }
 
     /**
@@ -157,7 +170,7 @@ public class AudioMixer implements AutoCloseable {
      * @return The post-gain controller.
      */
     public FloatController getPostGainController() {
-        return postGain;
+        return postGainController;
     }
 
     /**
@@ -166,7 +179,11 @@ public class AudioMixer implements AutoCloseable {
      * @return The pan controller.
      */
     public FloatController getPanController() {
-        return pan;
+        return panController;
+    }
+
+    public AudioController[] getAllControllers() {
+        return new AudioController[] {preGainController, postGainController, panController};
     }
 
     /**
@@ -222,7 +239,7 @@ public class AudioMixer implements AutoCloseable {
             if (samples[k] == null) continue;
             for (int ch = 0; ch < Math.min(channels, samples[k].length); ch++) {
                 for (int j = 0; j < samples[k][ch].length; j++) {
-                    mixed[ch][j] += samples[k][ch][j] * preGain.getValue();
+                    mixed[ch][j] += samples[k][ch][j] * preGainController.getValue();
                 }
             }
         }
@@ -235,16 +252,16 @@ public class AudioMixer implements AutoCloseable {
         // Calculate left and right volume based on pan control
         float leftVol = 1.0f;
         float rightVol = 1.0f;
-        if (pan.getValue() < 0) {
+        if (panController.getValue() < 0) {
             leftVol = 1.0f;
-            rightVol = 1.0f + pan.getValue(); // Decrease right volume when pan is to the left
-        } else if (pan.getValue() > 0) {
-            leftVol = 1.0f - pan.getValue(); // Decrease left volume when pan is to the right
+            rightVol = 1.0f + panController.getValue(); // Decrease right volume when pan is to the left
+        } else if (panController.getValue() > 0) {
+            leftVol = 1.0f - panController.getValue(); // Decrease left volume when pan is to the right
             rightVol = 1.0f;
         }
 
         // Normalize and send the mixed audio data to outputs
-        float gain = postGain.getValue();
+        float gain = postGainController.getValue();
         for (DataLine output : outputs) {
             if (output != null) {
                 for (int ch = 0; ch < mixed.length; ch++) {
@@ -267,7 +284,7 @@ public class AudioMixer implements AutoCloseable {
         // Process effects one by one
         for (AudioEffect effect : effects) {
             if (effect != null) {
-                samples = effect.process(samples);
+                samples = effect.callProcess(samples);
             }
         }
         return samples;
