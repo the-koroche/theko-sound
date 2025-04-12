@@ -18,7 +18,7 @@ public class AudioClassLoader {
         } catch (ReflectionsException ex) {
             ex.printStackTrace();
             reflections = new Reflections(new ConfigurationBuilder()
-            .forPackages("org.theko.sound", "org.theko.sound.codec.formats") // Fallback: scan only predefined classes.
+                .forPackages("org.theko.sound.direct", "org.theko.sound.codec.formats") // Fallback: scan only predefined classes.
                 .addScanners(Scanners.SubTypes)
             );
         }
