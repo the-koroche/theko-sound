@@ -36,26 +36,6 @@ public class AudioTag {
 
     @Override
     public String toString() {
-        return "AudioTag {" + key + ": " + value + "}";
+        return key + ": " + value;
     }
-    
-    /*private String mapInfoIdToTag(String id) {
-        switch (id) {
-            case "INAM": return "Title";
-            case "IART": return "Artist";
-            case "IPRD": return "Album";
-            case "ICRD": return "Year"; // Для даты можно использовать "Year"
-            case "ITRK": return "Track";
-            case "ICMT": return "Comment";
-            case "IGNR": return "Genre";
-            case "IENG": return "Engineer";  // Добавлено
-            case "ISRC": return "SRC";      // Добавлено
-            case "ICOP": return "Copyright"; // Добавить поддержку авторских прав
-            case "ISFT": return "Software"; // Информация о программе (например, FL Studio)
-            case "ITCH": return "Technician"; 
-            case "ALBM": return "Album";   // Добавление вариаций
-            case "TITL": return "Title";   // Добавить титул (в случае вариации)
-            default: return id.startsWith("I") ? id.substring(1) : null;
-        }
-    }*/
 }
