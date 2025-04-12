@@ -44,7 +44,6 @@ public class AudioDevices {
             if (audioDeviceClass.isAnnotationPresent(AudioDeviceType.class)) {
                 AudioDeviceInfo deviceInfo = new AudioDeviceInfo(audioDeviceClass);
                 audioDevices.add(deviceInfo);
-                System.out.println(deviceInfo);
             }
         }
     }
