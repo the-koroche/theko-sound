@@ -1,5 +1,8 @@
 package org.theko.sound;
 
+import org.theko.sound.control.BooleanController;
+import org.theko.sound.control.FloatController;
+
 /**
  * Represents an abstract audio effect that can be applied to audio data.
  */
@@ -19,6 +22,9 @@ public abstract class AudioEffect {
     /** The type of the effect (real-time or offline processing). */
     protected final Type type;
 
+    protected final BooleanController enableController;
+    protected final FloatController mixController;
+
     /**
      * Constructs an AudioEffect with a specified type and audio format.
      *
@@ -28,6 +34,32 @@ public abstract class AudioEffect {
     public AudioEffect (Type type, AudioFormat audioFormat) {
         this.type = type;
         this.audioFormat = audioFormat;
+        this.enableController = new BooleanController("Enable", true);
+        this.mixController = new FloatController("Mix", 0, 1.0f, 1.0f);
+    }
+
+    public final float[][] callProcess(float[][] samples) {
+        if (!enableController.getValue()) {
+            return samples;
+        }
+    
+        float[][] original = new float[samples.length][];
+        for (int ch = 0; ch < samples.length; ch++) {
+            original[ch] = new float[samples[ch].length];
+            System.arraycopy(samples[ch], 0, original[ch], 0, samples[ch].length);
+        }
+    
+        float[][] processed = process(samples);
+    
+        float mixValue = mixController.getValue();
+        for (int ch = 0; ch < processed.length; ch++) {
+            int minLength = Math.min(original[ch].length, processed[ch].length);
+            for (int i = 0; i < minLength; i++) {
+                samples[ch][i] = (original[ch][i] * (1.0f - mixValue)) + (processed[ch][i] * mixValue);
+            }
+        }
+    
+        return samples;
     }
 
     /**
@@ -37,7 +69,7 @@ public abstract class AudioEffect {
      *                sample data for each channel.
      * @return The processed audio samples in the same format.
      */
-    public abstract float[][] process(float[][] samples);
+    protected abstract float[][] process(float[][] samples);
 
     /**
      * Gets the audio format of this audio effect.
@@ -55,6 +87,14 @@ public abstract class AudioEffect {
      */
     public Type getType() {
         return type;
+    }
+
+    public BooleanController getEnableController() {
+        return enableController;
+    }
+
+    public FloatController getMixController() {
+        return mixController;
     }
 
     /**
