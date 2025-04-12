@@ -7,10 +7,12 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.theko.sound.AudioClassLoader;
 
 public class AudioCodecs {
-    private AudioCodecs() { }
+    private static final Logger logger = LoggerFactory.getLogger(AudioCodecs.class);
 
     // A collection to hold all registered audio codecs
     private static final Collection<AudioCodecInfo> audioCodecs = Collections.synchronizedSet(new LinkedHashSet<>());
@@ -19,10 +21,13 @@ public class AudioCodecs {
         registerCodecs();
     }
 
+    private AudioCodecs() { }
+
     /**
      * Register all audio codecs that are annotated with AudioCodecType
      */
     private static void registerCodecs() {
+        logger.debug("Registering audio codecs...");
         // Use Reflections to find all classes implementing AudioCodec
         Reflections reflections = AudioClassLoader.getReflections();
         audioCodecs.clear();
@@ -30,9 +35,11 @@ public class AudioCodecs {
 
         for (Class<? extends AudioCodec> audioCodecClass : allAudioCodecs) {
             if (audioCodecClass.isAnnotationPresent(AudioCodecType.class)) {
-                AudioCodecInfo deviceInfo = new AudioCodecInfo(audioCodecClass);
-                audioCodecs.add(deviceInfo);
-                System.out.println(deviceInfo);
+                AudioCodecInfo codecInfo = new AudioCodecInfo(audioCodecClass);
+                audioCodecs.add(codecInfo);
+                logger.info("Found audio codec: " + codecInfo);
+            } else {
+                logger.info("Found audio codec without information: " + audioCodecClass.getSimpleName());
             }
         }
     }
@@ -46,6 +53,7 @@ public class AudioCodecs {
                 return audioCodec;
             }
         }
+        logger.error("No audio codecs found by name: '" + name + "'.");
         throw new AudioCodecNotFoundException("No audio codecs found by name: '" + name + "'.");
     }
 
@@ -59,6 +67,7 @@ public class AudioCodecs {
                 return audioCodec;
             }
         }
+        logger.error("No audio codecs found by extension: '" + extension + "'.");
         throw new AudioCodecNotFoundException("No audio codecs found by extension: '" + extension + "'.");
     }
 
@@ -67,6 +76,7 @@ public class AudioCodecs {
             return codecInfo.getCodecClass().getConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
                 | NoSuchMethodException | SecurityException e) {
+            logger.error(e.getMessage());
             throw new AudioCodecCreationException(e);
         }
     }
