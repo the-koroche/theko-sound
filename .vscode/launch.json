@@ -6,16 +6,30 @@
     "configurations": [
         {
             "type": "java",
-            "name": "ZWAVCoderTest",
+            "name": "MicrophoneTest",
             "request": "launch",
-            "mainClass": "ZWAVCoderTest",
+            "mainClass": "MicrophoneTest",
             "projectName": "theko-sound"
         },
         {
             "type": "java",
-            "name": "FFT",
+            "name": "Replayer",
             "request": "launch",
-            "mainClass": "org.theko.sound.fft.FFT",
+            "mainClass": "Replayer",
+            "projectName": "theko-sound"
+        },
+        {
+            "type": "java",
+            "name": "VisualTest",
+            "request": "launch",
+            "mainClass": "VisualTest",
+            "projectName": "theko-sound"
+        },
+        {
+            "type": "java",
+            "name": "MusicPlayer",
+            "request": "launch",
+            "mainClass": "MusicPlayer",
             "projectName": "theko-sound"
         },
         {
@@ -23,7 +37,8 @@
             "name": "SoundTest",
             "request": "launch",
             "mainClass": "SoundTest",
-            "projectName": "theko-sound"
+            "projectName": "theko-sound",
+            "vmArgs": "-Dorg.slf4j.simpleLogger.defaultLogLevel=debug"
         }
     ]
 }
