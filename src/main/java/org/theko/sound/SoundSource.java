@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.theko.sound.codec.AudioCodec;
 import org.theko.sound.codec.AudioCodecCreationException;
 import org.theko.sound.codec.AudioCodecException;
@@ -21,6 +23,7 @@ import org.theko.sound.effects.SpeedChangeEffect;
  * It handles the playback, buffering, and various effects of the audio data.
  */
 public class SoundSource implements AutoCloseable {
+    private static final Logger logger = LoggerFactory.getLogger(SoundSource.class);
 
     // Audio properties
     protected AudioMixer mixer;
@@ -78,20 +81,27 @@ public class SoundSource implements AutoCloseable {
      * @throws FileNotFoundException if the file is not found.
      */
     public void open(File file, int bufferSize) throws FileNotFoundException {
+        logger.debug("Opening file...");
         validateFile(file); // Validate the file before processing
         String extension = getFileExtension(file.getName()); // Get file extension
+        logger.debug("File extension: " + extension);
         if (extension.isEmpty()) return; // Exit if no valid extension
     
         try {
             // Decode the audio file and initialize data
             AudioDecodeResult result = decodeAudioFile(file, extension);
+            logger.debug("Initializing audio data...");
             initializeAudioData(result, bufferSize);
+            logger.debug("Initializing audio pipeline...");
             initializeAudioPipeline();
         } catch (AudioCodecCreationException e) {
+            logger.error("Codec initialization failed: " + e.getMessage());
             throw new RuntimeException("Codec initialization failed.", e);
         } catch (AudioCodecException e) {
+            logger.error("Codec exeception: " + e.getMessage());
             throw new RuntimeException(e); // Unknown codec exception
         } catch (UnsupportedAudioFormatException e) {
+            logger.error("UnsupportedAudioFormatException: " + e.getMessage());
             throw new RuntimeException(e); // Audio format is not supported or invalid
         }
     }
@@ -114,6 +124,7 @@ public class SoundSource implements AutoCloseable {
      */
     protected void validateFile(File file) throws FileNotFoundException {
         if (!file.exists()) {
+            logger.error("File not found.");
             throw new FileNotFoundException("File not found.");
         }
     }
@@ -130,6 +141,8 @@ public class SoundSource implements AutoCloseable {
     protected AudioDecodeResult decodeAudioFile(File file, String extension) throws FileNotFoundException, AudioCodecException {
         AudioCodecInfo audioCodecInfo = AudioCodecs.fromExtension(extension);
         AudioCodec audioCodec = AudioCodecs.getCodec(audioCodecInfo);
+        logger.debug("Selected audio codec: " + audioCodecInfo.getName());
+        logger.debug("Decoding file...");
         return audioCodec.decode(new FileInputStream(file)); // Decode the file
     }
     
@@ -167,6 +180,7 @@ public class SoundSource implements AutoCloseable {
 
         // Set length and buffer the audio data
         this.length = data.length;
+        logger.debug("Buffer size: " + this.bufferSize);
         this.audioData = AudioBufferizer.bufferize(data, this.audioFormat, this.bufferSize);
     }
     
@@ -178,15 +192,20 @@ public class SoundSource implements AutoCloseable {
     protected void initializeAudioPipeline() throws UnsupportedAudioFormatException {
         mixerIn = new DataLine(audioFormat);
         audioOut = new DataLine(audioFormat);
+        logger.debug("Data lines initialized.");
         
         this.mixer = new AudioMixer(AudioMixer.Mode.EVENT, audioFormat);
+        logger.debug("Mixer initialized.");
         mixer.addInput(mixerIn);
         mixer.addOutput(audioOut);
+        logger.debug("Data lines are attached to the mixer.");
         
         // Initialize speed change effect
         this.speedEffect = new SpeedChangeEffect(audioFormat);
+        logger.debug("Speed changer initialized.");
         try {
             mixer.addEffect(speedEffect); // Add effect to mixer
+            logger.debug("Speed changer is attached to the mixer.");
         } catch (UnsupportedAudioEffectException ignored) {}
 
         isOpen = true;
@@ -265,27 +284,35 @@ public class SoundSource implements AutoCloseable {
                     mixerIn.sendWithTimeout(audioData, SEND_TIMEOUT, TimeUnit.MILLISECONDS);
                 }
                 played++;
-                if (played >= audioData.length - 1) {
-                    switch (loopCount) {
-                        case NO_LOOP: /* no action */ break;
-                        case LOOP_CONTINUOUSLY: played = 0; break;
-                        default:
-                            if (loop < loopCount) {
-                                loop++;
-                                played = 0;
-                            }
-                    }
+                if (played >= audioData.length - 1 && !needLoop()) {
+                    played = 0;
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            } catch (Exception e) {
-                throw new PlaybackException(e); // Handle playback errors
             }
         }
 
         // Loop playback when end is reached
         if (played >= audioData.length) {
             played = 0;
+        }
+    }
+
+    protected boolean needLoop() {
+        if (played >= audioData.length - 1) {
+            switch (loopCount) {
+                case NO_LOOP: return false;
+                case LOOP_CONTINUOUSLY: return true;
+                default:
+                    if (loop < loopCount) {
+                        loop++;
+                        return true;
+                    } else {
+                        return false;
+                    }
+            }
+        } else {
+            return false;
         }
     }
 
@@ -463,8 +490,27 @@ public class SoundSource implements AutoCloseable {
     @Override
     public void close() {
         if (!isOpen) return;
-        stop(); // Stop playback
+        if (isPlaying()) {
+            stop(); // Stop playback
+        }
         isOpen = false; // Mark the sound source as closed
+
+        if (mixerIn != null) mixerIn.close();
+        if (audioOut != null) audioOut.close();
+        if (mixer != null) mixer.close();
+        if (metadata != null) {
+            try {
+                metadata.clear();
+            } catch (UnsupportedOperationException e) {
+                metadata = null;
+            }
+        }
+
+        mixerIn = null;
+        audioOut = null;
+        mixer = null;
+        audioData = null;
+        // audioFormat = null;
     }
 
     /**
