@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.theko.sound.AudioFormat;
 import org.theko.sound.UnsupportedAudioEncodingException;
 import org.theko.sound.codec.AudioCodec;
@@ -21,8 +23,10 @@ import org.theko.sound.codec.AudioDecodeResult;
 import org.theko.sound.codec.AudioEncodeResult;
 import org.theko.sound.codec.AudioTag;
 
-@AudioCodecType(name = "WAVE", extension = "wav", version = "1.1")
+@AudioCodecType(name = "WAVE", extension = "wav", version = "1.2")
 public class WAVECodec implements AudioCodec {
+    private static final Logger logger = LoggerFactory.getLogger(WAVECodec.class);
+
     private static final String RIFF_HEADER = "RIFF";
     private static final String WAVE_HEADER = "WAVE";
     private static final String FORMAT_CHUNK = "fmt ";
@@ -34,12 +38,14 @@ public class WAVECodec implements AudioCodec {
     @Override
     public AudioDecodeResult decode(InputStream is) throws AudioCodecException {
         try {
+            logger.debug("Parsing WAVE...");
             DataInputStream dis = new DataInputStream(is);
 
             // Check RIFF header
             byte[] riffHeader = new byte[4];
             dis.readFully(riffHeader);
             if (!RIFF_HEADER.equals(new String(riffHeader, "US-ASCII"))) {
+                logger.error("Not a valid RIFF file.");
                 throw new AudioCodecException("Not a valid RIFF file.");
             }
 
@@ -50,8 +56,10 @@ public class WAVECodec implements AudioCodec {
             byte[] waveHeader = new byte[4];
             dis.readFully(waveHeader);
             if (!WAVE_HEADER.equals(new String(waveHeader, "US-ASCII"))) {
+                logger.error("Not a valid WAVE file.");
                 throw new AudioCodecException("Not a valid WAVE file.");
             }
+            logger.debug("WAVE signatures is valid.");
 
             AudioFormat format = null;
             byte[] audioData = null;
@@ -66,36 +74,48 @@ public class WAVECodec implements AudioCodec {
                 String chunkId = new String(chunkIdBytes, "US-ASCII");
                 int chunkSize = readLittleEndianInt(dis);
 
+                logger.debug("Found chunk \"" + chunkId + "\" with size " + chunkSize + " bytes.");
+
                 if (FORMAT_CHUNK.equals(chunkId)) {
                     // Audio format
+                    logger.debug("Reading audio format...");
                     byte[] fmtData = new byte[chunkSize];
                     dis.readFully(fmtData);
                     format = parseFormatChunk(fmtData);
                     skipPadding(dis, chunkSize);
                 } else if (DATA_CHUNK.equals(chunkId)) {
                     // Audio data
+                    logger.debug("Reading audio data...");
                     audioData = new byte[chunkSize];
                     dis.readFully(audioData);
                     skipPadding(dis, chunkSize);
                 } else if (LIST_CHUNK.equals(chunkId)) {
                     // Metadata
+                    logger.debug("Reading metadata...");
                     byte[] listData = new byte[chunkSize];
                     dis.readFully(listData);
                     parseListChunk(listData, tags);
                     skipPadding(dis, chunkSize);
                 } else {
                     // Skip unknown chunks
+                    logger.info("Skip chunk \"" + chunkId + "\" with size " + chunkSize + " bytes.");
                     skipChunkData(dis, chunkSize);
                 }
             }
 
             if (format == null) {
+                logger.error("Invalid WAV file: missing 'fmt' chunk.");
                 throw new AudioCodecException("Invalid WAV file: missing 'fmt' chunk.");
             }
 
             if (audioData == null) {
+                logger.error("Invalid WAV file: missing 'data' chunk.");
                 throw new AudioCodecException("Invalid WAV file: missing 'data' chunk.");
             }
+            logger.debug("Pasing complete.");
+            logger.debug("Audio format: " + format);
+            logger.debug("Audio data size: " + audioData.length);
+            logger.debug("Metadata: " + tags);
             return new AudioDecodeResult(CODEC_INFO, audioData, format, Collections.unmodifiableList(tags));
         } catch (IOException ex) {
             throw new AudioCodecException(ex);
@@ -130,6 +150,7 @@ public class WAVECodec implements AudioCodec {
                 encoding = AudioFormat.Encoding.ALAW;
                 break;
             default:
+                logger.error("Not supported audio format.");
                 throw new AudioCodecException(new UnsupportedAudioEncodingException("Not supported audio format."));
         }
 
