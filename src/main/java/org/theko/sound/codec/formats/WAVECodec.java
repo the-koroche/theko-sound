@@ -1,3 +1,4 @@
+
 package org.theko.sound.codec.formats;
 
 import java.io.ByteArrayOutputStream;
@@ -8,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,14 +26,15 @@ import org.theko.sound.codec.AudioEncodeResult;
 import org.theko.sound.codec.AudioTag;
 
 @AudioCodecType(name = "WAVE", extension = "wav", version = "1.2")
-public class WAVECodec implements AudioCodec {
+public class WAVECodec extends AudioCodec {
     private static final Logger logger = LoggerFactory.getLogger(WAVECodec.class);
 
-    private static final String RIFF_HEADER = "RIFF";
-    private static final String WAVE_HEADER = "WAVE";
-    private static final String FORMAT_CHUNK = "fmt ";
-    private static final String DATA_CHUNK = "data";
-    private static final String LIST_CHUNK = "LIST";
+    private static final byte[] RIFF_BYTES = "RIFF".getBytes(StandardCharsets.US_ASCII);
+    private static final byte[] WAVE_BYTES = "WAVE".getBytes(StandardCharsets.US_ASCII);
+    private static final byte[] FORMAT_BYTES = "fmt ".getBytes(StandardCharsets.US_ASCII);
+    private static final byte[] DATA_BYTES = "data".getBytes(StandardCharsets.US_ASCII);
+    private static final byte[] LIST_BYTES = "LIST".getBytes(StandardCharsets.US_ASCII);
+    private static final byte[] INFO_BYTES = "INFO".getBytes(StandardCharsets.US_ASCII);
 
     private static final AudioCodecInfo CODEC_INFO = new AudioCodecInfo(WAVECodec.class);
 
@@ -44,7 +47,7 @@ public class WAVECodec implements AudioCodec {
             // Check RIFF header
             byte[] riffHeader = new byte[4];
             dis.readFully(riffHeader);
-            if (!RIFF_HEADER.equals(new String(riffHeader, "US-ASCII"))) {
+            if (!Arrays.equals(RIFF_BYTES, riffHeader)) {
                 logger.error("Not a valid RIFF file.");
                 throw new AudioCodecException("Not a valid RIFF file.");
             }
@@ -55,7 +58,7 @@ public class WAVECodec implements AudioCodec {
             // Check WAVE header
             byte[] waveHeader = new byte[4];
             dis.readFully(waveHeader);
-            if (!WAVE_HEADER.equals(new String(waveHeader, "US-ASCII"))) {
+            if (!Arrays.equals(WAVE_BYTES, waveHeader)) {
                 logger.error("Not a valid WAVE file.");
                 throw new AudioCodecException("Not a valid WAVE file.");
             }
@@ -71,25 +74,22 @@ public class WAVECodec implements AudioCodec {
                 int read = dis.read(chunkIdBytes);
                 if (read == -1) break; // EOF
 
-                String chunkId = new String(chunkIdBytes, "US-ASCII");
                 int chunkSize = readLittleEndianInt(dis);
 
-                logger.debug("Found chunk \"" + chunkId + "\" with size " + chunkSize + " bytes.");
-
-                if (FORMAT_CHUNK.equals(chunkId)) {
+                if (Arrays.equals(FORMAT_BYTES, chunkIdBytes)) {
                     // Audio format
                     logger.debug("Reading audio format...");
                     byte[] fmtData = new byte[chunkSize];
                     dis.readFully(fmtData);
                     format = parseFormatChunk(fmtData);
                     skipPadding(dis, chunkSize);
-                } else if (DATA_CHUNK.equals(chunkId)) {
+                } else if (Arrays.equals(DATA_BYTES, chunkIdBytes)) {
                     // Audio data
                     logger.debug("Reading audio data...");
                     audioData = new byte[chunkSize];
                     dis.readFully(audioData);
                     skipPadding(dis, chunkSize);
-                } else if (LIST_CHUNK.equals(chunkId)) {
+                } else if (Arrays.equals(LIST_BYTES, chunkIdBytes)) {
                     // Metadata
                     logger.debug("Reading metadata...");
                     byte[] listData = new byte[chunkSize];
@@ -98,7 +98,7 @@ public class WAVECodec implements AudioCodec {
                     skipPadding(dis, chunkSize);
                 } else {
                     // Skip unknown chunks
-                    logger.info("Skip chunk \"" + chunkId + "\" with size " + chunkSize + " bytes.");
+                    logger.info("Skip chunk \"" + new String(chunkIdBytes, StandardCharsets.US_ASCII) + "\" with size " + chunkSize + " bytes.");
                     skipChunkData(dis, chunkSize);
                 }
             }
@@ -187,7 +187,7 @@ public class WAVECodec implements AudioCodec {
         ByteBuffer bb = ByteBuffer.wrap(listData).order(ByteOrder.LITTLE_ENDIAN);
         byte[] listType = new byte[4];
         bb.get(listType);
-        if (!"INFO".equals(new String(listType, StandardCharsets.US_ASCII))) return;
+        if (!Arrays.equals(INFO_BYTES, listType)) return;
     
         while (bb.remaining() >= 8) {
             byte[] idBytes = new byte[4];
@@ -210,18 +210,18 @@ public class WAVECodec implements AudioCodec {
             if (tag != null) {
                 tags.add(new AudioTag(tag, value));
             } else {
-                System.out.println("Unknown tag: " + id + " = " + value);
+                logger.info("Unknown tag: " + id + " = " + value);
             }
         }
     }
 
     protected static String cleanText(String text) {
         text = text.replaceAll("\0", "")
-                   .replaceAll("[\\p{Cntrl}&&[^\n\t\r]]", "")
-                   .trim();
-
-        text = text.replaceAll("\\s+", " ")
-                   .replaceAll("[^\\x20-\\x7E]", ""); // Remove non-ASCII characters
+                    .replaceAll("[\\p{Cntrl}&&[^\n\t\r]]", "")
+                    .trim();
+    
+        text = text.replaceAll("\\s+", " "); 
+        text = text.replaceAll("[^\\x20-\\x7E\\n\\r]", "");
     
         return text;
     }
@@ -258,10 +258,10 @@ public class WAVECodec implements AudioCodec {
             // Build all chunks
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             writeRiffHeader(outputStream);
-            writeChunk(outputStream, "fmt ", fmtChunkData);
-            writeChunk(outputStream, "data", data);
+            writeChunk(outputStream, FORMAT_BYTES, fmtChunkData);
+            writeChunk(outputStream, DATA_BYTES, data);
             if (listChunkData.length > 4) {
-                writeChunk(outputStream, "LIST", listChunkData);
+                writeChunk(outputStream, LIST_BYTES, listChunkData);
             }
 
             updateRiffSize(outputStream);
@@ -287,7 +287,7 @@ public class WAVECodec implements AudioCodec {
     protected static byte[] createListChunk(List<AudioTag> tags) throws IOException {
         ByteArrayOutputStream listChunkStream = new ByteArrayOutputStream();
         if (!tags.isEmpty()) {
-            listChunkStream.write("INFO".getBytes(StandardCharsets.US_ASCII));
+            listChunkStream.write(INFO_BYTES);
             for (AudioTag tag : tags) {
                 String tagKey = tag.getKey();
                 String tagValue = cleanText(tag.getValue());
@@ -325,9 +325,9 @@ public class WAVECodec implements AudioCodec {
     }
 
     protected static void writeRiffHeader(ByteArrayOutputStream outputStream) throws IOException {
-        outputStream.write("RIFF".getBytes(StandardCharsets.US_ASCII));
+        outputStream.write(RIFF_BYTES);
         writeLittleEndianInt(outputStream, 0); // Placeholder for RIFF size
-        outputStream.write("WAVE".getBytes(StandardCharsets.US_ASCII));
+        outputStream.write(WAVE_BYTES);
     }
 
     protected static void updateRiffSize(ByteArrayOutputStream outputStream) {
@@ -340,8 +340,8 @@ public class WAVECodec implements AudioCodec {
         System.arraycopy(riffSizeBytes, 0, wavData, 4, 4);
     }
 
-    protected static void writeChunk(ByteArrayOutputStream outputStream, String chunkId, byte[] chunkData) throws IOException {
-        outputStream.write(chunkId.getBytes(StandardCharsets.US_ASCII));
+    protected static void writeChunk(ByteArrayOutputStream outputStream, byte[] chunkId, byte[] chunkData) throws IOException {
+        outputStream.write(chunkId);
         writeLittleEndianInt(outputStream, chunkData.length);
         outputStream.write(chunkData);
         if (chunkData.length % 2 != 0) {
