@@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.theko.sound.control.AudioController;
 import org.theko.sound.control.FloatController;
 import org.theko.sound.event.DataLineAdapter;
@@ -18,6 +20,7 @@ import org.theko.sound.event.DataLineEvent;
  * It supports two modes of operation: using threads or events to process audio.
  */
 public class AudioMixer implements AutoCloseable {
+    private static final Logger logger = LoggerFactory.getLogger(AudioMixer.class);
 
     /** Defines the two available modes for audio mixing. */
     public enum Mode {
@@ -54,14 +57,19 @@ public class AudioMixer implements AutoCloseable {
         effects = new CopyOnWriteArrayList<>();
 
         mixerThread = (mixerMode == Mode.THREAD) ? new Thread(this::processLoop, "AudioMixer") : null;
-        if (mixerThread != null) mixerThread.start();
+        if (mixerThread != null) {
+            mixerThread.start();
+            logger.debug("Mixer thread started.");
+        }
 
         this.preGainController = new FloatController("Pre-Gain", 0.0f, 1.0f, 1.0f);
         this.postGainController = new FloatController("Post-Gain", 0.0f, 1.0f, 1.0f);
         this.panController = new FloatController("Pan", -1.0f, 1.0f, 0.0f);
+        logger.debug("Controls initialized.");
 
         // Register a cleaner to shut down the mixer when it's no longer needed
         cleaner.register(this, this::shutdown);
+        logger.debug("Audio mixer initialized.");
     }
 
     /**
@@ -84,8 +92,10 @@ public class AudioMixer implements AutoCloseable {
                 }
             };
             input.addDataLineListener(adapter);
+            logger.debug("Input listener attached: " + input);
             inputListeners.put(input, adapter);
         }
+        logger.debug("Input: " + input + " added.");
     }
 
     /**
@@ -95,6 +105,7 @@ public class AudioMixer implements AutoCloseable {
      */
     public void addOutput(DataLine output) {
         outputs.add(output);
+        logger.debug("Output: " + output + " added.");
     }
 
     /**
@@ -105,9 +116,11 @@ public class AudioMixer implements AutoCloseable {
      */
     public void addEffect(AudioEffect effect) throws UnsupportedAudioEffectException {
         if (effect.getType() == AudioEffect.Type.OFFLINE_PROCESSING) {
+            logger.warn("Only AudioEffect.Type.REALTIME is supported to use in mixer.");
             throw new UnsupportedAudioEffectException("Only AudioEffect.Type.REALTIME is supported to use in mixer.");
         }
         effects.add(effect);
+        logger.debug("Effect: " + effect.getClass().getSimpleName() + " added.");
     }
 
     /**
@@ -121,8 +134,10 @@ public class AudioMixer implements AutoCloseable {
             DataLineAdapter adapter = inputListeners.remove(input);
             if (adapter != null) {
                 input.removeDataLineListener(adapter);
+                logger.debug("Input listener detached: " + input);
             }
         }
+        logger.debug("Input: " + input + " removed.");
     }
 
     /**
@@ -132,6 +147,7 @@ public class AudioMixer implements AutoCloseable {
      */
     public void removeOutput(DataLine output) {
         outputs.remove(output);
+        logger.debug("Output: " + output + " removed.");
     }
 
     /**
@@ -141,6 +157,7 @@ public class AudioMixer implements AutoCloseable {
      */
     public void removeEffect(AudioEffect effect) {
         effects.remove(effect);
+        logger.debug("Effect: " + effect + " removed.");
     }
 
     public List<DataLine> getInputs() {
@@ -200,6 +217,7 @@ public class AudioMixer implements AutoCloseable {
                 }
             }
         } catch (InterruptedException e) {
+            logger.warn(e.getMessage());
             Thread.currentThread().interrupt();
         }
     }
@@ -229,6 +247,8 @@ public class AudioMixer implements AutoCloseable {
             }
         }
 
+        long processNsStart = System.nanoTime();
+
         if (maxLength == 0) return; // No data to process
 
         int channels = processAudioFormat.getChannels();
@@ -244,10 +264,14 @@ public class AudioMixer implements AutoCloseable {
             }
         }
 
+        long effNsStart = System.nanoTime();
+
         // Apply audio effects
         if (!effects.isEmpty()) {
             mixed = applyEffects(mixed);
         }
+
+        long effNsEnd = System.nanoTime();
 
         // Calculate left and right volume based on pan control
         float leftVol = 1.0f;
@@ -259,6 +283,8 @@ public class AudioMixer implements AutoCloseable {
             leftVol = 1.0f - panController.getValue(); // Decrease left volume when pan is to the right
             rightVol = 1.0f;
         }
+
+        long processNsEnd = System.nanoTime();
 
         // Normalize and send the mixed audio data to outputs
         float gain = postGainController.getValue();
@@ -272,6 +298,9 @@ public class AudioMixer implements AutoCloseable {
                 output.send(SampleConverter.fromSamples(mixed, output.getAudioFormat(), leftVol, rightVol));
             }
         }
+
+        logger.trace("Processing elapsed time: " + (processNsEnd - processNsStart) + " ns.");
+        logger.trace("Effects elapsed time: " + (effNsEnd - effNsStart) + " ns.");
     }
 
     /**

@@ -3,6 +3,8 @@ package org.theko.sound;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.theko.sound.direct.AudioDeviceException;
 
 /**
@@ -10,6 +12,8 @@ import org.theko.sound.direct.AudioDeviceException;
  * Provides methods to control playback, including starting, stopping, and setting the position.
  */
 public class SoundPlayer extends SoundSource {
+    private static final Logger logger = LoggerFactory.getLogger(SoundPlayer.class);
+
     private final AudioOutputLine aol;  // Audio output line for playing sound
     protected AudioPort audioPort;      // Audio port to output the audio
 
@@ -21,7 +25,9 @@ public class SoundPlayer extends SoundSource {
     public SoundPlayer() {
         try {
             aol = new AudioOutputLine();
+            logger.debug("AOL created.");
         } catch (AudioDeviceNotFoundException | AudioDeviceCreationException e) {
+            logger.error(e.getMessage());
             throw new RuntimeException(e);  // Propagate the exception if device setup fails
         }
     }
@@ -52,8 +58,11 @@ public class SoundPlayer extends SoundSource {
         try {
             // Initialize the audio output line with the given port and audio format
             aol.open(audioPort, audioFormat, bufferSize);
+            logger.debug("AOL opened.");
             aol.setInput(getOutputLine());  // Set the output line of the sound source to the input of the output line
+            logger.debug("AOL input attached to the mixer output.");
         } catch (AudioDeviceException | AudioPortsNotFoundException | UnsupportedAudioFormatException e) {
+            logger.error(e.getMessage());
             throw new RuntimeException(e);  // Propagate the error if setup fails
         }
     }
@@ -98,12 +107,16 @@ public class SoundPlayer extends SoundSource {
     
         // Stop playback temporarily and seek to the new position
         pendingFrameSeek = true;
+        logger.debug("Pending frame seeking...");
         aol.flush();  // Flush the audio output line to reset playback position
+        logger.debug("AOL flushed.");
 
         played = Math.min(buffer, audioData.length - 1);  // Adjust the played buffer index
         offset = Math.min(remaining, bufferSize - 1);  // Adjust the offset within the buffer
     
         pendingFrameSeek = false;  // Unlock playback after seeking
+        logger.debug("Playback thread unlocked.");
+        logger.debug("Position: buff:" + played + ", offset:" + offset);
     }
 
     /**
@@ -128,5 +141,6 @@ public class SoundPlayer extends SoundSource {
     public void close() {
         super.close();  // Close the base class resources
         aol.close();    // Close the audio output line
+        logger.debug("AOL closed.");
     }
 }
