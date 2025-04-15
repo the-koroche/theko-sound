@@ -143,7 +143,7 @@ public class SoundSource implements AutoCloseable {
         AudioCodec audioCodec = AudioCodecs.getCodec(audioCodecInfo);
         logger.debug("Selected audio codec: " + audioCodecInfo.getName());
         logger.debug("Decoding file...");
-        return audioCodec.decode(new FileInputStream(file)); // Decode the file
+        return audioCodec.callDecode(new FileInputStream(file)); // Decode the file
     }
     
     /**
@@ -226,7 +226,9 @@ public class SoundSource implements AutoCloseable {
             playbackThread = new Thread(this::playbackLoop, "Playback Thread-" + thisSoundInstance);
             playbackThread.setPriority(Thread.MAX_PRIORITY - 1); // Adjust CPU priority
             playbackThread.start();
+            logger.debug("Playback thread recreated and started.");
         }
+        logger.debug("Playback started.");
     }
 
     /**
@@ -235,6 +237,7 @@ public class SoundSource implements AutoCloseable {
     public void stop() {
         if (!isOpen) return;
         isPlaying = false;
+        logger.debug("Playback stopped.");
     }
 
     /**
@@ -268,6 +271,7 @@ public class SoundSource implements AutoCloseable {
      * Playback loop for continuous audio streaming.
      */
     protected void playbackLoop() {
+        logger.debug("Playback loop started.");
         while (isPlaying && isOpen && !Thread.currentThread().isInterrupted() && played < audioData.length) {
             try {
                 if (pendingFrameSeek) {
@@ -284,8 +288,9 @@ public class SoundSource implements AutoCloseable {
                     mixerIn.sendWithTimeout(audioData, SEND_TIMEOUT, TimeUnit.MILLISECONDS);
                 }
                 played++;
-                if (played >= audioData.length - 1 && !needLoop()) {
+                if (played > audioData.length - 1 && needLoop()) {
                     played = 0;
+                    logger.debug("Loop. Remaining loops: " + loop + "/" + loopCount + ".");
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -348,11 +353,14 @@ public class SoundSource implements AutoCloseable {
         int remaining = (int) (frame % bufferSize);
     
         pendingFrameSeek = true; // Block the playback thread temporarily
+        logger.debug("Pending frame seeking...");
 
         played = Math.min(buffer, audioData.length - 1);
         offset = Math.min(remaining, bufferSize - 1);
     
         pendingFrameSeek = false; // Unlock the playback thread
+        logger.debug("Playback thread unlocked.");
+        logger.debug("Position: buff:" + played + ", offset:" + offset);
     }
 
     /**
@@ -494,6 +502,7 @@ public class SoundSource implements AutoCloseable {
             stop(); // Stop playback
         }
         isOpen = false; // Mark the sound source as closed
+        logger.debug("Cleanup...");
 
         if (mixerIn != null) mixerIn.close();
         if (audioOut != null) audioOut.close();
@@ -511,6 +520,7 @@ public class SoundSource implements AutoCloseable {
         mixer = null;
         audioData = null;
         // audioFormat = null;
+        logger.debug("Cleanup completed.");
     }
 
     /**
