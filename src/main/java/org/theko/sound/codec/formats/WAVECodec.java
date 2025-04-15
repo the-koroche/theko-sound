@@ -290,7 +290,7 @@ public class WAVECodec extends AudioCodec {
             listChunkStream.write(INFO_BYTES);
             for (AudioTag tag : tags) {
                 String tagKey = tag.getKey();
-                String tagValue = cleanText(tag.getValue());
+                String tagValue = cleanText(tag.getValue()) + "\0";
                 String infoId = mapTagToInfoId(tagKey);
                 if (infoId == null || infoId.length() != 4) continue;
 
@@ -376,5 +376,10 @@ public class WAVECodec extends AudioCodec {
                 if (tag.length() == 4 && tag.startsWith("I")) return tag;
                 return null;
         }
+    }
+
+    @Override
+    public AudioCodecInfo getInfo() {
+        return CODEC_INFO;
     }
 }
