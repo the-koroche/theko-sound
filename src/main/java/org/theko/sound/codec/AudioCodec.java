@@ -28,4 +28,6 @@ public abstract class AudioCodec {
         logger.debug("Elapsed encoding time: " + (endNs - startNs) + " ns.");
         return aer;
     }
+
+    public abstract AudioCodecInfo getInfo();
 }
