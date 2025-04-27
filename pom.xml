@@ -6,7 +6,7 @@
 
     <groupId>theko.sound</groupId>
     <artifactId>theko-sound</artifactId>
-    <version>v1.2.1</version>
+    <version>v1.3.0</version>
 
     <name>Theko-Sound</name>
     <description>A high-performance audio library for sound processing, supporting popular platforms. Includes support for audio devices, format conversion, mixing, effects application, and codec management. Provides a flexible interface for audio playback, recording, and processing with high performance and extensibility.</description>
@@ -66,35 +66,22 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>debug</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <log.level>debug</log.level>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>release</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <properties>
-                <log.level>info</log.level>
-            </properties>
-        </profile>
-    </profiles>
-
     <build>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>licenses/**</include>
+                    <include>**/*</include>
                 </includes>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>${basedir}</directory>
+                <includes>
+                    <include>LICENSE</include>
+                    <include>NOTICE</include>
+                </includes>
+                <targetPath>.</targetPath>
             </resource>
         </resources>
 
@@ -111,20 +98,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.2.0</version>
-                <configuration>
-                    <mainClass>your.package.Main</mainClass>
-                    <systemProperties>
-                        <systemProperty>
-                            <key>org.slf4j.simpleLogger.defaultLogLevel</key>
-                            <value>${log.level}</value>
-                        </systemProperty>
-                    </systemProperties>
-                </configuration>
             </plugin>
         </plugins>
     </build>
