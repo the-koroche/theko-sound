@@ -16,14 +16,14 @@ import org.theko.sound.event.DataLineListener;
  * This class is used for managing audio data flow, and notifying listeners
  * about various events like data sent, received, or timeouts.
  */
-public class DataLine implements AutoCloseable {
+public class DataLine implements AudioObject, AutoCloseable {
     private final BlockingQueue<byte[]> queue;
     private final List<DataLineListener> listeners = new ArrayList<>();
     private final AudioFormat audioFormat;
 
     protected boolean closed = true;
 
-    private static final Cleaner cleaner = Cleaner.create(Thread.ofVirtual().factory());
+    private static transient final Cleaner cleaner = Cleaner.create(Thread.ofVirtual().factory());
 
     /**
      * Constructor with specified queue capacity.
