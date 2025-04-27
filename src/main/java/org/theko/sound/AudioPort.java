@@ -4,7 +4,7 @@ package org.theko.sound;
  * Represents an audio port, which provides information about the port's 
  * flow (input or output), name, vendor, version, and description.
  */
-public class AudioPort {
+public class AudioPort implements AudioObject {
     
     private final String name;        // The name of the audio port
     private final String vendor;      // The vendor associated with the port
