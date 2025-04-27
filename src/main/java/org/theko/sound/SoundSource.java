@@ -17,6 +17,8 @@ import org.theko.sound.codec.AudioDecodeResult;
 import org.theko.sound.codec.AudioTag;
 import org.theko.sound.control.FloatController;
 import org.theko.sound.effects.SpeedChangeEffect;
+import org.theko.sound.event.DataLineAdapter;
+import org.theko.sound.event.DataLineEvent;
 
 /**
  * SoundSource represents an audio file that can be opened, played, and controlled. 
@@ -32,6 +34,7 @@ public class SoundSource implements AutoCloseable {
     protected int bufferSize;
     protected List<AudioTag> metadata;
     private Thread playbackThread;
+    private int threadPriotity = Thread.MAX_PRIORITY - 1; // Default thread priority
     protected boolean isPlaying;
     protected boolean isOpen;
     protected int played;
@@ -41,14 +44,18 @@ public class SoundSource implements AutoCloseable {
     protected int loop;
     protected int loopCount;
 
-    private DataLine mixerIn, audioOut;
+    protected DataLine mixerIn;
+
+    private DataLine audioOut;
     protected boolean pendingFrameSeek = false;
+
+    protected Timer playbackPositionTimer;
     
     protected SpeedChangeEffect speedEffect;
 
     // Instance counting
     private static int soundInstances = 0;
-    private final int thisSoundInstance = soundInstances;
+    private final int thisSoundInstance = ++soundInstances;
 
     // Predefined buffer sizes
     public static final int AUTO_BUFFER_SIZE = -1;
@@ -66,11 +73,67 @@ public class SoundSource implements AutoCloseable {
     // Time-out values
     protected static final int SEND_TIMEOUT = 500; // ms
 
-    /**
-     * Constructor for SoundSource. Increments soundInstances counter.
-     */
-    public SoundSource () {
-        soundInstances++;
+    protected static class Timer {
+        private static final Logger logger = LoggerFactory.getLogger(Timer.class);
+
+
+        private long startTimeNanos;
+        private long pausedTimeNanos;
+        private boolean running;
+
+        public synchronized void start() {
+            if (!running) {
+                logger.debug("Timer started.");
+                startTimeNanos = System.nanoTime();
+                running = true;
+                pausedTimeNanos = 0;
+            }
+        }
+
+        public synchronized void pause() {
+            if (running) {
+                logger.debug("Timer paused.");
+                pausedTimeNanos = System.nanoTime() - startTimeNanos;
+                running = false;
+            }
+        }
+
+        public synchronized void resume() {
+            if (!running && pausedTimeNanos > 0) {
+                startTimeNanos = System.nanoTime() - pausedTimeNanos;
+                running = true;
+            }
+        }
+
+        public synchronized void stop() {
+            logger.debug("Timer stopped.");
+            running = false;
+            pausedTimeNanos = 0;
+        }
+
+        public synchronized long getElapsedNanos() {
+            if (running) {
+                return System.nanoTime() - startTimeNanos;
+            } else {
+                return pausedTimeNanos;
+            }
+        }
+
+        public synchronized double getElapsedSeconds() {
+            return getElapsedNanos() / 1_000_000_000.0;
+        }
+
+        public synchronized boolean isRunning() {
+            return running;
+        }
+
+        public synchronized void setStartTimeNanos(long nanos) {
+            startTimeNanos = nanos;
+        }
+
+        public synchronized void setPausedTimeNanos(long nanos) {
+            pausedTimeNanos = nanos;
+        }
     }
 
     /**
@@ -109,11 +172,32 @@ public class SoundSource implements AutoCloseable {
     /**
      * Opens an audio file for playback with an automatic buffer size.
      *
+     * @param filePath The audio file path to open.
+     * @param bufferSize The size of the buffer for playback.
+     * @throws FileNotFoundException if the file is not found.
+     */
+    public void open(String filePath, int bufferSize) throws FileNotFoundException {
+        open(new File(filePath), bufferSize);
+    }
+
+    /**
+     * Opens an audio file for playback with an automatic buffer size.
+     *
      * @param file The audio file to open.
      * @throws FileNotFoundException if the file is not found.
      */
     public void open(File file) throws FileNotFoundException {
         open(file, -1); // Default to automatic buffer size
+    }
+
+    /**
+     * Opens an audio file for playback with an automatic buffer size.
+     *
+     * @param filePath The audio file path to open.
+     * @throws FileNotFoundException if the file is not found.
+     */
+    public void open(String filePath) throws FileNotFoundException {
+        open(new File(filePath));
     }
     
     /**
@@ -190,9 +274,11 @@ public class SoundSource implements AutoCloseable {
      * @throws UnsupportedAudioFormatException if the audio format is unsupported.
      */
     protected void initializeAudioPipeline() throws UnsupportedAudioFormatException {
-        mixerIn = new DataLine(audioFormat);
-        audioOut = new DataLine(audioFormat);
+        mixerIn = new DataLine(audioFormat, 1);
+        audioOut = new DataLine(audioFormat, 1);
         logger.debug("Data lines initialized.");
+        
+        attachAudioOutAction();
         
         this.mixer = new AudioMixer(AudioMixer.Mode.EVENT, audioFormat);
         logger.debug("Mixer initialized.");
@@ -213,18 +299,37 @@ public class SoundSource implements AutoCloseable {
         
         loop = 0;
         loopCount = NO_LOOP;
+
+        this.playbackPositionTimer = new Timer();
+    }
+
+    protected void attachAudioOutAction() {
+        audioOut.addDataLineListener(new DataLineAdapter() {
+            @Override
+            public void onReceive(DataLineEvent e) {
+                played++;
+            }
+        });
+    }
+
+    public synchronized void setPlaybackThreadPriority(int priority) {
+        if (playbackThread != null) {
+            playbackThread.setPriority(priority);
+            threadPriotity = priority; // Update the thread priority
+        }
     }
 
     /**
      * Starts the playback of the audio.
      */
-    public void start() {
+    public synchronized void start() {
         if (!isOpen || isPlaying) return;
         isPlaying = true;
+        resetPosition();
     
         if (playbackThread == null || !playbackThread.isAlive()) { // Check thread status
             playbackThread = new Thread(this::playbackLoop, "Playback Thread-" + thisSoundInstance);
-            playbackThread.setPriority(Thread.MAX_PRIORITY - 1); // Adjust CPU priority
+            playbackThread.setPriority(threadPriotity); // Adjust CPU priority
             playbackThread.start();
             logger.debug("Playback thread recreated and started.");
         }
@@ -234,10 +339,11 @@ public class SoundSource implements AutoCloseable {
     /**
      * Stops the playback of the audio.
      */
-    public void stop() {
+    public synchronized void stop() {
         if (!isOpen) return;
         isPlaying = false;
         logger.debug("Playback stopped.");
+        playbackPositionTimer.pause(); // Pause the playback position timer
     }
 
     /**
@@ -272,6 +378,7 @@ public class SoundSource implements AutoCloseable {
      */
     protected void playbackLoop() {
         logger.debug("Playback loop started.");
+        playbackPositionTimer.start();
         while (isPlaying && isOpen && !Thread.currentThread().isInterrupted() && played < audioData.length) {
             try {
                 if (pendingFrameSeek) {
@@ -279,17 +386,18 @@ public class SoundSource implements AutoCloseable {
                     Thread.sleep(1);
                     continue;
                 }
+                boolean success = false;
                 if (offset <= 0) {
-                    mixerIn.sendWithTimeout(audioData[played], SEND_TIMEOUT, TimeUnit.MILLISECONDS); // Send data to mixer
+                    success = mixerIn.sendWithTimeout(audioData[played], SEND_TIMEOUT, TimeUnit.MILLISECONDS); // Send data to mixer
                 } else {
                     byte[] audioData = new byte[bufferSize - offset];
                     System.arraycopy(this.audioData[played], offset, audioData, 0, audioData.length); // Handle offset
                     offset = 0;
-                    mixerIn.sendWithTimeout(audioData, SEND_TIMEOUT, TimeUnit.MILLISECONDS);
+                    success = mixerIn.sendWithTimeout(audioData, SEND_TIMEOUT, TimeUnit.MILLISECONDS);
                 }
-                played++;
+                if (!success) logger.trace("Audio send operation fail.");
                 if (played > audioData.length - 1 && needLoop()) {
-                    played = 0;
+                    resetPosition();
                     logger.debug("Loop. Remaining loops: " + loop + "/" + loopCount + ".");
                 }
             } catch (InterruptedException e) {
@@ -297,9 +405,12 @@ public class SoundSource implements AutoCloseable {
             }
         }
 
+        logger.debug("Playback loop ended.");
+        playbackPositionTimer.stop(); // Stop the playback position timer
+
         // Loop playback when end is reached
         if (played >= audioData.length) {
-            played = 0;
+            resetPosition();
         }
     }
 
@@ -331,7 +442,13 @@ public class SoundSource implements AutoCloseable {
         mixer.addEffect(effect);
     }
 
-    public void setLoop(int loopCount) {
+    /**
+     * Sets the number of loops for playback.
+     * If the loop count is set to 0, the sound will not loop.
+     * @param loopCount The number of loops to set.
+     *                  Use NO_LOOP for no loops, or LOOP_CONTINUOUSLY for infinite loops.
+     */
+    public synchronized void setLoop(int loopCount) {
         this.loopCount = loopCount;
         if (loop > loopCount) {
             loop = 0;
@@ -343,7 +460,7 @@ public class SoundSource implements AutoCloseable {
      *
      * @param frame The frame position to set.
      */
-    public void setFramePosition(long frame) {
+    public synchronized void setFramePosition(long frame) {
         if (!isOpen) return;
     
         if (frame < 0) frame = 0;
@@ -357,6 +474,9 @@ public class SoundSource implements AutoCloseable {
 
         played = Math.min(buffer, audioData.length - 1);
         offset = Math.min(remaining, bufferSize - 1);
+
+        long nanos = (played * bufferSize + offset) * 1_000_000_000 / audioFormat.getByteRate() / audioFormat.getFrameSize();
+        playbackPositionTimer.setStartTimeNanos(nanos); // Set the playback position timer
     
         pendingFrameSeek = false; // Unlock the playback thread
         logger.debug("Playback thread unlocked.");
@@ -368,7 +488,7 @@ public class SoundSource implements AutoCloseable {
      *
      * @param mcs The microsecond position.
      */
-    public void setMicrosecondPosition(long mcs) {
+    public synchronized void setMicrosecondPosition(long mcs) {
         int frameSize = audioFormat.getFrameSize();
         long sample = (long)((double)(mcs) / 1_000_000 * audioFormat.getByteRate()) / audioFormat.getFrameSize();
         setFramePosition(sample * frameSize);
@@ -379,29 +499,37 @@ public class SoundSource implements AutoCloseable {
      *
      * @param mcs The modified microsecond position.
      */
-    public void setModifiedMicrosecondPosition(long mcs) {
+    public synchronized void setModifiedMicrosecondPosition(long mcs) {
         int frameSize = audioFormat.getFrameSize();
         long sample = (long)((double)(mcs) / speedEffect.getSpeedController().getValue() / 1_000_000 * audioFormat.getByteRate()) / audioFormat.getFrameSize();
         setFramePosition(sample * frameSize);
     }
 
     /**
-     * Returns the current frame position.
+     * Returns the current frame position, based on played buffers and offset.
      *
      * @return The current frame position.
      */
-    public long getFramePosition() {
-        return (long)played * bufferSize + offset;
+    public synchronized long getDelayedFramePosition() {
+        return (long)played * (bufferSize / audioFormat.getFrameSize()) + offset;
     }
 
     /**
-     * Returns the current position in microseconds, based on the current frame position.
-     * The calculation is based on the frame size and the byte rate of the audio format.
+     * Returns the current frame position, based on the playback position timer.
+     *
+     * @return The current frame position (from the timer).
+     */
+    public synchronized long getFramePosition() {
+        return AudioConverter.microsecondsToFrames(playbackPositionTimer.getElapsedNanos() / 1000, audioFormat);
+    }
+
+    /**
+     * Returns the current position in microseconds, based on the playback timer.
      * 
      * @return The current position in microseconds.
      */
-    public long getMicrosecondPosition() {
-        return (long)(((double)(getFramePosition() * audioFormat.getFrameSize()) / audioFormat.getByteRate()) * 1_000_000);
+    public synchronized long getMicrosecondPosition() {
+        return playbackPositionTimer.getElapsedNanos() / 1000;
     }
 
     /**
@@ -410,8 +538,8 @@ public class SoundSource implements AutoCloseable {
      * 
      * @return The current position in microseconds, with speed modifications applied.
      */
-    public long getModifiedMicrosecondPosition() {
-        return (long)(((double)(getFramePosition() * audioFormat.getFrameSize()) / speedEffect.getSpeedController().getValue() / audioFormat.getByteRate()) * 1_000_000);
+    public synchronized long getModifiedMicrosecondPosition() {
+        return (long)((double)getMicrosecondPosition() * speedEffect.getSpeedController().getValue());
     }
 
     /**
@@ -492,11 +620,19 @@ public class SoundSource implements AutoCloseable {
     }
 
     /**
+     * Returns the mixer used for audio processing.
+     * @return mixer The {@link AudioMixer} instance used for audio processing, or {@code null} if the sound source is not open.
+     */
+    public AudioMixer getMixer() {
+        return mixer;
+    }
+
+    /**
      * Closes the sound source and cleans up resources.
      * Stops the playback if it is active and sets the sound source as closed.
      */
     @Override
-    public void close() {
+    public synchronized void close() {
         if (!isOpen) return;
         if (isPlaying()) {
             stop(); // Stop playback
@@ -521,6 +657,12 @@ public class SoundSource implements AutoCloseable {
         audioData = null;
         // audioFormat = null;
         logger.debug("Cleanup completed.");
+    }
+
+    protected synchronized void resetPosition() {
+        played = 0;
+        offset = 0;
+        playbackPositionTimer.setStartTimeNanos(0); // Reset the playback position timer
     }
 
     /**
