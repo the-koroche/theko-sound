@@ -1,5 +1,7 @@
 package org.theko.sound;
 
+import static java.util.stream.Collectors.averagingDouble;
+
 import java.lang.ref.Cleaner;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +21,7 @@ import org.theko.sound.event.DataLineEvent;
  * AudioMixer class provides functionality for mixing audio input lines with optional effects, pre-gain, post-gain, and pan controls.
  * It supports two modes of operation: using threads or events to process audio.
  */
-public class AudioMixer implements AutoCloseable {
+public class AudioMixer implements AudioObject, AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(AudioMixer.class);
 
     /** Defines the two available modes for audio mixing. */
@@ -31,7 +33,7 @@ public class AudioMixer implements AutoCloseable {
     protected final List<DataLine> inputs;  // List of input data lines (audio sources)
     protected final List<DataLine> outputs; // List of output data lines (audio sinks)
     protected final List<AudioEffect> effects; // List of audio effects to apply
-    private final Thread mixerThread; // Thread used for audio processing in THREAD mode
+    private transient Thread mixerThread; // Thread used for audio processing in THREAD mode
 
     protected AudioFormat processAudioFormat; // The format to process the audio data
 
@@ -41,7 +43,10 @@ public class AudioMixer implements AutoCloseable {
     protected final FloatController postGainController; // Post-gain control
     protected final FloatController panController; // Pan control for stereo balance
 
-    private static final Cleaner cleaner = Cleaner.create(Thread.ofVirtual().factory()); // Virtual thread cleaner for resource management
+    private static int mixerInstances;
+    private static final int thisMixerInstance = ++mixerInstances;
+
+    private static transient final Cleaner cleaner = Cleaner.create(Thread.ofVirtual().factory()); // Virtual thread cleaner for resource management
 
     /**
      * Constructs an AudioMixer with the specified mode and audio format.
@@ -56,7 +61,7 @@ public class AudioMixer implements AutoCloseable {
         outputs = new CopyOnWriteArrayList<>();
         effects = new CopyOnWriteArrayList<>();
 
-        mixerThread = (mixerMode == Mode.THREAD) ? new Thread(this::processLoop, "AudioMixer") : null;
+        mixerThread = (mixerMode == Mode.THREAD) ? new Thread(this::processLoop, "Mixing Thread-" + thisMixerInstance) : null;
         if (mixerThread != null) {
             mixerThread.start();
             logger.debug("Mixer thread started.");
@@ -342,6 +347,20 @@ public class AudioMixer implements AutoCloseable {
         }
         for (Entry<DataLine, DataLineAdapter> input : inputListeners.entrySet()) {
             input.getKey().removeDataLineListener(input.getValue());
+        }
+    }
+
+    @Override
+    public void onLoad() {
+        if (mixerMode == Mode.THREAD) {
+            if (mixerThread != null && !mixerThread.isAlive()) {
+                mixerThread.start();
+                logger.debug("Mixer thread started.");
+            } else if (mixerThread == null) {
+                logger.warn("Mixer thread is null, recreating it.");
+                mixerThread = new Thread(this::processLoop, "Mixing Thread-" + thisMixerInstance);
+                mixerThread.start();
+            }
         }
     }
 
