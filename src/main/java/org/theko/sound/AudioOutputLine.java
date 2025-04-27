@@ -22,6 +22,8 @@ public class AudioOutputLine implements AutoCloseable {
     // Input data line for receiving data (can be null)
     protected DataLine input;
 
+    protected Runnable onWritedRunnable;
+
     // Lock for synchronizing access to the input line
     private final Lock inputLock = new ReentrantLock();
 
@@ -32,6 +34,9 @@ public class AudioOutputLine implements AutoCloseable {
             // When data is sent, force receive the data and write it
             byte[] bytes = e.getDataLine().forceReceive();
             dwrite(bytes, 0, bytes.length);
+            if (onWritedRunnable != null) {
+                onWritedRunnable.run();
+            }
         }
     };
 
@@ -303,5 +308,9 @@ public class AudioOutputLine implements AutoCloseable {
      */
     public AudioPort getCurrentAudioPort() {
         return aod.getCurrentAudioPort();
+    }
+
+    public void setOnWritedAction(Runnable runnable) {
+        this.onWritedRunnable = runnable;
     }
 }
