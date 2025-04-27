@@ -6,6 +6,8 @@ import java.util.ArrayList;
  * Utility class for buffering audio data into chunks of a specified size.
  */
 public class AudioBufferizer {
+    private AudioBufferizer () {
+    }
 
     /**
      * Splits the input audio data into buffers of the specified size.
