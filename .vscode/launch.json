@@ -6,39 +6,56 @@
     "configurations": [
         {
             "type": "java",
-            "name": "MicrophoneTest",
+            "name": "SoundWithEffectTest",
             "request": "launch",
-            "mainClass": "MicrophoneTest",
-            "projectName": "theko-sound"
-        },
-        {
-            "type": "java",
-            "name": "Replayer",
-            "request": "launch",
-            "mainClass": "Replayer",
-            "projectName": "theko-sound"
-        },
-        {
-            "type": "java",
-            "name": "VisualTest",
-            "request": "launch",
-            "mainClass": "VisualTest",
-            "projectName": "theko-sound"
-        },
-        {
-            "type": "java",
-            "name": "MusicPlayer",
-            "request": "launch",
-            "mainClass": "MusicPlayer",
-            "projectName": "theko-sound"
-        },
-        {
-            "type": "java",
-            "name": "SoundTest",
-            "request": "launch",
-            "mainClass": "SoundTest",
+            "mainClass": "test.SoundWithEffectTest",
             "projectName": "theko-sound",
             "vmArgs": "-Dorg.slf4j.simpleLogger.defaultLogLevel=debug"
-        }
+        },
+        {
+            "type": "java",
+            "name": "AudioConverterTest1",
+            "request": "launch",
+            "mainClass": "test.org.theko.sound.AudioConverterTest1",
+            "projectName": "theko-sound"
+        },
+        {
+            "type": "java",
+            "name": "AudioClassLoaderTest3",
+            "request": "launch",
+            "mainClass": "test.org.theko.sound.AudioClassLoaderTest3",
+            "projectName": "theko-sound"
+        },
+        {
+            "type": "java",
+            "name": "AudioClassLoaderTest2",
+            "request": "launch",
+            "mainClass": "test.org.theko.sound.AudioClassLoaderTest2",
+            "projectName": "theko-sound",
+            "vmArgs": "-Dorg.slf4j.simpleLogger.defaultLogLevel=debug -Dorg.theko.sound.AudioClassLoader.manual_init=true"
+        },
+        {
+            "type": "java",
+            "name": "AudioClassLoaderTest1",
+            "request": "launch",
+            "mainClass": "test.org.theko.sound.AudioClassLoaderTest1",
+            "projectName": "theko-sound",
+            "vmArgs": "-Dorg.slf4j.simpleLogger.defaultLogLevel=debug"
+        },
+        {
+            "type": "java",
+            "name": "AudioBufferizerTest",
+            "request": "launch",
+            "mainClass": "test.org.theko.sound.AudioBufferizerTest",
+            "projectName": "theko-sound",
+            "vmArgs": "-Dorg.slf4j.simpleLogger.defaultLogLevel=debug"
+        },
+        {
+            "type": "java",
+            "name": "CodecTest",
+            "request": "launch",
+            "mainClass": "CodecTest",
+            "projectName": "theko-sound"
+        },
     ]
 }
