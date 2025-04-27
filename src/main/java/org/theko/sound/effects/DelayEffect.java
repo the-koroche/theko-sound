@@ -13,8 +13,11 @@ public class DelayEffect extends AudioEffect {
     private final FloatController delayTimeController;
     private final FloatController feedbackController;
     private final FloatController mixController;
+    private final FloatController cutoffFrequencyController; // Для частоты среза
 
     private int delayInSamples;
+
+    private float[] previousFilteredSamples;
 
     public DelayEffect(AudioFormat audioFormat) {
         super(Type.REALTIME, audioFormat);
@@ -22,10 +25,12 @@ public class DelayEffect extends AudioEffect {
         this.numChannels = audioFormat.getChannels();
 
         // Инициализация контроллеров
-        delayTimeController = new FloatController("Delay Time", 0.01f, 2.0f, 0.3f);
+        delayTimeController = new FloatController("Delay Time", 0.01f, 2.0f, 1f);
         feedbackController = new FloatController("Feedback", 0.0f, 0.99f, 0.5f);
         mixController = new FloatController("Mix", 0.0f, 1.0f, 0.5f);
+        cutoffFrequencyController = new FloatController("Cutoff Frequency", 20.0f, 1000.0f, 200.0f); // контроллер для частоты среза
 
+        previousFilteredSamples = new float[numChannels];
         updateDelayBuffers();
     }
 
@@ -47,19 +52,30 @@ public class DelayEffect extends AudioEffect {
 
         float feedback = feedbackController.getValue();
         float mix = mixController.getValue();
+        float cutoffFrequency = cutoffFrequencyController.getValue();
+
+        // Коэффициент фильтра LPF
+        float a = getLpfCoefficient(cutoffFrequency);
 
         for (int ch = 0; ch < numChannels; ch++) {
             CircularBuffer buffer = delayBuffers[ch];
             float[] channelSamples = samples[ch];
+            float previousSample = previousFilteredSamples[ch];
 
             for (int i = 0; i < channelSamples.length; i++) {
-                float delayedSample = buffer.getDelayed(delayInSamples);
+                // Применяем фильтр низких частот
                 float inputSample = channelSamples[i];
+                float filteredSample = a * inputSample + (1 - a) * previousSample;
 
-                float outputSample = inputSample * (1.0f - mix) + delayedSample * mix;
+                // Сохраняем последний отфильтрованный сэмпл
+                previousFilteredSamples[ch] = filteredSample;
+
+                // Применяем задержку и обработку
+                float delayedSample = buffer.getDelayed(delayInSamples);
+                float outputSample = filteredSample * (1.0f - mix) + delayedSample * mix;
                 channelSamples[i] = outputSample;
 
-                // Пишем в буфер сумму входного сигнала и ослабленного эха
+                // Пишем в буфер
                 buffer.put(inputSample + delayedSample * feedback);
             }
         }
@@ -80,6 +96,10 @@ public class DelayEffect extends AudioEffect {
         return mixController;
     }
 
+    public FloatController getCutoffFrequencyController() {
+        return cutoffFrequencyController;
+    }
+
     private static class CircularBuffer {
         private final float[] buffer;
         private int pointer;
@@ -98,5 +118,13 @@ public class DelayEffect extends AudioEffect {
             int index = (pointer - delay + buffer.length) % buffer.length;
             return buffer[index];
         }
+    }
+
+    // Метод для вычисления коэффициента LPF
+    private float getLpfCoefficient(float cutoffFrequency) {
+        // Частота среза в Гц и частота дискретизации
+        float tau = 1.0f / (2 * (float) Math.PI * cutoffFrequency);
+        float a = tau / (tau + 1.0f / sampleRate);
+        return a;
     }
 }
