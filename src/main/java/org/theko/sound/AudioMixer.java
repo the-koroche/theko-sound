@@ -1,7 +1,5 @@
 package org.theko.sound;
 
-import static java.util.stream.Collectors.averagingDouble;
-
 import java.lang.ref.Cleaner;
 import java.util.List;
 import java.util.Map;
