@@ -46,6 +46,19 @@ public class SoundPlayer extends SoundSource {
     }
 
     /**
+     * Opens the audio file and prepares the playback with a specified buffer size and audio port.
+     * 
+     * @param filePath The audio file path to be opened.
+     * @param bufferSize The size of the buffer for playback.
+     * @param port The audio output port.
+     * @throws FileNotFoundException if the file cannot be found.
+     */
+    public void open(String filePath, int bufferSize, AudioPort port) throws FileNotFoundException {
+        this.audioPort = port;
+        super.open(filePath, bufferSize);
+    }
+
+    /**
      * Initializes the audio pipeline for playback, including setting up the audio output line.
      * 
      * @throws UnsupportedAudioFormatException if the audio format is not supported.
@@ -61,10 +74,19 @@ public class SoundPlayer extends SoundSource {
             logger.debug("AOL opened.");
             aol.setInput(getOutputLine());  // Set the output line of the sound source to the input of the output line
             logger.debug("AOL input attached to the mixer output.");
+            aol.setOnWritedAction(() -> {
+                played++;
+            });
+            logger.debug("AOL on-writed action is attached.");
         } catch (AudioDeviceException | AudioPortsNotFoundException | UnsupportedAudioFormatException e) {
             logger.error(e.getMessage());
             throw new RuntimeException(e);  // Propagate the error if setup fails
         }
+    }
+
+    @Override
+    protected void attachAudioOutAction() {
+        // Do nothing
     }
 
     /**
@@ -72,9 +94,18 @@ public class SoundPlayer extends SoundSource {
      * It calls the base class start method and starts the audio output line.
      */
     @Override
-    public void start() {
-        super.start();  // Start the base class playback
+    public synchronized void start() {
         aol.start();    // Start the audio output line
+        super.start();  // Start the base class playback
+    }
+
+    public synchronized void startAndWait() {
+        start();
+        try {
+            Thread.sleep(getModifiedMicrosecondLength() / 1000);
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage());
+        }
     }
 
     /**
@@ -82,7 +113,7 @@ public class SoundPlayer extends SoundSource {
      * It calls the base class stop method and stops the audio output line.
      */
     @Override
-    public void stop() {
+    public synchronized void stop() {
         super.stop();   // Stop the base class playback
         aol.stop();     // Stop the audio output line
     }
@@ -94,7 +125,7 @@ public class SoundPlayer extends SoundSource {
      * @param frame The frame position to seek to.
      */
     @Override
-    public void setFramePosition(long frame) {
+    public synchronized void setFramePosition(long frame) {
         if (!isOpen) return;
 
         frame = frame / audioFormat.getFrameSize() * audioFormat.getFrameSize();  // Align frame to frame size
@@ -120,25 +151,11 @@ public class SoundPlayer extends SoundSource {
     }
 
     /**
-     * Returns the current frame position of the playback.
-     * 
-     * @return The current frame position, or -1 if the sound source is not open.
-     */
-    @Override
-    public long getFramePosition() {
-        if (!isOpen) {
-            return -1;  // Return -1 if the sound source is not open
-        }
-        // Calculate the frame position based on played buffer, available bytes, and the offset
-        return (bufferSize * played + aol.available() + offset) / audioFormat.getFrameSize();
-    }
-
-    /**
      * Closes the sound player and releases all resources.
      * Stops playback and closes the audio output line.
      */
     @Override
-    public void close() {
+    public synchronized void close() {
         super.close();  // Close the base class resources
         aol.close();    // Close the audio output line
         logger.debug("AOL closed.");
