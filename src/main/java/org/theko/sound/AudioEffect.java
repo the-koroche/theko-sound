@@ -6,7 +6,7 @@ import org.theko.sound.control.FloatController;
 /**
  * Represents an abstract audio effect that can be applied to audio data.
  */
-public abstract class AudioEffect {
+public abstract class AudioEffect implements AudioObject {
     /**
      * Defines the type of audio effect.
      */
@@ -22,8 +22,8 @@ public abstract class AudioEffect {
     /** The type of the effect (real-time or offline processing). */
     protected final Type type;
 
-    protected final BooleanController enableController;
-    protected final FloatController mixController;
+    protected transient final BooleanController enableController;
+    protected transient final FloatController mixController;
 
     /**
      * Constructs an AudioEffect with a specified type and audio format.

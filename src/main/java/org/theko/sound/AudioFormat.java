@@ -6,7 +6,7 @@ import java.util.Objects;
  * Represents an audio format specification including sample rate, bit depth, channel count,
  * encoding type, endianness, frame size, and byte rate.
  */
-public class AudioFormat {
+public class AudioFormat implements AudioObject {
     private final int sampleRate;
     private final int bitsPerSample;
     private final int channels;
