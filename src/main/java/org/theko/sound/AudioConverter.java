@@ -86,4 +86,26 @@ public class AudioConverter {
 
         return newSamples;
     }
+
+    /**
+     * Converts a time duration in microseconds to the equivalent number of audio frames.
+     *
+     * @param microseconds The time duration in microseconds.
+     * @param format       The audio format.
+     * @return The equivalent number of audio frames.
+     */
+    public static long microsecondsToFrames(long microseconds, AudioFormat format) {
+        return (microseconds * format.getSampleRate()) / 1_000_000L;
+    }
+
+    /**
+     * Converts a number of audio frames to the equivalent time duration in microseconds.
+     *
+     * @param frames The number of audio frames.
+     * @param format The audio format.
+     * @return The equivalent time duration in microseconds.
+     */
+    public static long framesToMicroseconds(long frames, AudioFormat format) {
+        return (frames * 1_000_000L) / format.getSampleRate();
+    }
 }
