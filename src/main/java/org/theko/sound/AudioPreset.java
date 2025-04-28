@@ -84,4 +84,9 @@ public abstract class AudioPreset implements Serializable {
             return false;
         }
     }
+
+    @Override
+    public String toString() {
+        return String.format("AudioPreset {Name: %s, Description: %s}", name, description);
+    }
 }
