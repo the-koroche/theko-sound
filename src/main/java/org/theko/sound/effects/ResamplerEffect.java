@@ -5,12 +5,12 @@ import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioResampler;
 import org.theko.sound.control.FloatController;
 
-public class SpeedChangeEffect extends AudioEffect {
+public class ResamplerEffect extends AudioEffect {
     private FloatController speed;
 
-    public SpeedChangeEffect(AudioFormat audioFormat) {
+    public ResamplerEffect(AudioFormat audioFormat) {
         super(Type.REALTIME, audioFormat);
-        speed = new FloatController("SPEED", 0.001f, 16f, 1f);
+        speed = new FloatController("Speed", 0.001f,32f, 1f);
     }
 
     @Override
