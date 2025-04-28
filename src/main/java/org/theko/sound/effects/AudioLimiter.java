@@ -3,14 +3,13 @@ package org.theko.sound.effects;
 import org.theko.sound.AudioEffect;
 import org.theko.sound.AudioFormat;
 import org.theko.sound.control.FloatController;
+import org.theko.sound.envelope.ASREnvelope;
 
 public class AudioLimiter extends AudioEffect {
     private FloatController gain;
     private FloatController softSaturationThreshold;
     private FloatController limiterCeiling;
-    private FloatController attackTime;
-    private FloatController releaseTime;
-    private FloatController sustainTime;
+    private ASREnvelope envelope;
 
     public AudioLimiter(AudioFormat audioFormat) {
         super(Type.REALTIME, audioFormat);
@@ -18,9 +17,7 @@ public class AudioLimiter extends AudioEffect {
         this.gain = new FloatController("Gain", -24.0f, 24.0f, 0.0f); // dB
         this.softSaturationThreshold = new FloatController("Soft Saturation Threshold", -12.0f, 0.0f, -6.0f); // dB
         this.limiterCeiling = new FloatController("Limiter Ceiling", -20.0f, 0.0f, -0.1f); // dB
-        this.attackTime = new FloatController("Attack", 0.0001f, 0.1f, 0.005f); // 0.1 ms - 100 ms
-        this.releaseTime = new FloatController("Release", 0.01f, 1.0f, 0.2f); // 10 ms - 1 s
-        this.sustainTime = new FloatController("Sustain", 0.0f, 0.5f, 0.05f); // 0 - 500 ms
+        this.envelope = new ASREnvelope(0.005f, 0.2f, 0.05f); // 5 ms attack, 200 ms release, 50 ms sustain
     }
 
     public FloatController getGain() {
@@ -35,16 +32,16 @@ public class AudioLimiter extends AudioEffect {
         return limiterCeiling;
     }
 
-    public FloatController getAttackTime() {
-        return attackTime;
+    public FloatController getAttack() {
+        return envelope.getAttack();
     }
 
-    public FloatController getReleaseTime() {
-        return releaseTime;
+    public FloatController getRelease() {
+        return envelope.getRelease();
     }
 
-    public FloatController getSustainTime() {
-        return sustainTime;
+    public FloatController getSustain() {
+        return envelope.getSustain();
     }
 
     @Override
@@ -57,9 +54,9 @@ public class AudioLimiter extends AudioEffect {
         float softThreshold = (float) Math.pow(10.0, softSaturationThreshold.getValue() / 20.0);
         float ceiling = (float) Math.pow(10.0, limiterCeiling.getValue() / 20.0);
     
-        float attackCoeff = (float) Math.exp(-1.0 / (sampleRate * attackTime.getValue()));
-        float releaseCoeff = (float) Math.exp(-1.0 / (sampleRate * releaseTime.getValue()));
-        float sustainSamples = sustainTime.getValue() * sampleRate;
+        float attackCoeff = (float) Math.exp(-1.0 / (sampleRate * getAttack().getValue()));
+        float releaseCoeff = (float) Math.exp(-1.0 / (sampleRate * getRelease().getValue()));
+        float sustainSamples = getSustain().getValue() * sampleRate;
     
         float envelope = 1.0f;
         float sustainCounter = 0.0f;
