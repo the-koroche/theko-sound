@@ -3,6 +3,8 @@ package org.theko.sound;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -15,8 +17,10 @@ import org.theko.sound.codec.AudioCodecInfo;
 import org.theko.sound.codec.AudioCodecs;
 import org.theko.sound.codec.AudioDecodeResult;
 import org.theko.sound.codec.AudioTag;
+import org.theko.sound.control.AudioController;
+import org.theko.sound.control.Controllable;
 import org.theko.sound.control.FloatController;
-import org.theko.sound.effects.SpeedChangeEffect;
+import org.theko.sound.effects.ResamplerEffect;
 import org.theko.sound.event.DataLineAdapter;
 import org.theko.sound.event.DataLineEvent;
 
@@ -24,7 +28,7 @@ import org.theko.sound.event.DataLineEvent;
  * SoundSource represents an audio file that can be opened, played, and controlled. 
  * It handles the playback, buffering, and various effects of the audio data.
  */
-public class SoundSource implements AutoCloseable {
+public class SoundSource implements AutoCloseable, Controllable {
     private static final Logger logger = LoggerFactory.getLogger(SoundSource.class);
 
     // Audio properties
@@ -51,7 +55,7 @@ public class SoundSource implements AutoCloseable {
 
     protected Timer playbackPositionTimer;
     
-    protected SpeedChangeEffect speedEffect;
+    protected ResamplerEffect speedEffect;
 
     // Instance counting
     private static int soundInstances = 0;
@@ -287,7 +291,7 @@ public class SoundSource implements AutoCloseable {
         logger.debug("Data lines are attached to the mixer.");
         
         // Initialize speed change effect
-        this.speedEffect = new SpeedChangeEffect(audioFormat);
+        this.speedEffect = new ResamplerEffect(audioFormat);
         logger.debug("Speed changer initialized.");
         try {
             mixer.addEffect(speedEffect); // Add effect to mixer
@@ -373,44 +377,55 @@ public class SoundSource implements AutoCloseable {
         return speedEffect.getSpeedController();
     }
 
+    @Override
+    public List<AudioController> getAllControllers() {
+        ArrayList<AudioController> controllers = new ArrayList<>();
+        controllers.add(getGainController());
+        controllers.add(getPanController());
+        controllers.add(getSpeedController());
+        return Collections.unmodifiableList(controllers);
+    }
+
     /**
      * Playback loop for continuous audio streaming.
      */
     protected void playbackLoop() {
-        logger.debug("Playback loop started.");
-        playbackPositionTimer.start();
-        while (isPlaying && isOpen && !Thread.currentThread().isInterrupted() && played < audioData.length) {
-            try {
-                if (pendingFrameSeek) {
-                    // Short frame position changes block the thread temporarily
-                    Thread.sleep(1);
-                    continue;
-                }
-                boolean success = false;
-                if (offset <= 0) {
-                    success = mixerIn.sendWithTimeout(audioData[played], SEND_TIMEOUT, TimeUnit.MILLISECONDS); // Send data to mixer
-                } else {
-                    byte[] audioData = new byte[bufferSize - offset];
-                    System.arraycopy(this.audioData[played], offset, audioData, 0, audioData.length); // Handle offset
-                    offset = 0;
-                    success = mixerIn.sendWithTimeout(audioData, SEND_TIMEOUT, TimeUnit.MILLISECONDS);
-                }
-                if (!success) logger.trace("Audio send operation fail.");
-                if (played > audioData.length - 1 && needLoop()) {
-                    resetPosition();
-                    logger.debug("Loop. Remaining loops: " + loop + "/" + loopCount + ".");
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        try {
+            logger.debug("Playback loop started.");
+            playbackPositionTimer.start();
+            while (isPlaying && isOpen && !Thread.currentThread().isInterrupted() && played < audioData.length) {
+                    if (pendingFrameSeek) {
+                        // Short frame position changes block the thread temporarily
+                        Thread.sleep(1);
+                        continue;
+                    }
+                    boolean success = false;
+                    if (offset <= 0) {
+                        success = mixerIn.sendWithTimeout(audioData[played], SEND_TIMEOUT, TimeUnit.MILLISECONDS); // Send data to mixer
+                    } else {
+                        byte[] audioData = new byte[bufferSize - offset];
+                        System.arraycopy(this.audioData[played], offset, audioData, 0, audioData.length); // Handle offset
+                        offset = 0;
+                        success = mixerIn.sendWithTimeout(audioData, SEND_TIMEOUT, TimeUnit.MILLISECONDS);
+                    }
+                    if (!success) logger.trace("Audio send operation fail.");
+                    if (played > audioData.length - 1 && needLoop()) {
+                        resetPosition();
+                        logger.debug("Loop. Remaining loops: " + loop + "/" + loopCount + ".");
+                    }
             }
-        }
+            Thread.sleep(AudioConverter.framesToMicroseconds(bufferSize / audioFormat.getFrameSize(), audioFormat) / 1000); // Wait for the last buffer to finish
+            playbackPositionTimer.stop(); // Stop the playback position timer
+            isPlaying = false; // Mark playback as stopped
+            logger.debug("Playback loop ended.");
 
-        logger.debug("Playback loop ended.");
-        playbackPositionTimer.stop(); // Stop the playback position timer
-
-        // Loop playback when end is reached
-        if (played >= audioData.length) {
-            resetPosition();
+            // Loop playback when end is reached
+            if (played >= audioData.length) {
+                resetPosition();
+            }
+            
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -657,6 +672,11 @@ public class SoundSource implements AutoCloseable {
         audioData = null;
         // audioFormat = null;
         logger.debug("Cleanup completed.");
+    }
+
+    @Override
+    public String toString() {
+        return String.format("SoundSource {Instance: %d, Open: %s, Playing: %s, Length: %d, BufferSize: %d}", thisSoundInstance, isOpen, isPlaying, length, bufferSize);
     }
 
     protected synchronized void resetPosition() {
