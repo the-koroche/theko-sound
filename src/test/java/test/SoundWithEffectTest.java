@@ -1,6 +1,5 @@
 package test;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,28 +15,38 @@ import test.org.theko.sound.SharedFunctions;
 
 public class SoundWithEffectTest {
     public static void main(String[] args) {
+        SoundPlayer sound = null;
         try {
-            SoundPlayer sound = new SoundPlayer();
+            sound = new SoundPlayer();
             sound.open(SharedFunctions.chooseAudioFile(), SoundPlayer.BUFFER_SIZE_1024MS);
-
-            //addEffects(sound);
-            
-            sound.getSpeedController().setValue(1.4f);
+    
+            addEffects(sound);
+    
+            sound.getFloatController("Speed").setValue(0.8f);
             sound.start();
-
+    
             while (sound.isPlaying()) {
-                System.out.print("position: " + sound.getMicrosecondPosition() / 1_000_000.0 + " s  | mod: " + sound.getModifiedMicrosecondPosition() / 1_000_000.0 + " s    \r");
-                try {
-                    Thread.sleep(20); // Print every second
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                printSoundPosition(sound);
+                Thread.sleep(20);
             }
-
-            sound.close();
+    
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            e.printStackTrace();
+        } finally {
+            if (sound != null) {
+                System.out.println("Closing sound...");
+                sound.close();
+            }
         }
+    }
+    
+    private static void printSoundPosition(SoundPlayer sound) {
+        double positionSeconds = sound.getMicrosecondPosition() / 1_000_000.0;
+        double modPositionSeconds = sound.getModifiedMicrosecondPosition() / 1_000_000.0;
+        System.out.print(String.format("position: %.3f s  | mod: %.3f s    \r", positionSeconds, modPositionSeconds));
     }
 
     private static void addEffects(SoundPlayer sound) {
@@ -54,16 +63,9 @@ public class SoundWithEffectTest {
     }
 
     private static List<AudioEffect> getEffects(AudioFormat format) {
-        // Example: Create a compressor effect
-        AudioCompressor compressor = new AudioCompressor(format);
-        compressor.getThreshold().setValue(-10.0f); // Set threshold to -30 dB
-        compressor.getRatio().setValue(2.0f); // Set compression ratio to 2:1
-        compressor.getAttack().setValue(0.01f); // Set attack time to 10 ms
-        compressor.getRelease().setValue(0.1f); // Set release time to 100 ms
-        compressor.getMakeupGain().setValue(36.0f); // Добавляем +6 dB усиления
-
         AudioLimiter limiter = new AudioLimiter(format);
+        System.out.println(limiter.getAllControllers());
     
-        return new ArrayList<>(List.of(compressor, limiter));
+        return new ArrayList<>(List.of(limiter));
     }
 }
