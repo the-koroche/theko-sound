@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.control.AudioController;
+import org.theko.sound.control.Controllable;
 import org.theko.sound.control.FloatController;
 import org.theko.sound.event.DataLineAdapter;
 import org.theko.sound.event.DataLineEvent;
@@ -19,7 +20,7 @@ import org.theko.sound.event.DataLineEvent;
  * AudioMixer class provides functionality for mixing audio input lines with optional effects, pre-gain, post-gain, and pan controls.
  * It supports two modes of operation: using threads or events to process audio.
  */
-public class AudioMixer implements AudioObject, AutoCloseable {
+public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(AudioMixer.class);
 
     /** Defines the two available modes for audio mixing. */
@@ -202,8 +203,13 @@ public class AudioMixer implements AudioObject, AutoCloseable {
         return panController;
     }
 
-    public AudioController[] getAllControllers() {
-        return new AudioController[] {preGainController, postGainController, panController};
+    @Override
+    public List<AudioController> getAllControllers() {
+        List<AudioController> controllers = new CopyOnWriteArrayList<>();
+        controllers.add(preGainController);
+        controllers.add(postGainController);
+        controllers.add(panController);
+        return controllers;
     }
 
     /**

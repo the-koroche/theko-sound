@@ -1,12 +1,13 @@
 package org.theko.sound;
 
 import org.theko.sound.control.BooleanController;
+import org.theko.sound.control.Controllable;
 import org.theko.sound.control.FloatController;
 
 /**
  * Represents an abstract audio effect that can be applied to audio data.
  */
-public abstract class AudioEffect implements AudioObject {
+public abstract class AudioEffect implements AudioObject, Controllable {
     /**
      * Defines the type of audio effect.
      */
@@ -104,5 +105,10 @@ public abstract class AudioEffect implements AudioObject {
      */
     public boolean isRealTime() {
         return type == AudioEffect.Type.REALTIME;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("AudioEffect {Type: %s, AudioFormat: %s}", type, audioFormat);
     }
 }
