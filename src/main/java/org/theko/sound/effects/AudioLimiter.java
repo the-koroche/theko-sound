@@ -1,7 +1,11 @@
 package org.theko.sound.effects;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.theko.sound.AudioEffect;
 import org.theko.sound.AudioFormat;
+import org.theko.sound.control.AudioController;
 import org.theko.sound.control.FloatController;
 import org.theko.sound.envelope.ASREnvelope;
 
@@ -101,5 +105,15 @@ public class AudioLimiter extends AudioEffect {
         }
     
         return samples;
+    }
+
+    @Override
+    public List<AudioController> getAllControllers() {
+        List<AudioController> controllers = new ArrayList<>();
+        controllers.add(gain);
+        controllers.add(softSaturationThreshold);
+        controllers.add(limiterCeiling);
+        controllers.addAll(envelope.getAllControllers());
+        return controllers;
     }
 }
