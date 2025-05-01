@@ -38,6 +38,14 @@ public abstract class AudioPreset implements Serializable {
         return audioObjectState;
     }
 
+    /**
+     * Loads the audio object state from a file. The file must be a valid audio preset file. 
+     * The onLoad method is called after loading the object.
+     * 
+     * @param file the file to load the audio object state from
+     * @throws FileNotFoundException if the file is not found
+     * @throws AudioObjectIOException if there is an error loading the audio object
+     */
     public void load(File file) throws FileNotFoundException, AudioObjectIOException {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             AudioPreset preset = (AudioPreset) ois.readObject();
@@ -67,6 +75,14 @@ public abstract class AudioPreset implements Serializable {
         }
     }
 
+    /**
+     * Saves the audio object to the specified file. Returns true if the operation
+     * succeeds, false otherwise.
+     *
+     * @param file the file to save the audio object to
+     * @param audioObject the audio object to save
+     * @return true if the operation succeeds, false otherwise
+     */
     public boolean save(File file, AudioObject audioObject) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
             audioObject.onSave(); // Call onSave method before saving the object
@@ -85,6 +101,11 @@ public abstract class AudioPreset implements Serializable {
         }
     }
 
+    /**
+     * Returns a string representation of the AudioPreset object, including the name and description.
+     *
+     * @return A string that represents the audio preset.
+     */
     @Override
     public String toString() {
         return String.format("AudioPreset {Name: %s, Description: %s}", name, description);
