@@ -6,8 +6,6 @@ import java.io.FileNotFoundException;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.theko.sound.AudioDeviceCreationException;
-import org.theko.sound.AudioDeviceNotFoundException;
 import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioOutputLine;
 import org.theko.sound.AudioPortsNotFoundException;

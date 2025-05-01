@@ -3,9 +3,6 @@ package test.org.theko.sound;
 import org.theko.sound.AudioBufferizer;
 import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioOutputLine;
-
-import org.theko.sound.AudioDeviceCreationException;
-import org.theko.sound.AudioDeviceNotFoundException;
 import org.theko.sound.AudioPortsNotFoundException;
 import org.theko.sound.UnsupportedAudioFormatException;
 import org.theko.sound.codec.AudioDecodeResult;
@@ -38,10 +35,7 @@ public class AudioBufferizerTest {
 
             aol.stop();
             aol.close();
-        } catch (UnsupportedAudioFormatException |
-                    AudioDeviceNotFoundException |
-                    AudioDeviceCreationException |
-                    AudioPortsNotFoundException ex) {
+        } catch (UnsupportedAudioFormatException | AudioPortsNotFoundException ex) {
             ex.printStackTrace();
         }
     }
