@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.theko.sound.direct.AudioDevice;
 import org.theko.sound.direct.AudioDeviceInfo;
 import org.theko.sound.direct.AudioDeviceType;
@@ -21,6 +23,8 @@ import org.theko.sound.direct.AudioOutputDevice;
  * A utility class for managing and retrieving available audio devices.
  */
 public class AudioDevices {
+    private static final Logger logger = LoggerFactory.getLogger(AudioDevices.class);
+
     private AudioDevices() { }
 
     // A thread-safe collection to store registered audio devices.
@@ -44,6 +48,9 @@ public class AudioDevices {
             if (audioDeviceClass.isAnnotationPresent(AudioDeviceType.class)) {
                 AudioDeviceInfo deviceInfo = new AudioDeviceInfo(audioDeviceClass);
                 audioDevices.add(deviceInfo);
+                logger.info("Found audio device: " + deviceInfo);
+            } else {
+                logger.info("Found audio device without information: " + audioDeviceClass.getSimpleName());
             }
         }
     }
@@ -61,6 +68,7 @@ public class AudioDevices {
                 return audioDevice;
             }
         }
+        logger.error("No audio devices found by name: '" + name + "'.");
         throw new AudioDeviceNotFoundException("No audio devices found by name: '" + name + "'.");
     }
 
@@ -82,11 +90,22 @@ public class AudioDevices {
                     }
                 } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
                         | NoSuchMethodException | SecurityException e) {
+                    logger.error("Failed to instantiate input device: " + audioDeviceClass.getSimpleName() + ". Message: " + e.getMessage());
                     throw new AudioDeviceCreationException("Failed to instantiate input device: " + audioDeviceClass.getSimpleName(), e);
                 }
             }
         }
+        logger.error("No input device found for class: " + audioDeviceClass.getSimpleName());
         throw new AudioDeviceNotFoundException("No input device found for class: " + audioDeviceClass.getSimpleName());
+    }
+
+    public static AudioInputDevice getInputDevice(AudioDeviceInfo audioDeviceInfo) throws AudioDeviceCreationException {
+        try {
+            return getInputDevice(audioDeviceInfo.getDeviceClass());
+        } catch (AudioDeviceNotFoundException e) {
+            logger.error(e.getMessage());
+            return null;
+        }
     }
 
     /**
@@ -107,11 +126,22 @@ public class AudioDevices {
                     }
                 } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
                         | NoSuchMethodException | SecurityException e) {
+                    logger.error("Failed to instantiate input device: " + audioDeviceClass.getSimpleName() + ". Message: " + e.getMessage());
                     throw new AudioDeviceCreationException("Failed to instantiate output device: " + audioDeviceClass.getSimpleName(), e);
                 }
             }
         }
+        logger.error("No output device found for class: " + audioDeviceClass.getSimpleName());
         throw new AudioDeviceNotFoundException("No output device found for class: " + audioDeviceClass.getSimpleName());
+    }
+
+    public static AudioOutputDevice getOutputDevice(AudioDeviceInfo audioDeviceInfo) throws AudioDeviceCreationException {
+        try {
+            return getOutputDevice(audioDeviceInfo.getDeviceClass());
+        } catch (AudioDeviceNotFoundException e) {
+            logger.error(e.getMessage());
+            return null;
+        }
     }
 
     /**
@@ -142,13 +172,17 @@ public class AudioDevices {
             if (name.contains(entry.getKey())) {
                 for (String device : entry.getValue()) {
                     try {
-                        return fromName(device);
+                        AudioDeviceInfo deviceInfo = fromName(device);
+                        logger.debug("Found platform device: " + device + ", Class: " + deviceInfo.getDeviceClass().getSimpleName());
+                        return deviceInfo;
                     } catch (AudioDeviceNotFoundException ignored) { }
                 }
             }
         }
     
         // Fallback to JavaSound if no platform-specific device is found.
-        return fromName("JavaSound");
+        String fallbackDeviceName = "JavaSound";
+        logger.debug("No compatible audio devices for this platform founded. Using fallback: " + fallbackDeviceName);
+        return fromName(fallbackDeviceName);
     }
 }
