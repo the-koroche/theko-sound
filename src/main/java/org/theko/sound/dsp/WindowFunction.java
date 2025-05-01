@@ -1,4 +1,4 @@
-package org.theko.sound.fft;
+package org.theko.sound.dsp;
 
 public class WindowFunction {
     public static float[] apply(float[] data, WindowType type) {

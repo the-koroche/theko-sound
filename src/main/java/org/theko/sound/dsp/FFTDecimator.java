@@ -1,4 +1,4 @@
-package org.theko.sound.fft;
+package org.theko.sound.dsp;
 
 public class FFTDecimator {
     private FFTDecimator () {

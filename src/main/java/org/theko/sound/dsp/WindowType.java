@@ -1,4 +1,4 @@
-package org.theko.sound.fft;
+package org.theko.sound.dsp;
 
 public enum WindowType {
     RECTANGULAR, HAMMING, HANN, BLACKMAN, BLACKMAN_HARRIS, FLAT_TOP, TRIANGULAR, WELCH, COSINE;
