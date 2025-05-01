@@ -56,7 +56,7 @@ public class SharedFunctions {
             aol.write(data, 0, data.length);
             aol.stop();
             aol.close();
-        } catch (UnsupportedAudioFormatException | AudioDeviceNotFoundException | AudioDeviceCreationException | AudioPortsNotFoundException e) {
+        } catch (UnsupportedAudioFormatException | AudioPortsNotFoundException e) {
             e.printStackTrace();
         }
     }

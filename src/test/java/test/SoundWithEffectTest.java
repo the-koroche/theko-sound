@@ -8,7 +8,6 @@ import org.theko.sound.SoundPlayer;
 import org.theko.sound.AudioEffect;
 import org.theko.sound.AudioFormat;
 import org.theko.sound.UnsupportedAudioEffectException;
-import org.theko.sound.effects.AudioCompressor;
 import org.theko.sound.effects.AudioLimiter;
 
 import test.org.theko.sound.SharedFunctions;
@@ -18,11 +17,11 @@ public class SoundWithEffectTest {
         SoundPlayer sound = null;
         try {
             sound = new SoundPlayer();
-            sound.open(SharedFunctions.chooseAudioFile(), SoundPlayer.BUFFER_SIZE_1024MS);
+            sound.open(SharedFunctions.chooseAudioFile(), SoundPlayer.BUFFER_SIZE_32MS);
     
             addEffects(sound);
     
-            sound.getFloatController("Speed").setValue(0.8f);
+            sound.getFloatController("Speed").setValue(1.2f);
             sound.start();
     
             while (sound.isPlaying()) {
@@ -46,7 +45,7 @@ public class SoundWithEffectTest {
     private static void printSoundPosition(SoundPlayer sound) {
         double positionSeconds = sound.getMicrosecondPosition() / 1_000_000.0;
         double modPositionSeconds = sound.getModifiedMicrosecondPosition() / 1_000_000.0;
-        System.out.print(String.format("position: %.3f s  | mod: %.3f s    \r", positionSeconds, modPositionSeconds));
+        System.out.print(String.format("position: %.3f s  | mod: %.3f s | speed: %.4f   \r", positionSeconds, modPositionSeconds, sound.getFloatController("Speed").getValue()));
     }
 
     private static void addEffects(SoundPlayer sound) {
@@ -63,6 +62,9 @@ public class SoundWithEffectTest {
     }
 
     private static List<AudioEffect> getEffects(AudioFormat format) {
+        //BitcrusherEffect bitcrusher = new BitcrusherEffect(format);
+        //bitcrusher.getFloatController("Bit Depth").setValue(3);
+
         AudioLimiter limiter = new AudioLimiter(format);
         System.out.println(limiter.getAllControllers());
     
