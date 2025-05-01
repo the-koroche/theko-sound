@@ -1,9 +1,9 @@
 package org.theko.sound.control;
 
-public abstract class AudioController {
+public abstract class AudioControl {
     protected final String name;
 
-    public AudioController (String name) {
+    public AudioControl (String name) {
         this.name = name;
     }
 

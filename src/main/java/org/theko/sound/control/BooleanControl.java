@@ -1,9 +1,9 @@
 package org.theko.sound.control;
 
-public class BooleanController extends AudioController {
+public class BooleanControl extends AudioControl {
     protected boolean value;
 
-    public BooleanController(String name, boolean value) {
+    public BooleanControl(String name, boolean value) {
         super(name);
         this.value = value;
     }

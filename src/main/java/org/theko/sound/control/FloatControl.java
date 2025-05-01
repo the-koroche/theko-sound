@@ -1,10 +1,10 @@
 package org.theko.sound.control;
 
-public class FloatController extends AudioController {
+public class FloatControl extends AudioControl {
     protected float value;
     protected final float min, max;
 
-    public FloatController(String name, float min, float max, float value) {
+    public FloatControl(String name, float min, float max, float value) {
         super(name);
         this.min = min;
         this.max = max;
