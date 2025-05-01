@@ -1,5 +1,6 @@
 package org.theko.sound;
 
+@Deprecated (forRemoval = true)
 public class AudioData implements AudioObject {
     private final byte[] bytes;
     private final AudioFormat audioFormat;
