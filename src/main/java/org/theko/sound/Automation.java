@@ -3,13 +3,13 @@ package org.theko.sound;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.theko.sound.control.AudioController;
+import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.Controllable;
-import org.theko.sound.control.FloatController;
+import org.theko.sound.control.FloatControl;
 
 public class Automation implements AudioObject, Controllable {
     private List<KeyPoint> keyPoints;
-    private FloatController speed;
+    private FloatControl speed;
     private float position;
     private boolean isLooping = false;
     private boolean isPaused = false;
@@ -19,7 +19,7 @@ public class Automation implements AudioObject, Controllable {
     private static int automationInstances;
     private static final int thisAutomationInstance = ++automationInstances;
 
-    private List<FloatController> targetControllers;
+    private List<FloatControl> targetControls;
 
     public static class KeyPoint implements AudioObject{
         private float time;
@@ -59,7 +59,7 @@ public class Automation implements AudioObject, Controllable {
 
     public Automation(List<KeyPoint> keyPoints) {
         this.keyPoints = keyPoints;
-        this.speed = new FloatController("Speed", -4, 4, 1f);
+        this.speed = new FloatControl("Speed", -4, 4, 1f);
         this.position = 0;
         this.playThread = new Thread(this::automationPlay, "Automation Play-" + thisAutomationInstance);
         this.playThread.setPriority(Thread.NORM_PRIORITY - 3); // Set to minimum priority
@@ -71,22 +71,22 @@ public class Automation implements AudioObject, Controllable {
         this(new ArrayList<>());
     }
 
-    public void addTargetController(FloatController controller) {
-        if (targetControllers == null) {
-            targetControllers = new ArrayList<>();
+    public void addTargetControl(FloatControl control) {
+        if (targetControls == null) {
+            targetControls = new ArrayList<>();
         }
-        targetControllers.add(controller);
+        targetControls.add(control);
     }
 
-    public void removeTargetController(FloatController controller) {
-        if (targetControllers != null) {
-            targetControllers.remove(controller);
+    public void removeTargetControl(FloatControl control) {
+        if (targetControls != null) {
+            targetControls.remove(control);
         }
     }
 
-    public void clearTargetControllers() {
-        if (targetControllers != null) {
-            targetControllers.clear();
+    public void clearTargetControls() {
+        if (targetControls != null) {
+            targetControls.clear();
         }
     }
 
@@ -192,7 +192,7 @@ public class Automation implements AudioObject, Controllable {
         this.keyPoints.clear();
     }
 
-    public FloatController getSpeed() {
+    public FloatControl getSpeed() {
         return speed;
     }
 
@@ -276,9 +276,9 @@ public class Automation implements AudioObject, Controllable {
             position = newPosition;
             float currentValue = getValue(position);
 
-            if (targetControllers != null) {
-                for (FloatController controller : targetControllers) {
-                    controller.setValue(currentValue);
+            if (targetControls != null) {
+                for (FloatControl control : targetControls) {
+                    control.setValue(currentValue);
                 }
             }
 
@@ -293,7 +293,7 @@ public class Automation implements AudioObject, Controllable {
     }
 
     @Override
-    public List<AudioController> getAllControllers() {
+    public List<AudioControl> getAllControls() {
         return List.of(speed);
     }
 }

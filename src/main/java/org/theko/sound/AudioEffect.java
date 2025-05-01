@@ -1,8 +1,8 @@
 package org.theko.sound;
 
-import org.theko.sound.control.BooleanController;
+import org.theko.sound.control.BooleanControl;
 import org.theko.sound.control.Controllable;
-import org.theko.sound.control.FloatController;
+import org.theko.sound.control.FloatControl;
 
 /**
  * Represents an abstract audio effect that can be applied to audio data.
@@ -23,8 +23,8 @@ public abstract class AudioEffect implements AudioObject, Controllable {
     /** The type of the effect (real-time or offline processing). */
     protected final Type type;
 
-    protected transient final BooleanController enableController;
-    protected transient final FloatController mixController;
+    protected transient final BooleanControl enableControl;
+    protected transient final FloatControl mixControl;
 
     /**
      * Constructs an AudioEffect with a specified type and audio format.
@@ -35,12 +35,12 @@ public abstract class AudioEffect implements AudioObject, Controllable {
     public AudioEffect (Type type, AudioFormat audioFormat) {
         this.type = type;
         this.audioFormat = audioFormat;
-        this.enableController = new BooleanController("Enable", true);
-        this.mixController = new FloatController("Mix", 0, 1.0f, 1.0f);
+        this.enableControl = new BooleanControl("Enable", true);
+        this.mixControl = new FloatControl("Mix", 0, 1.0f, 1.0f);
     }
 
     public final float[][] callProcess(float[][] samples) {
-        if (!enableController.getValue()) {
+        if (!enableControl.getValue()) {
             return samples;
         }
     
@@ -52,7 +52,7 @@ public abstract class AudioEffect implements AudioObject, Controllable {
     
         float[][] processed = process(samples);
     
-        float mixValue = mixController.getValue();
+        float mixValue = mixControl.getValue();
         for (int ch = 0; ch < processed.length; ch++) {
             int minLength = Math.min(original[ch].length, processed[ch].length);
             for (int i = 0; i < minLength; i++) {
@@ -90,12 +90,12 @@ public abstract class AudioEffect implements AudioObject, Controllable {
         return type;
     }
 
-    public BooleanController getEnableController() {
-        return enableController;
+    public BooleanControl getEnableControl() {
+        return enableControl;
     }
 
-    public FloatController getMixController() {
-        return mixController;
+    public FloatControl getMixControl() {
+        return mixControl;
     }
 
     /**

@@ -21,7 +21,7 @@ public class SoundWithEffectTest {
     
             addEffects(sound);
     
-            sound.getFloatController("Speed").setValue(1.2f);
+            sound.getFloatControl("Speed").setValue(1.2f);
             sound.start();
     
             while (sound.isPlaying()) {
@@ -45,7 +45,7 @@ public class SoundWithEffectTest {
     private static void printSoundPosition(SoundPlayer sound) {
         double positionSeconds = sound.getMicrosecondPosition() / 1_000_000.0;
         double modPositionSeconds = sound.getModifiedMicrosecondPosition() / 1_000_000.0;
-        System.out.print(String.format("position: %.3f s  | mod: %.3f s | speed: %.4f   \r", positionSeconds, modPositionSeconds, sound.getFloatController("Speed").getValue()));
+        System.out.print(String.format("position: %.3f s  | mod: %.3f s | speed: %.4f   \r", positionSeconds, modPositionSeconds, sound.getFloatControl("Speed").getValue()));
     }
 
     private static void addEffects(SoundPlayer sound) {
@@ -63,10 +63,10 @@ public class SoundWithEffectTest {
 
     private static List<AudioEffect> getEffects(AudioFormat format) {
         //BitcrusherEffect bitcrusher = new BitcrusherEffect(format);
-        //bitcrusher.getFloatController("Bit Depth").setValue(3);
+        //bitcrusher.getFloatControl("Bit Depth").setValue(3);
 
         AudioLimiter limiter = new AudioLimiter(format);
-        System.out.println(limiter.getAllControllers());
+        System.out.println(limiter.getAllControls());
     
         return new ArrayList<>(List.of(limiter));
     }

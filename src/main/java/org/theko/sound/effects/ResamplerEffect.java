@@ -3,14 +3,14 @@ package org.theko.sound.effects;
 import org.theko.sound.AudioEffect;
 import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioResampler;
-import org.theko.sound.control.FloatController;
+import org.theko.sound.control.FloatControl;
 
 public class ResamplerEffect extends AudioEffect {
-    private FloatController speed;
+    private FloatControl speed;
 
     public ResamplerEffect(AudioFormat audioFormat) {
         super(Type.REALTIME, audioFormat);
-        speed = new FloatController("Speed", 0.001f,32f, 1f);
+        speed = new FloatControl("Speed", 0.001f,32f, 1f);
     }
 
     @Override
@@ -18,7 +18,7 @@ public class ResamplerEffect extends AudioEffect {
         return AudioResampler.resample(data, audioFormat, speed.getValue());
     }
 
-    public FloatController getSpeedController() {
+    public FloatControl getSpeedControl() {
         return speed;
     }
 }

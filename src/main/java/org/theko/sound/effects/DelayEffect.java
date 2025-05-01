@@ -2,7 +2,7 @@ package org.theko.sound.effects;
 
 import org.theko.sound.AudioEffect;
 import org.theko.sound.AudioFormat;
-import org.theko.sound.control.FloatController;
+import org.theko.sound.control.FloatControl;
 
 public class DelayEffect extends AudioEffect {
     private final int sampleRate;
@@ -10,10 +10,10 @@ public class DelayEffect extends AudioEffect {
     private CircularBuffer[] delayBuffers;
 
     // Контроллеры параметров
-    private final FloatController delayTimeController;
-    private final FloatController feedbackController;
-    private final FloatController mixController;
-    private final FloatController cutoffFrequencyController; // Для частоты среза
+    private final FloatControl delayTimeControl;
+    private final FloatControl feedbackControl;
+    private final FloatControl mixControl;
+    private final FloatControl cutoffFrequencyControl; // Для частоты среза
 
     private int delayInSamples;
 
@@ -25,17 +25,17 @@ public class DelayEffect extends AudioEffect {
         this.numChannels = audioFormat.getChannels();
 
         // Инициализация контроллеров
-        delayTimeController = new FloatController("Delay Time", 0.01f, 2.0f, 1f);
-        feedbackController = new FloatController("Feedback", 0.0f, 0.99f, 0.5f);
-        mixController = new FloatController("Mix", 0.0f, 1.0f, 0.5f);
-        cutoffFrequencyController = new FloatController("Cutoff Frequency", 20.0f, 1000.0f, 200.0f); // контроллер для частоты среза
+        delayTimeControl = new FloatControl("Delay Time", 0.01f, 2.0f, 1f);
+        feedbackControl = new FloatControl("Feedback", 0.0f, 0.99f, 0.5f);
+        mixControl = new FloatControl("Mix", 0.0f, 1.0f, 0.5f);
+        cutoffFrequencyControl = new FloatControl("Cutoff Frequency", 20.0f, 1000.0f, 200.0f); // контроллер для частоты среза
 
         previousFilteredSamples = new float[numChannels];
         updateDelayBuffers();
     }
 
     private void updateDelayBuffers() {
-        this.delayInSamples = (int) (delayTimeController.getValue() * sampleRate);
+        this.delayInSamples = (int) (delayTimeControl.getValue() * sampleRate);
         delayBuffers = new CircularBuffer[numChannels];
         for (int i = 0; i < numChannels; i++) {
             delayBuffers[i] = new CircularBuffer(delayInSamples);
@@ -45,14 +45,14 @@ public class DelayEffect extends AudioEffect {
     @Override
     public float[][] process(float[][] samples) {
         // Проверим, не изменилось ли время задержки
-        int newDelayInSamples = (int) (delayTimeController.getValue() * sampleRate);
+        int newDelayInSamples = (int) (delayTimeControl.getValue() * sampleRate);
         if (newDelayInSamples != delayInSamples) {
             updateDelayBuffers();
         }
 
-        float feedback = feedbackController.getValue();
-        float mix = mixController.getValue();
-        float cutoffFrequency = cutoffFrequencyController.getValue();
+        float feedback = feedbackControl.getValue();
+        float mix = mixControl.getValue();
+        float cutoffFrequency = cutoffFrequencyControl.getValue();
 
         // Коэффициент фильтра LPF
         float a = getLpfCoefficient(cutoffFrequency);
@@ -84,20 +84,20 @@ public class DelayEffect extends AudioEffect {
     }
 
     // Геттеры контроллеров для внешнего доступа
-    public FloatController getDelayTimeController() {
-        return delayTimeController;
+    public FloatControl getDelayTimeControl() {
+        return delayTimeControl;
     }
 
-    public FloatController getFeedbackController() {
-        return feedbackController;
+    public FloatControl getFeedbackControl() {
+        return feedbackControl;
     }
 
-    public FloatController getMixController() {
-        return mixController;
+    public FloatControl getMixControl() {
+        return mixControl;
     }
 
-    public FloatController getCutoffFrequencyController() {
-        return cutoffFrequencyController;
+    public FloatControl getCutoffFrequencyControl() {
+        return cutoffFrequencyControl;
     }
 
     private static class CircularBuffer {

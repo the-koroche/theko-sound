@@ -5,46 +5,46 @@ import java.util.List;
 
 import org.theko.sound.AudioEffect;
 import org.theko.sound.AudioFormat;
-import org.theko.sound.control.AudioController;
-import org.theko.sound.control.FloatController;
+import org.theko.sound.control.AudioControl;
+import org.theko.sound.control.FloatControl;
 import org.theko.sound.envelope.ASREnvelope;
 
 public class AudioLimiter extends AudioEffect {
-    private FloatController gain;
-    private FloatController softSaturationThreshold;
-    private FloatController limiterCeiling;
+    private FloatControl gain;
+    private FloatControl softSaturationThreshold;
+    private FloatControl limiterCeiling;
     private ASREnvelope envelope;
 
     public AudioLimiter(AudioFormat audioFormat) {
         super(Type.REALTIME, audioFormat);
     
-        this.gain = new FloatController("Gain", -24.0f, 24.0f, 0.0f); // dB
-        this.softSaturationThreshold = new FloatController("Soft Saturation Threshold", -12.0f, 0.0f, -6.0f); // dB
-        this.limiterCeiling = new FloatController("Limiter Ceiling", -20.0f, 0.0f, -0.1f); // dB
+        this.gain = new FloatControl("Gain", -24.0f, 24.0f, 0.0f); // dB
+        this.softSaturationThreshold = new FloatControl("Soft Saturation Threshold", -12.0f, 0.0f, -6.0f); // dB
+        this.limiterCeiling = new FloatControl("Limiter Ceiling", -20.0f, 0.0f, -0.1f); // dB
         this.envelope = new ASREnvelope(0.005f, 0.2f, 0.05f); // 5 ms attack, 200 ms release, 50 ms sustain
     }
 
-    public FloatController getGain() {
+    public FloatControl getGain() {
         return gain;
     }
 
-    public FloatController getSoftSaturationThreshold() {
+    public FloatControl getSoftSaturationThreshold() {
         return softSaturationThreshold;
     }
 
-    public FloatController getLimiterCeiling() {
+    public FloatControl getLimiterCeiling() {
         return limiterCeiling;
     }
 
-    public FloatController getAttack() {
+    public FloatControl getAttack() {
         return envelope.getAttack();
     }
 
-    public FloatController getRelease() {
+    public FloatControl getRelease() {
         return envelope.getRelease();
     }
 
-    public FloatController getSustain() {
+    public FloatControl getSustain() {
         return envelope.getSustain();
     }
 
@@ -108,12 +108,12 @@ public class AudioLimiter extends AudioEffect {
     }
 
     @Override
-    public List<AudioController> getAllControllers() {
-        List<AudioController> controllers = new ArrayList<>();
-        controllers.add(gain);
-        controllers.add(softSaturationThreshold);
-        controllers.add(limiterCeiling);
-        controllers.addAll(envelope.getAllControllers());
-        return controllers;
+    public List<AudioControl> getAllControls() {
+        List<AudioControl> controls = new ArrayList<>();
+        controls.add(gain);
+        controls.add(softSaturationThreshold);
+        controls.add(limiterCeiling);
+        controls.addAll(envelope.getAllControls());
+        return controls;
     }
 }
