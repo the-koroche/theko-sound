@@ -1,8 +1,33 @@
 package org.theko.sound;
 
 /**
- * A utility class for audio resampling. It provides methods to change the sample rate
- * of audio data by resampling the input data.
+ * The AudioResampler class provides utility methods for resampling audio data.
+ * It supports resampling audio at different speeds using a speed multiplier.
+ * The class includes methods for converting audio data between byte arrays
+ * and float samples, applying time scaling, and performing Lanczos resampling.
+ * 
+ * <p><strong>Features:</strong></p>
+ * <ul>
+ *   <li>Resampling audio data using a speed multiplier.</li>
+ *   <li>Time scaling of audio samples for speed adjustment.</li>
+ *   <li>High-quality Lanczos resampling algorithm for interpolation.</li>
+ * </ul>
+ * 
+ * <p><strong>Usage:</strong></p>
+ * <pre>
+ * {@code
+ * byte[] resampledData = AudioResampler.resample(originalData, sourceFormat, speedMultiplier);
+ * }
+ * </pre>
+ * 
+ * <p><strong>Note:</strong> The class is not instantiable as it has a private constructor.</p>
+ * 
+ * <p><strong>Exceptions:</strong></p>
+ * <ul>
+ *   <li>{@link IllegalArgumentException} - Thrown if the speed multiplier is less than or equal to 0.</li>
+ * </ul>
+ * 
+ * @author Alex Soloviov
  */
 public class AudioResampler {
 

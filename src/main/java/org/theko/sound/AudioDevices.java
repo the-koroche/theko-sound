@@ -20,7 +20,42 @@ import org.theko.sound.direct.AudioInputDevice;
 import org.theko.sound.direct.AudioOutputDevice;
 
 /**
- * A utility class for managing and retrieving available audio devices.
+ * The {@code AudioDevices} class provides a centralized management system for audio devices.
+ * It allows for the registration, retrieval, and instantiation of audio input and output devices.
+ * This class is designed to be thread-safe and ensures that all registered audio devices are
+ * accessible throughout the application.
+ *
+ * <p>Key Features:</p>
+ * <ul>
+ *   <li>Automatic registration of audio devices annotated with {@link AudioDeviceType}.</li>
+ *   <li>Retrieval of audio devices by name or class type.</li>
+ *   <li>Support for platform-specific default audio devices.</li>
+ *   <li>Thread-safe storage and access to registered audio devices.</li>
+ * </ul>
+ *
+ * <p>Usage:</p>
+ * <pre>
+ * {@code
+ * // Retrieve an audio device by name
+ * AudioDeviceInfo deviceInfo = AudioDevices.fromName("WASAPI");
+ *
+ * // Get an input device instance
+ * AudioInputDevice inputDevice = AudioDevices.getInputDevice(deviceInfo);
+ *
+ * // Get the default platform-specific audio device
+ * AudioDeviceInfo platformDevice = AudioDevices.getPlatformDevice();
+ * }
+ * </pre>
+ *
+ * <p>Note: This class cannot be instantiated as it is designed to be a utility class.</p>
+ *
+ * @see AudioDevice
+ * @see AudioDeviceInfo
+ * @see AudioDeviceType
+ * @see AudioInputDevice
+ * @see AudioOutputDevice
+ * 
+ * @author Alex Soloviov
  */
 public class AudioDevices {
     private static final Logger logger = LoggerFactory.getLogger(AudioDevices.class);

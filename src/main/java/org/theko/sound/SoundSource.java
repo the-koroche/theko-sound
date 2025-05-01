@@ -17,16 +17,58 @@ import org.theko.sound.codec.AudioCodecInfo;
 import org.theko.sound.codec.AudioCodecs;
 import org.theko.sound.codec.AudioDecodeResult;
 import org.theko.sound.codec.AudioTag;
-import org.theko.sound.control.AudioController;
+import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.Controllable;
-import org.theko.sound.control.FloatController;
+import org.theko.sound.control.FloatControl;
 import org.theko.sound.effects.ResamplerEffect;
 import org.theko.sound.event.DataLineAdapter;
 import org.theko.sound.event.DataLineEvent;
 
+
 /**
- * SoundSource represents an audio file that can be opened, played, and controlled. 
- * It handles the playback, buffering, and various effects of the audio data.
+ * The `SoundSource` class provides functionality for audio playback, including
+ * support for audio effects, looping, and playback position control. It implements
+ * the `AutoCloseable` and `Controllable` interfaces, allowing for resource management
+ * and control over audio playback settings.
+ * 
+ * <p>This class supports opening audio files, decoding them, and playing them back
+ * with customizable buffer sizes. It also provides methods for controlling playback
+ * speed, volume, and stereo panning. Additionally, it supports looping playback
+ * and precise control over playback position in frames or microseconds.</p>
+ * 
+ * <p>Key features include:</p>
+ * <ul>
+ *   <li>Opening audio files with automatic or custom buffer sizes.</li>
+ *   <li>Support for audio effects, such as speed adjustment.</li>
+ *   <li>Looping playback with configurable loop counts.</li>
+ *   <li>Playback position control in frames or microseconds.</li>
+ *   <li>Thread-safe operations for playback and resource management.</li>
+ * </ul>
+ * 
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * SoundSource soundSource = new SoundSource();
+ * soundSource.open("path/to/audio/file.wav");
+ * soundSource.start();
+ * 
+ * // Adjust playback settings
+ * soundSource.getGainControl().setValue(0.5f); // Set volume
+ * soundSource.setLoop(SoundSource.LOOP_CONTINUOUSLY); // Enable looping
+ * 
+ * // Stop playback and release resources
+ * soundSource.stop();
+ * soundSource.close();
+ * }</pre>
+ * 
+ * <p>Note: This class requires proper handling of resources. Always call the `close()`
+ * method to release resources when the sound source is no longer needed.</p>
+ * 
+ * @see AutoCloseable
+ * @see Controllable
+ * @see AudioMixer
+ * @see AudioEffect
+ * 
+ * @author Alex Soloviov
  */
 public class SoundSource implements AutoCloseable, Controllable {
     private static final Logger logger = LoggerFactory.getLogger(SoundSource.class);
@@ -77,9 +119,12 @@ public class SoundSource implements AutoCloseable, Controllable {
     // Time-out values
     protected static final int SEND_TIMEOUT = 500; // ms
 
+    /**
+     * An utility class for measuring elapsed time with support for start, pause, resume, and stop operations.
+     * This class is thread-safe and uses synchronized methods to ensure proper behavior in concurrent environments.
+     */
     protected static class Timer {
         private static final Logger logger = LoggerFactory.getLogger(Timer.class);
-
 
         private long startTimeNanos;
         private long pausedTimeNanos;
@@ -140,12 +185,14 @@ public class SoundSource implements AutoCloseable, Controllable {
         }
     }
 
+
     /**
-     * Opens an audio file for playback with a custom buffer size.
+     * Opens an audio file for playback with a specified buffer size.
      *
      * @param file The audio file to open.
      * @param bufferSize The size of the buffer for playback.
      * @throws FileNotFoundException if the file is not found.
+     * @throws RuntimeException if there is an error during codec initialization or if the audio format is unsupported.
      */
     public void open(File file, int bufferSize) throws FileNotFoundException {
         logger.debug("Opening file...");
@@ -179,6 +226,7 @@ public class SoundSource implements AutoCloseable, Controllable {
      * @param filePath The audio file path to open.
      * @param bufferSize The size of the buffer for playback.
      * @throws FileNotFoundException if the file is not found.
+     * @throws RuntimeException if there is an error during codec initialization or if the audio format is unsupported.
      */
     public void open(String filePath, int bufferSize) throws FileNotFoundException {
         open(new File(filePath), bufferSize);
@@ -189,6 +237,7 @@ public class SoundSource implements AutoCloseable, Controllable {
      *
      * @param file The audio file to open.
      * @throws FileNotFoundException if the file is not found.
+     * @throws RuntimeException if there is an error during codec initialization or if the audio format is unsupported.
      */
     public void open(File file) throws FileNotFoundException {
         open(file, -1); // Default to automatic buffer size
@@ -199,6 +248,7 @@ public class SoundSource implements AutoCloseable, Controllable {
      *
      * @param filePath The audio file path to open.
      * @throws FileNotFoundException if the file is not found.
+     * @throws RuntimeException if there is an error during codec initialization or if the audio format is unsupported.
      */
     public void open(String filePath) throws FileNotFoundException {
         open(new File(filePath));
@@ -307,6 +357,12 @@ public class SoundSource implements AutoCloseable, Controllable {
         this.playbackPositionTimer = new Timer();
     }
 
+    /**
+     * Attaches an action to the output data line of the mixer, which
+     * increments the "played" counter each time audio data is sent to
+     * the output line. This is used to track the total amount of audio
+     * data that has been played.
+     */
     protected void attachAudioOutAction() {
         audioOut.addDataLineListener(new DataLineAdapter() {
             @Override
@@ -316,6 +372,12 @@ public class SoundSource implements AutoCloseable, Controllable {
         });
     }
 
+    /**
+     * Sets the priority of the playback thread. This is useful for adjusting the
+     * CPU priority of the thread in case of high CPU usage.
+     * 
+     * @param priority The thread priority to set.
+     */
     public synchronized void setPlaybackThreadPriority(int priority) {
         if (playbackThread != null) {
             playbackThread.setPriority(priority);
@@ -351,39 +413,39 @@ public class SoundSource implements AutoCloseable, Controllable {
     }
 
     /**
-     * Returns the gain controller for volume adjustments.
+     * Returns the gain control for volume adjustments.
      *
-     * @return The gain controller.
+     * @return The gain control.
      */
-    public FloatController getGainController() {
-        return mixer.getPostGainController();
+    public FloatControl getGainControl() {
+        return mixer.getPostGainControl();
     }
 
     /**
-     * Returns the pan controller for stereo adjustments.
+     * Returns the pan control for stereo adjustments.
      *
-     * @return The pan controller.
+     * @return The pan control.
      */
-    public FloatController getPanController() {
-        return mixer.getPanController();
+    public FloatControl getPanControl() {
+        return mixer.getPanControl();
     }
 
     /**
-     * Returns the speed controller for speed adjustments.
+     * Returns the speed control for speed adjustments.
      *
-     * @return The speed controller.
+     * @return The speed control.
      */
-    public FloatController getSpeedController() {
-        return speedEffect.getSpeedController();
+    public FloatControl getSpeedControl() {
+        return speedEffect.getSpeedControl();
     }
 
     @Override
-    public List<AudioController> getAllControllers() {
-        ArrayList<AudioController> controllers = new ArrayList<>();
-        controllers.add(getGainController());
-        controllers.add(getPanController());
-        controllers.add(getSpeedController());
-        return Collections.unmodifiableList(controllers);
+    public List<AudioControl> getAllControls() {
+        ArrayList<AudioControl> controls = new ArrayList<>();
+        controls.add(getGainControl());
+        controls.add(getPanControl());
+        controls.add(getSpeedControl());
+        return Collections.unmodifiableList(controls);
     }
 
     /**
@@ -429,6 +491,11 @@ public class SoundSource implements AutoCloseable, Controllable {
         }
     }
 
+    /**
+     * Checks if the playback loop should be continued.
+     * 
+     * @return true if the loop should be continued, false otherwise.
+     */
     protected boolean needLoop() {
         if (played >= audioData.length - 1) {
             switch (loopCount) {
@@ -455,6 +522,24 @@ public class SoundSource implements AutoCloseable, Controllable {
      */
     public void addEffect(AudioEffect effect) throws UnsupportedAudioEffectException {
         mixer.addEffect(effect);
+    }
+
+    /**
+     * Removes an audio effect from the sound source.
+     *
+     * @param effect The effect to remove.
+     */
+    public void removeEffect(AudioEffect effect) {
+        mixer.removeEffect(effect);
+    }
+
+    /**
+     * Returns the list of audio effects applied to the sound source.
+     * 
+     * @return The list of audio effects.
+     */
+    public List<AudioEffect> getEffects() {
+        return mixer.getEffects();
     }
 
     /**
@@ -516,7 +601,7 @@ public class SoundSource implements AutoCloseable, Controllable {
      */
     public synchronized void setModifiedMicrosecondPosition(long mcs) {
         int frameSize = audioFormat.getFrameSize();
-        long sample = (long)((double)(mcs) / speedEffect.getSpeedController().getValue() / 1_000_000 * audioFormat.getByteRate()) / audioFormat.getFrameSize();
+        long sample = (long)((double)(mcs) / speedEffect.getSpeedControl().getValue() / 1_000_000 * audioFormat.getByteRate()) / audioFormat.getFrameSize();
         setFramePosition(sample * frameSize);
     }
 
@@ -549,12 +634,12 @@ public class SoundSource implements AutoCloseable, Controllable {
 
     /**
      * Returns the current position in microseconds, taking into account the modified speed effect.
-     * The position is adjusted by the speed controller value, which affects playback speed.
+     * The position is adjusted by the speed control value, which affects playback speed.
      * 
      * @return The current position in microseconds, with speed modifications applied.
      */
     public synchronized long getModifiedMicrosecondPosition() {
-        return (long)((double)getMicrosecondPosition() * speedEffect.getSpeedController().getValue());
+        return (long)((double)getMicrosecondPosition() * speedEffect.getSpeedControl().getValue());
     }
 
     /**
@@ -579,12 +664,12 @@ public class SoundSource implements AutoCloseable, Controllable {
 
     /**
      * Returns the total length of the audio in microseconds, with the modified speed effect applied.
-     * This method adjusts the length by the speed controller value.
+     * This method adjusts the length by the speed control value.
      * 
      * @return The total length of the audio in microseconds, with speed modifications applied.
      */
     public long getModifiedMicrosecondLength() {
-        return (long)((double)(length) / speedEffect.getSpeedController().getValue() / audioFormat.getByteRate() * 1_000_000);
+        return (long)((double)(length) / speedEffect.getSpeedControl().getValue() / audioFormat.getByteRate() * 1_000_000);
     }
 
     /**
@@ -674,11 +759,23 @@ public class SoundSource implements AutoCloseable, Controllable {
         logger.debug("Cleanup completed.");
     }
 
+    /**
+     * Returns a string representation of the SoundSource object, providing details
+     * about its current state, including instance number, open status, playing status,
+     * total length, and buffer size.
+     *
+     * @return A string that represents the current state of the SoundSource.
+     */
     @Override
     public String toString() {
         return String.format("SoundSource {Instance: %d, Open: %s, Playing: %s, Length: %d, BufferSize: %d}", thisSoundInstance, isOpen, isPlaying, length, bufferSize);
     }
 
+    /**
+     * Resets the position of the sound source to the beginning, and sets the played and 
+     * offset values to 0. This is called when the sound source is closed, and is also used
+     * by the start() method to reset the position before starting playback.
+     */
     protected synchronized void resetPosition() {
         played = 0;
         offset = 0;

@@ -3,8 +3,33 @@ package org.theko.sound;
 import java.util.Objects;
 
 /**
- * Represents an audio format specification including sample rate, bit depth, channel count,
- * encoding type, endianness, frame size, and byte rate.
+ * Represents an audio format with various properties such as sample rate, bit depth, 
+ * number of channels, encoding type, and endianness. This class provides utility 
+ * methods to analyze and manipulate audio format properties.
+ * 
+ * <p>AudioFormat instances are immutable and include computed properties such as 
+ * frame size (bytes per frame) and byte rate (bytes per second).</p>
+ * 
+ * <p>Supported encodings are defined in the {@link Encoding} enum, which includes 
+ * PCM (signed, unsigned, and float), ULAW, and ALAW formats.</p>
+ * 
+ * <h2>Usage Example:</h2>
+ * <pre>{@code
+ * AudioFormat format = new AudioFormat(44100, 16, 2, AudioFormat.Encoding.PCM_SIGNED, true);
+ * System.out.println(format);
+ * }</pre>
+ * 
+ * <h2>Key Features:</h2>
+ * <ul>
+ *   <li>Validation of input parameters to ensure valid audio format configurations.</li>
+ *   <li>Utility methods to check properties such as stereo, mono, high resolution, and lossless encoding.</li>
+ *   <li>Support for creating new AudioFormat instances with modified encoding or endianness.</li>
+ *   <li>Equality and hash code implementations for comparing audio formats.</li>
+ * </ul>
+ * 
+ * @see Encoding
+ * 
+ * @author Alex Soloviov
  */
 public class AudioFormat implements AudioObject {
     private final int sampleRate;

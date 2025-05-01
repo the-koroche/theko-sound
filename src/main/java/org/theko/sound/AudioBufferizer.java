@@ -3,7 +3,39 @@ package org.theko.sound;
 import java.util.ArrayList;
 
 /**
- * Utility class for buffering audio data into chunks of a specified size.
+ * The AudioBufferizer class provides a utility method to split audio data into smaller buffers
+ * of a specified size, ensuring that the buffers align with the audio frame size.
+ * 
+ * <p>This class is designed to handle audio data in byte arrays and requires an AudioFormat
+ * object to determine the frame size and other audio properties. The buffer size is adjusted
+ * to be a multiple of the frame size to maintain audio data integrity.</p>
+ * 
+ * <h2>Usage:</h2>
+ * <pre>
+ * byte[] audioData = ...; // Input audio data
+ * AudioFormat format = ...; // Audio format
+ * int bufferSize = 1024; // Desired buffer size
+ * byte[][] buffers = AudioBufferizer.bufferize(audioData, format, bufferSize);
+ * </pre>
+ * 
+ * <h2>Features:</h2>
+ * <ul>
+ *   <li>Splits audio data into chunks of a specified size.</li>
+ *   <li>Ensures buffer size is a multiple of the audio frame size.</li>
+ *   <li>Handles invalid input by throwing appropriate exceptions.</li>
+ * </ul>
+ * 
+ * <h2>Exceptions:</h2>
+ * <ul>
+ *   <li>{@link IllegalArgumentException} if the input data or format is null.</li>
+ *   <li>{@link IllegalArgumentException} if the buffer size is less than or equal to zero.</li>
+ *   <li>{@link IllegalArgumentException} if the frame size in the audio format is invalid.</li>
+ * </ul>
+ * 
+ * <h2>Thread Safety:</h2>
+ * <p>This class is thread-safe as it does not maintain any state and only provides a static method.</p>
+ * 
+ * @author Alex Soloviov
  */
 public class AudioBufferizer {
     private AudioBufferizer () {

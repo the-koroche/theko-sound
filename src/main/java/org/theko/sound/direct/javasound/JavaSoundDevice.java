@@ -19,6 +19,48 @@ import org.theko.sound.direct.AudioDeviceType;
 import org.theko.sound.direct.AudioInputDevice;
 import org.theko.sound.direct.AudioOutputDevice;
 
+/**
+ * The {@code JavaSoundDevice} class is an implementation of the {@link AudioDevice} interface
+ * that uses the Java Sound API to interact with audio hardware. It provides methods to
+ * retrieve audio ports, check port compatibility, and access input and output devices.
+ * 
+ * <p>This class is annotated with {@link AudioDeviceType} to specify its name and version.
+ * It supports both input and output audio flows and handles audio formats through the
+ * Java Sound API.
+ * 
+ * <p>Key functionalities include:
+ * <ul>
+ *   <li>Retrieving all available audio ports ({@link #getAllPorts()}).</li>
+ *   <li>Filtering ports based on audio flow and format ({@link #getAvailablePorts(AudioFlow, AudioFormat)}).</li>
+ *   <li>Checking if a port supports a specific audio format ({@link #isPortSupporting(AudioPort, AudioFormat)}).</li>
+ *   <li>Getting the default port for a specific flow and format ({@link #getDefaultPort(AudioFlow, AudioFormat)}).</li>
+ *   <li>Providing access to input and output devices ({@link #getInputDevice()} and {@link #getOutputDevice()}).</li>
+ * </ul>
+ * 
+ * <p>Helper methods are included to:
+ * <ul>
+ *   <li>Determine if a mixer has input or output lines ({@link #hasInputLines(Mixer)} and {@link #hasOutputLines(Mixer)}).</li>
+ *   <li>Create {@link AudioPort} instances for audio flows ({@link #createPort(AudioFlow, Mixer.Info)}).</li>
+ *   <li>Convert custom {@link AudioFormat} to Java Sound's {@link javax.sound.sampled.AudioFormat} ({@link #getJavaSoundAudioFormat(AudioFormat)}).</li>
+ *   <li>Retrieve the appropriate mixer for a given port ({@link #getMixerForPort(AudioPort)}).</li>
+ * </ul>
+ * 
+ * <p>Exceptions handled include:
+ * <ul>
+ *   <li>{@link AudioPortsNotFoundException} - Thrown when no compatible audio ports are found.</li>
+ *   <li>{@link UnsupportedAudioFormatException} - Thrown when an unsupported audio format is encountered.</li>
+ * </ul>
+ * 
+ * <p>This class is designed to work seamlessly with the Java Sound API, providing a bridge
+ * between custom audio abstractions and the underlying audio hardware.
+ * 
+ * @see AudioDevice
+ * @see AudioPort
+ * @see AudioFlow
+ * @see AudioFormat
+ * 
+  * @author Alex Soloviov
+ */
 @AudioDeviceType(name = "JavaSound", version = "1.0")
 public class JavaSoundDevice implements AudioDevice {
     @Override
@@ -39,7 +81,7 @@ public class JavaSoundDevice implements AudioDevice {
             }
         }
 
-        return ports;
+        return Collections.unmodifiableList(ports);
     }
 
     @Override
@@ -56,7 +98,7 @@ public class JavaSoundDevice implements AudioDevice {
             throw new AudioPortsNotFoundException("No compatible audio ports found for the specified flow and format.");
         }
 
-        return availablePorts;
+        return Collections.unmodifiableList(availablePorts);
     }
 
     @Override
@@ -66,8 +108,8 @@ public class JavaSoundDevice implements AudioDevice {
         if (mixer == null) return false;
 
         Line.Info lineInfo = (port.getFlow() == AudioFlow.OUT) ?
-                new DataLine.Info(SourceDataLine.class, getJavaAudioFormat(audioFormat)) :
-                new DataLine.Info(TargetDataLine.class, getJavaAudioFormat(audioFormat));
+                new DataLine.Info(SourceDataLine.class, getJavaSoundAudioFormat(audioFormat)) :
+                new DataLine.Info(TargetDataLine.class, getJavaSoundAudioFormat(audioFormat));
 
         return mixer.isLineSupported(lineInfo);
         } catch (UnsupportedAudioFormatException ex) {
@@ -103,9 +145,9 @@ public class JavaSoundDevice implements AudioDevice {
         return new AudioPort(flow, info.getName(), info.getVendor(), info.getVersion(), info.getDescription());
     }
 
-    protected static javax.sound.sampled.AudioFormat getJavaAudioFormat(AudioFormat audioFormat) throws UnsupportedAudioFormatException {
+    protected static javax.sound.sampled.AudioFormat getJavaSoundAudioFormat(AudioFormat audioFormat) throws UnsupportedAudioFormatException {
         return new javax.sound.sampled.AudioFormat(
-                getJavaAudioEncoding(audioFormat.getEncoding()),
+                getJavaSoundAudioEncoding(audioFormat.getEncoding()),
                 audioFormat.getSampleRate(),
                 audioFormat.getBitsPerSample(),
                 audioFormat.getChannels(),
@@ -115,7 +157,7 @@ public class JavaSoundDevice implements AudioDevice {
         );
     }
 
-    protected static javax.sound.sampled.AudioFormat.Encoding getJavaAudioEncoding(AudioFormat.Encoding encoding) throws UnsupportedAudioFormatException {
+    protected static javax.sound.sampled.AudioFormat.Encoding getJavaSoundAudioEncoding(AudioFormat.Encoding encoding) throws UnsupportedAudioFormatException {
         switch (encoding) {
             case ALAW: return javax.sound.sampled.AudioFormat.Encoding.ALAW;
             case ULAW: return javax.sound.sampled.AudioFormat.Encoding.ULAW;

@@ -2,6 +2,10 @@ package org.theko.sound;
 
 /**
  * Represents the direction of audio flow, either input (IN) or output (OUT).
+ * 
+ * @see AudioPort
+ * 
+ * @author Alex Soloviov
  */
 public enum AudioFlow {
     /** Audio input flow (e.g., recording from a microphone). */

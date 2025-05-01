@@ -3,7 +3,44 @@ package org.theko.sound;
 import java.util.Arrays;
 
 /**
- * Utility class for converting audio data between different formats.
+ * The AudioConverter class provides utility methods for converting audio data
+ * between different formats, including channel manipulation, resampling, and
+ * format conversion. It also includes methods for converting between time
+ * durations and audio frames.
+ *
+ * <p>This class is designed to handle common audio conversion tasks while
+ * ensuring that unsupported operations, such as improper multi-channel
+ * manipulation, are prevented.</p>
+ *
+ * <h2>Features:</h2>
+ * <ul>
+ *   <li>Convert audio data between different formats.</li>
+ *   <li>Handle channel configuration changes (e.g., Mono to Stereo).</li>
+ *   <li>Resample audio data to match different sample rates.</li>
+ *   <li>Convert between time durations (in microseconds) and audio frames.</li>
+ * </ul>
+ *
+ * <h2>Usage:</h2>
+ * <p>All methods in this class are static and can be accessed directly without
+ * creating an instance of the class.</p>
+ *
+ * <h2>Exceptions:</h2>
+ * <p>Throws {@link IllegalArgumentException} if unsupported channel manipulation
+ * is attempted.</p>
+ *
+ * <h2>Example:</h2>
+ * <pre>{@code
+ * AudioFormat sourceFormat = new AudioFormat(44100, 16, 2, true, false);
+ * AudioFormat targetFormat = new AudioFormat(48000, 16, 1, true, false);
+ * byte[] convertedData = AudioConverter.convert(audioData, sourceFormat, targetFormat);
+ * }</pre>
+ *
+ * <h2>Thread Safety:</h2>
+ * <p>This class is thread-safe as it does not maintain any internal state.</p>
+ * 
+ * @see AudioFormat
+ * 
+ * @author Alex Soloviov
  */
 public class AudioConverter {
     private AudioConverter() {

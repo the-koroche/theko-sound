@@ -13,7 +13,36 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public abstract class AudioPreset implements Serializable {
+/**
+ * The {@code AudioPreset} class represents an audio preset that can be saved to or loaded from a file.
+ * It includes metadata such as the name and description of the preset, as well as the state of an
+ * associated {@code AudioObject}.
+ * 
+ * <p>This class provides methods to:
+ * <ul>
+ *   <li>Load an audio preset from a file</li>
+ *   <li>Save an audio preset to a file</li>
+ *   <li>Retrieve the name, description, and associated audio object</li>
+ * </ul>
+ * 
+ * <p>Usage example:
+ * <pre>
+ * {@code
+ * AudioPreset preset = new AudioPreset("My Preset", "A description of the preset");
+ * preset.save(new File("preset.dat"), audioObject);
+ * preset.load(new File("preset.dat"));
+ * }
+ * </pre>
+ * 
+ * <p>Note: The {@code AudioObject} class must implement the {@code Serializable} interface and provide
+ * methods {@code onLoad()} and {@code onSave()} to handle custom logic during loading and saving.
+ * 
+ * <p>Exceptions such as {@code FileNotFoundException} and {@code AudioObjectIOException} are thrown
+ * to indicate errors during file operations or invalid audio object states.
+ * 
+ * @author Alex Soloviov
+ */
+public class AudioPreset implements Serializable {
     private static final long serialVersionUID = -1;
     private static final Logger logger = LoggerFactory.getLogger(AudioPreset.class);
     

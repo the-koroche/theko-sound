@@ -1,7 +1,5 @@
 package org.theko.sound.direct.javasound;
 
-import java.lang.ref.Cleaner;
-
 import javax.sound.sampled.*;
 
 import org.theko.sound.AudioFormat;
@@ -10,23 +8,66 @@ import org.theko.sound.UnsupportedAudioFormatException;
 import org.theko.sound.direct.AudioDeviceException;
 import org.theko.sound.direct.AudioInputDevice;
 
+/**
+ * The {@code JavaSoundInput} class is an implementation of the {@link AudioInputDevice}
+ * interface that uses the Java Sound API to handle audio input operations.
+ * It extends the {@link JavaSoundDevice} class and provides functionality for
+ * managing audio input devices, such as opening, closing, starting, stopping,
+ * and reading audio data from a {@link TargetDataLine}.
+ *
+ * <p>This class supports operations such as:
+ * <ul>
+ *   <li>Opening an audio input device with a specified {@link AudioPort}, {@link AudioFormat}, and buffer size.</li>
+ *   <li>Starting and stopping the audio input device.</li>
+ *   <li>Reading audio data from the input device.</li>
+ *   <li>Flushing and draining the audio input buffer.</li>
+ *   <li>Retrieving information such as buffer size, frame position, and latency.</li>
+ * </ul>
+ *
+ * <p>Usage example:
+ * <pre>{@code
+ * JavaSoundInput input = new JavaSoundInput();
+ * input.open(audioPort, audioFormat, bufferSize);
+ * input.start();
+ * byte[] buffer = new byte[1024];
+ * int bytesRead = input.read(buffer, 0, buffer.length);
+ * input.stop();
+ * input.close();
+ * }</pre>
+ *
+ * <p>Note: This class throws {@link AudioDeviceException} for various error
+ * conditions, such as attempting to operate on a device that is not open or
+ * when the requested audio format is unsupported.
+ *
+ * @see AudioInputDevice
+ * @see JavaSoundDevice
+ * @see TargetDataLine
+ * @see AudioPort
+ * @see AudioFormat
+ * 
+ * @author Alex Soloviov
+ */
 public class JavaSoundInput extends JavaSoundDevice implements AudioInputDevice {
 
+    /**
+     * The target data line used for capturing audio data.
+     */
     private TargetDataLine targetDataLine;
-    private boolean open;
-    private AudioPort currentPort;
-    
-    private static final Cleaner cleaner = Cleaner.create();
 
-    @Override
-    public void initialize() {
-        cleaner.register(this, this::close);
-    }
+    /**
+     * Indicates whether the audio input device is open.
+     */
+    private boolean open;
+
+    /**
+     * The currently active audio port.
+     */
+    private AudioPort currentPort;
 
     @Override
     public void open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioDeviceException {
         try {
-            DataLine.Info info = new DataLine.Info(TargetDataLine.class, getJavaAudioFormat(audioFormat), bufferSize);
+            DataLine.Info info = new DataLine.Info(TargetDataLine.class, getJavaSoundAudioFormat(audioFormat), bufferSize);
             Mixer mixer = getMixerForPort(port);
 
             if (mixer == null || !mixer.isLineSupported(info)) {
@@ -34,7 +75,7 @@ public class JavaSoundInput extends JavaSoundDevice implements AudioInputDevice 
             }
 
             targetDataLine = (TargetDataLine) mixer.getLine(info);
-            targetDataLine.open(getJavaAudioFormat(audioFormat), bufferSize);
+            targetDataLine.open(getJavaSoundAudioFormat(audioFormat), bufferSize);
             this.currentPort = port;
             open = true;
         } catch (LineUnavailableException | UnsupportedAudioFormatException e) {
