@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.direct.AudioDeviceException;
+import org.theko.sound.event.AudioLineEvent;
+import org.theko.sound.event.AudioOutputLineAdapter;
 
 /**
  * A subclass of {@link SoundSource} for audio playback using an {@link AudioOutputLine}.
@@ -23,13 +25,8 @@ public class SoundPlayer extends SoundSource {
      * @throws RuntimeException if there is an error initializing the audio output line.
      */
     public SoundPlayer() {
-        try {
-            aol = new AudioOutputLine();
-            logger.debug("AOL created.");
-        } catch (AudioDeviceNotFoundException | AudioDeviceCreationException e) {
-            logger.error(e.getMessage());
-            throw new RuntimeException(e);  // Propagate the exception if device setup fails
-        }
+        aol = new AudioOutputLine();
+        logger.debug("AOL created.");
     }
 
     /**
@@ -72,13 +69,16 @@ public class SoundPlayer extends SoundSource {
             // Initialize the audio output line with the given port and audio format
             aol.open(audioPort, audioFormat, bufferSize);
             logger.debug("AOL opened.");
-            aol.setInput(getOutputLine());  // Set the output line of the sound source to the input of the output line
+            aol.setInputLine(getOutputLine());  // Set the output line of the sound source to the input of the output line
             logger.debug("AOL input attached to the mixer output.");
-            aol.setOnWritedAction(() -> {
-                played++;
+            aol.addAudioOutputLineListener(new AudioOutputLineAdapter() {
+                @Override
+                public void onWrite(AudioLineEvent e) {
+                    played++;
+                }
             });
             logger.debug("AOL on-writed action is attached.");
-        } catch (AudioDeviceException | AudioPortsNotFoundException | UnsupportedAudioFormatException e) {
+        } catch (AudioDeviceException e) {
             logger.error(e.getMessage());
             throw new RuntimeException(e);  // Propagate the error if setup fails
         }
