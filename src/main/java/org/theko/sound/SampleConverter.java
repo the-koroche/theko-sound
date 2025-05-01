@@ -83,32 +83,32 @@ public class SampleConverter {
      * @throws IllegalArgumentException If volume array length is invalid.
      */
     public static byte[] fromSamples(float[][] samples, AudioFormat targetFormat, float... volumes) {
+        int samplesLength = samples[0].length;
         int bytesPerSample = targetFormat.getBytesPerSample();
         boolean isBigEndian = targetFormat.isBigEndian();
-        byte[] data = new byte[samples[0].length * bytesPerSample * targetFormat.getChannels()];
-        ByteOrder order = isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+        int channels = targetFormat.getChannels();
+        byte[] data = new byte[samplesLength * bytesPerSample * channels];
 
         // Validate volume multipliers
-        if (volumes.length != 0 && volumes.length != 1 && volumes.length != targetFormat.getChannels()) {
+        if (volumes.length != 0 && volumes.length != 1 && volumes.length != channels) {
             throw new IllegalArgumentException("Volumes array must have 0, 1, or 'channels' elements.");
         }
 
         // Apply volume multipliers
-        float[] appliedVolumes = new float[targetFormat.getChannels()];
+        float[] appliedVolumes = new float[channels];
         if (volumes.length == 0) {
             Arrays.fill(appliedVolumes, 1.0f);
         } else if (volumes.length == 1) {
             Arrays.fill(appliedVolumes, volumes[0]);
         } else {
-            System.arraycopy(volumes, 0, appliedVolumes, 0, appliedVolumes.length);
+            System.arraycopy(volumes, 0, appliedVolumes, 0, channels);
         }
 
         // Convert samples to bytes
-        for (int i = 0, offset = 0; i < samples[0].length; i++, offset += bytesPerSample * targetFormat.getChannels()) {
-            for (int channelIndex = 0; channelIndex < targetFormat.getChannels(); channelIndex++) {
-                ByteBuffer buffer = ByteBuffer.wrap(data, offset + channelIndex * bytesPerSample, bytesPerSample).order(order);
-                float volume = appliedVolumes[channelIndex];
-                float sample = samples[channelIndex][i] * volume;
+        ByteBuffer buffer = ByteBuffer.wrap(data).order(isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
+        for (int i = 0; i < samplesLength; i++) {
+            for (int channelIndex = 0; channelIndex < channels; channelIndex++) {
+                float sample = samples[channelIndex][i] * appliedVolumes[channelIndex];
 
                 switch (targetFormat.getEncoding()) {
                     case PCM_UNSIGNED:
@@ -139,9 +139,9 @@ public class SampleConverter {
         int sign = (ulawByte & 0x80) != 0 ? -1 : 1;
         int exponent = (ulawByte >> 4) & 0x07;
         int mantissa = ulawByte & 0x0F;
-        int sample = (mantissa << (exponent + 3)) + (0x70 << exponent);
+        int sample = (mantissa << (exponent + 3)) + (1 << exponent);
 
-        return Math.max(-1.0f, Math.min(1.0f, sign * sample / 32768.0f));  // Return normalized value
+        return Math.max(-1.0f, Math.min(1.0f, sign * sample / 2147483648.0f));  // Return normalized value
     }
 
     private static float alawToFloat(ByteBuffer buffer) {
@@ -149,7 +149,7 @@ public class SampleConverter {
         int sign = (alawByte & 0x80) != 0 ? -1 : 1;
         int exponent = (alawByte >> 4) & 0x07;
         int mantissa = alawByte & 0x0F;
-        int sample = (mantissa << (exponent + 3)) + (0x70 << exponent);
+        int sample = (mantissa << (exponent + 3)) + (exponent == 0 ? 0 : 0x80 << exponent);
 
         return Math.max(-1.0f, Math.min(1.0f, sign * sample / 32768.0f));  // Return normalized value
     }
