@@ -11,10 +11,87 @@ import org.theko.sound.event.DataLineEvent;
 import org.theko.sound.event.DataLineListener;
 
 /**
- * Represents a data line for sending and receiving audio data.
- * Supports blocking, forceful sending/receiving, and timeout-based operations.
- * This class is used for managing audio data flow, and notifying listeners
- * about various events like data sent, received, or timeouts.
+ * The `DataLine` class represents a thread-safe audio data pipeline that allows
+ * sending and receiving audio data in a queue-based manner. It supports various
+ * operations such as blocking and non-blocking data transfer, timeout-based
+ * operations, and listener notifications for events like data sent, received,
+ * or timeout occurrences.
+ * 
+ * <p>This class implements the `AudioObject` and `AutoCloseable` interfaces,
+ * ensuring compatibility with audio-related systems and providing a mechanism
+ * for resource cleanup when the object is no longer in use.</p>
+ * 
+ * <h2>Features:</h2>
+ * <ul>
+ *   <li>Thread-safe queue for storing audio data.</li>
+ *   <li>Support for blocking and non-blocking send/receive operations.</li>
+ *   <li>Timeout-based send and receive operations.</li>
+ *   <li>Listener-based event notifications for data transfer and timeouts.</li>
+ *   <li>Automatic resource cleanup using Java's `Cleaner` API.</li>
+ * </ul>
+ * 
+ * <h2>Usage:</h2>
+ * <p>To use this class, create an instance with a specified audio format and
+ * optionally a queue capacity. Use the `send` and `receive` methods to transfer
+ * data, and register listeners to handle events.</p>
+ * 
+ * <h2>Thread Safety:</h2>
+ * <p>The `DataLine` class is designed to be thread-safe, allowing multiple
+ * threads to interact with the queue concurrently.</p>
+ * 
+ * <h2>Listeners:</h2>
+ * <p>Listeners can be added to receive notifications for the following events:</p>
+ * <ul>
+ *   <li>Data sent (`onSend`).</li>
+ *   <li>Data received (`onReceive`).</li>
+ *   <li>Send timeout (`onSendTimeout`).</li>
+ *   <li>Receive timeout (`onReceiveTimeout`).</li>
+ * </ul>
+ * 
+ * <h2>Resource Management:</h2>
+ * <p>The `close` method should be called to release resources when the `DataLine`
+ * is no longer needed. Alternatively, the `Cleaner` API ensures automatic cleanup
+ * when the object is garbage collected.</p>
+ * 
+ * <h2>Example:</h2>
+ * <pre>{@code
+ * AudioFormat format = new AudioFormat(...);
+ * DataLine dataLine = new DataLine(format, 10);
+ * 
+ * dataLine.addDataLineListener(new DataLineListener() {
+ *     @Override
+ *     public void onSend(DataLineEvent e) {
+ *         System.out.println("Data sent: " + e.getData());
+ *     }
+ * 
+ *     @Override
+ *     public void onReceive(DataLineEvent e) {
+ *         System.out.println("Data received: " + e.getData());
+ *     }
+ * 
+ *     @Override
+ *     public void onSendTimeout(DataLineEvent e) {
+ *         System.out.println("Send timeout occurred.");
+ *     }
+ * 
+ *     @Override
+ *     public void onReceiveTimeout(DataLineEvent e) {
+ *         System.out.println("Receive timeout occurred.");
+ *     }
+ * });
+ * 
+ * byte[] audioData = ...;
+ * dataLine.send(audioData);
+ * byte[] receivedData = dataLine.receive();
+ * 
+ * dataLine.close();
+ * }</pre>
+ * 
+ * @see AudioFormat
+ * @see DataLineListener
+ * @see DataLineEvent
+ * 
+ * @author Alex Soloviov
  */
 public class DataLine implements AudioObject, AutoCloseable {
     private final BlockingQueue<byte[]> queue;
