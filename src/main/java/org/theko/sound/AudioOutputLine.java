@@ -22,7 +22,7 @@ public class AudioOutputLine implements AudioLine {
     private DataLineAdapter onAvailableData = new DataLineAdapter() {
         @Override
         public void onSend(DataLineEvent e) {
-            byte[] bytes = e.getDataLine().forceReceive();
+            byte[] bytes = SampleConverter.fromSamples(e.getDataLine().forceReceive(), e.getAudioFormat());
             dwrite(bytes, 0, bytes.length);
         }
     };

@@ -285,7 +285,7 @@ public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
         for (int i = 0; i < inputs.size(); i++) {
             DataLine dl = inputs.get(i);
             if (dl != null) {
-                samples[i] = SampleConverter.toSamples(dl.receiveWithTimeout(50, TimeUnit.MILLISECONDS), dl.getAudioFormat());
+                samples[i] = dl.receiveWithTimeout(50, TimeUnit.MILLISECONDS);
                 if (samples[i] != null) {
                     for (float[] channel : samples[i]) {
                         maxLength = Math.max(maxLength, channel.length);
@@ -339,15 +339,21 @@ public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
             if (output != null) {
                 for (int ch = 0; ch < mixed.length; ch++) {
                     for (int j = 0; j < mixed[ch].length; j++) {
-                        mixed[ch][j] = Math.max(-1.0f, Math.min(1.0f, mixed[ch][j] * gain));
+                        float targetGain = getGainForChannel(ch, gain, leftVol, rightVol);
+                        mixed[ch][j] = Math.max(-1.0f, Math.min(1.0f, mixed[ch][j] * targetGain));
                     }
                 }
-                output.send(SampleConverter.fromSamples(mixed, output.getAudioFormat(), leftVol, rightVol));
+                output.send(mixed);
             }
         }
 
         logger.trace("Processing elapsed time: " + (processNsEnd - processNsStart) + " ns.");
         logger.trace("Effects elapsed time: " + (effNsEnd - effNsStart) + " ns.");
+    }
+
+    private float getGainForChannel(int channel, float mainGain, float leftVol, float rightVol) {
+        float channelGain = (channel == 0 ? leftVol : rightVol);
+        return mainGain * channelGain;
     }
 
     /**

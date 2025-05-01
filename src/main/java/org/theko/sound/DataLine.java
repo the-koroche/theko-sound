@@ -80,9 +80,9 @@ import org.theko.sound.event.DataLineListener;
  *     }
  * });
  * 
- * byte[] audioData = ...;
+ * float[][] audioData = ...;
  * dataLine.send(audioData);
- * byte[] receivedData = dataLine.receive();
+ * float[][] receivedData = dataLine.receive();
  * 
  * dataLine.close();
  * }</pre>
@@ -94,7 +94,7 @@ import org.theko.sound.event.DataLineListener;
  * @author Alex Soloviov
  */
 public class DataLine implements AudioObject, AutoCloseable {
-    private final BlockingQueue<byte[]> queue;
+    private final BlockingQueue<float[][]> queue;
     private final List<DataLineListener> listeners = new ArrayList<>();
     private final AudioFormat audioFormat;
 
@@ -130,11 +130,11 @@ public class DataLine implements AudioObject, AutoCloseable {
      * @param data The data to be sent.
      * @throws InterruptedException if the thread is interrupted while waiting.
      */
-    public void send(byte[] data) throws InterruptedException {
+    public void send(float[][] data) throws InterruptedException {
         if (closed) return;  // Don't send if closed
         cleanListeners();  // Remove any null listeners before continuing
         queue.put(data);  // Blocking call to add data to the queue
-        notifySendListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));  // Notify listeners about sent data
+        notifySendListeners(new DataLineEvent(this, audioFormat, data));  // Notify listeners about sent data
     }
 
     /**
@@ -143,11 +143,11 @@ public class DataLine implements AudioObject, AutoCloseable {
      * @return The received data.
      * @throws InterruptedException if the thread is interrupted while waiting.
      */
-    public byte[] receive() throws InterruptedException {
+    public float[][] receive() throws InterruptedException {
         if (closed) return null;  // Return null if closed
-        byte[] data = queue.take();  // Blocking call to take data from the queue
+        float[][] data = queue.take();  // Blocking call to take data from the queue
         if (data != null) {
-            notifyReceiveListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));  // Notify listeners about received data
+            notifyReceiveListeners(new DataLineEvent(this, audioFormat, data));  // Notify listeners about received data
         }
         return data;
     }
@@ -157,7 +157,7 @@ public class DataLine implements AudioObject, AutoCloseable {
      * 
      * @param data The data to be forcefully sent.
      */
-    public void forceSend(byte[] data) {
+    public void forceSend(float[][] data) {
         if (closed) return;  // Don't force send if closed
         cleanListeners();  // Remove any null listeners before continuing
         if (queue.size() > 0) {
@@ -165,7 +165,7 @@ public class DataLine implements AudioObject, AutoCloseable {
         }
         try {
             queue.put(data);  // Add new data to the queue
-            notifySendListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));  // Notify listeners about sent data
+            notifySendListeners(new DataLineEvent(this, audioFormat, data));  // Notify listeners about sent data
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();  // Preserve interruption status
         }
@@ -176,14 +176,14 @@ public class DataLine implements AudioObject, AutoCloseable {
      * 
      * @return The received data or an empty byte array if no data is available.
      */
-    public byte[] forceReceive() {
+    public float[][] forceReceive() {
         if (closed) return null;  // Return null if closed
-        byte[] data = queue.poll();  // Non-blocking attempt to get data
+        float[][] data = queue.poll();  // Non-blocking attempt to get data
         if (data != null) {
-            notifyReceiveListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));  // Notify listeners about received data
+            notifyReceiveListeners(new DataLineEvent(this, audioFormat, data));  // Notify listeners about received data
             return data;
         }
-        return new byte[0];  // Return empty array if no data is available
+        return new float[0][];  // Return empty array if no data is available
     }
 
     /**
@@ -195,15 +195,15 @@ public class DataLine implements AudioObject, AutoCloseable {
      * @return True if the data was successfully sent, false otherwise.
      * @throws InterruptedException if the thread is interrupted while waiting.
      */
-    public boolean sendWithTimeout(byte[] data, long timeout, TimeUnit unit) throws InterruptedException {
+    public boolean sendWithTimeout(float[][] data, long timeout, TimeUnit unit) throws InterruptedException {
         if (closed) return false;  // Don't send if closed
         cleanListeners();  // Remove any null listeners before continuing
         boolean success = queue.offer(data, timeout, unit);  // Attempt to add data to the queue with timeout
         
         if (success) {
-            notifySendListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));  // Notify listeners about sent data
+            notifySendListeners(new DataLineEvent(this, audioFormat, data));  // Notify listeners about sent data
         } else {
-            notifySendTimeoutListeners(new DataLineEvent(this, new AudioData(data, audioFormat), timeout, unit));  // Notify about timeout
+            notifySendTimeoutListeners(new DataLineEvent(this, null, null, timeout, unit));  // Notify about timeout
         }
         
         return success;
@@ -217,15 +217,15 @@ public class DataLine implements AudioObject, AutoCloseable {
      * @return The received data or an empty byte array if no data is received.
      * @throws InterruptedException if the thread is interrupted while waiting.
      */
-    public byte[] receiveWithTimeout(long timeout, TimeUnit unit) throws InterruptedException {
+    public float[][] receiveWithTimeout(long timeout, TimeUnit unit) throws InterruptedException {
         if (closed) return null;  // Return null if closed
-        byte[] data = queue.poll(timeout, unit);  // Non-blocking attempt with timeout
+        float[][] data = queue.poll(timeout, unit);  // Non-blocking attempt with timeout
         if (data != null) {
-            notifyReceiveListeners(new DataLineEvent(this, new AudioData(data, audioFormat)));  // Notify listeners about received data
+            notifyReceiveListeners(new DataLineEvent(this, audioFormat, data));  // Notify listeners about received data
             return data;
         } else {
-            notifyReceiveTimeoutListeners(new DataLineEvent(this, null, timeout, unit));  // Notify about timeout
-            return new byte[0];
+            notifyReceiveTimeoutListeners(new DataLineEvent(this, null, null, timeout, unit));  // Notify about timeout
+            return new float[0][];
         }
     }
 

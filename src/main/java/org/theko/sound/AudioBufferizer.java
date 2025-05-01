@@ -86,4 +86,37 @@ public class AudioBufferizer {
         // Convert the list of buffers into a 2D byte array and return it
         return buffers.toArray(new byte[0][]);
     }
+
+    public static float[][][] bufferizeSamples(float[][] samples, int bufferSize) {
+        // Check if the input data is null
+        if (samples == null) {
+            throw new IllegalArgumentException("Data must not be null");
+        }
+
+        // Ensure that bufferSize is greater than zero
+        if (bufferSize <= 0) {
+            throw new IllegalArgumentException("Buffer size must be greater than zero");
+        }
+
+        // List to hold the resulting buffers (chunks)
+        ArrayList<float[][]> buffers = new ArrayList<>();
+
+        // Loop through the input data and split it into buffers of the specified size
+        for (int c = 0; c < samples.length; c++) {
+            int numSamples = samples[c].length;
+            for (int i = 0; i < numSamples; i += bufferSize) {
+                int remaining = Math.min(bufferSize, numSamples - i); // Remaining data to copy
+                float[] chunk = new float[remaining]; // Create a new buffer for the chunk
+                System.arraycopy(samples[c], i, chunk, 0, remaining); // Copy data into the chunk
+
+                // Add the chunk to the list of buffers
+                float[][] buffer = new float[1][];
+                buffer[0] = chunk;
+                buffers.add(buffer);
+            }
+        }
+
+        // Convert the list of buffers into a 3D float array and return it
+        return buffers.toArray(new float[0][0][0]);
+    }
 }

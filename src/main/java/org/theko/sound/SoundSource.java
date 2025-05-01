@@ -76,7 +76,7 @@ public class SoundSource implements AutoCloseable, Controllable {
     // Audio properties
     protected AudioMixer mixer;
     protected AudioFormat audioFormat;
-    protected byte[][] audioData;
+    protected float[][][] audioData;
     protected int bufferSize;
     protected List<AudioTag> metadata;
     private Thread playbackThread;
@@ -294,6 +294,8 @@ public class SoundSource implements AutoCloseable, Controllable {
         byte[] data = result.getBytes();
         this.audioFormat = result.getAudioFormat();
         this.metadata = result.getTags();
+
+        float[][] samples = SampleConverter.toSamples(data, audioFormat);
         
         // Set the buffer size based on user input or default to automatic calculation
         if (bufferSize == -1) { // automatic
@@ -319,7 +321,7 @@ public class SoundSource implements AutoCloseable, Controllable {
         // Set length and buffer the audio data
         this.length = data.length;
         logger.debug("Buffer size: " + this.bufferSize);
-        this.audioData = AudioBufferizer.bufferize(data, this.audioFormat, this.bufferSize);
+        this.audioData = AudioBufferizer.bufferizeSamples(samples, this.bufferSize);
     }
     
     /**
@@ -465,8 +467,11 @@ public class SoundSource implements AutoCloseable, Controllable {
                     if (offset <= 0) {
                         success = mixerIn.sendWithTimeout(audioData[played], SEND_TIMEOUT, TimeUnit.MILLISECONDS); // Send data to mixer
                     } else {
-                        byte[] audioData = new byte[bufferSize - offset];
-                        System.arraycopy(this.audioData[played], offset, audioData, 0, audioData.length); // Handle offset
+                        int framesRemaining = bufferSize - offset;
+                        float[][] audioData = new float[audioFormat.getChannels()][framesRemaining];
+                        for (int i = 0; i < audioFormat.getChannels(); i++) {
+                            System.arraycopy(this.audioData[played][i], offset, audioData[i], 0, framesRemaining);
+                        }
                         offset = 0;
                         success = mixerIn.sendWithTimeout(audioData, SEND_TIMEOUT, TimeUnit.MILLISECONDS);
                     }
