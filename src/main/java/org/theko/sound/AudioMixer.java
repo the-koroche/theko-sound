@@ -1,6 +1,7 @@
 package org.theko.sound;
 
 import java.lang.ref.Cleaner;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,15 +11,52 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.theko.sound.control.AudioController;
+import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.Controllable;
-import org.theko.sound.control.FloatController;
+import org.theko.sound.control.FloatControl;
 import org.theko.sound.event.DataLineAdapter;
 import org.theko.sound.event.DataLineEvent;
 
 /**
- * AudioMixer class provides functionality for mixing audio input lines with optional effects, pre-gain, post-gain, and pan controls.
- * It supports two modes of operation: using threads or events to process audio.
+ * The AudioMixer class is responsible for mixing audio data from multiple input sources,
+ * applying audio effects, and sending the processed audio to output destinations. It supports
+ * two modes of operation: THREAD mode, where audio processing is performed in a dedicated thread,
+ * and EVENT mode, where processing is triggered by events from input data lines.
+ * 
+ * <p>Features of the AudioMixer include:
+ * <ul>
+ *   <li>Support for adding and removing input and output data lines.</li>
+ *   <li>Real-time audio effects processing.</li>
+ *   <li>Gain and pan control for audio adjustment.</li>
+ *   <li>Thread-based or event-based audio processing modes.</li>
+ *   <li>Automatic resource management using a cleaner.</li>
+ * </ul>
+ * 
+ * <p>Usage:
+ * <pre>
+ * {@code
+ * AudioMixer mixer = new AudioMixer(AudioMixer.Mode.THREAD, audioFormat);
+ * mixer.addInput(inputDataLine);
+ * mixer.addOutput(outputDataLine);
+ * mixer.addEffect(new ReverbEffect());
+ * mixer.getPreGainControl().setValue(0.8f);
+ * mixer.getPanControl().setValue(-0.5f);
+ * }
+ * </pre>
+ * 
+ * <p>Note: Only real-time audio effects are supported. Offline processing effects are not allowed.
+ * 
+ * <p>Thread Safety: This class is thread-safe as it uses concurrent collections and proper synchronization
+ * mechanisms for managing inputs, outputs, and effects.
+ * 
+ * <p>Resource Management: The mixer automatically shuts down its resources when it is no longer in use.
+ * However, it is recommended to explicitly call {@link #close()} or {@link #shutdown()} to release resources.
+ * 
+ * @see org.theko.sound.control.AudioControl
+ * @see org.theko.sound.event.DataLineAdapter
+ * @see org.theko.sound.AudioEffect
+ * 
+ * @author Alex Soloviov
  */
 public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(AudioMixer.class);
@@ -38,9 +76,9 @@ public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
 
     private final Map<DataLine, DataLineAdapter> inputListeners = new ConcurrentHashMap<>(); // Listeners for input data lines
 
-    protected final FloatController preGainController;  // Pre-gain control
-    protected final FloatController postGainController; // Post-gain control
-    protected final FloatController panController; // Pan control for stereo balance
+    protected final FloatControl preGainControl;  // Pre-gain control
+    protected final FloatControl postGainControl; // Post-gain control
+    protected final FloatControl panControl; // Pan control for stereo balance
 
     private static int mixerInstances;
     private static final int thisMixerInstance = ++mixerInstances;
@@ -66,9 +104,9 @@ public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
             logger.debug("Mixer thread started.");
         }
 
-        this.preGainController = new FloatController("Pre-Gain", 0.0f, 1.0f, 1.0f);
-        this.postGainController = new FloatController("Post-Gain", 0.0f, 1.0f, 1.0f);
-        this.panController = new FloatController("Pan", -1.0f, 1.0f, 0.0f);
+        this.preGainControl = new FloatControl("Pre-Gain", 0.0f, 1.0f, 1.0f);
+        this.postGainControl = new FloatControl("Post-Gain", 0.0f, 1.0f, 1.0f);
+        this.panControl = new FloatControl("Pan", -1.0f, 1.0f, 0.0f);
         logger.debug("Controls initialized.");
 
         // Register a cleaner to shut down the mixer when it's no longer needed
@@ -165,51 +203,51 @@ public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
     }
 
     public List<DataLine> getInputs() {
-        return inputs;
+        return Collections.unmodifiableList(inputs);
     }
 
     public List<DataLine> getOutputs() {
-        return outputs;
+        return Collections.unmodifiableList(outputs);
     }
 
     public List<AudioEffect> getEffects() {
-        return effects;
+        return Collections.unmodifiableList(effects);
     }
 
     /**
-     * Gets the pre-gain controller for adjusting the gain before processing.
+     * Gets the pre-gain control for adjusting the gain before processing.
      * 
-     * @return The pre-gain controller.
+     * @return The pre-gain control.
      */
-    public FloatController getPreGainController() {
-        return preGainController;
+    public FloatControl getPreGainControl() {
+        return preGainControl;
     }
 
     /**
-     * Gets the post-gain controller for adjusting the gain after processing.
+     * Gets the post-gain control for adjusting the gain after processing.
      * 
-     * @return The post-gain controller.
+     * @return The post-gain control.
      */
-    public FloatController getPostGainController() {
-        return postGainController;
+    public FloatControl getPostGainControl() {
+        return postGainControl;
     }
 
     /**
-     * Gets the pan controller for adjusting the stereo balance.
+     * Gets the pan control for adjusting the stereo balance.
      * 
-     * @return The pan controller.
+     * @return The pan control.
      */
-    public FloatController getPanController() {
-        return panController;
+    public FloatControl getPanControl() {
+        return panControl;
     }
 
     @Override
-    public List<AudioController> getAllControllers() {
-        List<AudioController> controllers = new CopyOnWriteArrayList<>();
-        controllers.add(preGainController);
-        controllers.add(postGainController);
-        controllers.add(panController);
-        return controllers;
+    public List<AudioControl> getAllControls() {
+        List<AudioControl> controls = new CopyOnWriteArrayList<>();
+        controls.add(preGainControl);
+        controls.add(postGainControl);
+        controls.add(panControl);
+        return controls;
     }
 
     /**
@@ -268,7 +306,7 @@ public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
             if (samples[k] == null) continue;
             for (int ch = 0; ch < Math.min(channels, samples[k].length); ch++) {
                 for (int j = 0; j < samples[k][ch].length; j++) {
-                    mixed[ch][j] += samples[k][ch][j] * preGainController.getValue();
+                    mixed[ch][j] += samples[k][ch][j] * preGainControl.getValue();
                 }
             }
         }
@@ -285,18 +323,18 @@ public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
         // Calculate left and right volume based on pan control
         float leftVol = 1.0f;
         float rightVol = 1.0f;
-        if (panController.getValue() < 0) {
+        if (panControl.getValue() < 0) {
             leftVol = 1.0f;
-            rightVol = 1.0f + panController.getValue(); // Decrease right volume when pan is to the left
-        } else if (panController.getValue() > 0) {
-            leftVol = 1.0f - panController.getValue(); // Decrease left volume when pan is to the right
+            rightVol = 1.0f + panControl.getValue(); // Decrease right volume when pan is to the left
+        } else if (panControl.getValue() > 0) {
+            leftVol = 1.0f - panControl.getValue(); // Decrease left volume when pan is to the right
             rightVol = 1.0f;
         }
 
         long processNsEnd = System.nanoTime();
 
         // Normalize and send the mixed audio data to outputs
-        float gain = postGainController.getValue();
+        float gain = postGainControl.getValue();
         for (DataLine output : outputs) {
             if (output != null) {
                 for (int ch = 0; ch < mixed.length; ch++) {
