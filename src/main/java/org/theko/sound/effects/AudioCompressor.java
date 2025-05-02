@@ -2,44 +2,44 @@ package org.theko.sound.effects;
 
 import org.theko.sound.AudioEffect;
 import org.theko.sound.AudioFormat;
-import org.theko.sound.control.FloatController;
+import org.theko.sound.control.FloatControl;
 
 public class AudioCompressor extends AudioEffect {
 
-    private FloatController threshold;    // dB
-    private FloatController ratio;        // unitless
-    private FloatController attackTime;   // seconds
-    private FloatController releaseTime;  // seconds
-    private FloatController makeupGain;   // dB
+    private FloatControl threshold;    // dB
+    private FloatControl ratio;        // unitless
+    private FloatControl attackTime;   // seconds
+    private FloatControl releaseTime;  // seconds
+    private FloatControl makeupGain;   // dB
 
     private float envelope = 0.0f;
 
     public AudioCompressor(AudioFormat audioFormat) {
         super(Type.REALTIME, audioFormat);
-        this.threshold = new FloatController("Threshold", -60.0f, 0.0f, -24.0f);
-        this.ratio = new FloatController("Ratio", 1.0f, 20.0f, 3.0f);
-        this.attackTime = new FloatController("Attack", 0.0001f, 0.2f, 0.01f);
-        this.releaseTime = new FloatController("Release", 0.001f, 2.0f, 0.2f);
-        this.makeupGain = new FloatController("Makeup Gain", -24.0f, 24.0f, 2.0f);
+        this.threshold = new FloatControl("Threshold", -60.0f, 0.0f, -24.0f);
+        this.ratio = new FloatControl("Ratio", 1.0f, 20.0f, 3.0f);
+        this.attackTime = new FloatControl("Attack", 0.0001f, 0.2f, 0.01f);
+        this.releaseTime = new FloatControl("Release", 0.001f, 2.0f, 0.2f);
+        this.makeupGain = new FloatControl("Makeup Gain", -24.0f, 24.0f, 2.0f);
     }
 
-    public FloatController getThreshold() {
+    public FloatControl getThreshold() {
         return threshold;
     }
 
-    public FloatController getRatio() {
+    public FloatControl getRatio() {
         return ratio;
     }
 
-    public FloatController getAttack() {
+    public FloatControl getAttack() {
         return attackTime;
     }
 
-    public FloatController getRelease() {
+    public FloatControl getRelease() {
         return releaseTime;
     }
 
-    public FloatController getMakeupGain() {
+    public FloatControl getMakeupGain() {
         return makeupGain;
     }
 
