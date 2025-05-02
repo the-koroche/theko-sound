@@ -52,9 +52,9 @@ import org.theko.sound.event.DataLineEvent;
  * <p>Resource Management: The mixer automatically shuts down its resources when it is no longer in use.
  * However, it is recommended to explicitly call {@link #close()} or {@link #shutdown()} to release resources.
  * 
- * @see org.theko.sound.control.AudioControl
- * @see org.theko.sound.event.DataLineAdapter
- * @see org.theko.sound.AudioEffect
+ * @see AudioControl
+ * @see DataLineAdapter
+ * @see AudioEffect
  * 
  * @author Alex Soloviov
  */
