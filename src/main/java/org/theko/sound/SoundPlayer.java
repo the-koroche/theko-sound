@@ -10,8 +10,43 @@ import org.theko.sound.event.AudioLineEvent;
 import org.theko.sound.event.AudioOutputLineAdapter;
 
 /**
- * A subclass of {@link SoundSource} for audio playback using an {@link AudioOutputLine}.
- * Provides methods to control playback, including starting, stopping, and setting the position.
+ * The {@code SoundPlayer} class extends {@link SoundSource} and provides functionality
+ * for playing audio files. It manages the audio output line, handles playback operations,
+ * and allows for seeking and controlling the playback position.
+ * 
+ * <p>This class is designed to work with an {@link AudioOutputLine} and an {@link AudioPort}
+ * to output audio. It supports opening audio files, initializing the audio pipeline,
+ * starting and stopping playback, seeking to specific frame positions, and releasing
+ * resources when playback is complete.
+ * 
+ * <p>Key features include:
+ * <ul>
+ *   <li>Opening audio files with specified buffer sizes and audio ports.</li>
+ *   <li>Initializing the audio pipeline with support for custom audio formats.</li>
+ *   <li>Starting and stopping playback with synchronized methods.</li>
+ *   <li>Seeking to specific frame positions while ensuring alignment with buffer sizes.</li>
+ *   <li>Releasing resources by closing the audio output line and associated components.</li>
+ * </ul>
+ * 
+ * <p>Usage example:
+ * <pre>{@code
+ * SoundPlayer player = new SoundPlayer();
+ * player.open(new File("audio.mp3"), 1024, new AudioPort());
+ * player.start();
+ * player.setFramePosition(5000);
+ * player.stop();
+ * player.close();
+ * }</pre>
+ * 
+ * <p>Note: This class relies on external dependencies such as {@link AudioOutputLine},
+ * {@link AudioPort}, and {@link Logger}. Ensure these dependencies are properly configured
+ * in your project.
+ * 
+ * @see SoundSource
+ * @see AudioOutputLine
+ * @see AudioPort
+ * 
+ * @author Alex Soloviov
  */
 public class SoundPlayer extends SoundSource {
     private static final Logger logger = LoggerFactory.getLogger(SoundPlayer.class);
