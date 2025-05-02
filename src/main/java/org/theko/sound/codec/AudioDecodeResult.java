@@ -1,10 +1,8 @@
 package org.theko.sound.codec;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import org.theko.sound.AudioData;
 import org.theko.sound.AudioFormat;
 
 public class AudioDecodeResult {
@@ -18,10 +16,6 @@ public class AudioDecodeResult {
         this.data = data;
         this.format = format;
         this.tags = tags;
-    }
-
-    public AudioData getAudioData() throws IOException {
-        return new AudioData(data, format);
     }
 
     public byte[] getBytes() {
