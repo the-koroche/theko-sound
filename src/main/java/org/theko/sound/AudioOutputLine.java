@@ -13,6 +13,49 @@ import org.theko.sound.event.AudioOutputLineListener;
 import org.theko.sound.event.DataLineAdapter;
 import org.theko.sound.event.DataLineEvent;
 
+/**
+ * The {@code AudioOutputLine} class implements the {@link AudioLine} interface and provides
+ * functionality for managing audio output lines. It interacts with an {@link AudioOutputDevice}
+ * to handle audio playback and supports listener notifications for various audio line events.
+ * 
+ * <p>This class allows for opening, closing, flushing, draining, starting, and stopping audio
+ * output lines. It also supports writing audio data and managing listeners for audio events.
+ * 
+ * <p>Listeners can be added or removed to receive notifications for events such as opening,
+ * closing, flushing, draining, starting, stopping, and writing audio data. Additionally, this
+ * class supports attaching an input {@link DataLine} for handling available data.
+ * 
+ * <p>Usage example:
+ * <pre>
+ * {@code
+ * AudioOutputLine audioOutputLine = new AudioOutputLine();
+ * audioOutputLine.open(audioFormat);
+ * audioOutputLine.start();
+ * audioOutputLine.write(audioData, 0, audioData.length);
+ * audioOutputLine.stop();
+ * audioOutputLine.close();
+ * }
+ * </pre>
+ * 
+ * <p>Key features:
+ * <ul>
+ *   <li>Manages audio output using an {@link AudioOutputDevice}.</li>
+ *   <li>Supports listener notifications for various audio line events.</li>
+ *   <li>Allows attaching and detaching an input {@link DataLine}.</li>
+ *   <li>Provides methods for writing audio data and querying audio line state.</li>
+ * </ul>
+ * 
+ * <p>Note: This class requires proper exception handling for audio device creation and
+ * unsupported audio formats.
+ * 
+ * @see AudioLine
+ * @see AudioOutputDevice
+ * @see AudioLineListener
+ * @see AudioOutputLineListener
+ * @see DataLine
+ * 
+ * @author Alex Soloviov
+ */
 public class AudioOutputLine implements AudioLine {
     private static final Logger logger = LoggerFactory.getLogger(AudioOutputLine.class);
 
@@ -43,6 +86,12 @@ public class AudioOutputLine implements AudioLine {
             logger.error(e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    public AudioOutputLine (AudioOutputDevice aod) {
+        this.aod = aod;
+        this.listeners = new ArrayList<>();
+        logger.debug("AudioOutputLine created using " + aod.getClass().getSimpleName() + " device.");
     }
 
     public void addAudioOutputLineListener(AudioOutputLineListener listener) {
