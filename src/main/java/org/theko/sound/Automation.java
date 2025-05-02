@@ -7,14 +7,53 @@ import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.Controllable;
 import org.theko.sound.control.FloatControl;
 
+/**
+ * The Automation class represents an audio automation system that allows controlling
+ * audio parameters over time using key points. It supports playback, looping, pausing,
+ * and resuming of automation sequences.
+ * 
+ * <p>Each automation instance operates on a list of {@link KeyPoint} objects, which define
+ * the time, value, and easing for the automation curve. The class also supports controlling
+ * multiple {@link FloatControl} targets simultaneously.</p>
+ * 
+ * <p>Features include:</p>
+ * <ul>
+ *   <li>Adding, removing, and clearing key points.</li>
+ *   <li>Controlling playback with start, stop, pause, and resume methods.</li>
+ *   <li>Looping and speed adjustment.</li>
+ *   <li>Interpolation between key points with linear, ease-in, and ease-out easing.</li>
+ *   <li>Normalizing key point times to fit within a 0-1 range.</li>
+ * </ul>
+ * 
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * List<Automation.KeyPoint> keyPoints = List.of(
+ *     new Automation.KeyPoint(0f, 0f, 0.5f),
+ *     new Automation.KeyPoint(1f, 1f, 0.5f)
+ * );
+ * Automation automation = new Automation(keyPoints);
+ * automation.addTargetControl(new FloatControl("Volume", 0, 1, 0.5f));
+ * automation.start();
+ * }</pre>
+ * 
+ * <p>Note: The playback thread is a daemon thread and runs with a lower priority.</p>
+ * 
+ * <p>Thread Safety: This class is not thread-safe. Ensure proper synchronization if accessed
+ * from multiple threads.</p>
+ * 
+ * @see KeyPoint
+ * @see FloatControl
+ * 
+ * @author Alex Soloviov
+ */
 public class Automation implements AudioObject, Controllable {
     private List<KeyPoint> keyPoints;
-    private FloatControl speed;
+    private final FloatControl speed;
     private float position;
     private boolean isLooping = false;
     private boolean isPaused = false;
     private boolean isPlaying = false;
-    private transient Thread playThread;
+    private final transient Thread playThread;
 
     private static int automationInstances;
     private static final int thisAutomationInstance = ++automationInstances;

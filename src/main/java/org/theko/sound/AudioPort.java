@@ -1,8 +1,20 @@
 package org.theko.sound;
 
 /**
- * Represents an audio port, which provides information about the port's 
- * flow (input or output), name, vendor, version, and description.
+ * The {@code AudioPort} class represents an audio port with specific attributes
+ * such as its name, vendor, version, description, and flow direction (input or output).
+ * It provides methods to retrieve these attributes and a string representation
+ * of the audio port.
+ * 
+ * <p>This class is immutable, meaning its state cannot be changed after it is created.</p>
+ * 
+ * <p>Example usage:</p>
+ * <pre>
+ *     AudioPort port = new AudioPort(AudioFlow.INPUT, "Mic Input", "Default", "1.0", "Microphone input port");
+ *     System.out.println(port.getName()); // Outputs: Mic Input
+ * </pre>
+ * 
+ * @author Alex Soloviov
  */
 public class AudioPort implements AudioObject {
     

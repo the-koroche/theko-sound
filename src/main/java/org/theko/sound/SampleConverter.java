@@ -5,8 +5,46 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 /**
- * Utility class for converting audio samples between different formats.
- * Supports conversion between PCM (signed, unsigned, float), ULAW, and ALAW.
+ * The SampleConverter class provides utility methods for converting raw audio byte data
+ * to normalized floating-point samples and vice versa. It supports various audio encodings
+ * such as PCM (signed and unsigned), PCM_FLOAT, ULAW, and ALAW. The class also allows for
+ * optional per-channel volume adjustments during the conversion process.
+ *
+ * <p>Key Features:</p>
+ * <ul>
+ *   <li>Convert raw byte data to normalized floating-point samples.</li>
+ *   <li>Convert floating-point samples back to raw byte data.</li>
+ *   <li>Support for multiple audio encodings and endianness.</li>
+ *   <li>Optional per-channel volume multipliers for both conversions.</li>
+ * </ul>
+ *
+ * <p>Supported Audio Encodings:</p>
+ * <ul>
+ *   <li>PCM_UNSIGNED</li>
+ *   <li>PCM_SIGNED</li>
+ *   <li>PCM_FLOAT</li>
+ *   <li>ULAW</li>
+ *   <li>ALAW</li>
+ * </ul>
+ *
+ * <p>Usage:</p>
+ * <pre>
+ * // Convert raw byte data to float samples
+ * float[][] samples = SampleConverter.toSamples(byteData, audioFormat, 1.0f);
+ *
+ * // Convert float samples back to raw byte data
+ * byte[] byteData = SampleConverter.fromSamples(samples, targetFormat, 0.8f);
+ * </pre>
+ *
+ * <p>Note:</p>
+ * <ul>
+ *   <li>The volume multipliers array must have 0, 1, or the same number of elements as the number of channels.</li>
+ *   <li>Unsupported audio encodings will result in an IllegalArgumentException.</li>
+ * </ul>
+ * 
+ * @see AudioConverter
+ * 
+ * @author Alex Soloviov
  */
 public class SampleConverter {
 

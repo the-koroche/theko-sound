@@ -5,7 +5,35 @@ import org.theko.sound.control.Controllable;
 import org.theko.sound.control.FloatControl;
 
 /**
- * Represents an abstract audio effect that can be applied to audio data.
+ * The {@code AudioEffect} class represents an abstract base class for audio effects
+ * that can process audio data in either real-time or offline modes. It provides
+ * a framework for implementing custom audio effects with controls for enabling/disabling
+ * the effect and adjusting the mix level between the original and processed audio.
+ *
+ * <p>Subclasses must implement the {@link #process(float[][])} method to define the
+ * specific audio processing logic.</p>
+ *
+ * <h2>Features:</h2>
+ * <ul>
+ *   <li>Supports real-time and offline processing modes via the {@link Type} enum.</li>
+ *   <li>Provides a {@link BooleanControl} to enable or disable the effect.</li>
+ *   <li>Includes a {@link FloatControl} to adjust the mix level between original and processed audio.</li>
+ *   <li>Ensures non-destructive processing by preserving the original audio samples.</li>
+ * </ul>
+ *
+ * <h2>Usage:</h2>
+ * <p>To create a custom audio effect, extend this class and implement the {@link #process(float[][])} method.
+ * Use the {@link #callProcess(float[][])} method to apply the effect to audio samples.</p>
+ *
+ * <h2>Thread Safety:</h2>
+ * <p>This class is not thread-safe. Synchronization must be handled externally if used in a multi-threaded environment.</p>
+ *
+ * @see AudioObject
+ * @see Controllable
+ * @see BooleanControl
+ * @see FloatControl
+ * 
+ * @author Alex Soloviov
  */
 public abstract class AudioEffect implements AudioObject, Controllable {
     /**
