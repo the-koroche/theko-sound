@@ -125,7 +125,7 @@ public class AudioDevices {
                     }
                 } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
                         | NoSuchMethodException | SecurityException e) {
-                    logger.error("Failed to instantiate input device: " + audioDeviceClass.getSimpleName() + ". Message: " + e.getMessage());
+                    logger.error("Failed to instantiate input device: " + audioDeviceClass.getSimpleName() + ".", e);
                     throw new AudioDeviceCreationException("Failed to instantiate input device: " + audioDeviceClass.getSimpleName(), e);
                 }
             }
@@ -161,7 +161,7 @@ public class AudioDevices {
                     }
                 } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
                         | NoSuchMethodException | SecurityException e) {
-                    logger.error("Failed to instantiate input device: " + audioDeviceClass.getSimpleName() + ". Message: " + e.getMessage());
+                    logger.error("Failed to instantiate input device: " + audioDeviceClass.getSimpleName() + ".", e);
                     throw new AudioDeviceCreationException("Failed to instantiate output device: " + audioDeviceClass.getSimpleName(), e);
                 }
             }
