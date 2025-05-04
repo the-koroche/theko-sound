@@ -32,6 +32,17 @@ import java.util.Objects;
  * @author Alex Soloviov
  */
 public class AudioFormat implements AudioObject {
+    public static final AudioFormat LOWEST_QUALITY_FORMAT = 
+        new AudioFormat(8000, 8, 1, Encoding.PCM_UNSIGNED, false);
+    public static final AudioFormat LOWE_QUALITY_FORMAT = 
+        new AudioFormat(22500, 8, 1, Encoding.PCM_UNSIGNED, false);
+    public static final AudioFormat MEDIUM_QUALITY_FORMAT = 
+        new AudioFormat(44100, 16, 2, Encoding.PCM_SIGNED, false);
+    public static final AudioFormat HIGH_QUALITY_FORMAT = 
+        new AudioFormat(48000, 16, 2, Encoding.PCM_SIGNED, false);
+    public static final AudioFormat ULTRA_QUALITY_FORMAT = 
+        new AudioFormat(48000, 32, 2, Encoding.PCM_FLOAT, false);
+
     private final int sampleRate;
     private final int bitsPerSample;
     private final int channels;
