@@ -259,4 +259,8 @@ public class AudioOutputLine implements AudioLine {
     public DataLine getInputLine() {
         return inputLine;
     }
+
+    public AudioOutputDevice getAudioOutputDevice() {
+        return aod;
+    }
 }
