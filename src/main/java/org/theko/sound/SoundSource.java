@@ -209,13 +209,13 @@ public class SoundSource implements AutoCloseable, Controllable {
             logger.debug("Initializing audio pipeline...");
             initializeAudioPipeline();
         } catch (AudioCodecCreationException e) {
-            logger.error("Codec initialization failed: " + e.getMessage());
+            logger.error("Codec initialization failed.", e);
             throw new RuntimeException("Codec initialization failed.", e);
         } catch (AudioCodecException e) {
-            logger.error("Codec exeception: " + e.getMessage());
+            logger.error("Codec exeception.", e);
             throw new RuntimeException(e); // Unknown codec exception
         } catch (UnsupportedAudioFormatException e) {
-            logger.error("UnsupportedAudioFormatException: " + e.getMessage());
+            logger.error("UnsupportedAudioFormatException.", e);
             throw new RuntimeException(e); // Audio format is not supported or invalid
         }
     }
@@ -457,7 +457,8 @@ public class SoundSource implements AutoCloseable, Controllable {
         try {
             logger.debug("Playback loop started.");
             playbackPositionTimer.start();
-            while (isPlaying && isOpen && !Thread.currentThread().isInterrupted() && played < audioData.length) {
+            int buffersCount = (int) Math.ceil((double) audioData.length / audioFormat.getFrameSize());
+            while (isPlaying && isOpen && !Thread.currentThread().isInterrupted() && played < buffersCount) {
                     if (pendingFrameSeek) {
                         // Short frame position changes block the thread temporarily
                         Thread.sleep(1);
@@ -475,7 +476,8 @@ public class SoundSource implements AutoCloseable, Controllable {
                         offset = 0;
                         success = mixerIn.sendWithTimeout(audioData, SEND_TIMEOUT, TimeUnit.MILLISECONDS);
                     }
-                    if (!success) logger.trace("Audio send operation fail.");
+                    logger.trace("Buffer " + played + " of " + buffersCount + ", sended to the mixer.");
+                    if (!success) logger.debug("Audio send operation fail.");
                     if (played > audioData.length - 1 && needLoop()) {
                         resetPosition();
                         logger.debug("Loop. Remaining loops: " + loop + "/" + loopCount + ".");
@@ -492,7 +494,7 @@ public class SoundSource implements AutoCloseable, Controllable {
             }
             
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("Interrupted exception: ", e);
         }
     }
 
@@ -784,7 +786,7 @@ public class SoundSource implements AutoCloseable, Controllable {
     protected synchronized void resetPosition() {
         played = 0;
         offset = 0;
-        playbackPositionTimer.setStartTimeNanos(0); // Reset the playback position timer
+        playbackPositionTimer.setStartTimeNanos(System.nanoTime()); // Reset the playback position timer
     }
 
     /**
