@@ -9,4 +9,13 @@ public class WindowFunction {
         }
         return result;
     }
+
+    public static float[] generate(int size, WindowType type) {
+        double[] window = type.generate(size);
+        float[] result = new float[window.length];
+        for (int i = 0; i < window.length; i++) {
+            result[i] = (float)(window[i]);
+        }
+        return result;
+    }
 }
