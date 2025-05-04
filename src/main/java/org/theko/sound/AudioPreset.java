@@ -84,23 +84,23 @@ public class AudioPreset implements Serializable {
             aobj.onLoad(); // Call onLoad method after loading the object
             this.audioObjectState = aobj;
         } catch (FileNotFoundException e) {
-            logger.error("File not found: " + e.getMessage());
+            logger.error("File not found.", e);
             throw new FileNotFoundException("File not found: " + file.getAbsolutePath());
         } catch (AudioObjectIOException e) {
-            logger.error("Audio object I/O error: " + e.getMessage());
+            logger.error("Audio object I/O error.", e);
             throw new AudioObjectIOException("Audio object I/O error", e);
         } catch (ClassCastException e) {
-            logger.error("Invalid object type: " + e.getMessage());
+            logger.error("Invalid object type.", e);
             throw new AudioObjectIOException("Invalid object type", e);
         } catch (ClassNotFoundException e) {
-            logger.error("Class not found: " + e.getMessage());
+            logger.error("Class not found.", e);
             throw new AudioObjectIOException("Class not found", e);
         } catch (IOException e) {
-            logger.error("Error reading file: " + e.getMessage());
+            logger.error("Error reading file.", e);
             throw new AudioObjectIOException("Error reading file", e);
         } catch (Exception e) {
-            logger.error(e.getMessage());
-            throw new AudioObjectIOException("Unknown error", e);
+            logger.error("Unchecked exception.", e);
+            throw new AudioObjectIOException(e);
         }
     }
 
