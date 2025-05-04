@@ -1,6 +1,8 @@
 package org.theko.sound.direct;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.theko.sound.AudioFlow;
@@ -8,6 +10,7 @@ import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioPort;
 import org.theko.sound.AudioPortsNotFoundException;
 import org.theko.sound.UnsupportedAudioFormatException;
+import org.theko.sound.AudioFormat.Encoding;
 
 /**
  * The {@code AudioDevice} interface represents a generic audio device that can handle
@@ -81,6 +84,63 @@ public interface AudioDevice {
      * @return {@code true} if the port supports the specified format; {@code false} otherwise.
      */
     boolean isPortSupporting(AudioPort port, AudioFormat audioFormat);
+    
+
+    /**
+     * Retrieves the audio format associated with the given audio port.
+     *
+     * This method generates a list of audio formats based on common sample rates, bit depths,
+     * channel configurations, and encodings. It then checks each format against the specified
+     * audio port to determine compatibility. The first compatible format found is returned.
+     *
+     * @param port the {@link AudioPort} whose format is requested.
+     * @return the {@link AudioFormat} for the given port, or {@code null} if no compatible format is found.
+     */
+    default AudioFormat getFormatForPort(AudioPort port) {
+        // Define common sample rates in Hz
+        int[] sampleRates = {48000, 44100, 22500, 8000};
+        
+        // Define common bit depths in bits per sample
+        int[] bitDepths = {32, 24, 16, 8};
+        
+        // Define common channel configurations (stereo or mono)
+        int[] channels = {2, 1};
+        
+        // Define supported audio encodings
+        Encoding[] encodings = {Encoding.PCM_FLOAT, Encoding.PCM_SIGNED, Encoding.PCM_UNSIGNED};
+
+        // Create a list to store generated audio formats
+        List<AudioFormat> sortedFormats = new ArrayList<>();
+        
+        // Generate combinations of audio format properties
+        for (int ch : channels) {
+            for (int bits : bitDepths) {
+                for (int rate : sampleRates) {
+                    for (Encoding enc : encodings) {
+                        // Skip invalid combinations:
+                        // 1. 8-bit FLOAT or stereo SIGNED PCM is not valid
+                        // 2. FLOAT encoding must be 32-bit
+                        if (bits == 8 && (enc == Encoding.PCM_FLOAT || (enc == Encoding.PCM_SIGNED && ch == 2))) continue;
+                        if (enc == Encoding.PCM_FLOAT && bits != 32) continue;
+
+                        // Add the valid audio format to the list
+                        sortedFormats.add(new AudioFormat(rate, bits, ch, enc, false));
+                    }
+                }
+            }
+        }
+
+        // Iterate over generated formats to find a compatible one
+        for (AudioFormat current : sortedFormats) {
+            // Check if the current format is supported by the port
+            if (isPortSupporting(port, current)) {
+                return current; // Return the first compatible format found
+            }
+        }
+
+        // Return null if no compatible format is found
+        return null;
+    }
 
     /**
      * Retrieves the default audio port for the specified audio flow and format.
