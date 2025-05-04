@@ -26,9 +26,7 @@ import org.theko.sound.direct.AudioDeviceException;
  * are thrown to indicate errors during operations.
  * </p>
  * 
- * @see AudioInputLine
  * @see AudioOutputLine
- * @see org.theko.sound.event.AudioLineListener
  * 
  * @author Alex Soloviov
  */
