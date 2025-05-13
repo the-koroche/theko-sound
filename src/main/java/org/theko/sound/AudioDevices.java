@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.direct.AudioDevice;
@@ -74,9 +73,8 @@ public class AudioDevices {
      */
     private static void registerDevices() {
         // Attempt to scan all available packages for audio devices.
-        Reflections reflections = AudioClassLoader.getReflections();
         audioDevices.clear();
-        Set<Class<? extends AudioDevice>> allAudioDevices = reflections.getSubTypesOf(AudioDevice.class);
+        Set<Class<? extends AudioDevice>> allAudioDevices = AudioClassLoader.getAvailableDevices();
 
         // Register all found audio devices.
         for (Class<? extends AudioDevice> audioDeviceClass : allAudioDevices) {
@@ -217,7 +215,13 @@ public class AudioDevices {
     
         // Fallback to JavaSound if no platform-specific device is found.
         String fallbackDeviceName = "JavaSound";
-        logger.debug("No compatible audio devices for this platform founded. Using fallback: " + fallbackDeviceName);
-        return fromName(fallbackDeviceName);
+        logger.info("No compatible audio devices for this platform founded. Using fallback: " + fallbackDeviceName);
+        try {
+            return fromName(fallbackDeviceName);
+        } catch (AudioDeviceNotFoundException ex) {
+            // Already logged in 'fromName' method.
+            // logger.error("No fallback device found by name: '" + fallbackDeviceName + "'.", ex);
+            throw new AudioDeviceNotFoundException("No fallback device found by name: '" + fallbackDeviceName + "'.", ex);
+        }
     }
 }

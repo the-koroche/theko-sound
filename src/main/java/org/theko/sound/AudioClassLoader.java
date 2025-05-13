@@ -2,6 +2,7 @@ package org.theko.sound;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Set;
 
 import org.reflections.Reflections;
 import org.reflections.ReflectionsException;
@@ -9,6 +10,12 @@ import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.theko.sound.codec.AudioCodec;
+import org.theko.sound.codec.formats.WAVECodec;
+import org.theko.sound.direct.AudioDevice;
+import org.theko.sound.direct.javasound.JavaSoundDevice;
+import org.theko.sound.direct.javasound.JavaSoundInput;
+import org.theko.sound.direct.javasound.JavaSoundOutput;
 
 /**
  * The {@code AudioClassLoader} class is responsible for managing the initialization
@@ -60,114 +67,99 @@ public final class AudioClassLoader {
     private static final Logger logger = LoggerFactory.getLogger(AudioClassLoader.class);
 
     private static Reflections reflections = tryToCreateReflections();
+    private static final Set<Class<? extends AudioDevice>> fallbackDevices = Set.of(
+        JavaSoundDevice.class, JavaSoundInput.class, JavaSoundOutput.class
+    );
 
-    /**
-     * This method must be called before using any device / codec classes.
-     * It initializes the Reflections library to scan for classes in the specified packages.
-    */
-    public static final void initialize() {
+    private static final Set<Class<? extends AudioCodec>> fallbackCodecs = Set.of(
+        WAVECodec.class
+    );
+
+    public static void initialize() {
         if (reflections == null) {
             reflections = createReflections();
+            if (reflections == null) {
+                logger.warn("Unable to initialize Reflections. The predefined classes is still available.");
+            }
         } else {
-            logger.info("Reflections instance already initialized.");
+            logger.info("Reflections already initialized.");
         }
     }
 
-    /**
-     * Tries to create a Reflections instance for class scanning.
-     * If manual initialization is required (i.e., {@code org.theko.sound.AudioClassLoader.manual_init} is set to {@code true}),
-     * this method returns {@code null} and logs a message indicating that manual initialization is required.
-     * Otherwise, automatic initialization of Reflections is attempted.
-     * If the automatic initialization fails, a warning is logged and a fallback Reflections instance is created.
-     * The fallback instance scans only predefined packages containing device and codec classes.
-     * @return A Reflections instance for class scanning, or {@code null} if manual initialization is required.
-     */
-    private static Reflections tryToCreateReflections() {
-        String manualInit = System.getProperty("org.theko.sound.AudioClassLoader.manual_init", "false").toLowerCase();
-        if (manualInit.equals("true")) {
-            return null; // Manual initialization is required.
-        } else {
-            return createReflections(); // Automatic initialization.
-        }
-    }
-
-    /**
-     * Creates a Reflections instance for package scanning.
-     * If the automatic initialization fails (e.g., due to a ReflectionsException),
-     * a warning is logged and a fallback Reflections instance is created.
-     * The fallback instance scans only predefined packages containing device and codec classes.
-     * @return A Reflections instance for class scanning.
-     */
-    private static Reflections createReflections() {
-        logger.debug("Creating Reflections instance for package scanning.");
-        Reflections reflections = null;
-        boolean fullSuccess = false;
-
-        String useDefaultReflections = System.getProperty("org.theko.sound.AudioClassLoader.exclude_custom", "false").toLowerCase();
-        if (useDefaultReflections.equals("true")) {
-            logger.debug("Using default Reflections instance.");
-            reflections = createDefaultReflections();
-            return reflections;
-        }
-        try {
-            reflections = new Reflections(new ConfigurationBuilder()
-                    .forPackages("") // Scan all packages.
-                    .addScanners(Scanners.SubTypes) // Look for subtypes.
-            );
-            fullSuccess = true;
-        } catch (ReflectionsException ex) {
-            logger.warn("ReflectionsException", ex);
-        }
-
-        if (!fullSuccess) {
-            logger.warn("Falling back to predefined classes.");
-            reflections = createDefaultReflections();
-        }
-        return reflections;
-    }
-
-    private static Reflections createDefaultReflections() {
-        return new Reflections(new ConfigurationBuilder()
-                .forPackages("org.theko.sound.direct", "org.theko.sound.codec.formats") // Fallback: scan only predefined classes.
-                .addScanners(Scanners.SubTypes)
-        );
-    }
-
-    /**
-     * Returns the Reflections instance for package scanning. The returned instance is
-     * used by the AudioClassLoader to find available audio devices and codecs. If the
-     * automatic initialization fails (e.g., due to a ReflectionsException), a warning
-     * is logged and a fallback Reflections instance is created that only scans predefined
-     * packages containing device and codec classes.
-     * @return A Reflections instance for class scanning.
-     */
+    @Deprecated
     public static Reflections getReflections() {
         return reflections;
     }
 
-    /**
-     * Returns the resource at the given name as a File object.
-     * 
-     * @param name The name of the resource to retrieve.
-     * @return A File object representing the resource, or throws an IllegalArgumentException if the resource is not found.
-     */
-    public static File getResourceAsFile(String name) {
-        if (name == null) {
-            throw new IllegalArgumentException("Resource name cannot be null");
+    public static Set<Class<? extends AudioDevice>> getAvailableDevices() {
+        if (useFallback()) {
+            logger.debug("Returning fallback AudioDevice classes.");
+            return fallbackDevices;
         }
+        try {
+            return reflections.getSubTypesOf(AudioDevice.class);
+        } catch (Exception e) {
+            logger.warn("Failed to scan AudioDevice classes. Falling back.", e);
+            return fallbackDevices;
+        }
+    }
+
+    public static Set<Class<? extends AudioCodec>> getAvailableCodecs() {
+        if (useFallback()) {
+            logger.debug("Returning fallback AudioCodec classes.");
+            return fallbackCodecs;
+        }
+        try {
+            return reflections.getSubTypesOf(AudioCodec.class);
+        } catch (Exception e) {
+            logger.warn("Failed to scan AudioCodec classes. Falling back.", e);
+            return fallbackCodecs;
+        }
+    }
+
+    private static boolean useFallback() {
+        return "true".equalsIgnoreCase(System.getProperty("org.theko.sound.AudioClassLoader.exclude_custom", "false"));
+    }
+
+    private static Reflections tryToCreateReflections() {
+        if ("true".equalsIgnoreCase(System.getProperty("org.theko.sound.AudioClassLoader.manual_init", "false"))) {
+            logger.info("Manual initialization enabled. Reflections will not be created.");
+            return null;
+        }
+        return createReflections();
+    }
+
+    private static Reflections createReflections() {
+        logger.debug("Creating Reflections instance for scanning.");
+        if (useFallback()) {
+            return null;
+        }
+        try {
+            return new Reflections(new ConfigurationBuilder()
+                    .forPackages("")
+                    .addScanners(Scanners.SubTypes));
+        } catch (ReflectionsException ex) {
+            logger.warn("Reflections failed, falling back to default packages.", ex);
+            return createDefaultReflections();
+        }
+    }
+
+    private static Reflections createDefaultReflections() {
+        return new Reflections(new ConfigurationBuilder()
+                .forPackages("org.theko.sound.direct", "org.theko.sound.codec.formats")
+                .addScanners(Scanners.SubTypes));
+    }
+
+    public static File getResourceAsFile(String name) {
+        if (name == null) throw new IllegalArgumentException("Resource name cannot be null");
         URL url = AudioClassLoader.class.getClassLoader().getResource(name);
         if (url == null) {
-            logger.error("Resource not found: " + name);
+            logger.error("Resource not found: {}", name);
             throw new IllegalArgumentException("Resource not found: " + name);
         }
         return new File(url.getPath());
     }
 
-    /**
-     * Returns the absolute file path of the resource at the given name.
-     * @param name The name of the resource to retrieve.
-     * @return The absolute file path of the resource, or throws an IllegalArgumentException if the resource is not found.
-     */
     public static String getResourceAsFilePath(String name) {
         return getResourceAsFile(name).getAbsolutePath();
     }

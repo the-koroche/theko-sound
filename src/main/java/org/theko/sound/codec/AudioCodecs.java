@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.AudioClassLoader;
@@ -29,9 +28,8 @@ public class AudioCodecs {
     private static void registerCodecs() {
         logger.debug("Registering audio codecs...");
         // Use Reflections to find all classes implementing AudioCodec
-        Reflections reflections = AudioClassLoader.getReflections();
         audioCodecs.clear();
-        Set<Class<? extends AudioCodec>> allAudioCodecs = reflections.getSubTypesOf(AudioCodec.class);
+        Set<Class<? extends AudioCodec>> allAudioCodecs = AudioClassLoader.getAvailableCodecs();
 
         for (Class<? extends AudioCodec> audioCodecClass : allAudioCodecs) {
             if (audioCodecClass.isAnnotationPresent(AudioCodecType.class)) {
