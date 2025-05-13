@@ -1,9 +1,8 @@
 package org.theko.sound;
 
 import java.lang.ref.Cleaner;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -61,7 +60,7 @@ import org.theko.sound.event.DataLineListener;
  */
 public class DataLine implements AudioObject, AutoCloseable {
     private final BlockingQueue<float[][]> queue;
-    private final List<DataLineListener> listeners = new ArrayList<>();
+    private final CopyOnWriteArrayList<DataLineListener> listeners = new CopyOnWriteArrayList<>();
     private final AudioFormat audioFormat;
 
     protected boolean closed = true;
