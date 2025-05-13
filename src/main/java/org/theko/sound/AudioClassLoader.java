@@ -42,6 +42,8 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *   <li>{@code org.theko.sound.AudioClassLoader.manual_init} - If set to {@code true},
  *       manual initialization of Reflections is required. Defaults to {@code false}.</li>
+ *   <li>{@code org.theko.sound.AudioClassLoader.exclude_custom} - If set to {@code true},
+ *       loads only predefined classes. Defaults to {@code false}.</li>
  * </ul>
  * 
  * <p>Logging:
@@ -83,10 +85,8 @@ public final class AudioClassLoader {
     private static Reflections tryToCreateReflections() {
         String manualInit = System.getProperty("org.theko.sound.AudioClassLoader.manual_init", "false").toLowerCase();
         if (manualInit.equals("true")) {
-            logger.info("Manual initialization of Reflections is required. Set 'org.theko.sound.AudioClassLoader.manual_init' to 'false' to enable automatic initialization.");
             return null; // Manual initialization is required.
         } else {
-            logger.info("Automatic initialization of Reflections is enabled. Set 'org.theko.sound.AudioClassLoader.manual_init' to 'true' to disable automatic initialization.");
             return createReflections(); // Automatic initialization.
         }
     }
@@ -101,21 +101,36 @@ public final class AudioClassLoader {
     private static Reflections createReflections() {
         logger.debug("Creating Reflections instance for package scanning.");
         Reflections reflections = null;
+        boolean fullSuccess = false;
+
+        String useDefaultReflections = System.getProperty("org.theko.sound.AudioClassLoader.exclude_custom", "false").toLowerCase();
+        if (useDefaultReflections.equals("true")) {
+            logger.debug("Using default Reflections instance.");
+            reflections = createDefaultReflections();
+            return reflections;
+        }
         try {
             reflections = new Reflections(new ConfigurationBuilder()
                     .forPackages("") // Scan all packages.
                     .addScanners(Scanners.SubTypes) // Look for subtypes.
             );
+            fullSuccess = true;
         } catch (ReflectionsException ex) {
-            logger.warn("ReflectionsException: " + ex.getMessage());
+            logger.warn("ReflectionsException", ex);
+        }
+
+        if (!fullSuccess) {
             logger.warn("Falling back to predefined classes.");
-            ex.printStackTrace();
-            reflections = new Reflections(new ConfigurationBuilder()
-                .forPackages("org.theko.sound.direct", "org.theko.sound.codec.formats") // Fallback: scan only predefined classes.
-                .addScanners(Scanners.SubTypes)
-            );
+            reflections = createDefaultReflections();
         }
         return reflections;
+    }
+
+    private static Reflections createDefaultReflections() {
+        return new Reflections(new ConfigurationBuilder()
+                .forPackages("org.theko.sound.direct", "org.theko.sound.codec.formats") // Fallback: scan only predefined classes.
+                .addScanners(Scanners.SubTypes)
+        );
     }
 
     /**
