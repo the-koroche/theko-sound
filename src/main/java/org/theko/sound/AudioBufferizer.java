@@ -87,36 +87,55 @@ public class AudioBufferizer {
         return buffers.toArray(new byte[0][]);
     }
 
+    /**
+     * Splits a 2D array of float samples into a 3D array of buffers (chunks) of the specified size.
+     *
+     * <p>This method is useful for processing audio data in smaller chunks for tasks like
+     * streaming or applying audio effects.</p>
+     *
+     * @param samples     A 2D array of float samples, where each row represents a channel.
+     * @param bufferSize  The size of each buffer (chunk) in samples.
+     * @return A 3D array of float buffers, where each element is a chunk of audio data.
+     * @throws IllegalArgumentException if samples is null, or if bufferSize is less than or equal to zero.
+     */
     public static float[][][] bufferizeSamples(float[][] samples, int bufferSize) {
-        // Check if the input data is null
+        // Validate input samples
         if (samples == null) {
-            throw new IllegalArgumentException("Data must not be null");
+            throw new IllegalArgumentException("Samples must not be null");
         }
 
-        // Ensure that bufferSize is greater than zero
+        // Validate bufferSize
         if (bufferSize <= 0) {
             throw new IllegalArgumentException("Buffer size must be greater than zero");
         }
 
-        // List to hold the resulting buffers (chunks)
-        ArrayList<float[][]> buffers = new ArrayList<>();
+        int channels = samples.length;
+        int totalSamples = samples[0].length;
 
-        // Loop through the input data and split it into buffers of the specified size
-        for (int c = 0; c < samples.length; c++) {
-            int numSamples = samples[c].length;
-            for (int i = 0; i < numSamples; i += bufferSize) {
-                int remaining = Math.min(bufferSize, numSamples - i); // Remaining data to copy
-                float[] chunk = new float[remaining]; // Create a new buffer for the chunk
-                System.arraycopy(samples[c], i, chunk, 0, remaining); // Copy data into the chunk
-
-                // Add the chunk to the list of buffers
-                float[][] buffer = new float[1][];
-                buffer[0] = chunk;
-                buffers.add(buffer);
+        // Ensure all channels have the same length
+        for (int c = 1; c < channels; c++) {
+            if (samples[c].length != totalSamples) {
+                throw new IllegalArgumentException("All channels must have the same length");
             }
         }
 
+        ArrayList<float[][]> buffers = new ArrayList<>();
+
+        // Split samples into chunks of bufferSize
+        for (int i = 0; i < totalSamples; i += bufferSize) {
+            int chunkSize = Math.min(bufferSize, totalSamples - i);
+            float[][] chunk = new float[channels][chunkSize];
+
+            // Copy samples for each channel into the chunk
+            for (int c = 0; c < channels; c++) {
+                System.arraycopy(samples[c], i, chunk[c], 0, chunkSize);
+            }
+
+            // Add the chunk to the list of buffers
+            buffers.add(chunk);
+        }
+
         // Convert the list of buffers into a 3D float array and return it
-        return buffers.toArray(new float[0][0][0]);
+        return buffers.toArray(new float[0][][]);
     }
 }
