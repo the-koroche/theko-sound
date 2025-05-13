@@ -53,40 +53,6 @@ import org.theko.sound.event.DataLineListener;
  * is no longer needed. Alternatively, the `Cleaner` API ensures automatic cleanup
  * when the object is garbage collected.</p>
  * 
- * <h2>Example:</h2>
- * <pre>{@code
- * AudioFormat format = new AudioFormat(...);
- * DataLine dataLine = new DataLine(format, 10);
- * 
- * dataLine.addDataLineListener(new DataLineListener() {
- *     @Override
- *     public void onSend(DataLineEvent e) {
- *         System.out.println("Data sent: " + e.getData());
- *     }
- * 
- *     @Override
- *     public void onReceive(DataLineEvent e) {
- *         System.out.println("Data received: " + e.getData());
- *     }
- * 
- *     @Override
- *     public void onSendTimeout(DataLineEvent e) {
- *         System.out.println("Send timeout occurred.");
- *     }
- * 
- *     @Override
- *     public void onReceiveTimeout(DataLineEvent e) {
- *         System.out.println("Receive timeout occurred.");
- *     }
- * });
- * 
- * float[][] audioData = ...;
- * dataLine.send(audioData);
- * float[][] receivedData = dataLine.receive();
- * 
- * dataLine.close();
- * }</pre>
- * 
  * @see AudioFormat
  * @see DataLineListener
  * @see DataLineEvent
@@ -101,6 +67,10 @@ public class DataLine implements AudioObject, AutoCloseable {
     protected boolean closed = true;
 
     private static transient final Cleaner cleaner = Cleaner.create(Thread.ofVirtual().factory());
+
+    private enum NotifyType {
+        SEND, RECEIVE, SEND_TIMEOUT, RECEIVE_TIMEOUT
+    }
 
     /**
      * Constructor with specified queue capacity.
@@ -125,6 +95,32 @@ public class DataLine implements AudioObject, AutoCloseable {
     }
 
     /**
+     * Notifies all registered listeners of a specific event type with the given event data.
+     *
+     * @param type The type of notification to be sent, indicating the event that occurred.
+     * @param e The event data associated with the notification, encapsulated in a DataLineEvent object.
+     */
+    private void notifyListeners(NotifyType type, DataLineEvent e) {
+        for (DataLineListener listener : listeners) {
+            if (listener == null) continue;
+            switch (type) {
+                case SEND:
+                    listener.onSend(e);
+                    break;
+                case RECEIVE:
+                    listener.onReceive(e);
+                    break;
+                case SEND_TIMEOUT:
+                    listener.onSendTimeout(e);
+                    break;
+                case RECEIVE_TIMEOUT:
+                    listener.onReceiveTimeout(e);
+                    break;
+            }
+        }
+    }
+
+    /**
      * Puts data into the queue, blocking if necessary until space is available.
      * 
      * @param data The data to be sent.
@@ -134,7 +130,7 @@ public class DataLine implements AudioObject, AutoCloseable {
         if (closed) return;  // Don't send if closed
         cleanListeners();  // Remove any null listeners before continuing
         queue.put(data);  // Blocking call to add data to the queue
-        notifySendListeners(new DataLineEvent(this, audioFormat, data));  // Notify listeners about sent data
+        notifyListeners(NotifyType.SEND, new DataLineEvent(this, audioFormat, data));  // Notify listeners about sent data
     }
 
     /**
@@ -147,7 +143,7 @@ public class DataLine implements AudioObject, AutoCloseable {
         if (closed) return null;  // Return null if closed
         float[][] data = queue.take();  // Blocking call to take data from the queue
         if (data != null) {
-            notifyReceiveListeners(new DataLineEvent(this, audioFormat, data));  // Notify listeners about received data
+            notifyListeners(NotifyType.RECEIVE, new DataLineEvent(this, audioFormat, data));  // Notify listeners about received data
         }
         return data;
     }
@@ -165,7 +161,7 @@ public class DataLine implements AudioObject, AutoCloseable {
         }
         try {
             queue.put(data);  // Add new data to the queue
-            notifySendListeners(new DataLineEvent(this, audioFormat, data));  // Notify listeners about sent data
+            notifyListeners(NotifyType.SEND, new DataLineEvent(this, audioFormat, data));  // Notify listeners about sent data
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();  // Preserve interruption status
         }
@@ -180,7 +176,7 @@ public class DataLine implements AudioObject, AutoCloseable {
         if (closed) return null;  // Return null if closed
         float[][] data = queue.poll();  // Non-blocking attempt to get data
         if (data != null) {
-            notifyReceiveListeners(new DataLineEvent(this, audioFormat, data));  // Notify listeners about received data
+            notifyListeners(NotifyType.RECEIVE, new DataLineEvent(this, audioFormat, data));  // Notify listeners about received data
             return data;
         }
         return new float[0][];  // Return empty array if no data is available
@@ -201,9 +197,9 @@ public class DataLine implements AudioObject, AutoCloseable {
         boolean success = queue.offer(data, timeout, unit);  // Attempt to add data to the queue with timeout
         
         if (success) {
-            notifySendListeners(new DataLineEvent(this, audioFormat, data));  // Notify listeners about sent data
+            notifyListeners(NotifyType.SEND, new DataLineEvent(this, audioFormat, data));  // Notify listeners about sent data
         } else {
-            notifySendTimeoutListeners(new DataLineEvent(this, null, null, timeout, unit));  // Notify about timeout
+            notifyListeners(NotifyType.SEND_TIMEOUT, new DataLineEvent(this, null, null, timeout, unit));  // Notify about timeout
         }
         
         return success;
@@ -221,46 +217,12 @@ public class DataLine implements AudioObject, AutoCloseable {
         if (closed) return null;  // Return null if closed
         float[][] data = queue.poll(timeout, unit);  // Non-blocking attempt with timeout
         if (data != null) {
-            notifyReceiveListeners(new DataLineEvent(this, audioFormat, data));  // Notify listeners about received data
+            notifyListeners(NotifyType.RECEIVE, new DataLineEvent(this, audioFormat, data));  // Notify listeners about received data
             return data;
         } else {
-            notifyReceiveTimeoutListeners(new DataLineEvent(this, null, null, timeout, unit));  // Notify about timeout
+            notifyListeners(NotifyType.RECEIVE_TIMEOUT, new DataLineEvent(this, null, null, timeout, unit));  // Notify about timeout
             return new float[0][];
         }
-    }
-
-    /**
-     * Checks if the queue is empty.
-     * 
-     * @return True if the queue is empty, false otherwise.
-     */
-    public boolean isEmpty() {
-        return queue.isEmpty();
-    }
-
-    /**
-     * Returns the current size of the queue.
-     * 
-     * @return The size of the queue.
-     */
-    public int size() {
-        return queue.size();
-    }
-
-    /**
-     * Clears all data from the queue.
-     */
-    public void clear() {
-        queue.clear();
-    }
-
-    /**
-     * Returns the audio format associated with this data line.
-     * 
-     * @return The audio format.
-     */
-    public AudioFormat getAudioFormat() {
-        return audioFormat;
     }
 
     /**
@@ -302,62 +264,36 @@ public class DataLine implements AudioObject, AutoCloseable {
     }
 
     /**
-     * Notifies all listeners that data has been sent.
+     * Checks if the queue is empty.
      * 
-     * @param e The event containing information about the sent data.
+     * @return True if the queue is empty, false otherwise.
      */
-    private void notifySendListeners(DataLineEvent e) {
-        for (DataLineListener listener : listeners) {
-            try {
-                if (listener != null) listener.onSend(e);  // Notify each listener about sent data
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);  // Handle any listener exceptions
-            }
-        }
+    public boolean isEmpty() {
+        return queue.isEmpty();
     }
 
     /**
-     * Notifies all listeners that data has been received.
+     * Returns the current size of the queue.
      * 
-     * @param e The event containing information about the received data.
+     * @return The size of the queue.
      */
-    private void notifyReceiveListeners(DataLineEvent e) {
-        for (DataLineListener listener : listeners) {
-            try {
-                if (listener != null) listener.onReceive(e);  // Notify each listener about received data
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);  // Handle any listener exceptions
-            }
-        }
+    public int size() {
+        return queue.size();
     }
 
     /**
-     * Notifies all listeners that the send operation has timed out.
-     * 
-     * @param e The event containing information about the send timeout.
+     * Clears all data from the queue.
      */
-    private void notifySendTimeoutListeners(DataLineEvent e) {
-        for (DataLineListener listener : listeners) {
-            try {
-                if (listener != null) listener.onSendTimeout(e);  // Notify each listener about send timeout
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);  // Handle any listener exceptions
-            }
-        }
+    public void clear() {
+        queue.clear();
     }
 
     /**
-     * Notifies all listeners that the receive operation has timed out.
+     * Returns the audio format associated with this data line.
      * 
-     * @param e The event containing information about the receive timeout.
+     * @return The audio format.
      */
-    private void notifyReceiveTimeoutListeners(DataLineEvent e) {
-        for (DataLineListener listener : listeners) {
-            try {
-                if (listener != null) listener.onReceiveTimeout(e);  // Notify each listener about receive timeout
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);  // Handle any listener exceptions
-            }
-        }
+    public AudioFormat getAudioFormat() {
+        return audioFormat;
     }
 }
