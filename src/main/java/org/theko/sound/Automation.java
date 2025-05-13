@@ -55,6 +55,8 @@ public class Automation implements AudioObject, Controllable {
     private boolean isPlaying = false;
     private final transient Thread playThread;
 
+    private float lastEasing = 0.8f;
+
     private static int automationInstances;
     private static final int thisAutomationInstance = ++automationInstances;
 
@@ -203,10 +205,10 @@ public class Automation implements AudioObject, Controllable {
         if (easing == 0.5f) { // linear
             return value1 + t * (value2 - value1);
         } else if (easing < 0.5f) { // ease in
-            t = (float) Math.pow(t, easing * 2);
+            t = (float) Math.pow(t, 1 / (easing * 2));
             return value1 + t * (value2 - value1);
         } else { // ease out
-            t = 1 - (float) Math.pow(1 - t, easing * 2);
+            t = (float) Math.pow(t, 2 * (1 - easing));
             return value1 + t * (value2 - value1);
         }
     }
@@ -221,6 +223,15 @@ public class Automation implements AudioObject, Controllable {
 
     public void addKeyPoint(KeyPoint keyPoint) {
         this.keyPoints.add(keyPoint);
+    }
+
+    public void addKeyPoint(float time, float value, float easing) {
+        this.keyPoints.add(new KeyPoint(time, value, easing));
+        lastEasing = easing;
+    }
+
+    public void addKeyPoint(float time, float value) {
+        this.keyPoints.add(new KeyPoint(time, value, lastEasing));
     }
 
     public void removeKeyPoint(KeyPoint keyPoint) {
