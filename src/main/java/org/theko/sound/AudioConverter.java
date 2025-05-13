@@ -145,4 +145,20 @@ public class AudioConverter {
     public static long framesToMicroseconds(long frames, AudioFormat format) {
         return (frames * 1_000_000L) / format.getSampleRate();
     }
+
+    public static long samplesToMicrosecond(long samples, int sampleRate) {
+        return (long) (samples * 1000000.0 / sampleRate);
+    }
+
+    public static long samplesToMicrosecond(float[][] samples, int sampleRate) {
+        long maxSamples = 0;
+        for (int ch = 0; ch < samples.length; ch++) {
+            maxSamples = Math.max(samples[ch].length, maxSamples);
+        }
+        return samplesToMicrosecond(maxSamples, sampleRate);
+    }
+
+    public static long microsecondsToSamples(long microseconds, int sampleRate) {
+        return (long) (microseconds * sampleRate / 1000000.0);
+    }
 }
