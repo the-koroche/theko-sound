@@ -356,6 +356,9 @@ public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
         return mainGain * channelGain;
     }
 
+    // Used in method applyEffects
+    private int samplesCount = -1;
+
     /**
      * Applies all added effects to the audio sample sequentially.
      * 
@@ -363,10 +366,31 @@ public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
      * @return The processed audio sample.
      */
     private float[][] applyEffects(float[][] samples) {
-        // Process effects one by one
+        double totalDurationSec = samples[0].length / (double)processAudioFormat.getSampleRate();
+        if (samplesCount != samples[0].length) {
+            samplesCount = samples[0].length;
+            logger.debug(String.format(
+                "Samples duration: %.4f s.", totalDurationSec
+            ));
+        }
+    
         for (AudioEffect effect : effects) {
-            if (effect != null) {
-                samples = effect.callProcess(samples);
+            if (effect == null) continue;
+            String name = effect.getClass().getSimpleName();
+    
+            long startNs = System.nanoTime();
+            samples = effect.callProcess(samples);
+            long elapsedNs = System.nanoTime() - startNs;
+    
+            double elapsedSec = elapsedNs / 1_000_000_000.0;
+
+            logger.trace(String.format(
+                "Effect '%s' took %.2f s (input duration %.2f s)", name, elapsedSec, totalDurationSec
+            ));
+            if (elapsedSec > totalDurationSec * 0.1) {
+                logger.warn(String.format(
+                    "Effect '%s' took %.2f s (input duration %.2f s)", name, elapsedSec, totalDurationSec
+                ));
             }
         }
         return samples;
