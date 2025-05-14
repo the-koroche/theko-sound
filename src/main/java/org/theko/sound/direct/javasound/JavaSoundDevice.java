@@ -59,7 +59,9 @@ import org.theko.sound.direct.AudioOutputDevice;
  * @see AudioFlow
  * @see AudioFormat
  * 
-  * @author Alex Soloviov
+  * @since v1.4.1
+* 
+* @author Theko
  */
 @AudioDeviceType(name = "JavaSound", version = "1.0")
 public class JavaSoundDevice implements AudioDevice {

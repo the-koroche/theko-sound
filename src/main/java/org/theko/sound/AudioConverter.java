@@ -40,9 +40,13 @@ import java.util.Arrays;
  * 
  * @see AudioFormat
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class AudioConverter {
+    public static final AudioResampler RESAMPLER = new AudioResampler();
+
     private AudioConverter() {
     }
 
@@ -71,7 +75,7 @@ public class AudioConverter {
 
         // Resample if the sample rate differs between source and target formats
         if (source.getSampleRate() != target.getSampleRate()) {
-            samples = AudioResampler.resample(samples, target, (float) source.getSampleRate() / target.getSampleRate());
+            samples = RESAMPLER.resample(samples, (float) source.getSampleRate() / target.getSampleRate());
         }
 
         // Convert samples back to raw byte data in the target format

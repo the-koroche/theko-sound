@@ -16,7 +16,9 @@ import java.io.IOException;
  *   <li>{@link #AudioObjectIOException(String, Throwable)} - Constructs a new exception with the specified detail message and cause.</li>
  * </ul>
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class AudioObjectIOException extends IOException {
     public AudioObjectIOException () {

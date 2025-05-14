@@ -40,7 +40,9 @@ import java.io.IOException;
  * <p>Exceptions such as {@code FileNotFoundException} and {@code AudioObjectIOException} are thrown
  * to indicate errors during file operations or invalid audio object states.
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class AudioPreset implements Serializable {
     private static final long serialVersionUID = -1;

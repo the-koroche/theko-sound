@@ -25,7 +25,9 @@ import java.io.Serializable;
  * 
  * @see AudioPreset
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public interface AudioObject extends Serializable {
     static final long serialVersionUID = -1;

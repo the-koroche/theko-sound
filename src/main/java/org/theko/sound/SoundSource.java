@@ -68,7 +68,9 @@ import org.theko.sound.event.DataLineEvent;
  * @see AudioMixer
  * @see AudioEffect
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class SoundSource implements AutoCloseable, Controllable {
     private static final Logger logger = LoggerFactory.getLogger(SoundSource.class);
@@ -405,9 +407,9 @@ public class SoundSource implements AutoCloseable, Controllable {
                     offset = 0;
                     success = mixerIn.sendWithTimeout(audioData, SEND_TIMEOUT, TimeUnit.MILLISECONDS);
                 }
-                logger.debug("Buffer " + played + " of " + audioDataFragments + ", sended to the mixer.");
+                logger.trace("Buffer " + played + " of " + audioDataFragments + ", sended to the mixer.");
 
-                if (!success) logger.debug("Audio send operation fail.");
+                if (!success) logger.debug("Audio send operation fail. Buffer: " + played + ".");
                 if (played > audioDataFragments - 1 && needLoop()) {
                     resetPosition();
                     logger.debug("Loop. Remaining loops: " + loop + "/" + loopCount + ".");
@@ -424,6 +426,7 @@ public class SoundSource implements AutoCloseable, Controllable {
             
         } catch (InterruptedException e) {
             logger.error("Interrupted exception: ", e);
+            Thread.currentThread().interrupt();
         }
     }
 

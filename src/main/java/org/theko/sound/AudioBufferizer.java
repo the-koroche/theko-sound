@@ -35,7 +35,9 @@ import java.util.ArrayList;
  * <h2>Thread Safety:</h2>
  * <p>This class is thread-safe as it does not maintain any state and only provides a static method.</p>
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class AudioBufferizer {
     private AudioBufferizer () {

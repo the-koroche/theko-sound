@@ -41,7 +41,9 @@ import org.theko.sound.direct.AudioOutputDevice;
  * @see JavaSoundDevice
  * @see SourceDataLine
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class JavaSoundOutput extends JavaSoundDevice implements AudioOutputDevice {
 

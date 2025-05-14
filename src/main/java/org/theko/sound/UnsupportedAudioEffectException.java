@@ -3,7 +3,9 @@ package org.theko.sound;
 /**
  * This exception is thrown to indicate that a requested audio effect is not supported.
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class UnsupportedAudioEffectException extends Exception {
     public UnsupportedAudioEffectException () {

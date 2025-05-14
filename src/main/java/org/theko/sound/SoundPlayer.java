@@ -46,7 +46,9 @@ import org.theko.sound.event.AudioOutputLineAdapter;
  * @see AudioOutputLine
  * @see AudioPort
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class SoundPlayer extends SoundSource {
     private static final Logger logger = LoggerFactory.getLogger(SoundPlayer.class);

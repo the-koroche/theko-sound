@@ -8,7 +8,7 @@ public class AudioVisualizationUtilities {
 
     public static Color getGradient(float x, Color... colors) {
         if (colors == null || colors.length == 0) {
-            throw new IllegalArgumentException("Массив цветов не может быть пустым");
+            throw new IllegalArgumentException("Color array cannot be null, or empty.");
         }
         if (x <= 0) return colors[0];
         if (x >= 1) return colors[colors.length - 1];

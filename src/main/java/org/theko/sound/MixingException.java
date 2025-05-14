@@ -18,7 +18,9 @@ package org.theko.sound;
  * 
  * @see RuntimeException
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class MixingException extends RuntimeException {
     public MixingException () {

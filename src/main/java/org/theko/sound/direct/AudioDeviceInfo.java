@@ -14,6 +14,8 @@ package org.theko.sound.direct;
  * }
  * </pre>
  * 
+ * @since v1.4.1
+ * 
  * @author Theko
  */
 public class AudioDeviceInfo {

@@ -29,7 +29,9 @@ import java.util.Objects;
  * 
  * @see Encoding
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class AudioFormat implements AudioObject {
     public static final AudioFormat LOWEST_QUALITY_FORMAT = 

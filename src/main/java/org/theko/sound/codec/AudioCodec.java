@@ -30,7 +30,9 @@ import org.theko.sound.AudioFormat;
  * }
  * }</pre>
  *
-  * @author Alex Soloviov
+  * @since v1.4.1
+ * 
+ * @author Theko
  */
 public abstract class AudioCodec {
     private static final Logger logger = LoggerFactory.getLogger(AudioCodec.class);

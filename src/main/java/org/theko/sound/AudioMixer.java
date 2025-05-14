@@ -56,7 +56,9 @@ import org.theko.sound.event.DataLineEvent;
  * @see DataLineAdapter
  * @see AudioEffect
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(AudioMixer.class);

@@ -14,7 +14,9 @@ package org.theko.sound;
  *     System.out.println(port.getName()); // Outputs: Mic Input
  * </pre>
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class AudioPort implements AudioObject {
     

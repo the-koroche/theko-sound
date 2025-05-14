@@ -1,5 +1,10 @@
 package org.theko.sound;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.theko.sound.resampling.LanczosResampler;
+import org.theko.sound.resampling.ResamplerMethod;
+
 /**
  * The AudioResampler class provides utility methods for resampling audio data.
  * It supports resampling audio at different speeds using a speed multiplier.
@@ -27,12 +32,36 @@ package org.theko.sound;
  *   <li>{@link IllegalArgumentException} - Thrown if the speed multiplier is less than or equal to 0.</li>
  * </ul>
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class AudioResampler {
+    private static final Logger logger = LoggerFactory.getLogger(AudioResampler.class);
 
-    // Private constructor to prevent instantiation
-    private AudioResampler () {
+    public static final AudioResampler SHARED = new AudioResampler();
+    private static final int DEFAULT_QUALITY = 3;
+
+    protected int quality;
+    protected final ResamplerMethod resamplerMethod;
+
+    public AudioResampler(ResamplerMethod resamplerMethod, int quality) {
+        this.resamplerMethod = resamplerMethod;
+        this.quality = quality;
+    }
+
+    public AudioResampler() {
+        this(new LanczosResampler(), DEFAULT_QUALITY);
+    }
+
+    public void setQuality(int quality) {
+        if (quality < 1) {
+            logger.error("Quality argument is less than 1.");
+            throw new IllegalArgumentException("Quality must be greater than or equal to 1.");
+        } else if (quality > 8) {
+            logger.warn("High quality can cause performance issues.");
+        }
+        this.quality = quality;
     }
 
     /**
@@ -47,7 +76,7 @@ public class AudioResampler {
      * @return A byte array containing the resampled audio data.
      * @throws IllegalArgumentException if the speed multiplier is less than or equal to 0.
      */
-    public static byte[] resample(byte[] data, AudioFormat sourceFormat, float speedMultiplier) {
+    public byte[] resample(byte[] data, AudioFormat sourceFormat, float speedMultiplier) {
         // Validate speed multiplier
         if (speedMultiplier <= 0) {
             throw new IllegalArgumentException("Speed multiplier must be greater than zero.");
@@ -57,7 +86,7 @@ public class AudioResampler {
         float[][] samples = SampleConverter.toSamples(data, sourceFormat);
 
         // Resample the samples with the specified speed multiplier
-        resample(samples, sourceFormat, speedMultiplier);
+        resample(samples, speedMultiplier);
 
         // Convert the resampled float samples back to byte data
         return SampleConverter.fromSamples(samples, sourceFormat);
@@ -67,12 +96,11 @@ public class AudioResampler {
      * Resamples audio samples using a speed multiplier.
      *
      * @param samples The audio samples (as an array of float arrays, one for each channel).
-     * @param sourceFormat The format of the audio data.
      * @param speedMultiplier The factor by which the audio speed will be modified.
      * @return A 2D array of resampled audio samples.
      * @throws IllegalArgumentException if the speed multiplier is less than or equal to 0.
      */
-    public static float[][] resample(float[][] samples, AudioFormat sourceFormat, float speedMultiplier) {
+    public float[][] resample(float[][] samples, float speedMultiplier) {
         // Validate speed multiplier
         if (speedMultiplier <= 0) {
             throw new IllegalArgumentException("Speed multiplier must be greater than zero.");
@@ -94,63 +122,11 @@ public class AudioResampler {
      * @param speedMultiplier The factor by which to change the length of the samples.
      * @return A new array of resampled audio samples for the given channel.
      */
-    private static float[] timeScale(float[] input, float speedMultiplier) {
+    private float[] timeScale(float[] input, float speedMultiplier) {
         // Calculate the new length after applying the speed multiplier
         int newLength = (int) (input.length / speedMultiplier);
 
         // Perform Lanczos resampling to obtain the new samples
-        return lanczosResample(input, newLength, 3);
-    }
-
-    /**
-     * Resamples audio data using the Lanczos resampling algorithm.
-     * This method adjusts the length of the input array to match the target length
-     * by interpolating the samples using the Lanczos kernel.
-     *
-     * @param input The original audio data to be resampled.
-     * @param targetLength The desired length for the resampled audio data.
-     * @param a The "a" parameter of the Lanczos kernel, controlling the number of taps.
-     * @return A new array of resampled audio data.
-     */
-    public static float[] lanczosResample(float[] input, int targetLength, int a) {
-        // Create an output array with the target length
-        float[] output = new float[targetLength];
-
-        // Iterate through each index in the target output array
-        for (int i = 0; i < targetLength; i++) {
-            // Compute the corresponding index in the original input array
-            float index = (float) i * input.length / targetLength;
-            int i0 = (int) Math.floor(index);
-
-            // Reset the value at the current output index
-            output[i] = 0;
-
-            // Perform the Lanczos interpolation with a window around the current index
-            for (int j = -a + 1; j <= a; j++) {
-                int idx = i0 + j;
-                if (idx >= 0 && idx < input.length) {
-                    // Apply the Lanczos kernel to the sample
-                    output[i] += input[idx] * lanczosKernel(index - idx, a);
-                }
-            }
-        }
-
-        return output;
-    }
-
-    /**
-     * The Lanczos kernel function used for interpolation.
-     * This kernel determines how the samples are weighted based on their distance
-     * from the target index. A higher "a" value increases the sharpness of the kernel.
-     *
-     * @param x The distance between the target index and the current sample.
-     * @param a The "a" parameter of the Lanczos kernel, controlling the number of taps.
-     * @return The weight of the sample based on the Lanczos kernel.
-     */
-    private static float lanczosKernel(float x, int a) {
-        if (x == 0) return 1; // The central sample is fully weighted
-        if (Math.abs(x) >= a) return 0; // Outside the window, no contribution
-        // Apply the Lanczos formula
-        return (float) (Math.sin(Math.PI * x) * Math.sin(Math.PI * x / a) / (Math.PI * Math.PI * x * x / a));
+        return resamplerMethod.resample(input, newLength, quality);
     }
 }

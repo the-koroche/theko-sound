@@ -41,7 +41,9 @@ import org.theko.sound.AudioFormat.Encoding;
  * @see AudioPortsNotFoundException
  * @see UnsupportedAudioFormatException
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public interface AudioDevice {
     /**

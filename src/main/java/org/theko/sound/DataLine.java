@@ -56,7 +56,9 @@ import org.theko.sound.event.DataLineListener;
  * @see DataLineListener
  * @see DataLineEvent
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class DataLine implements AudioObject, AutoCloseable {
     private final BlockingQueue<float[][]> queue;

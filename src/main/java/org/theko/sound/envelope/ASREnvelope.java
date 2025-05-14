@@ -26,7 +26,9 @@ import org.theko.sound.control.FloatControl;
  * @see org.theko.sound.envelope.AREnvelope
  * @see org.theko.sound.envelope.ASDREnvelope
  * 
-  * @author Alex Soloviov
+  * @since v1.4.1
+* 
+* @author Theko
  */
 public class ASREnvelope extends AREnvelope {
     protected final FloatControl sustain;

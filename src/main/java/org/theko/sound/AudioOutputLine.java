@@ -54,7 +54,9 @@ import org.theko.sound.event.DataLineEvent;
  * @see AudioOutputLineListener
  * @see DataLine
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class AudioOutputLine implements AudioLine {
     private static final Logger logger = LoggerFactory.getLogger(AudioOutputLine.class);

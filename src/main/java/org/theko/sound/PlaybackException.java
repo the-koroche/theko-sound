@@ -16,7 +16,9 @@ package org.theko.sound;
  *   <li>Providing both a message and a cause: {@code throw new PlaybackException("Playback failed", e);}</li>
  * </ul>
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class PlaybackException extends RuntimeException {
     public PlaybackException () {

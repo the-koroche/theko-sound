@@ -27,7 +27,9 @@ import org.theko.sound.control.FloatControl;
  * @see org.theko.sound.envelope.ASREnvelope
  * @see org.theko.sound.envelope.AHSDREnvelope
  * 
-  * @author Alex Soloviov
+  * @since v1.4.1
+* 
+* @author Theko
  */
 public class ASDREnvelope extends ASREnvelope {
     protected final FloatControl decay;

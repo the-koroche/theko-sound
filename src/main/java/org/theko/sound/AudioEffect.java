@@ -33,7 +33,9 @@ import org.theko.sound.control.FloatControl;
  * @see BooleanControl
  * @see FloatControl
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public abstract class AudioEffect implements AudioObject, Controllable {
     /**

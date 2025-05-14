@@ -44,7 +44,9 @@ import org.theko.sound.control.FloatControl;
  * @see KeyPoint
  * @see FloatControl
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class Automation implements AudioObject, Controllable {
     private List<KeyPoint> keyPoints;

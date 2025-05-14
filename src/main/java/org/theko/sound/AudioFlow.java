@@ -5,7 +5,9 @@ package org.theko.sound;
  * 
  * @see AudioPort
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public enum AudioFlow {
     /** Audio input flow (e.g., recording from a microphone). */

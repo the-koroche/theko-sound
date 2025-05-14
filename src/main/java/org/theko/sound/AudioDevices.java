@@ -54,7 +54,9 @@ import org.theko.sound.direct.AudioOutputDevice;
  * @see AudioInputDevice
  * @see AudioOutputDevice
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class AudioDevices {
     private static final Logger logger = LoggerFactory.getLogger(AudioDevices.class);

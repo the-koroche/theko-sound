@@ -61,7 +61,9 @@ import org.theko.sound.direct.javasound.JavaSoundOutput;
  * 
  * <p>Note: This class is final and cannot be subclassed.
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public final class AudioClassLoader {
     private static final Logger logger = LoggerFactory.getLogger(AudioClassLoader.class);

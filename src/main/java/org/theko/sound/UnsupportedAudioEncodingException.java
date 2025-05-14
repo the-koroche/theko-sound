@@ -15,7 +15,9 @@ package org.theko.sound;
  * encounters an encoding format that is not supported by the application.
  * </p>
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class UnsupportedAudioEncodingException extends Exception {
     public UnsupportedAudioEncodingException () {

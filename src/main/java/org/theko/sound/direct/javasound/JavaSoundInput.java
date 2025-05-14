@@ -45,7 +45,9 @@ import org.theko.sound.direct.AudioInputDevice;
  * @see AudioPort
  * @see AudioFormat
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class JavaSoundInput extends JavaSoundDevice implements AudioInputDevice {
 

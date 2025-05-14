@@ -32,7 +32,9 @@ import java.lang.annotation.RetentionPolicy;
  * @see AudioDevice
  * @see AudioDeviceInfo
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

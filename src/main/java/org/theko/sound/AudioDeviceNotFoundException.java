@@ -18,7 +18,9 @@ package org.theko.sound;
  *   <li>{@link #AudioDeviceNotFoundException(String, Throwable)} - Creates an exception with a specified detail message and cause.</li>
  * </ul>
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class AudioDeviceNotFoundException extends Exception {
     public AudioDeviceNotFoundException () {

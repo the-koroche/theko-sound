@@ -15,8 +15,10 @@ package org.theko.sound;
  * Usage examples include handling errors when initializing or configuring audio
  * devices in an application.
  * </p>
+ *
+ * @since v1.4.1
  * 
- * @author Alex Soloviov
+ * @author Theko
  */
 public class AudioDeviceCreationException extends Exception {
     public AudioDeviceCreationException () {

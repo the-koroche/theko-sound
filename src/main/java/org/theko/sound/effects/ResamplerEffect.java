@@ -7,15 +7,24 @@ import org.theko.sound.control.FloatControl;
 
 public class ResamplerEffect extends AudioEffect {
     private FloatControl speed;
+    private AudioResampler resampler;
 
     public ResamplerEffect(AudioFormat audioFormat) {
         super(Type.REALTIME, audioFormat);
         speed = new FloatControl("Speed", 0.001f,32f, 1f);
+        setResampler(new AudioResampler());
+    }
+
+    public void setResampler(AudioResampler resampler) {
+        if (resampler == null) {
+            throw new IllegalArgumentException("New resampler cannot be null.");
+        }
+        this.resampler = resampler;
     }
 
     @Override
     public float[][] process(float[][] data) {
-        return AudioResampler.resample(data, audioFormat, speed.getValue());
+        return resampler.resample(data, speed.getValue());
     }
 
     public FloatControl getSpeedControl() {

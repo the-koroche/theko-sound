@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 
 import org.theko.sound.AudioFormat;
-import org.theko.sound.fft.FFT;
+import org.theko.sound.dsp.FFT;
 
 public class SpectrumVisualizer extends AudioVisualizer {
     protected int fftSize = 1024;

@@ -18,7 +18,9 @@ package org.theko.sound.control;
  * @see FloatControl
  * @see Controllable
  * 
-  * @author Alex Soloviov
+  * @since v1.4.1
+* 
+* @author Theko
  */
 public abstract class AudioControl {
     protected final String name;

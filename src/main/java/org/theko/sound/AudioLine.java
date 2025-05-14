@@ -28,7 +28,9 @@ import org.theko.sound.direct.AudioDeviceException;
  * 
  * @see AudioOutputLine
  * 
- * @author Alex Soloviov
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public interface AudioLine extends AutoCloseable {
     /**
