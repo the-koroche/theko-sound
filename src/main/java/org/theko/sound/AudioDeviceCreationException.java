@@ -16,7 +16,7 @@ package org.theko.sound;
  * devices in an application.
  * </p>
  *
- * @since v1.4.1
+ * @since v1.0.0
  * 
  * @author Theko
  */

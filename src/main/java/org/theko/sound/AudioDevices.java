@@ -54,7 +54,7 @@ import org.theko.sound.direct.AudioOutputDevice;
  * @see AudioInputDevice
  * @see AudioOutputDevice
  * 
- * @since v1.4.1
+ * @since v1.0.0
  * 
  * @author Theko
  */

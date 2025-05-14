@@ -61,7 +61,7 @@ import org.theko.sound.direct.javasound.JavaSoundOutput;
  * 
  * <p>Note: This class is final and cannot be subclassed.
  * 
- * @since v1.4.1
+ * @since v1.2.0
  * 
  * @author Theko
  */

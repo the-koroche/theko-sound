@@ -40,7 +40,7 @@ import java.util.Arrays;
  * 
  * @see AudioFormat
  * 
- * @since v1.4.1
+ * @since v1.1.0
  * 
  * @author Theko
  */
