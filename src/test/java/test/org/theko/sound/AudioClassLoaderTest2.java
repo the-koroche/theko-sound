@@ -12,6 +12,7 @@ public class AudioClassLoaderTest2 {
         AudioClassLoader.initialize();
 
         // Get the Reflections instance
+        @SuppressWarnings("deprecation")
         Reflections reflections = AudioClassLoader.getReflections();
         if (reflections == null) {
             System.out.println("Reflections instance is null. Initialization failed.");
