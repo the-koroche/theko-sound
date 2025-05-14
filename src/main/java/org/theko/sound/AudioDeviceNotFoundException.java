@@ -10,15 +10,7 @@ package org.theko.sound;
  *   <li>When the system fails to detect a required audio device.</li>
  * </ul>
  * 
- * <p>Constructors:
- * <ul>
- *   <li>{@link #AudioDeviceNotFoundException()} - Creates an exception with no detail message or cause.</li>
- *   <li>{@link #AudioDeviceNotFoundException(String)} - Creates an exception with a specified detail message.</li>
- *   <li>{@link #AudioDeviceNotFoundException(Throwable)} - Creates an exception with a specified cause.</li>
- *   <li>{@link #AudioDeviceNotFoundException(String, Throwable)} - Creates an exception with a specified detail message and cause.</li>
- * </ul>
- * 
- * @since v1.4.1
+ * @since v1.0.0
  * 
  * @author Theko
  */
