@@ -1,5 +1,41 @@
 package org.theko.sound.codec;
 
+/**
+ * The {@code AudioTag} class represents a key-value pair for audio metadata tags.
+ * It provides predefined constants for common audio metadata fields such as title,
+ * album, artist, and more. This class allows you to store and manipulate metadata
+ * information for audio files.
+ * 
+ * <p>Each {@code AudioTag} instance consists of a key and a value, where the key
+ * represents the metadata field (e.g., "Title") and the value represents the
+ * corresponding data (e.g., "Song Name").
+ * 
+ * <p>Predefined constants include:
+ * <ul>
+ *   <li>{@link #TITLE} - Represents the title of the audio.</li>
+ *   <li>{@link #ALBUM} - Represents the album name.</li>
+ *   <li>{@link #ARTIST} - Represents the artist name.</li>
+ *   <li>{@link #YEAR} - Represents the release year.</li>
+ *   <li>{@link #TRACK} - Represents the track number.</li>
+ *   <li>{@link #COMMENT} - Represents comments or notes.</li>
+ *   <li>{@link #GENRE} - Represents the genre of the audio.</li>
+ *   <li>{@link #ENGINEER} - Represents the audio engineer.</li>
+ *   <li>{@link #WEBSITE} - Represents the source website.</li>
+ *   <li>{@link #SOURCE} - Represents the source of the audio.</li>
+ *   <li>{@link #SOFTWARE} - Represents the software used.</li>
+ *   <li>{@link #TECHNICIAN} - Represents the technician involved.</li>
+ * </ul>
+ * 
+ * <p>Example usage:
+ * <pre>
+ *     AudioTag tag = new AudioTag(AudioTag.TITLE, "My Song");
+ *     System.out.println(tag); // Output: Title: My Song
+ * </pre>
+ * 
+ * @since v1.3.1
+ * 
+ * @author Theko
+ */
 public class AudioTag {
     protected String key;
     protected String value;

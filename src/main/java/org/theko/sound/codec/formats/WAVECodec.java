@@ -25,6 +25,61 @@ import org.theko.sound.codec.AudioDecodeResult;
 import org.theko.sound.codec.AudioEncodeResult;
 import org.theko.sound.codec.AudioTag;
 
+/**
+ * The {@code WAVECodec} class provides functionality for encoding and decoding
+ * audio data in the WAVE file format. It supports reading and writing WAVE files
+ * with various audio formats, including PCM (signed/unsigned), IEEE Float, ALAW,
+ * and ULAW. The class also handles metadata stored in the WAVE INFO chunk.
+ * 
+ * <p>Features:</p>
+ * <ul>
+ *   <li>Decoding WAVE files to extract audio data, format, and metadata.</li>
+ *   <li>Encoding audio data into WAVE format with optional metadata.</li>
+ *   <li>Support for common audio encodings such as PCM, IEEE Float, ALAW, and ULAW.</li>
+ *   <li>Parsing and mapping metadata tags from WAVE INFO chunks.</li>
+ *   <li>Validation of WAVE file structure and error handling for unsupported formats.</li>
+ * </ul>
+ * 
+ * <p>Usage:</p>
+ * <ul>
+ *   <li>To decode a WAVE file, use the {@link #decode(InputStream)} method.</li>
+ *   <li>To encode audio data into a WAVE file, use the {@link #encode(byte[], AudioFormat, List)} method.</li>
+ *   <li>To retrieve codec information, use the {@link #getInfo()} method.</li>
+ * </ul>
+ * 
+ * <p>Example:</p>
+ * <pre>
+ * {@code
+ * WAVECodec codec = new WAVECodec();
+ * InputStream inputStream = new FileInputStream("example.wav");
+ * AudioDecodeResult result = codec.decode(inputStream);
+ * 
+ * byte[] audioData = result.getAudioData();
+ * AudioFormat format = result.getFormat();
+ * List<AudioTag> tags = result.getTags();
+ * 
+ * // Process audio data, format, and tags...
+ * }
+ * </pre>
+ * 
+ * <p>Note:</p>
+ * <ul>
+ *   <li>The class assumes that the input WAVE file conforms to the RIFF specification.</li>
+ *   <li>Unsupported audio formats or encodings will result in an {@link AudioCodecException}.</li>
+ *   <li>Metadata tags are cleaned and normalized to ensure compatibility.</li>
+ * </ul>
+ * 
+ * @see AudioCodec
+ * @see AudioDecodeResult
+ * @see AudioEncodeResult
+ * @see AudioFormat
+ * @see AudioTag
+ * @see AudioCodecException
+ * 
+ * @since v1.3.0
+ * 
+ * @author Theko
+ */
 @AudioCodecType(name = "WAVE", extension = "wav", version = "1.2")
 public class WAVECodec extends AudioCodec {
     private static final Logger logger = LoggerFactory.getLogger(WAVECodec.class);

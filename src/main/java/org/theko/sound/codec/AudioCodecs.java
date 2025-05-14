@@ -10,6 +10,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.AudioClassLoader;
 
+/**
+ * The {@code AudioCodecs} class is responsible for managing and providing access to audio codec information.
+ * It maintains a collection of registered audio codecs and provides methods to retrieve codec information
+ * by name or file extension, as well as to instantiate codec objects.
+ * 
+ * <p>This class uses reflection to discover and register all available audio codecs that are annotated
+ * with {@code AudioCodecType}. It ensures thread-safe access to the collection of codecs.</p>
+ * 
+ * <p>Key functionalities include:</p>
+ * <ul>
+ *   <li>Registering all available audio codecs annotated with {@code AudioCodecType}.</li>
+ *   <li>Retrieving codec information by name or file extension.</li>
+ *   <li>Instantiating codec objects from their respective {@code AudioCodecInfo}.</li>
+ *   <li>Providing access to all registered codecs.</li>
+ * </ul>
+ * 
+ * <p>Usage of this class requires the presence of the following components:</p>
+ * <ul>
+ *   <li>{@code AudioCodec}: The interface or base class for audio codecs.</li>
+ *   <li>{@code AudioCodecType}: Annotation used to mark audio codec classes.</li>
+ *   <li>{@code AudioCodecInfo}: A class encapsulating metadata about an audio codec.</li>
+ *   <li>{@code AudioClassLoader}: A utility class for discovering available codecs.</li>
+ *   <li>Custom exceptions such as {@code AudioCodecNotFoundException} and {@code AudioCodecCreationException}.</li>
+ * </ul>
+ * 
+ * <p>This class is not meant to be instantiated and provides all its functionality through static methods.</p>
+ * 
+ * <p><strong>Thread Safety:</strong> The collection of codecs is synchronized to ensure thread-safe access.</p>
+ * 
+ * @since v1.3.1
+ * 
+ * @author Theko
+ */
 public class AudioCodecs {
     private static final Logger logger = LoggerFactory.getLogger(AudioCodecs.class);
 

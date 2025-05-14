@@ -5,6 +5,17 @@ import java.util.List;
 
 import org.theko.sound.AudioFormat;
 
+/**
+ * Represents the result of an audio encoding process, containing the encoded file data,
+ * audio format, associated tags, and codec information.
+ * 
+ * @see AudioDecodeResult
+ * @see AudioCodec
+ * 
+ * @since v1.3.1
+ * 
+ * @author Theko
+ */
 public class AudioEncodeResult {
     private final byte[] fileData;
     private final AudioFormat format;

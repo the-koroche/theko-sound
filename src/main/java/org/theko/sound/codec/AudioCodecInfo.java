@@ -1,5 +1,29 @@
 package org.theko.sound.codec;
 
+/**
+ * Represents metadata information about an audio codec. This class extracts
+ * codec details such as name, file extension, and version from the provided
+ * codec class, which must be annotated with {@link AudioCodecType}.
+ * 
+ * <p>
+ * The metadata includes:
+ * <ul>
+ *   <li>Name of the codec</li>
+ *   <li>File extension associated with the codec</li>
+ *   <li>Version of the codec</li>
+ *   <li>The codec class itself</li>
+ * </ul>
+ * </p>
+ * 
+ * <p>
+ * If the provided codec class is not annotated with {@link AudioCodecType},
+ * an {@link IllegalArgumentException} is thrown.
+ * </p>
+ * 
+ * @since v1.3.1
+ * 
+ * @author Theko
+ */
 public class AudioCodecInfo {
     private final String name, extension, version;
     private final Class<? extends AudioCodec> codecClass;
