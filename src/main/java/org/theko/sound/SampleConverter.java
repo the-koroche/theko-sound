@@ -44,7 +44,7 @@ import java.util.Arrays;
  * 
  * @see AudioConverter
  * 
- * @since v1.4.1
+ * @since v1.2.0
  * 
  * @author Theko
  */

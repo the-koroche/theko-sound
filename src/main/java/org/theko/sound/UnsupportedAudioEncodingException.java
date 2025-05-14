@@ -15,7 +15,7 @@ package org.theko.sound;
  * encounters an encoding format that is not supported by the application.
  * </p>
  * 
- * @since v1.4.1
+ * @since v1.0.0
  * 
  * @author Theko
  */

@@ -15,7 +15,7 @@ package org.theko.sound;
  *   <li>{@link #AudioPortsNotFoundException(String, Throwable)} - Constructs a new exception with the specified detail message and cause.</li>
  * </ul>
  * 
- * @since v1.4.1
+ * @since v1.0.0
  * 
  * @author Theko
  */

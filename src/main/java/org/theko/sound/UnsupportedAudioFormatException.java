@@ -10,7 +10,7 @@ package org.theko.sound;
  * <p>Usage examples include scenarios where an audio file format is not
  * recognized or supported by the application.</p>
  * 
- * @since v1.4.1
+ * @since v1.0.0
  * 
  * @author Theko
  */

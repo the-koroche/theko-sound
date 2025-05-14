@@ -32,7 +32,7 @@ import org.theko.sound.resampling.ResamplerMethod;
  *   <li>{@link IllegalArgumentException} - Thrown if the speed multiplier is less than or equal to 0.</li>
  * </ul>
  * 
- * @since v1.4.1
+ * @since v1.1.0
  * 
  * @author Theko
  */

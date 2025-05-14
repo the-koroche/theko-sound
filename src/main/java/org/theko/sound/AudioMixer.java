@@ -56,7 +56,7 @@ import org.theko.sound.event.DataLineEvent;
  * @see DataLineAdapter
  * @see AudioEffect
  * 
- * @since v1.4.1
+ * @since v1.2.0
  * 
  * @author Theko
  */

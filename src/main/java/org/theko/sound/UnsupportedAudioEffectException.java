@@ -3,7 +3,7 @@ package org.theko.sound;
 /**
  * This exception is thrown to indicate that a requested audio effect is not supported.
  * 
- * @since v1.4.1
+ * @since v1.2.0
  * 
  * @author Theko
  */

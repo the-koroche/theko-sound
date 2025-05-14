@@ -30,7 +30,7 @@ import org.theko.sound.AudioFormat;
  * }
  * }</pre>
  *
-  * @since v1.4.1
+  * @since v1.3.0
  * 
  * @author Theko
  */

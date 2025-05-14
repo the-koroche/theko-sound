@@ -22,6 +22,10 @@ import org.theko.sound.AudioPort;
  * @see AudioDevice
  * @see AutoCloseable
  * @see AudioDeviceException
+ * 
+ * @since v1.0.0
+ * 
+ * @author Theko
  */
 public interface AudioOutputDevice extends AudioDevice, AutoCloseable {
     /**

@@ -16,7 +16,7 @@ package org.theko.sound;
  *   <li>Providing both a message and a cause: {@code throw new PlaybackException("Playback failed", e);}</li>
  * </ul>
  * 
- * @since v1.4.1
+ * @since v1.2.0
  * 
  * @author Theko
  */

@@ -59,7 +59,7 @@ import org.theko.sound.direct.AudioOutputDevice;
  * @see AudioFlow
  * @see AudioFormat
  * 
-  * @since v1.4.1
+  * @since v1.0.0
 * 
 * @author Theko
  */

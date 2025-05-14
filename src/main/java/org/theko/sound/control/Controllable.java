@@ -38,6 +38,10 @@ import java.util.List;
  * @see AudioControl
  * @see FloatControl
  * @see BooleanControl
+ * 
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public interface Controllable {
     /**

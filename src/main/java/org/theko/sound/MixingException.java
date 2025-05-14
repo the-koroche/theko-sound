@@ -18,7 +18,7 @@ package org.theko.sound;
  * 
  * @see RuntimeException
  * 
- * @since v1.4.1
+ * @since v1.2.0
  * 
  * @author Theko
  */

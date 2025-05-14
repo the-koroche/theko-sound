@@ -33,7 +33,7 @@ import org.theko.sound.control.FloatControl;
  * @see BooleanControl
  * @see FloatControl
  * 
- * @since v1.4.1
+ * @since v1.2.0
  * 
  * @author Theko
  */

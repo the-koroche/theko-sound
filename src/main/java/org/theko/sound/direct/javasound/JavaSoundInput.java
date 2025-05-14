@@ -45,7 +45,7 @@ import org.theko.sound.direct.AudioInputDevice;
  * @see AudioPort
  * @see AudioFormat
  * 
- * @since v1.4.1
+ * @since v1.2.0
  * 
  * @author Theko
  */

@@ -14,7 +14,7 @@ package org.theko.sound;
  *     System.out.println(port.getName()); // Outputs: Mic Input
  * </pre>
  * 
- * @since v1.4.1
+ * @since v1.0.0
  * 
  * @author Theko
  */
