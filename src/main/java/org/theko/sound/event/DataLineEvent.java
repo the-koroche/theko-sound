@@ -5,6 +5,14 @@ import java.util.concurrent.TimeUnit;
 import org.theko.sound.AudioFormat;
 import org.theko.sound.DataLine;
 
+/**
+ * Represents an event associated with a {@link DataLine}, containing audio data and metadata.
+ * This class provides information about the audio format, the audio data, and an optional timeout.
+ * 
+ * @since v1.3.0
+ * 
+ * @author Theko
+ */
 public class DataLineEvent {
     private final DataLine line;
     private final long timeout;
