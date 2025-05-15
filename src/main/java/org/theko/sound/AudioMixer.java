@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.Controllable;
 import org.theko.sound.control.FloatControl;
+import org.theko.sound.effects.NonFixedSizeEffect;
 import org.theko.sound.event.DataLineAdapter;
 import org.theko.sound.event.DataLineEvent;
 
@@ -162,6 +163,12 @@ public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
         if (effect.getType() == AudioEffect.Type.OFFLINE_PROCESSING) {
             logger.warn("Only AudioEffect.Type.REALTIME is supported to use in mixer.");
             throw new UnsupportedAudioEffectException("Only AudioEffect.Type.REALTIME is supported to use in mixer.");
+        }
+        if (effect.getClass().isAnnotationPresent(NonFixedSizeEffect.class)) {
+            logger.warn(String.format(
+                "Effect '%s' has variable output length.",
+                effect.getClass().getSimpleName()
+            ));
         }
         effects.add(effect);
         logger.debug("Effect: " + effect.getClass().getSimpleName() + " added.");
