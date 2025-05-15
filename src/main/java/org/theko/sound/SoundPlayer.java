@@ -173,7 +173,7 @@ public class SoundPlayer extends SoundSource {
         logger.debug("Pending seeking...");
         aol.flush();
 
-        played = Math.min(buffer, audioDataFragments - 1);
+        played = Math.min(buffer, buffersCount - 1);
         offset = Math.min(remaining, bufferSize - 1);
     
         pendingSeeking = false; // Unlock the playback thread

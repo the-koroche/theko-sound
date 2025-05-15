@@ -79,11 +79,11 @@ public class SoundSource implements AutoCloseable, Controllable {
     protected AudioMixer mixer;
     protected AudioFormat audioFormat;
     protected float[][][] audioData;
-    protected int audioDataFragments;
+    protected int buffersCount;
     protected int bufferSize;
     protected List<AudioTag> metadata;
     private Thread playbackThread;
-    private int threadPriotity = Thread.MAX_PRIORITY - 1; // Default thread priority
+    private int threadPriotity = Thread.NORM_PRIORITY + 1; // Default thread priority
     protected boolean isPlaying;
     protected boolean isOpen;
     protected int played;
@@ -256,7 +256,7 @@ public class SoundSource implements AutoCloseable, Controllable {
         this.length = data.length;
         logger.debug("Buffer size: " + this.bufferSize);
         this.audioData = AudioBufferizer.bufferizeSamples(samples, this.bufferSize);
-        audioDataFragments = this.audioData.length;
+        buffersCount = this.audioData.length;
         // Convert this.bufferSize in bytes, to multiplier for played audioData frgaments.
     }
     
@@ -389,7 +389,7 @@ public class SoundSource implements AutoCloseable, Controllable {
     protected void playbackLoop() {
         try {
             logger.debug("Playback loop started.");
-            while (isPlaying && isOpen && !Thread.currentThread().isInterrupted() && played < audioDataFragments) {
+            while (isPlaying && isOpen && !Thread.currentThread().isInterrupted() && played < buffersCount) {
                 if (pendingSeeking) {
                     // Short sample position changes block the thread temporarily
                     Thread.sleep(1);
@@ -407,10 +407,10 @@ public class SoundSource implements AutoCloseable, Controllable {
                     offset = 0;
                     success = mixerIn.sendWithTimeout(audioData, SEND_TIMEOUT, TimeUnit.MILLISECONDS);
                 }
-                logger.trace("Buffer " + played + " of " + audioDataFragments + ", sended to the mixer.");
+                logger.trace("Buffer " + played + " of " + buffersCount + ", sended to the mixer.");
 
                 if (!success) logger.debug("Audio send operation fail. Buffer: " + played + ".");
-                if (played > audioDataFragments - 1 && needLoop()) {
+                if (played > buffersCount - 1 && needLoop()) {
                     resetPosition();
                     logger.debug("Loop. Remaining loops: " + loop + "/" + loopCount + ".");
                 }
@@ -420,7 +420,7 @@ public class SoundSource implements AutoCloseable, Controllable {
             logger.debug("Playback loop ended.");
 
             // Loop playback when end is reached
-            if (played >= audioDataFragments) {
+            if (played >= buffersCount) {
                 resetPosition();
             }
             
@@ -436,7 +436,7 @@ public class SoundSource implements AutoCloseable, Controllable {
      * @return true if the loop should be continued, false otherwise.
      */
     protected boolean needLoop() {
-        if (played >= audioDataFragments - 1) {
+        if (played >= buffersCount - 1) {
             switch (loopCount) {
                 case NO_LOOP: return false;
                 case LOOP_CONTINUOUSLY: return true;
@@ -511,7 +511,7 @@ public class SoundSource implements AutoCloseable, Controllable {
         pendingSeeking = true; // Block the playback thread temporarily
         logger.debug("Pending seeking...");
 
-        played = Math.min(buffer, audioDataFragments - 1);
+        played = Math.min(buffer, buffersCount - 1);
         offset = Math.min(remaining, bufferSize - 1);
     
         pendingSeeking = false; // Unlock the playback thread
@@ -660,6 +660,26 @@ public class SoundSource implements AutoCloseable, Controllable {
      */
     public AudioMixer getMixer() {
         return mixer;
+    }
+    
+    /**
+     * Returns the resampler effect used to control the playback speed of the sound.
+     * The resampler effect is used to modify the audio data in real-time to achieve the desired
+     * playback speed.
+     * 
+     * @return The {@link ResamplerEffect} instance used for playback speed control, or {@code null} if the sound source is not open.
+     */
+    public ResamplerEffect getResampler() {
+        return speedEffect;
+    }
+
+    /**
+     * Returns the list of audio metadata tags associated with the sound source.
+     * 
+     * @return The list of {@link AudioTag} objects containing metadata information.
+     */
+    public List<AudioTag> getMetadat() {
+        return metadata;
     }
 
     /**
