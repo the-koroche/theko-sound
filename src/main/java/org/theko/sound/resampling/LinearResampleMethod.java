@@ -9,7 +9,7 @@ package org.theko.sound.resampling;
  * 
  * @author Theko
  */
-public class LinearResampler implements ResamplerMethod {
+public class LinearResampleMethod implements ResampleMethod {
     @Override
     public float[] resample(float[] input, int targetLength, int quality) {
         float[] output = new float[targetLength];

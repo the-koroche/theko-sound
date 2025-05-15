@@ -33,7 +33,7 @@ package org.theko.sound.resampling;
  * 
  * @author Theko
  */
-public class LanczosResampler implements ResamplerMethod {
+public class LanczosResampleMethod implements ResampleMethod {
     @Override
         public float[] resample(float[] input, int targetLength, int quality) {
             // Create an output array with the target length

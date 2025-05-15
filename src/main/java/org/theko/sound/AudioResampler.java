@@ -2,8 +2,8 @@ package org.theko.sound;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.theko.sound.resampling.LanczosResampler;
-import org.theko.sound.resampling.ResamplerMethod;
+import org.theko.sound.resampling.LanczosResampleMethod;
+import org.theko.sound.resampling.ResampleMethod;
 
 /**
  * The AudioResampler class provides utility methods for resampling audio data.
@@ -43,15 +43,15 @@ public class AudioResampler {
     private static final int DEFAULT_QUALITY = 3;
 
     protected int quality;
-    protected final ResamplerMethod resamplerMethod;
+    protected final ResampleMethod resampleMethod;
 
-    public AudioResampler(ResamplerMethod resamplerMethod, int quality) {
-        this.resamplerMethod = resamplerMethod;
+    public AudioResampler(ResampleMethod resamplerMethod, int quality) {
+        this.resampleMethod = resamplerMethod;
         this.quality = quality;
     }
 
     public AudioResampler() {
-        this(new LanczosResampler(), DEFAULT_QUALITY);
+        this(new LanczosResampleMethod(), DEFAULT_QUALITY);
     }
 
     public void setQuality(int quality) {
@@ -126,7 +126,11 @@ public class AudioResampler {
         // Calculate the new length after applying the speed multiplier
         int newLength = (int) (input.length / speedMultiplier);
 
+        if (input.length == newLength) {
+            return input;
+        }
+
         // Perform Lanczos resampling to obtain the new samples
-        return resamplerMethod.resample(input, newLength, quality);
+        return resampleMethod.resample(input, newLength, quality);
     }
 }
