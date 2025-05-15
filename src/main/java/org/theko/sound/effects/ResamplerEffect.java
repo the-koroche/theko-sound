@@ -5,6 +5,7 @@ import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioResampler;
 import org.theko.sound.control.FloatControl;
 
+@NonFixedSizeEffect
 public class ResamplerEffect extends AudioEffect {
     private FloatControl speed;
     private AudioResampler resampler;
