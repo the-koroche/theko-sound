@@ -11,7 +11,7 @@ public class SoundPlayTest {
         SoundPlayer sound = null;
         try {
             sound = new SoundPlayer();
-            sound.open(SharedFunctions.chooseAudioFile(), SoundPlayer.BUFFER_SIZE_128MS);
+            sound.open(SharedFunctions.chooseAudioFile(), SoundPlayer.BUFFER_SIZE_1024MS);
     
             sound.start();
             Thread.sleep(sound.getMicrosecondLength() / 1000);

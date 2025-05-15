@@ -6,8 +6,12 @@ import java.util.List;
 
 import org.theko.sound.SoundPlayer;
 import org.theko.sound.AudioEffect;
+import org.theko.sound.AudioFlow;
 import org.theko.sound.AudioFormat;
+import org.theko.sound.AudioPortsNotFoundException;
 import org.theko.sound.UnsupportedAudioEffectException;
+import org.theko.sound.UnsupportedAudioFormatException;
+import org.theko.sound.direct.javasound.JavaSoundDevice;
 import org.theko.sound.effects.AudioLimiter;
 
 import test.org.theko.sound.SharedFunctions;
@@ -18,34 +22,27 @@ public class SoundWithEffectTest {
         try {
             sound = new SoundPlayer();
             sound.open(SharedFunctions.chooseAudioFile(), SoundPlayer.BUFFER_SIZE_32MS);
+
+            JavaSoundDevice jsd = new JavaSoundDevice();
+            System.out.println("The best format: " + jsd.getFormatForPort(jsd.getDefaultPort(AudioFlow.OUT, AudioFormat.LOWEST_QUALITY_FORMAT).get()));
     
             addEffects(sound);
-    
-            sound.getFloatControl("Speed").setValue(1.2f);
             sound.start();
-    
-            while (sound.isPlaying()) {
-                printSoundPosition(sound);
-                Thread.sleep(20);
-            }
-    
+
+            Thread.sleep(sound.getMicrosecondLength() * 1000);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        } catch (AudioPortsNotFoundException e) {
+            e.printStackTrace();
+        } catch (UnsupportedAudioFormatException e) {
+            e.printStackTrace();
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
             e.printStackTrace();
         } finally {
             if (sound != null) {
-                System.out.println("Closing sound...");
                 sound.close();
             }
         }
-    }
-    
-    private static void printSoundPosition(SoundPlayer sound) {
-        double positionSeconds = sound.getMicrosecondPosition() / 1_000_000.0;
-        double modPositionSeconds = sound.getModifiedMicrosecondPosition() / 1_000_000.0;
-        System.out.print(String.format("position: %.3f s  | mod: %.3f s | speed: %.4f   \r", positionSeconds, modPositionSeconds, sound.getFloatControl("Speed").getValue()));
     }
 
     private static void addEffects(SoundPlayer sound) {
@@ -62,12 +59,8 @@ public class SoundWithEffectTest {
     }
 
     private static List<AudioEffect> getEffects(AudioFormat format) {
-        //BitcrusherEffect bitcrusher = new BitcrusherEffect(format);
-        //bitcrusher.getFloatControl("Bit Depth").setValue(3);
-
-        AudioLimiter limiter = new AudioLimiter(format);
-        System.out.println(limiter.getAllControls());
+        AudioLimiter limiter1 = new AudioLimiter(format);
     
-        return new ArrayList<>(List.of(limiter));
+        return new ArrayList<>(List.of(limiter1));
     }
 }
