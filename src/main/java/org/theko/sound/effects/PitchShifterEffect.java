@@ -8,7 +8,7 @@ import org.theko.sound.dsp.WindowFunction;
 import org.theko.sound.dsp.WindowType;
 
 public class PitchShifterEffect extends AudioEffect {
-    private FloatControl pitchControl;
+    private final FloatControl pitchControl;
 
     public PitchShifterEffect(AudioFormat audioFormat) {
         super(Type.REALTIME, audioFormat);

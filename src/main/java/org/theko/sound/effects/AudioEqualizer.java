@@ -9,6 +9,68 @@ import org.theko.sound.dsp.FFT;
 import org.theko.sound.dsp.WindowFunction;
 import org.theko.sound.dsp.WindowType;
 
+/**
+ * The {@code AudioEqualizer} class represents an audio effect that applies equalization
+ * to audio samples in real-time. It divides the audio spectrum into multiple bands
+ * and allows individual control over each band's frequency, gain, power, bandwidth,
+ * and type.
+ * 
+ * <p>This class extends {@code AudioEffect} and processes audio samples using
+ * Fast Fourier Transform (FFT) and Inverse Fast Fourier Transform (IFFT) to
+ * manipulate the frequency domain representation of the audio signal.</p>
+ * 
+ * <p>Currently, only the {@code PEAK} band type is supported for processing.</p>
+ * 
+ * <h2>Features:</h2>
+ * <ul>
+ *   <li>Divides the audio spectrum into 8 bands by default.</li>
+ *   <li>Each band has configurable properties such as frequency, gain, power, bandwidth, and type.</li>
+ *   <li>Applies a Blackman-Harris window function to the audio samples before FFT.</li>
+ *   <li>Processes audio in the frequency domain and applies gain adjustments to the bands.</li>
+ *   <li>Supports symmetric mirroring for frequency domain adjustments.</li>
+ * </ul>
+ * 
+ * <h2>Usage:</h2>
+ * <pre>
+ * AudioFormat format = new AudioFormat(44100, 16, 2, true, false);
+ * AudioEqualizer equalizer = new AudioEqualizer(format);
+ * List<AudioEqualizer.Band> bands = equalizer.getBands();
+ * bands.get(0).setGain(6.0f); // Boost the first band by 6 dB
+ * </pre>
+ * 
+ * <h2>Inner Classes:</h2>
+ * <ul>
+ *   <li>{@code Band}: Represents an individual frequency band with properties such as frequency, gain, power, bandwidth, and type.</li>
+ *   <li>{@code BandType}: Enum defining the types of bands (e.g., PEAK, HIGH_SHELF, LOW_SHELF, HIGH_PASS, LOW_PASS).</li>
+ * </ul>
+ * 
+ * <h2>Constructor:</h2>
+ * <ul>
+ *   <li>{@code AudioEqualizer(AudioFormat audioFormat)}: Initializes the equalizer with the specified audio format and creates default bands.</li>
+ * </ul>
+ * 
+ * <h2>Methods:</h2>
+ * <ul>
+ *   <li>{@code List<Band> getBands()}: Returns the list of bands.</li>
+ *   <li>{@code Band getBand(int index)}: Returns the band at the specified index.</li>
+ *   <li>{@code float[][] process(float[][] samples)}: Processes the audio samples and applies equalization.</li>
+ * </ul>
+ * 
+ * <h2>Processing Details:</h2>
+ * <p>The {@code process} method performs the following steps:</p>
+ * <ol>
+ *   <li>Copies the audio samples into a buffer and applies zero-padding.</li>
+ *   <li>Applies a Blackman-Harris window function to the samples.</li>
+ *   <li>Performs FFT to convert the samples to the frequency domain.</li>
+ *   <li>Adjusts the gain of the frequency bands based on their configuration.</li>
+ *   <li>Performs IFFT to convert the samples back to the time domain.</li>
+ *   <li>Writes the processed samples back to the original buffer.</li>
+ * </ol>
+ * 
+ * @since v1.4.1
+ * 
+ * @author Theko
+ */
 public class AudioEqualizer extends AudioEffect {
     private final List<Band> bands;
     private static final int BANDS_COUNT = 8;

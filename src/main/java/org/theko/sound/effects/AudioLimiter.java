@@ -9,11 +9,48 @@ import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.FloatControl;
 import org.theko.sound.envelope.ASREnvelope;
 
+/**
+ * The AudioLimiter class is a real-time audio effect that applies dynamic range compression
+ * to audio signals. It limits the amplitude of the audio signal to prevent clipping and 
+ * distortion, while also providing soft saturation for smoother transitions.
+ * 
+ * <p>This class uses an attack-sustain-release (ASR) envelope to control the gain reduction
+ * dynamically, ensuring a natural-sounding compression effect. The limiter has configurable
+ * parameters for gain, soft saturation threshold, limiter ceiling, and envelope timing.
+ * 
+ * <p>Key features:
+ * <ul>
+ *   <li>Gain control: Adjusts the overall input gain in decibels (dB).</li>
+ *   <li>Soft saturation threshold: Defines the level at which soft saturation begins.</li>
+ *   <li>Limiter ceiling: Sets the maximum output level to prevent clipping.</li>
+ *   <li>ASR envelope: Configurable attack, sustain, and release times for dynamic control.</li>
+ * </ul>
+ * 
+ * <p>Usage:
+ * <pre>
+ * AudioFormat format = new AudioFormat(44100, 16, 2, true, false);
+ * AudioLimiter limiter = new AudioLimiter(format);
+ * limiter.getGain().setValue(6.0f); // Set gain to +6 dB
+ * limiter.getLimiterCeiling().setValue(-1.0f); // Set limiter ceiling to -1 dB
+ * float[][] processedSamples = limiter.process(inputSamples);
+ * </pre>
+ * 
+ * <p>Note: The limiter processes audio in real-time and is designed for multi-channel audio.
+ * It ensures that all channels are processed consistently to maintain stereo or surround sound integrity.
+ * 
+ * @see AudioEffect
+ * @see FloatControl
+ * @see ASREnvelope
+ * 
+ * @since v1.4.1
+ * 
+ * @author Theko
+ */
 public class AudioLimiter extends AudioEffect {
-    private FloatControl gain;
-    private FloatControl softSaturationThreshold;
-    private FloatControl limiterCeiling;
-    private ASREnvelope envelope;
+    private final FloatControl gain;
+    private final FloatControl softSaturationThreshold;
+    private final FloatControl limiterCeiling;
+    private final ASREnvelope envelope;
 
     public AudioLimiter(AudioFormat audioFormat) {
         super(Type.REALTIME, audioFormat);
