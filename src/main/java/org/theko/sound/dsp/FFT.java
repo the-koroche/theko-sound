@@ -1,15 +1,47 @@
 package org.theko.sound.dsp;
 
+/**
+ * The {@code FFT} class provides static methods for performing the Fast Fourier Transform (FFT)
+ * and its inverse (IFFT) on complex sequences represented by separate arrays of real and imaginary parts.
+ * <p>
+ * This implementation uses the Cooley-Tukey radix-2 decimation-in-time algorithm and operates in-place
+ * on the provided arrays. The input arrays must have a length that is a power of two.
+ * </p>
+ * <p>
+ * Usage example:
+ * <pre>
+ * float[] real = ...; // real parts of the input
+ * float[] imag = ...; // imaginary parts of the input
+ * FFT.fft(real, imag); // Computes the FFT
+ * FFT.ifft(real, imag); // Computes the inverse FFT
+ * </pre>
+ * </p>
+ * <p>
+ * This class cannot be instantiated.
+ * </p>
+ * 
+ * @since v1.3.0
+ * 
+ * @author Theko
+ */
 public class FFT {
     private FFT () {
     }
 
-    // Прямое быстрое преобразование Фурье (FFT)
+    /**
+     * Computes the Fast Fourier Transform (FFT) of a complex sequence defined by
+     * the real and imaginary parts stored in the given arrays.
+     *
+     * @param real the real part of the complex sequence
+     * @param imag the imaginary part of the complex sequence
+     * @throws IllegalArgumentException if the length of the two arrays is not
+     *         equal
+     */
     public static void fft(float[] real, float[] imag) {
         int n = real.length;
         int logN = Integer.numberOfTrailingZeros(n); // log2(n)
 
-        // Битово-инверсное переставление
+        // Reorder the real and imaginary parts using bit reversal
         for (int i = 0; i < n; i++) {
             int j = Integer.reverse(i) >>> (32 - logN);
             if (i < j) {
@@ -18,21 +50,24 @@ public class FFT {
             }
         }
 
-        // Итеративное выполнение FFT
+        // Perform the Cooley-Tukey FFT algorithm
         for (int size = 2; size <= n; size *= 2) {
             int halfSize = size / 2;
             float wAngle = (float) (-2 * Math.PI / size);
             float wReal = (float) Math.cos(wAngle);
             float wImag = (float) Math.sin(wAngle);
 
+            // Process each subarray of the size
             for (int start = 0; start < n; start += size) {
                 float uReal = 1.0f;
                 float uImag = 0.0f;
 
+                // Process each pair of elements in the subarray
                 for (int i = 0; i < halfSize; i++) {
                     int evenIndex = start + i;
                     int oddIndex = start + i + halfSize;
 
+                    // Compute the complex products and add them to the even and odd elements
                     float tReal = uReal * real[oddIndex] - uImag * imag[oddIndex];
                     float tImag = uReal * imag[oddIndex] + uImag * real[oddIndex];
 
@@ -41,6 +76,7 @@ public class FFT {
                     real[evenIndex] += tReal;
                     imag[evenIndex] += tImag;
 
+                    // Compute the new values of uReal and uImag
                     float tmpReal = uReal * wReal - uImag * wImag;
                     uImag = uReal * wImag + uImag * wReal;
                     uReal = tmpReal;
@@ -49,24 +85,49 @@ public class FFT {
         }
     }
 
+    /**
+     * Computes the inverse Fast Fourier Transform (IFFT) of the given real and 
+     * imaginary components of a complex sequence. This method modifies the input 
+     * arrays in place to perform the transformation.
+     *
+     * <p>The method first negates the imaginary parts, calls the FFT method, 
+     * and then scales down the real and imaginary components by dividing them 
+     * by the length of the input arrays. Finally, it negates the imaginary 
+     * parts again to complete the inverse transformation.</p>
+     *
+     * @param real the array containing the real parts of the complex input and 
+     *             output.
+     * @param imag the array containing the imaginary parts of the complex input 
+     *             and output.
+     */
     public static void ifft(float[] real, float[] imag) {
+        // Negate the imaginary parts
         int n = real.length;
-
-        // Инвертируем мнимую часть
         for (int i = 0; i < n; i++) {
             imag[i] = -imag[i];
         }
 
+        // Call the FFT method
         fft(real, imag);
 
-        // Делим на N и снова инвертируем мнимую часть
+        // Scale down the real and imaginary components
         for (int i = 0; i < n; i++) {
             real[i] /= n;
             imag[i] /= n;
+        }
+
+        // Negate the imaginary parts again to complete the inverse transformation
+        for (int i = 0; i < n; i++) {
             imag[i] = -imag[i];
         }
     }
 
+    /**
+     * Swaps two elements in an array of floats
+     * @param arr the array
+     * @param i the first index
+     * @param j the second index
+     */
     private static void swap(float[] arr, int i, int j) {
         float temp = arr[i];
         arr[i] = arr[j];
