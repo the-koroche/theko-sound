@@ -58,6 +58,17 @@ public interface AudioDevice {
     }
 
     /**
+     * Shuts down the audio device and releases any allocated resources.
+     * This default implementation does nothing, and it is expected that
+     * implementers override this method if shutdown logic is required.
+     *
+     * @throws AudioDeviceException if an error occurs during shutdown.
+     */
+    default void shutdown() throws AudioDeviceException {
+        // No default shutdown logic provided.
+    }
+
+    /**
      * Retrieves all ports associated with this audio device, regardless of
      * availability or compatibility.
      *
