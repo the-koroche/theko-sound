@@ -23,5 +23,5 @@ package org.theko.sound.event;
  * @author Theko
  */
 public class AudioOutputLineAdapter extends AudioLineAdapter implements AudioOutputLineListener {
-    public void onWrite(AudioLineEvent e) { }
+    @Override public void onWrite(AudioLineEvent e) { }
 }
