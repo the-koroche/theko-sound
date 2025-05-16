@@ -50,27 +50,27 @@ public interface Controllable {
      * This method uses reflection to access all declared fields in the implementing class. 
      * It collects fields that are instances of AudioControl or its subclasses, 
      * adds them to a list, and returns an unmodifiable view of this list. 
-     * If a field is inaccessible due to security restrictions, an empty list is returned.
+     * If a field is inaccessible due to security restrictions, it is ignored.
      *
      * @return An unmodifiable list of AudioControl objects found in the implementing class.
      */
     default List<AudioControl> getAllControls() {
-        try {
-            Field[] fields = this.getClass().getDeclaredFields();
-            List<AudioControl> controls = new ArrayList<>();
-            for (Field field : fields) {
-                field.setAccessible(true);
-                if (AudioControl.class.isAssignableFrom(field.getType())) {
+        List<AudioControl> controls = new ArrayList<>();
+        Field[] fields = this.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            if (AudioControl.class.isAssignableFrom(field.getType())) {
+                try {
                     AudioControl control = (AudioControl) field.get(this);
                     if (control != null) {
                         controls.add(control);
                     }
+                } catch (IllegalAccessException ex) {
+                    // Ignore inaccesible fields
                 }
             }
-            return Collections.unmodifiableList(controls);
-        } catch (IllegalAccessException ex) {
-            return Collections.unmodifiableList(new ArrayList<>(0));
         }
+        return Collections.unmodifiableList(controls);
     }
 
     /**
