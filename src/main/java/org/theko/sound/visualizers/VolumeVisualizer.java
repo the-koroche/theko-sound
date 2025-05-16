@@ -4,17 +4,78 @@ import java.awt.*;
 import javax.swing.*;
 import org.theko.sound.AudioFormat;
 
+/**
+ * The VolumeVisualizer class is responsible for visualizing audio volume levels
+ * in real-time. It extends the AudioVisualizer class and provides a graphical
+ * representation of the volume and peak levels for each audio channel.
+ * 
+ * <p>Features include:
+ * <ul>
+ *   <li>Real-time volume visualization for multiple audio channels.</li>
+ *   <li>Gradient-based volume bar coloring based on volume levels.</li>
+ *   <li>Smooth fall behavior for volume and peak levels.</li>
+ *   <li>Customizable fall speeds for volume and peak levels.</li>
+ * </ul>
+ * 
+ * <p>Usage:
+ * <ol>
+ *   <li>Create an instance of VolumeVisualizer with the desired AudioFormat.</li>
+ *   <li>Call the {@link #initialize()} method to set up the visualizer.</li>
+ *   <li>Feed audio samples to the {@link #process(float[][])} method for processing.</li>
+ *   <li>Retrieve the visualization panel using {@link #getPanel()} and add it to your UI.</li>
+ * </ol>
+ * 
+ * <p>Key Components:
+ * <ul>
+ *   <li>{@code volume}: The current volume levels for each channel.</li>
+ *   <li>{@code peakVolume}: The peak volume levels for each channel.</li>
+ *   <li>{@code velFall}: The fall velocity for volume levels.</li>
+ *   <li>{@code velPeak}: The fall velocity for peak levels.</li>
+ *   <li>{@code VolumePanel}: A custom JPanel for rendering the volume bars.</li>
+ * </ul>
+ * 
+ * <p>Color Coding:
+ * <ul>
+ *   <li>Green: Low volume levels (below 0.7).</li>
+ *   <li>Orange: Medium volume levels (between 0.7 and 0.9).</li>
+ *   <li>Red: High volume levels (above 0.9).</li>
+ * </ul>
+ * 
+ * <p>Note: The visualizer assumes that audio samples are provided as a 2D float
+ * array, where each sub-array represents the samples for a specific channel.
+ * 
+ * @see AudioVisualizer
+ * 
+ * @since v1.3.0
+ * 
+ * @author Theko
+ */
 public class VolumeVisualizer extends AudioVisualizer {
+    /** The speed at which the peak volume falls down. */
     protected float peakFallSpeed = 0.0002f;
+
+    /** The speed at which the volume falls down. */
     protected float fallSpeed = 0.005f;
+
+    /** Whether to smoothly fall down the volume. */
     protected boolean smoothFall = true;
 
+    /** * The current volume of each channel. */
     protected float[] volume;
+
+    /** The current peak volume of each channel. */
     protected float[] peakVolume;
+
+    /** The current fall velocity of each channel. */
     protected float[] velFall;
+
+    /** The current peak fall velocity of each channel. */
     protected float[] velPeak;
+
+    /** The panel to display the volume. */
     protected VolumePanel volumePanel;
 
+    /** The audio samples to process. */
     protected float[][] samples;
 
     public VolumeVisualizer(AudioFormat audioFormat) {
@@ -48,12 +109,13 @@ public class VolumeVisualizer extends AudioVisualizer {
     }
 
     private Color getVolumeColor(float level) {
+        // The color of the volume bar
         if (level < 0.7f) {
-            return new Color(0, 255, 0); // Зеленый
+            return new Color(0, 255, 0); // Green
         } else if (level < 0.9f) {
-            return new Color(255, 165, 0); // Оранжевый
+            return new Color(255, 165, 0); // Orange
         } else {
-            return new Color(255, 0, 0); // Красный
+            return new Color(255, 0, 0); // Red
         }
     }
 
@@ -100,7 +162,7 @@ public class VolumeVisualizer extends AudioVisualizer {
                     maxVal = Math.max(maxVal, Math.abs(sample));
                 }
 
-                // Падение громкости
+                // Fall down the volume
                 if (volume[ch] < maxVal) {
                     velFall[ch] = 0;
                 } else {
@@ -108,7 +170,7 @@ public class VolumeVisualizer extends AudioVisualizer {
                 }
                 volume[ch] = smoothFall ? Math.max(volume[ch] - velFall[ch], maxVal) : maxVal;
 
-                // Падение пика
+                // Fall down the peak
                 if (volume[ch] > peakVolume[ch]) {
                     peakVolume[ch] = volume[ch];
                     velPeak[ch] = 0;

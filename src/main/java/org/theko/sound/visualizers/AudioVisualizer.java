@@ -32,7 +32,7 @@ import org.theko.sound.AudioFormat;
  * </ul>
  * 
  * @see AudioEffect
- * @see Timer
+ * @see VolumeVisualizer
  * 
  * @since v1.4.1
  * 
