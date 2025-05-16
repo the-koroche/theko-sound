@@ -8,9 +8,9 @@ package org.theko.sound.control;
  * <p>This class is typically used to manage audio-related boolean settings,
  * such as enabling or disabling a feature.
  * 
-  * @since v1.2.0
-* 
-* @author Theko
+ * @since v1.2.0
+ * 
+ * @author Theko
  */
 public class BooleanControl extends AudioControl {
     protected boolean value;

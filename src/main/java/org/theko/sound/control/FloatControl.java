@@ -24,9 +24,9 @@ package org.theko.sound.control;
  * 
  * @see AudioControl
  * 
-  * @since v1.2.0
-* 
-* @author Theko
+ * @since v1.2.0
+ * 
+ * @author Theko
  */
 public class FloatControl extends AudioControl {
     protected float value;
