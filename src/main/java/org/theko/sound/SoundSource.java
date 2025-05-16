@@ -23,6 +23,7 @@ import org.theko.sound.control.FloatControl;
 import org.theko.sound.effects.ResamplerEffect;
 import org.theko.sound.event.DataLineAdapter;
 import org.theko.sound.event.DataLineEvent;
+import org.theko.sound.util.ThreadsFactory;
 
 
 /**
@@ -330,7 +331,7 @@ public class SoundSource implements AutoCloseable, Controllable {
         resetPosition();
     
         if (playbackThread == null || !playbackThread.isAlive()) { // Check thread status
-            playbackThread = new Thread(this::playbackLoop, "Playback Thread-" + thisSoundInstance);
+            playbackThread = ThreadsFactory.createThread(this::playbackLoop, "Playback Thread-" + thisSoundInstance);
             playbackThread.setPriority(threadPriotity); // Adjust CPU priority
             playbackThread.start();
             logger.debug("Playback thread recreated and started.");

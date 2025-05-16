@@ -6,6 +6,7 @@ import java.util.List;
 import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.Controllable;
 import org.theko.sound.control.FloatControl;
+import org.theko.sound.util.ThreadsFactory;
 
 /**
  * The Automation class represents an audio automation system that allows controlling
@@ -104,10 +105,8 @@ public class Automation implements AudioObject, Controllable {
         this.keyPoints = keyPoints;
         this.speed = new FloatControl("Speed", -4, 4, 1f);
         this.position = 0;
-        this.playThread = new Thread(this::automationPlay, "Automation Play-" + thisAutomationInstance);
-        this.playThread.setPriority(Thread.NORM_PRIORITY - 3); // Set to minimum priority
-        this.playThread.setName("AutomationPlayThread");
-        this.playThread.setDaemon(true); // Set as daemon thread
+        this.playThread = ThreadsFactory.createThread(this::automationPlay, "Automation Play-" + thisAutomationInstance);
+        this.playThread.setPriority(Thread.MIN_PRIORITY); // Set to minimum priority
     }
 
     public Automation() {

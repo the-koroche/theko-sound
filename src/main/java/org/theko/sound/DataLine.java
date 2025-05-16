@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.theko.sound.event.DataLineEvent;
 import org.theko.sound.event.DataLineListener;
+import org.theko.sound.util.ThreadsFactory;
 
 /**
  * The `DataLine` class represents a thread-safe audio data pipeline that allows
@@ -67,7 +68,7 @@ public class DataLine implements AudioObject, AutoCloseable {
 
     protected boolean closed = true;
 
-    private static transient final Cleaner cleaner = Cleaner.create(Thread.ofVirtual().factory());
+    private static transient final Cleaner cleaner = ThreadsFactory.createCleanerWithThread();
 
     private enum NotifyType {
         SEND, RECEIVE, SEND_TIMEOUT, RECEIVE_TIMEOUT
