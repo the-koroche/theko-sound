@@ -68,7 +68,7 @@ public class DataLine implements AudioObject, AutoCloseable {
 
     protected boolean closed = true;
 
-    private static transient final Cleaner cleaner = ThreadsFactory.createCleanerWithThread();
+    private static transient final Cleaner cleaner = ThreadsFactory.createCleaner();
 
     private enum NotifyType {
         SEND, RECEIVE, SEND_TIMEOUT, RECEIVE_TIMEOUT

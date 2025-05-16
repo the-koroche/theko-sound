@@ -18,6 +18,7 @@ import org.theko.sound.effects.NonFixedSizeEffect;
 import org.theko.sound.event.DataLineAdapter;
 import org.theko.sound.event.DataLineEvent;
 import org.theko.sound.util.ThreadsFactory;
+import org.theko.sound.util.ThreadsFactory.ThreadType;
 
 /**
  * The AudioMixer class is responsible for mixing audio data from multiple input sources,
@@ -87,7 +88,7 @@ public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
     private static int mixerInstances;
     private static final int thisMixerInstance = ++mixerInstances;
 
-    private static transient final Cleaner cleaner = ThreadsFactory.createCleanerWithThread(); // Virtual thread cleaner for resource management
+    private static transient final Cleaner cleaner = ThreadsFactory.createCleaner(); // Virtual thread cleaner for resource management
 
     /**
      * Constructs an AudioMixer with the specified mode and audio format.
@@ -102,7 +103,7 @@ public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
         outputs = new CopyOnWriteArrayList<>();
         effects = new CopyOnWriteArrayList<>();
 
-        mixerThread = (mixerMode == Mode.THREAD) ? ThreadsFactory.createThread(this::processLoop, "Mixing Thread-" + thisMixerInstance) : null;
+        mixerThread = (mixerMode == Mode.THREAD) ? ThreadsFactory.createThread(ThreadType.MIXER, this::processLoop, "Mixing Thread-" + thisMixerInstance) : null;
         if (mixerThread != null) {
             mixerThread.start();
             logger.debug("Mixer thread started.");
@@ -440,7 +441,7 @@ public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
                 logger.debug("Mixer thread started.");
             } else if (mixerThread == null) {
                 logger.warn("Mixer thread is null, recreating it.");
-                mixerThread = ThreadsFactory.createThread(this::processLoop, "Mixing Thread-" + thisMixerInstance);
+                mixerThread = ThreadsFactory.createThread(ThreadType.MIXER, this::processLoop, "Mixing Thread-" + thisMixerInstance);
                 mixerThread.start();
             }
         }
