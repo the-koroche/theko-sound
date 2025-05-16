@@ -1,5 +1,7 @@
 package org.theko.sound.control;
 
+import org.theko.sound.AudioObject;
+
 /**
  * The {@code AudioControl} class serves as an abstract base class for audio control components.
  * It provides a common structure for managing audio controls with a name property.
@@ -18,11 +20,11 @@ package org.theko.sound.control;
  * @see FloatControl
  * @see Controllable
  * 
-  * @since v1.2.0
-* 
-* @author Theko
+ * @since v1.2.0
+ * 
+ * @author Theko
  */
-public abstract class AudioControl {
+public abstract class AudioControl implements AudioObject {
     protected final String name;
 
     public AudioControl (String name) {
