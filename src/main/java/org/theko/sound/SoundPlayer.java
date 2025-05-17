@@ -5,7 +5,8 @@ import java.io.FileNotFoundException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.theko.sound.direct.AudioDeviceException;
+import org.theko.sound.backend.AudioBackendException;
+import org.theko.sound.backend.AudioOutputBackend;
 import org.theko.sound.event.AudioLineEvent;
 import org.theko.sound.event.AudioOutputLineAdapter;
 
@@ -31,7 +32,7 @@ import org.theko.sound.event.AudioOutputLineAdapter;
  * <p>Usage example:
  * <pre>{@code
  * SoundPlayer player = new SoundPlayer();
- * player.open(new File("audio.mp3"), 1024, new AudioPort());
+ * player.open(new File("audio.wav"), 1024, new AudioPort());
  * player.start();
  * player.setFramePosition(5000);
  * player.stop();
@@ -64,6 +65,11 @@ public class SoundPlayer extends SoundSource {
     public SoundPlayer() {
         aol = new AudioOutputLine();
         logger.debug("AOL created.");
+    }
+
+    public SoundPlayer(AudioOutputBackend aob) {
+        aol = new AudioOutputLine(aob);
+        logger.debug("AOL created with custom AOB: {}", aob);
     }
 
     /**
@@ -115,8 +121,8 @@ public class SoundPlayer extends SoundSource {
                 }
             });
             logger.debug("AOL on-writed action is attached.");
-        } catch (AudioDeviceException e) {
-            logger.error(e.getMessage());
+        } catch (AudioBackendException e) {
+            logger.error("AudioBackendException.", e);
             throw new RuntimeException(e);  // Propagate the error if setup fails
         }
     }
@@ -131,18 +137,9 @@ public class SoundPlayer extends SoundSource {
      * It calls the base class start method and starts the audio output line.
      */
     @Override
-    public synchronized void start() {
+    public void start() {
         aol.start();    // Start the audio output line
         super.start();  // Start the base class playback
-    }
-
-    public synchronized void startAndWait() {
-        start();
-        try {
-            Thread.sleep(getModifiedMicrosecondLength() / 1000);
-        } catch (InterruptedException e) {
-            logger.error(e.getMessage());
-        }
     }
 
     /**
@@ -150,7 +147,7 @@ public class SoundPlayer extends SoundSource {
      * It calls the base class stop method and stops the audio output line.
      */
     @Override
-    public synchronized void stop() {
+    public void stop() {
         super.stop();   // Stop the base class playback
         aol.stop();     // Stop the audio output line
     }
@@ -186,7 +183,7 @@ public class SoundPlayer extends SoundSource {
      * Stops playback and closes the audio output line.
      */
     @Override
-    public synchronized void close() {
+    public void close() {
         super.close();  // Close the base class resources
         aol.close();    // Close the audio output line
         logger.debug("AOL closed.");

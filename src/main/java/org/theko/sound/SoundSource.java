@@ -23,88 +23,126 @@ import org.theko.sound.control.FloatControl;
 import org.theko.sound.effects.ResamplerEffect;
 import org.theko.sound.event.DataLineAdapter;
 import org.theko.sound.event.DataLineEvent;
+import org.theko.sound.event.SoundSourceEvent;
+import org.theko.sound.event.SoundSourceEventListener;
 import org.theko.sound.util.ThreadsFactory;
 import org.theko.sound.util.ThreadsFactory.ThreadType;
 
-
 /**
- * The `SoundSource` class provides functionality for audio playback, including
- * support for audio effects, looping, and playback position control. It implements
- * the `AutoCloseable` and `Controllable` interfaces, allowing for resource management
- * and control over audio playback settings.
- * 
- * <p>This class supports opening audio files, decoding them, and playing them back
- * with customizable buffer sizes. It also provides methods for controlling playback
- * speed, volume, and stereo panning. Additionally, it supports looping playback
- * and precise control over playback position in frames or microseconds.</p>
- * 
- * <p>Key features include:</p>
+ * The {@code SoundSource} class represents an audio playback source that supports
+ * opening, decoding, buffering, and playing audio files with support for effects,
+ * looping, and playback controls. It manages audio data, playback state, and
+ * provides interfaces for controlling gain, pan, and playback speed.
+ * <p>
+ * Features include:
  * <ul>
- *   <li>Opening audio files with automatic or custom buffer sizes.</li>
- *   <li>Support for audio effects, such as speed adjustment.</li>
- *   <li>Looping playback with configurable loop counts.</li>
- *   <li>Playback position control in frames or microseconds.</li>
- *   <li>Thread-safe operations for playback and resource management.</li>
+ *   <li>Opening audio files with automatic or custom buffer sizes</li>
+ *   <li>Decoding audio files using registered codecs</li>
+ *   <li>Buffering audio data for efficient playback</li>
+ *   <li>Playback control (start, stop, seek, loop)</li>
+ *   <li>Support for audio effects and real-time speed adjustment</li>
+ *   <li>Event notification for playback state changes</li>
+ *   <li>Access to audio metadata and controls</li>
  * </ul>
+ * <p>
+ * This class implements {@link AutoCloseable} for resource management and
+ * {@link Controllable} for unified audio control access.
+ * <p>
+ * Usage example:
+ * <pre>
+ *   SoundSource source = new SoundSource();
+ *   source.open("audio.wav");
+ *   source.start();
+ *   // ... control playback ...
+ *   source.close();
+ * </pre>
  * 
- * <p>Usage example:</p>
- * <pre>{@code
- * SoundSource soundSource = new SoundSource();
- * soundSource.open("path/to/audio/file.wav");
- * soundSource.start();
- * 
- * // Adjust playback settings
- * soundSource.getGainControl().setValue(0.5f); // Set volume
- * soundSource.setLoop(SoundSource.LOOP_CONTINUOUSLY); // Enable looping
- * 
- * // Stop playback and release resources
- * soundSource.stop();
- * soundSource.close();
- * }</pre>
- * 
- * <p>Note: This class requires proper handling of resources. Always call the `close()`
- * method to release resources when the sound source is no longer needed.</p>
- * 
- * @see AutoCloseable
- * @see Controllable
  * @see AudioMixer
  * @see AudioEffect
+ * @see ResamplerEffect
+ * @see AudioTag
+ * @see Controllable
  * 
  * @since v1.4.1
- * 
+ *
  * @author Theko
  */
 public class SoundSource implements AutoCloseable, Controllable {
     private static final Logger logger = LoggerFactory.getLogger(SoundSource.class);
 
-    // Audio properties
-    protected AudioMixer mixer;
+    // SoundSource data transfer, info
+    /** The audio format of the currently opened audio file. */
     protected AudioFormat audioFormat;
-    protected float[][][] audioData;
-    protected int buffersCount;
-    protected int bufferSize;
-    protected List<AudioTag> metadata;
-    private Thread playbackThread;
-    private int threadPriotity = Thread.NORM_PRIORITY + 1; // Default thread priority
-    protected boolean isPlaying;
-    protected boolean isOpen;
-    protected int played;
-    protected int offset;
-    protected long length;
 
-    protected int loop;
-    protected int loopCount;
+    /** The audio mixer used for audio effects processing. */
+    protected AudioMixer mixer;
 
+    /** The mixer input data line. */
     protected DataLine mixerIn;
 
-    private DataLine audioOut;
+    /** The output data line for the audio data. */
+    protected DataLine audioOut;
+
+    // Audio data information
+    /** The audio data in the form of a 3D array where each element is a channel of the audio data. */
+    protected float[][][] audioData;
+
+    /** The total number of buffers to play. */
+    protected int buffersCount;
+
+    /** The buffer size of the audio data in bytes. */
+    protected int bufferSize;
+
+    /** The length of the audio data in bytes. */
+    protected long length;
+
+    // Metadata
+    /** The metadata of the audio file, such as tags, comments, and other information. */
+    protected List<AudioTag> metadata;
+
+    // Playback
+    /** The thread that handles the playback of the audio data. */
+    private Thread playbackThread;
+
+    /** The priority of the playback thread. */
+    protected int threadPriotity = Thread.NORM_PRIORITY + 1; // Default thread priority
+
+    /** A flag indicating whether there is a pending seek operation. */
     protected boolean pendingSeeking = false;
-    
+
+    // Playback state
+    /** A flag indicating whether the sound is currently playing. */
+    protected boolean isPlaying;
+
+    /** A flag indicating whether the sound is currently open. */
+    protected boolean isOpen;
+
+    /** The number of buffers that have been played. */
+    protected int played;
+
+    /** The offset of the current buffer. */
+    protected int offset;
+
+    // Playback options
+    /** The number of loops to play the audio data. */
+    protected int loop;
+
+    /** The number of times the audio data should be looped. */
+    protected int loopCount;
+
+    // Speed change effect
+    /** The resampler effect used to change the playback speed. */
     protected ResamplerEffect speedEffect;
 
     // Instance counting
+    /** The total number of sound source instances created. */
     private static int soundInstances = 0;
-    private final int thisSoundInstance = ++soundInstances;
+
+    /** The number of this sound source instance. */
+    protected final int thisSoundInstance = ++soundInstances;
+
+    // Listeners
+    protected final List<SoundSourceEventListener> listeners;
 
     // Predefined buffer sizes
     public static final int AUTO_BUFFER_SIZE = -1;
@@ -116,11 +154,40 @@ public class SoundSource implements AutoCloseable, Controllable {
     public static final int BUFFER_SIZE_1024MS = -15;
     public static final int BUFFER_SIZE_2048MS = -16;
 
+    // Looping
     public static final int NO_LOOP = 0;
     public static final int LOOP_CONTINUOUSLY = -1;
 
     // Time-out values
     protected static final int SEND_TIMEOUT = 500; // ms
+
+    public SoundSource () {
+        listeners = new ArrayList<>();
+    }
+
+    private enum NotifyType {
+        OPENED, CLOSED,
+        PLAYBACK_STARTED, PLAYBACK_STOPED, LOOP,
+        SPEED_CHANGED, POSITION_CHANGED, VOLUME_CHANGED, PAN_CHANGED
+    }
+
+    private void notifyListeners(NotifyType type) {
+        listeners.removeIf(listener -> listener == null);
+        SoundSourceEvent e = new SoundSourceEvent(this);
+        for (SoundSourceEventListener listener : listeners) {
+            switch (type) {
+                case CLOSED -> listener.onClosed(e);
+                case OPENED -> listener.onOpened(e);
+                case PLAYBACK_STARTED -> listener.onPlaybackStarted(e);
+                case PLAYBACK_STOPED -> listener.onPlaybackStoped(e);
+                case LOOP -> listener.onLoop(e);
+                case POSITION_CHANGED -> listener.onPositionChanged(e);
+                case SPEED_CHANGED -> listener.onSpeedChanged(e);
+                case VOLUME_CHANGED -> listener.onVolumeChanged(e);
+                case PAN_CHANGED -> listener.onPanChanged(e);
+            }
+        }
+    }
 
     /**
      * Opens an audio file for playback with a specified buffer size.
@@ -144,6 +211,7 @@ public class SoundSource implements AutoCloseable, Controllable {
             initializeAudioData(result, bufferSize);
             logger.debug("Initializing audio pipeline...");
             initializeAudioPipeline();
+            notifyListeners(NotifyType.OPENED);
         } catch (AudioCodecCreationException e) {
             logger.error("Codec initialization failed.", e);
             throw new RuntimeException("Codec initialization failed.", e);
@@ -157,7 +225,7 @@ public class SoundSource implements AutoCloseable, Controllable {
     }
 
     /**
-     * Opens an audio file for playback with an automatic buffer size.
+     * Opens an audio file for playback with a specified buffer size.
      *
      * @param filePath The audio file path to open.
      * @param bufferSize The size of the buffer for playback.
@@ -337,7 +405,24 @@ public class SoundSource implements AutoCloseable, Controllable {
             playbackThread.start();
             logger.debug("Playback thread recreated and started.");
         }
+        notifyListeners(NotifyType.PLAYBACK_STARTED);
         logger.debug("Playback started.");
+    }
+
+    /**
+     * Starts the playback of the audio and waits until it is finished.
+     * The method will block until the audio has finished playing.
+     * This method is useful for waiting until the audio is finished before
+     * performing another action.
+     */
+    public void startAndWait() {
+        start();
+        try {
+            Thread.sleep(getModifiedMicrosecondLength() / 1000);
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage());
+            Thread.currentThread().interrupt();
+        }
     }
 
     /**
@@ -346,6 +431,7 @@ public class SoundSource implements AutoCloseable, Controllable {
     public void stop() {
         if (!isOpen) return;
         isPlaying = false;
+        notifyListeners(NotifyType.PLAYBACK_STOPED);
         logger.debug("Playback stopped.");
     }
 
@@ -414,6 +500,7 @@ public class SoundSource implements AutoCloseable, Controllable {
                 if (!success) logger.debug("Audio send operation fail. Buffer: " + played + ".");
                 if (played > buffersCount - 1 && needLoop()) {
                     resetPosition();
+                    notifyListeners(NotifyType.LOOP);
                     logger.debug("Loop. Remaining loops: " + loop + "/" + loopCount + ".");
                 }
             }
@@ -517,6 +604,7 @@ public class SoundSource implements AutoCloseable, Controllable {
         offset = Math.min(remaining, bufferSize - 1);
     
         pendingSeeking = false; // Unlock the playback thread
+        notifyListeners(NotifyType.POSITION_CHANGED);
         logger.debug("Playback thread unlocked.");
         logger.debug("Position: buff:" + played + ", offset:" + offset);
     }
@@ -619,6 +707,16 @@ public class SoundSource implements AutoCloseable, Controllable {
     }
 
     /**
+     * Returns the current loop count.
+     * This represents how many times the audio has looped during playback.
+     * 
+     * @return The current loop count as an integer.
+     */
+    public int getCurrentLoop() {
+        return loop;
+    }
+
+    /**
      * Returns the audio format used by this sound source.
      * The audio format includes details such as sample rate, number of channels, and encoding.
      * 
@@ -680,7 +778,7 @@ public class SoundSource implements AutoCloseable, Controllable {
      * 
      * @return The list of {@link AudioTag} objects containing metadata information.
      */
-    public List<AudioTag> getMetadat() {
+    public List<AudioTag> getMetadata() {
         return metadata;
     }
 
