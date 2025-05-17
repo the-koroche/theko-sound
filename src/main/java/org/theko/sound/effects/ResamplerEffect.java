@@ -4,6 +4,7 @@ import org.theko.sound.AudioEffect;
 import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioResampler;
 import org.theko.sound.control.FloatControl;
+import org.theko.sound.resampling.LinearResampleMethod;
 
 /**
  * The {@code ResamplerEffect} class is an audio effect that resamples audio data
@@ -48,7 +49,9 @@ public class ResamplerEffect extends AudioEffect {
     public ResamplerEffect(AudioFormat audioFormat) {
         super(Type.REALTIME, audioFormat);
         speed = new FloatControl("Speed", 0.001f,32f, 1f);
-        setResampler(new AudioResampler());
+        setResampler(new AudioResampler(
+            new LinearResampleMethod(), 1
+        ));
     }
 
     public void setResampler(AudioResampler resampler) {

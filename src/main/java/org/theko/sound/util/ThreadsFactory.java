@@ -36,7 +36,7 @@ public class ThreadsFactory {
             this.parameter = parameter;
         }
 
-        public String getName() {
+        public String getPropertyName() {
             return parameter;
         }
     }
@@ -44,11 +44,13 @@ public class ThreadsFactory {
     public static Thread createThread(ThreadType threadType, Runnable runnable, String name) {
         String value = getThreadType(threadType);
         Thread thread = getThreadBuilder(value).name(name).unstarted(runnable);
+        logger.debug("Creating {} thread of type {}", name, value);
         return thread;
     }
 
     public static Cleaner createCleaner() {
         String value = getThreadType(ThreadType.CLEANER);
+        logger.debug("Creating cleaner thread of type {}", value);
         return Cleaner.create(getThreadBuilder(value).factory());
     }
 
@@ -63,7 +65,7 @@ public class ThreadsFactory {
     }
 
     private static String getThreadType(ThreadType threadType) {
-        String param = System.getProperty(threadType.getName(), "unknown").toLowerCase();
+        String param = System.getProperty(threadType.getPropertyName(), "unknown").toLowerCase();
         if (param.equals("unknown") && threadType != ThreadType.GLOBAL) {
             return System.getProperty(THREAD_TYPE_PROPERTY, "virtual").toLowerCase();
         }
