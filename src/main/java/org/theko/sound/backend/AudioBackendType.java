@@ -1,4 +1,4 @@
-package org.theko.sound.direct;
+package org.theko.sound.backend;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
@@ -6,19 +6,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Annotation to define metadata for audio device types.
- * This annotation is intended to be used on classes that implement the {@code AudioDevice} interface.
+ * Annotation to define metadata for audio backend types.
+ * This annotation is intended to be used on classes that implement the {@code AudioBackend} interface.
  * 
  * <p>Attributes:</p>
  * <ul>
- *   <li>{@code name} - Specifies the name of the audio device type. This is a required attribute.</li>
- *   <li>{@code version} - Specifies the version of the audio device type. Defaults to "1.0" if not provided.</li>
+ *   <li>{@code name} - Specifies the name of the audio backend type. This is a required attribute.</li>
+ *   <li>{@code version} - Specifies the version of the audio backend type. Defaults to "1.0" if not provided.</li>
  * </ul>
  * 
  * <p>Usage:</p>
  * <pre>
- * &#64;AudioDeviceType(name = "ExampleDevice", version = "2.0")
- * public class ExampleAudioDevice implements AudioDevice {
+ * &#64;AudioBackendType(name = "ExampleBackend", version = "2.0")
+ * public class ExampleAudioBackend implements AudioBackend {
  *     // Implementation details
  * }
  * </pre>
@@ -29,8 +29,8 @@ import java.lang.annotation.RetentionPolicy;
  * <p>Target:</p>
  * This annotation can only be applied to types (classes, interfaces, etc.).
  * 
- * @see AudioDevice
- * @see AudioDeviceInfo
+ * @see AudioBackend
+ * @see AudioBackendInfo
  * 
  * @since v1.0.0
  * 
@@ -38,7 +38,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AudioDeviceType {
+public @interface AudioBackendType {
     String name();
     String version() default "1.0";
 }

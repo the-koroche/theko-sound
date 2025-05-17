@@ -1,4 +1,4 @@
-package org.theko.sound.direct.javasound;
+package org.theko.sound.backend.javasound;
 
 import java.util.*;
 
@@ -14,17 +14,17 @@ import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioPort;
 import org.theko.sound.AudioPortsNotFoundException;
 import org.theko.sound.UnsupportedAudioFormatException;
-import org.theko.sound.direct.AudioDevice;
-import org.theko.sound.direct.AudioDeviceType;
-import org.theko.sound.direct.AudioInputDevice;
-import org.theko.sound.direct.AudioOutputDevice;
+import org.theko.sound.backend.AudioBackend;
+import org.theko.sound.backend.AudioBackendType;
+import org.theko.sound.backend.AudioInputBackend;
+import org.theko.sound.backend.AudioOutputBackend;
 
 /**
- * The {@code JavaSoundDevice} class is an implementation of the {@link AudioDevice} interface
+ * The {@code JavaSoundBackend} class is an implementation of the {@link AudioBackend} interface
  * that uses the Java Sound API to interact with audio hardware. It provides methods to
- * retrieve audio ports, check port compatibility, and access input and output devices.
+ * retrieve audio ports, check port compatibility, and access input and output backends.
  * 
- * <p>This class is annotated with {@link AudioDeviceType} to specify its name and version.
+ * <p>This class is annotated with {@link AudioBackendType} to specify its name and version.
  * It supports both input and output audio flows and handles audio formats through the
  * Java Sound API.
  * 
@@ -34,7 +34,7 @@ import org.theko.sound.direct.AudioOutputDevice;
  *   <li>Filtering ports based on audio flow and format ({@link #getAvailablePorts(AudioFlow, AudioFormat)}).</li>
  *   <li>Checking if a port supports a specific audio format ({@link #isPortSupporting(AudioPort, AudioFormat)}).</li>
  *   <li>Getting the default port for a specific flow and format ({@link #getDefaultPort(AudioFlow, AudioFormat)}).</li>
- *   <li>Providing access to input and output devices ({@link #getInputDevice()} and {@link #getOutputDevice()}).</li>
+ *   <li>Providing access to input and output backends ({@link #getInputBackend()} and {@link #getOutputBackend()}).</li>
  * </ul>
  * 
  * <p>Helper methods are included to:
@@ -54,7 +54,7 @@ import org.theko.sound.direct.AudioOutputDevice;
  * <p>This class is designed to work seamlessly with the Java Sound API, providing a bridge
  * between custom audio abstractions and the underlying audio hardware.
  * 
- * @see AudioDevice
+ * @see AudioBackend
  * @see AudioPort
  * @see AudioFlow
  * @see AudioFormat
@@ -63,8 +63,8 @@ import org.theko.sound.direct.AudioOutputDevice;
 * 
 * @author Theko
  */
-@AudioDeviceType(name = "JavaSound", version = "1.0")
-public class JavaSoundDevice implements AudioDevice {
+@AudioBackendType(name = "JavaSound", version = "1.0")
+public class JavaSoundBackend implements AudioBackend {
     @Override
     public Collection<AudioPort> getAllPorts() {
         List<AudioPort> ports = new ArrayList<>();
@@ -126,12 +126,12 @@ public class JavaSoundDevice implements AudioDevice {
     }
 
     @Override
-    public AudioInputDevice getInputDevice() {
+    public AudioInputBackend getInputBackend() {
         return new JavaSoundInput();
     }
 
     @Override
-    public AudioOutputDevice getOutputDevice() {
+    public AudioOutputBackend getOutputBackend() {
         return new JavaSoundOutput();
     }
 

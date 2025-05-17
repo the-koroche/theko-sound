@@ -10,12 +10,12 @@ import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.theko.sound.backend.AudioBackend;
+import org.theko.sound.backend.javasound.JavaSoundBackend;
+import org.theko.sound.backend.javasound.JavaSoundInput;
+import org.theko.sound.backend.javasound.JavaSoundOutput;
 import org.theko.sound.codec.AudioCodec;
 import org.theko.sound.codec.formats.WAVECodec;
-import org.theko.sound.direct.AudioDevice;
-import org.theko.sound.direct.javasound.JavaSoundDevice;
-import org.theko.sound.direct.javasound.JavaSoundInput;
-import org.theko.sound.direct.javasound.JavaSoundOutput;
 
 /**
  * The {@code AudioClassLoader} class is responsible for managing the initialization
@@ -69,8 +69,8 @@ public final class AudioClassLoader {
     private static final Logger logger = LoggerFactory.getLogger(AudioClassLoader.class);
 
     private static Reflections reflections = tryToCreateReflections();
-    private static final Set<Class<? extends AudioDevice>> fallbackDevices = Set.of(
-        JavaSoundDevice.class, JavaSoundInput.class, JavaSoundOutput.class
+    private static final Set<Class<? extends AudioBackend>> fallbackBackends = Set.of(
+        JavaSoundBackend.class, JavaSoundInput.class, JavaSoundOutput.class
     );
 
     private static final Set<Class<? extends AudioCodec>> fallbackCodecs = Set.of(
@@ -93,16 +93,16 @@ public final class AudioClassLoader {
         return reflections;
     }
 
-    public static Set<Class<? extends AudioDevice>> getAvailableDevices() {
+    public static Set<Class<? extends AudioBackend>> getAvailableBackends() {
         if (useFallback()) {
-            logger.debug("Returning fallback AudioDevice classes.");
-            return fallbackDevices;
+            logger.debug("Returning fallback AudioBackend classes.");
+            return fallbackBackends;
         }
         try {
-            return reflections.getSubTypesOf(AudioDevice.class);
+            return reflections.getSubTypesOf(AudioBackend.class);
         } catch (Exception e) {
-            logger.warn("Failed to scan AudioDevice classes. Falling back.", e);
-            return fallbackDevices;
+            logger.warn("Failed to scan AudioBackend classes. Falling back.", e);
+            return fallbackBackends;
         }
     }
 

@@ -1,25 +1,25 @@
-package org.theko.sound.direct.javasound;
+package org.theko.sound.backend.javasound;
 
 import javax.sound.sampled.*;
 
 import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioPort;
 import org.theko.sound.UnsupportedAudioFormatException;
-import org.theko.sound.direct.AudioDeviceException;
-import org.theko.sound.direct.AudioInputDevice;
+import org.theko.sound.backend.AudioBackendException;
+import org.theko.sound.backend.AudioInputBackend;
 
 /**
- * The {@code JavaSoundInput} class is an implementation of the {@link AudioInputDevice}
+ * The {@code JavaSoundInput} class is an implementation of the {@link AudioInputBackend}
  * interface that uses the Java Sound API to handle audio input operations.
- * It extends the {@link JavaSoundDevice} class and provides functionality for
- * managing audio input devices, such as opening, closing, starting, stopping,
+ * It extends the {@link JavaSoundBackend} class and provides functionality for
+ * managing audio input backends, such as opening, closing, starting, stopping,
  * and reading audio data from a {@link TargetDataLine}.
  *
  * <p>This class supports operations such as:
  * <ul>
- *   <li>Opening an audio input device with a specified {@link AudioPort}, {@link AudioFormat}, and buffer size.</li>
- *   <li>Starting and stopping the audio input device.</li>
- *   <li>Reading audio data from the input device.</li>
+ *   <li>Opening an audio input backend with a specified {@link AudioPort}, {@link AudioFormat}, and buffer size.</li>
+ *   <li>Starting and stopping the audio input backend.</li>
+ *   <li>Reading audio data from the input backend.</li>
  *   <li>Flushing and draining the audio input buffer.</li>
  *   <li>Retrieving information such as buffer size, frame position, and latency.</li>
  * </ul>
@@ -35,12 +35,12 @@ import org.theko.sound.direct.AudioInputDevice;
  * input.close();
  * }</pre>
  *
- * <p>Note: This class throws {@link AudioDeviceException} for various error
- * conditions, such as attempting to operate on a device that is not open or
+ * <p>Note: This class throws {@link AudioBackendException} for various error
+ * conditions, such as attempting to operate on a backend that is not open or
  * when the requested audio format is unsupported.
  *
- * @see AudioInputDevice
- * @see JavaSoundDevice
+ * @see AudioInputBackend
+ * @see JavaSoundBackend
  * @see TargetDataLine
  * @see AudioPort
  * @see AudioFormat
@@ -49,7 +49,7 @@ import org.theko.sound.direct.AudioInputDevice;
  * 
  * @author Theko
  */
-public class JavaSoundInput extends JavaSoundDevice implements AudioInputDevice {
+public class JavaSoundInput extends JavaSoundBackend implements AudioInputBackend {
 
     /**
      * The target data line used for capturing audio data.
@@ -57,7 +57,7 @@ public class JavaSoundInput extends JavaSoundDevice implements AudioInputDevice 
     private TargetDataLine targetDataLine;
 
     /**
-     * Indicates whether the audio input device is open.
+     * Indicates whether the audio input backend is open.
      */
     private boolean open;
 
@@ -67,13 +67,13 @@ public class JavaSoundInput extends JavaSoundDevice implements AudioInputDevice 
     private AudioPort currentPort;
 
     @Override
-    public void open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioDeviceException {
+    public void open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException {
         try {
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, getJavaSoundAudioFormat(audioFormat), bufferSize);
             Mixer mixer = getMixerForPort(port);
 
             if (mixer == null || !mixer.isLineSupported(info)) {
-                throw new AudioDeviceException("Unsupported audio port or format.");
+                throw new AudioBackendException("Unsupported audio port or format.");
             }
 
             targetDataLine = (TargetDataLine) mixer.getLine(info);
@@ -81,12 +81,12 @@ public class JavaSoundInput extends JavaSoundDevice implements AudioInputDevice 
             this.currentPort = port;
             open = true;
         } catch (LineUnavailableException | UnsupportedAudioFormatException e) {
-            throw new AudioDeviceException("Failed to open audio output line.", e);
+            throw new AudioBackendException("Failed to open audio output line.", e);
         }
     }
 
     @Override
-    public void open(AudioPort port, AudioFormat audioFormat) throws AudioDeviceException {
+    public void open(AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
         open(port, audioFormat, audioFormat.getByteRate() / 5);
     }
 
@@ -96,7 +96,7 @@ public class JavaSoundInput extends JavaSoundDevice implements AudioInputDevice 
     }
 
     @Override
-    public void close() throws AudioDeviceException {
+    public void close() throws AudioBackendException {
         if (targetDataLine != null) {
             targetDataLine.close();
             open = false;
@@ -104,78 +104,78 @@ public class JavaSoundInput extends JavaSoundDevice implements AudioInputDevice 
     }
 
     @Override
-    public void start() throws AudioDeviceException {
+    public void start() throws AudioBackendException {
         if (!isOpen()) {
-            throw new AudioDeviceException("Cannot start. Device is not open.");
+            throw new AudioBackendException("Cannot start. Backend is not open.");
         }
         targetDataLine.start();
     }
 
     @Override
-    public void stop() throws AudioDeviceException {
+    public void stop() throws AudioBackendException {
         if (isOpen()) {
             targetDataLine.stop();
         }
     }
 
     @Override
-    public void flush() throws AudioDeviceException {
+    public void flush() throws AudioBackendException {
         if (isOpen()) {
             targetDataLine.flush();
         }
     }
 
     @Override
-    public void drain() throws AudioDeviceException {
+    public void drain() throws AudioBackendException {
         if (isOpen()) {
             targetDataLine.drain();
         }
     }
 
     @Override
-    public int read(byte[] data, int offset, int length) throws AudioDeviceException {
+    public int read(byte[] data, int offset, int length) throws AudioBackendException {
         if (!isOpen()) {
-            throw new AudioDeviceException("Cannot write. Device is not open.");
+            throw new AudioBackendException("Cannot write. Backend is not open.");
         }
         return targetDataLine.read(data, offset, length);
     }
 
     @Override
-    public int available() throws AudioDeviceException {
+    public int available() throws AudioBackendException {
         if (!isOpen()) {
-            throw new AudioDeviceException("Cannot check availability. Device is not open.");
+            throw new AudioBackendException("Cannot check availability. Backend is not open.");
         }
         return targetDataLine.available();
     }
 
     @Override
-    public int getBufferSize() throws AudioDeviceException {
+    public int getBufferSize() throws AudioBackendException {
         if (!isOpen()) {
-            throw new AudioDeviceException("Cannot get buffer size. Device is not open.");
+            throw new AudioBackendException("Cannot get buffer size. Backend is not open.");
         }
         return targetDataLine.getBufferSize();
     }
 
     @Override
-    public long getFramePosition() throws AudioDeviceException {
+    public long getFramePosition() throws AudioBackendException {
         if (!isOpen()) {
-            throw new AudioDeviceException("Cannot get frame position. Device is not open.");
+            throw new AudioBackendException("Cannot get frame position. Backend is not open.");
         }
         return targetDataLine.getLongFramePosition();
     }
 
     @Override
-    public long getMicrosecondPosition() throws AudioDeviceException {
+    public long getMicrosecondPosition() throws AudioBackendException {
         if (!isOpen()) {
-            throw new AudioDeviceException("Cannot get microsecond position. Device is not open.");
+            throw new AudioBackendException("Cannot get microsecond position. Backend is not open.");
         }
         return targetDataLine.getMicrosecondPosition();
     }
 
     @Override
-    public long getMicrosecondLatency() throws AudioDeviceException {
+    public long getMicrosecondLatency() throws AudioBackendException {
         if (!isOpen()) {
-            throw new AudioDeviceException("Cannot get latency. Device is not open.");
+            throw new AudioBackendException("Cannot get latency. Backend is not open.");
         }
         return (long)((targetDataLine.getBufferSize() * 1000000L) / targetDataLine.getFormat().getFrameRate());
     }

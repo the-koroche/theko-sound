@@ -1,6 +1,6 @@
 package org.theko.sound;
 
-import org.theko.sound.direct.AudioDeviceException;
+import org.theko.sound.backend.AudioBackendException;
 
 /**
  * The {@code AudioLine} interface represents an abstraction for an audio line,
@@ -21,7 +21,7 @@ import org.theko.sound.direct.AudioDeviceException;
  * configuration as needed.
  * </p>
  * <p>
- * Exceptions such as {@link AudioDeviceException},
+ * Exceptions such as {@link AudioBackendException},
  * {@link AudioPortsNotFoundException}, and {@link UnsupportedAudioFormatException}
  * are thrown to indicate errors during operations.
  * </p>
@@ -39,7 +39,7 @@ public interface AudioLine extends AutoCloseable {
      * @param audioPort the audio port to use
      * @param audioFormat the audio format to use
      * @param bufferSize the buffer size to use
-     * @throws AudioDeviceException if there's an error opening the audio line
+     * @throws AudioBackendException if there's an error opening the audio line
      */
     void open(AudioPort audioPort, AudioFormat audioFormat, int bufferSize);
 
@@ -48,7 +48,7 @@ public interface AudioLine extends AutoCloseable {
      * The audio line is created with a default buffer size.
      * @param audioPort the audio port to use
      * @param audioFormat the audio format to use
-     * @throws AudioDeviceException if there's an error opening the audio line
+     * @throws AudioBackendException if there's an error opening the audio line
      */
     void open(AudioPort audioPort, AudioFormat audioFormat);
 
@@ -56,39 +56,39 @@ public interface AudioLine extends AutoCloseable {
      * Opens the audio line using the specified audio format.
      * The first available audio port that supports the specified format is used.
      * @param audioFormat the audio format to use
-     * @throws AudioDeviceException if there's an error opening the audio line
+     * @throws AudioBackendException if there's an error opening the audio line
      * @throws AudioPortsNotFoundException if there are no available audio ports
      * @throws UnsupportedAudioFormatException if the audio format is not supported
      */
-    void open(AudioFormat audioFormat) throws AudioDeviceException, AudioPortsNotFoundException, UnsupportedAudioFormatException;
+    void open(AudioFormat audioFormat) throws AudioBackendException, AudioPortsNotFoundException, UnsupportedAudioFormatException;
 
     /**
      * Closes the audio line and releases all associated resources.
-     * @throws AudioDeviceException if there's an error closing the audio line
+     * @throws AudioBackendException if there's an error closing the audio line
      */
     void close();
 
     /**
      * Flushes the audio line, discarding any buffered audio data.
-     * @throws AudioDeviceException if there's an error flushing the audio line
+     * @throws AudioBackendException if there's an error flushing the audio line
      */
     void flush();
 
     /**
      * Drains the audio line, playing all buffered audio data.
-     * @throws AudioDeviceException if there's an error draining the audio line
+     * @throws AudioBackendException if there's an error draining the audio line
      */
     void drain();
 
     /**
      * Starts the audio line.
-     * @throws AudioDeviceException if there's an error starting the audio line
+     * @throws AudioBackendException if there's an error starting the audio line
      */
     void start();
 
     /**
      * Stops the audio line.
-     * @throws AudioDeviceException if there's an error stopping the audio line
+     * @throws AudioBackendException if there's an error stopping the audio line
      */
     void stop();
 

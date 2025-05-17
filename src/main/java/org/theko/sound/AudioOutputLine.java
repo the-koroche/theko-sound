@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.theko.sound.direct.AudioDeviceException;
-import org.theko.sound.direct.AudioOutputDevice;
+import org.theko.sound.backend.AudioBackendException;
+import org.theko.sound.backend.AudioOutputBackend;
 import org.theko.sound.event.AudioLineEvent;
 import org.theko.sound.event.AudioLineListener;
 import org.theko.sound.event.AudioOutputLineListener;
@@ -15,7 +15,7 @@ import org.theko.sound.event.DataLineEvent;
 
 /**
  * The {@code AudioOutputLine} class implements the {@link AudioLine} interface and provides
- * functionality for managing audio output lines. It interacts with an {@link AudioOutputDevice}
+ * functionality for managing audio output lines. It interacts with an {@link AudioOutputBackend}
  * to handle audio playback and supports listener notifications for various audio line events.
  * 
  * <p>This class allows for opening, closing, flushing, draining, starting, and stopping audio
@@ -39,17 +39,17 @@ import org.theko.sound.event.DataLineEvent;
  * 
  * <p>Key features:
  * <ul>
- *   <li>Manages audio output using an {@link AudioOutputDevice}.</li>
+ *   <li>Manages audio output using an {@link AudioOutputBackend}.</li>
  *   <li>Supports listener notifications for various audio line events.</li>
  *   <li>Allows attaching and detaching an input {@link DataLine}.</li>
  *   <li>Provides methods for writing audio data and querying audio line state.</li>
  * </ul>
  * 
- * <p>Note: This class requires proper exception handling for audio device creation and
+ * <p>Note: This class requires proper exception handling for audio backend creation and
  * unsupported audio formats.
  * 
  * @see AudioLine
- * @see AudioOutputDevice
+ * @see AudioOutputBackend
  * @see AudioLineListener
  * @see AudioOutputLineListener
  * @see DataLine
@@ -61,7 +61,7 @@ import org.theko.sound.event.DataLineEvent;
 public class AudioOutputLine implements AudioLine {
     private static final Logger logger = LoggerFactory.getLogger(AudioOutputLine.class);
 
-    private final AudioOutputDevice aod;
+    private final AudioOutputBackend aob;
     private List<AudioLineListener> listeners;
 
     private DataLineAdapter onAvailableData = new DataLineAdapter() {
@@ -81,19 +81,19 @@ public class AudioOutputLine implements AudioLine {
 
     public AudioOutputLine () {
         try {
-            this.aod = AudioDevices.getOutputDevice(AudioDevices.getPlatformDevice());
+            this.aob = AudioBackends.getOutputBackend(AudioBackends.getPlatformBackend());
             this.listeners = new ArrayList<>();
-            logger.debug("AudioOutputLine created using " + aod.getClass().getSimpleName() + " device.");
-        } catch (AudioDeviceCreationException | AudioDeviceNotFoundException e) {
+            logger.debug("AudioOutputLine created using " + aob.getClass().getSimpleName() + " backend.");
+        } catch (AudioBackendCreationException | AudioBackendNotFoundException e) {
             logger.error(e.getMessage());
             throw new RuntimeException(e);
         }
     }
 
-    public AudioOutputLine (AudioOutputDevice aod) {
-        this.aod = aod;
+    public AudioOutputLine (AudioOutputBackend aob) {
+        this.aob = aob;
         this.listeners = new ArrayList<>();
-        logger.debug("AudioOutputLine created using " + aod.getClass().getSimpleName() + " device.");
+        logger.debug("AudioOutputLine created using " + aob.getClass().getSimpleName() + " backend.");
     }
 
     public void addAudioOutputLineListener(AudioOutputLineListener listener) {
@@ -142,7 +142,7 @@ public class AudioOutputLine implements AudioLine {
     @Override
     public void open(AudioPort audioPort, AudioFormat audioFormat, int bufferSize) {
         if (!isOpen()) {
-            aod.open(audioPort, audioFormat, bufferSize);
+            aob.open(audioPort, audioFormat, bufferSize);
             notifyListeners(NotifyAction.OPEN, new AudioLineEvent(this));
         }
     }
@@ -150,15 +150,15 @@ public class AudioOutputLine implements AudioLine {
     @Override
     public void open(AudioPort audioPort, AudioFormat audioFormat) {
         if (!isOpen()) {
-            aod.open(audioPort, audioFormat);
+            aob.open(audioPort, audioFormat);
             notifyListeners(NotifyAction.OPEN, new AudioLineEvent(this));
         }
     }
 
     @Override
-    public void open(AudioFormat audioFormat) throws AudioDeviceException, AudioPortsNotFoundException, UnsupportedAudioFormatException {
+    public void open(AudioFormat audioFormat) throws AudioBackendException, AudioPortsNotFoundException, UnsupportedAudioFormatException {
         if (!isOpen()) {
-            aod.open(aod.getDefaultPort(AudioFlow.OUT, audioFormat).get(), audioFormat);
+            aob.open(aob.getDefaultPort(AudioFlow.OUT, audioFormat).get(), audioFormat);
             notifyListeners(NotifyAction.OPEN, new AudioLineEvent(this));
         }
     }
@@ -166,7 +166,7 @@ public class AudioOutputLine implements AudioLine {
     @Override
     public void close() {
         if (isOpen()) isOpen = false;
-        aod.close();
+        aob.close();
         if (inputLine != null) {
             inputLine.removeDataLineListener(onAvailableData);
             inputLine = null;
@@ -176,25 +176,25 @@ public class AudioOutputLine implements AudioLine {
 
     @Override
     public void flush() {
-        aod.flush();
+        aob.flush();
         notifyListeners(NotifyAction.FLUSH, new AudioLineEvent(this));
     }
 
     @Override
     public void drain() {
-        aod.drain();
+        aob.drain();
         notifyListeners(NotifyAction.DRAIN, new AudioLineEvent(this));
     }
 
     @Override
     public void start() {
-        aod.start();
+        aob.start();
         notifyListeners(NotifyAction.START, new AudioLineEvent(this));
     }
 
     @Override
     public void stop() {
-        aod.stop();
+        aob.stop();
         notifyListeners(NotifyAction.STOP, new AudioLineEvent(this));
     }
 
@@ -208,44 +208,44 @@ public class AudioOutputLine implements AudioLine {
     }
 
     private int dwrite(byte[] data, int offset, int length) {
-        int writed = aod.write(data, offset, length);
+        int writed = aob.write(data, offset, length);
         notifyListeners(NotifyAction.WRITE, new AudioLineEvent(this));
         return writed;
     }
 
     @Override
     public boolean isOpen() {
-        return isOpen && aod.isOpen();
+        return isOpen && aob.isOpen();
     }
 
     @Override
     public int available() {
-        return aod.available();
+        return aob.available();
     }
 
     @Override
     public int getBufferSize() {
-        return aod.getBufferSize();
+        return aob.getBufferSize();
     }
 
     @Override
     public long getFramePosition() {
-        return aod.getFramePosition();
+        return aob.getFramePosition();
     }
 
     @Override
     public long getMicrosecondPosition() {
-        return aod.getMicrosecondPosition();
+        return aob.getMicrosecondPosition();
     }
 
     @Override
     public long getMicrosecondLatency() {
-        return aod.getMicrosecondLatency();
+        return aob.getMicrosecondLatency();
     }
 
     @Override
     public AudioPort getCurrentAudioPort() {
-        return aod.getCurrentAudioPort();
+        return aob.getCurrentAudioPort();
     }
 
     public void setInputLine(DataLine line) {
@@ -262,7 +262,7 @@ public class AudioOutputLine implements AudioLine {
         return inputLine;
     }
 
-    public AudioOutputDevice getAudioOutputDevice() {
-        return aod;
+    public AudioOutputBackend getAudioOutputBackend() {
+        return aob;
     }
 }
