@@ -41,11 +41,16 @@ import org.theko.sound.AudioFormat;
 public abstract class AudioVisualizer extends AudioEffect {
     protected Timer repaintTimer;
 
-    public AudioVisualizer(Type type, AudioFormat audioFormat) {
+    public AudioVisualizer(Type type, AudioFormat audioFormat, int frameRate) {
         super(type, audioFormat);
+        if (frameRate <= 0) throw new IllegalArgumentException("Frame rate must be greater than 0.");
         initialize();
-        repaintTimer = new Timer(1000 / 60, e -> repaint());
+        repaintTimer = new Timer(1000 / frameRate, e -> repaint());
         repaintTimer.start();
+    }
+
+    public AudioVisualizer (Type type, AudioFormat audioFormat) {
+        this(type, audioFormat, 60);
     }
 
     /** Initialization task. Executes in this visualizer constructor. */
