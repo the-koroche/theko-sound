@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 public class ThreadsFactory {
     private static final Logger logger = LoggerFactory.getLogger(ThreadsFactory.class);
 
-    private static final String THREAD_TYPE_PROPERTY = "org.theko.sound.threadType";
     private static final String PLAYBACK_THREAD_TYPE_PROPERTY = "org.theko.sound.threadType.playback";
     private static final String AUTOMATION_THREAD_TYPE_PROPERTY = "org.theko.sound.threadType.automation";
     private static final String MIXER_THREAD_TYPE_PROPERTY = "org.theko.sound.threadType.mixer";
@@ -24,20 +23,25 @@ public class ThreadsFactory {
     }
 
     public enum ThreadType {
-        GLOBAL(THREAD_TYPE_PROPERTY),
-        PLAYBACK(PLAYBACK_THREAD_TYPE_PROPERTY),
-        AUTOMATION(AUTOMATION_THREAD_TYPE_PROPERTY),
-        MIXER(MIXER_THREAD_TYPE_PROPERTY),
-        CLEANER(CLEANER_THREAD_TYPE_PROPERTY);
+        PLAYBACK(PLAYBACK_THREAD_TYPE_PROPERTY, DEFAULT_PLAYBACK_THREAD_TYPE),
+        AUTOMATION(AUTOMATION_THREAD_TYPE_PROPERTY, DEFAULT_AUTOMATION_THREAD_TYPE),
+        MIXER(MIXER_THREAD_TYPE_PROPERTY, DEFAULT_MIXER_THREAD_TYPE),
+        CLEANER(CLEANER_THREAD_TYPE_PROPERTY, DEFAULT_CLEANER_THREAD_TYPE);
 
         private String parameter;
+        private String opt;
 
-        ThreadType (String parameter) {
+        ThreadType (String parameter, String opt) {
             this.parameter = parameter;
+            this.opt = opt;
         }
 
         public String getPropertyName() {
             return parameter;
+        }
+
+        public String getDefaultValue() {
+            return opt;
         }
     }
 
@@ -65,11 +69,7 @@ public class ThreadsFactory {
     }
 
     private static String getThreadType(ThreadType threadType) {
-        String param = System.getProperty(threadType.getPropertyName(), "unknown").toLowerCase();
-        if (param.equals("unknown") && threadType != ThreadType.GLOBAL) {
-            return System.getProperty(THREAD_TYPE_PROPERTY, "virtual").toLowerCase();
-        }
-        return param;
+        return System.getProperty(threadType.getPropertyName(), threadType.getDefaultValue()).toLowerCase();
     }
 
     private static boolean validateThreadParameter(String value) {
