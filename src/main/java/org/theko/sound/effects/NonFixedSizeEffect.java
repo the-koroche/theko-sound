@@ -17,6 +17,8 @@ import java.lang.annotation.Target;
  * This annotation can only be applied to types (classes, interfaces, etc.).
  * 
  * @since v1.5.0
+ * 
+ * @author Theko
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
