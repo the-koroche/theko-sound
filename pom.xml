@@ -6,10 +6,10 @@
 
     <groupId>theko.sound</groupId>
     <artifactId>theko-sound</artifactId>
-    <version>v1.5.2</version>
+    <version>v1.6.0</version>
 
     <name>Theko-Sound</name>
-    <description>A high-performance audio library for sound processing, supporting popular platforms. Includes support for audio devices, format conversion, mixing, effects application, and codec management. Provides a flexible interface for audio playback, recording, and processing with high performance and extensibility.</description>
+    <description>A high-performance audio library for sound processing, supporting popular platforms. Includes support for audio backends, format conversion, mixing, effects application, and codec management. Provides a flexible interface for audio playback, recording, and processing with high performance and extensibility.</description>
     <url>https://github.com/the-koro/theko-sound</url>
 
     <licenses>
