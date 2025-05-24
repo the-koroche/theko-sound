@@ -1,6 +1,7 @@
 package org.theko.sound;
 
 import java.lang.ref.Cleaner;
+import java.time.InstantSource;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -17,53 +18,44 @@ import org.theko.sound.control.FloatControl;
 import org.theko.sound.effects.NonFixedSizeEffect;
 import org.theko.sound.event.DataLineAdapter;
 import org.theko.sound.event.DataLineEvent;
+import org.theko.sound.monitor.GlobalPerformanceMonitor;
+import org.theko.sound.util.InstanceCounter;
 import org.theko.sound.util.ThreadsFactory;
 import org.theko.sound.util.ThreadsFactory.ThreadType;
 
 /**
- * The AudioMixer class is responsible for mixing audio data from multiple input sources,
- * applying audio effects, and sending the processed audio to output destinations. It supports
- * two modes of operation: THREAD mode, where audio processing is performed in a dedicated thread,
- * and EVENT mode, where processing is triggered by events from input data lines.
- * 
- * <p>Features of the AudioMixer include:
+ * The {@code AudioMixer} class provides real-time audio mixing capabilities, supporting multiple input and output data lines,
+ * audio effects processing, and gain/pan controls. It can operate in two modes: THREAD (continuous background processing)
+ * and EVENT (processing triggered by input events). The mixer collects audio samples from all inputs, applies pre-gain,
+ * mixes them, processes through a chain of real-time audio effects, applies post-gain and pan controls, and outputs the
+ * mixed audio to all registered outputs.
+ * <p>
+ * Key features:
  * <ul>
- *   <li>Support for adding and removing input and output data lines.</li>
- *   <li>Real-time audio effects processing.</li>
- *   <li>Gain and pan control for audio adjustment.</li>
- *   <li>Thread-based or event-based audio processing modes.</li>
- *   <li>Automatic resource management using a cleaner.</li>
+ *   <li>Supports multiple input and output {@link DataLine} objects.</li>
+ *   <li>Applies a chain of real-time {@link AudioEffect} instances to the mixed audio.</li>
+ *   <li>Provides pre-gain, post-gain, and pan controls for flexible audio manipulation.</li>
+ *   <li>Operates in either THREAD or EVENT mode for flexible integration.</li>
+ *   <li>Manages resources and background threads automatically, supporting {@link AutoCloseable} for safe shutdown.</li>
+ *   <li>Tracks instance count for monitoring and debugging.</li>
  * </ul>
- * 
- * <p>Usage:
+ * <p>
+ * Usage example:
  * <pre>
- * {@code
- * AudioMixer mixer = new AudioMixer(AudioMixer.Mode.THREAD, audioFormat);
- * mixer.addInput(inputDataLine);
- * mixer.addOutput(outputDataLine);
- * mixer.addEffect(new ReverbEffect());
- * mixer.getPreGainControl().setValue(0.8f);
- * mixer.getPanControl().setValue(-0.5f);
- * }
+ *     AudioMixer mixer = new AudioMixer(AudioMixer.Mode.THREAD, audioFormat);
+ *     mixer.addInput(inputLine);
+ *     mixer.addOutput(outputLine);
+ *     mixer.addEffect(new ReverbEffect());
+ *     // ...
+ *     mixer.close(); // Properly shuts down the mixer and releases resources
  * </pre>
- * 
- * <p>Note: Only real-time audio effects are supported. Offline processing effects are not allowed.
- * 
- * <p>Thread Safety: This class is thread-safe as it uses concurrent collections and proper synchronization
- * mechanisms for managing inputs, outputs, and effects.
- * 
- * <p>Resource Management: The mixer automatically shuts down its resources when it is no longer in use.
- * However, it is recommended to explicitly call {@link #close()} or {@link #shutdown()} to release resources.
- * 
- * @see AudioControl
- * @see DataLineAdapter
+ *
+ * @see DataLine
  * @see AudioEffect
- * 
- * @since v1.2.0
- * 
- * @author Theko
+ * @see FloatControl
+ * @see AutoCloseable
  */
-public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
+public class AudioMixer implements AudioObject, InstanceCounter, Controllable, AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(AudioMixer.class);
 
     /** Defines the two available modes for audio mixing. */
@@ -86,7 +78,7 @@ public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
     protected final FloatControl panControl; // Pan control for stereo balance
 
     private static int mixerInstances;
-    private static final int thisMixerInstance = ++mixerInstances;
+    private final int thisMixerInstance = ++mixerInstances;
 
     private static transient final Cleaner cleaner = ThreadsFactory.createCleaner(); // Virtual thread cleaner for resource management
 
@@ -322,14 +314,10 @@ public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
             }
         }
 
-        long effNsStart = System.nanoTime();
-
         // Apply audio effects
         if (!effects.isEmpty()) {
             mixed = applyEffects(mixed);
         }
-
-        long effNsEnd = System.nanoTime();
 
         // Calculate left and right volume based on pan control
         float leftVol = 1.0f;
@@ -358,8 +346,7 @@ public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
             }
         }
 
-        logger.trace("Processing elapsed time: " + (processNsEnd - processNsStart) + " ns.");
-        logger.trace("Effects elapsed time: " + (effNsEnd - effNsStart) + " ns.");
+        GlobalPerformanceMonitor.addTimeRecord(this, processNsStart, processNsEnd);
     }
 
     private float getGainForChannel(int channel, float mainGain, float leftVol, float rightVol) {
@@ -453,5 +440,15 @@ public class AudioMixer implements AudioObject, Controllable, AutoCloseable {
     @Override
     public void close() {
         shutdown();
+    }
+
+    @Override
+    public int getInstanceCount() {
+        return mixerInstances;
+    }
+
+    @Override
+    public int getCurrentInstance() {
+        return thisMixerInstance;
     }
 }
