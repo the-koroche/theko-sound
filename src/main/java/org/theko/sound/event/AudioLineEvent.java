@@ -12,7 +12,7 @@ import org.theko.sound.AudioLine;
  * @author Theko
  */
 public class AudioLineEvent {
-    private AudioLine audioLine;
+    private final AudioLine audioLine;
     
     public AudioLineEvent(AudioLine audioLine) {
         this.audioLine = audioLine;
