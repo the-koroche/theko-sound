@@ -62,3 +62,4 @@ Backends are dynamically loaded and modularized for minimal footprint and easy p
 ## ⚖ License
 
 See [LICENSE](LICENSE) for licensing details.
+For details about third-party libraries and licenses, see [NOTICE](NOTICE).
