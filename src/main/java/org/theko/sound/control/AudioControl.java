@@ -1,6 +1,12 @@
 package org.theko.sound.control;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.theko.sound.AudioObject;
+import org.theko.sound.event.AudioControlEvent;
+import org.theko.sound.event.AudioControlListener;
 
 /**
  * The {@code AudioControl} class serves as an abstract base class for audio control components.
@@ -26,9 +32,36 @@ import org.theko.sound.AudioObject;
  */
 public abstract class AudioControl implements AudioObject {
     protected final String name;
+    protected final List<AudioControlListener> listeners;
+
+    protected enum NotifyType {
+        VALUE_CHANGE
+    }
 
     public AudioControl (String name) {
         this.name = name;
+        this.listeners = new ArrayList<>();
+    }
+
+    public void addListener(AudioControlListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(AudioControlListener listener) {
+        listeners.remove(listener);
+    }
+
+    public List<AudioControlListener> getListeners() {
+        return Collections.unmodifiableList(listeners);
+    }
+
+    protected void notifyListeners(NotifyType type, AudioControlEvent event) {
+        for (AudioControlListener listener : listeners) {
+            if (listener == null) continue;
+            switch (type) {
+                case VALUE_CHANGE -> listener.onValueChanged(event);
+            }
+        }
     }
 
     /**

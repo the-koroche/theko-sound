@@ -1,5 +1,7 @@
 package org.theko.sound.control;
 
+import org.theko.sound.event.AudioControlEvent;
+
 /**
  * The {@code FloatControl} class represents a control for managing a floating-point value
  * within a specified range. It extends the {@code AudioControl} class and provides methods
@@ -48,6 +50,7 @@ public class FloatControl extends AudioControl {
      */
     public void setValue(float value) {
         this.value = Math.clamp(value, min, max);
+        notifyListeners(NotifyType.VALUE_CHANGE, new AudioControlEvent(this));
     }
     
     /**
