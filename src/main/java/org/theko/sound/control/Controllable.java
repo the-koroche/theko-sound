@@ -12,14 +12,6 @@ import java.util.List;
  * or its subclasses. This interface includes methods to retrieve all 
  * controls, as well as specific types of controls by name.
  *
- * <p>Methods included:
- * <ul>
- *   <li>{@link #getAllControls()}: Retrieves all AudioControl objects declared as fields.</li>
- *   <li>{@link #getControl(String)}: Retrieves a specific AudioControl by its name.</li>
- *   <li>{@link #getFloatControl(String)}: Retrieves a FloatControl by its name.</li>
- *   <li>{@link #getBooleanControl(String)}: Retrieves a BooleanControl by its name.</li>
- * </ul>
- *
  * <p>Note: The {@code getAllControls()} method uses reflection to access 
  * declared fields, which may be subject to security restrictions. If a field 
  * is inaccessible, an empty list is returned.
@@ -47,10 +39,10 @@ public interface Controllable {
     /**
      * Retrieves all AudioControl objects declared as fields in the implementing class.
      *
-     * This method uses reflection to access all declared fields in the implementing class. 
-     * It collects fields that are instances of AudioControl or its subclasses, 
-     * adds them to a list, and returns an unmodifiable view of this list. 
-     * If a field is inaccessible due to security restrictions, it is ignored.
+     * <p>If the implementing class does not override this method, the default implementation will:
+     * use reflection to access all declared fields in the class, collect those that are instances
+     * of AudioControl or its subclasses, add them to a list, and return an unmodifiable view of this list.
+     * Fields that are inaccessible due to security restrictions are ignored.</p>
      *
      * @return An unmodifiable list of AudioControl objects found in the implementing class.
      */
