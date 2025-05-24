@@ -5,6 +5,34 @@ import java.lang.ref.Cleaner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Utility class for creating and managing threads with configurable types (platform or virtual)
+ * for different components of the application (playback, automation, mixer, cleaner).
+ * <p>
+ * Thread types can be configured via system properties:
+ * <ul>
+ *   <li>{@code org.theko.sound.threadType.playback} (default: "platform")</li>
+ *   <li>{@code org.theko.sound.threadType.automation} (default: "virtual")</li>
+ *   <li>{@code org.theko.sound.threadType.mixer} (default: "platform")</li>
+ *   <li>{@code org.theko.sound.threadType.cleaner} (default: "virtual")</li>
+ * </ul>
+ * Only "platform" and "virtual" are valid values for thread types.
+ * If an invalid value is provided, the default is used and a warning is logged.
+ * <p>
+ * Provides methods to create threads and cleaners with the appropriate type and name.
+ *
+ * <p>
+ * Example usage:
+ * <pre>
+ *     Thread playbackThread = ThreadsFactory.createThread(
+ *         ThreadsFactory.ThreadType.PLAYBACK, myRunnable, "PlaybackThread");
+ *     Cleaner cleaner = ThreadsFactory.createCleaner();
+ * </pre>
+ * 
+ * @since v1.5.0
+ *
+ * @author Theko
+ */
 public class ThreadsFactory {
     private static final Logger logger = LoggerFactory.getLogger(ThreadsFactory.class);
 
