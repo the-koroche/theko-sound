@@ -21,10 +21,14 @@ import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.Controllable;
 import org.theko.sound.control.FloatControl;
 import org.theko.sound.effects.ResamplerEffect;
+import org.theko.sound.event.AudioControlAdapter;
+import org.theko.sound.event.AudioControlEvent;
 import org.theko.sound.event.DataLineAdapter;
 import org.theko.sound.event.DataLineEvent;
 import org.theko.sound.event.SoundSourceEvent;
 import org.theko.sound.event.SoundSourceEventListener;
+import org.theko.sound.monitor.GlobalPerformanceMonitor;
+import org.theko.sound.util.InstanceCounter;
 import org.theko.sound.util.ThreadsFactory;
 import org.theko.sound.util.ThreadsFactory.ThreadType;
 
@@ -67,7 +71,7 @@ import org.theko.sound.util.ThreadsFactory.ThreadType;
  *
  * @author Theko
  */
-public class SoundSource implements AutoCloseable, Controllable {
+public class SoundSource implements InstanceCounter, AutoCloseable, Controllable {
     private static final Logger logger = LoggerFactory.getLogger(SoundSource.class);
 
     // SoundSource data transfer, info
@@ -105,7 +109,7 @@ public class SoundSource implements AutoCloseable, Controllable {
     private Thread playbackThread;
 
     /** The priority of the playback thread. */
-    protected int threadPriotity = Thread.NORM_PRIORITY + 1; // Default thread priority
+    protected int threadPriotity = Thread.MAX_PRIORITY - 1; // Default thread priority
 
     /** A flag indicating whether there is a pending seek operation. */
     protected boolean pendingSeeking = false;
@@ -136,23 +140,28 @@ public class SoundSource implements AutoCloseable, Controllable {
 
     // Instance counting
     /** The total number of sound source instances created. */
-    private static int soundInstances = 0;
+    private static int soundSourceInstances = 0;
 
     /** The number of this sound source instance. */
-    protected final int thisSoundInstance = ++soundInstances;
+    private final int thisSoundInstance = ++soundSourceInstances;
 
     // Listeners
     protected final List<SoundSourceEventListener> listeners;
 
     // Predefined buffer sizes
     public static final int AUTO_BUFFER_SIZE = -1;
-    public static final int BUFFER_SIZE_32MS = -10;
-    public static final int BUFFER_SIZE_64MS = -11;
-    public static final int BUFFER_SIZE_128MS = -12;
-    public static final int BUFFER_SIZE_256MS = -13;
-    public static final int BUFFER_SIZE_512MS = -14;
-    public static final int BUFFER_SIZE_1024MS = -15;
-    public static final int BUFFER_SIZE_2048MS = -16;
+    public static final int BUFFER_SIZE_16MS = -10;
+    public static final int BUFFER_SIZE_32MS = -11;
+    public static final int BUFFER_SIZE_48MS = -12;
+    public static final int BUFFER_SIZE_64MS = -13;
+    public static final int BUFFER_SIZE_92MS = -14;
+    public static final int BUFFER_SIZE_128MS = -15;
+    public static final int BUFFER_SIZE_256MS = -16;
+    public static final int BUFFER_SIZE_384MS = -17;
+    public static final int BUFFER_SIZE_512MS = -18;
+    public static final int BUFFER_SIZE_1024MS = -19;
+    public static final int BUFFER_SIZE_1536MS = -20;
+    public static final int BUFFER_SIZE_2048MS = -21;
 
     // Looping
     public static final int NO_LOOP = 0;
@@ -168,7 +177,7 @@ public class SoundSource implements AutoCloseable, Controllable {
     private enum NotifyType {
         OPENED, CLOSED,
         PLAYBACK_STARTED, PLAYBACK_STOPED, LOOP,
-        SPEED_CHANGED, POSITION_CHANGED, VOLUME_CHANGED, PAN_CHANGED
+        POSITION_CHANGED, SPEED_CHANGED, VOLUME_CHANGED, PAN_CHANGED
     }
 
     private void notifyListeners(NotifyType type) {
@@ -200,11 +209,12 @@ public class SoundSource implements AutoCloseable, Controllable {
     public void open(File file, int bufferSize) throws FileNotFoundException {
         logger.debug("Opening file...");
         validateFile(file); // Validate the file before processing
-        String extension = getFileExtension(file.getName()); // Get file extension
-        logger.debug("File extension: " + extension);
-        if (extension.isEmpty()) return; // Exit if no valid extension
-    
+        
         try {
+            String extension = getFileExtension(file.getName()); // Get file extension
+            logger.debug("File extension: " + extension);
+            if (extension.isEmpty()) return; // Exit if no valid extension
+    
             // Decode the audio file and initialize data
             AudioDecodeResult result = decodeAudioFile(file, extension);
             logger.debug("Initializing audio data...");
@@ -310,8 +320,11 @@ public class SoundSource implements AutoCloseable, Controllable {
             // Handle predefined buffer sizes
             double mult;
             switch (bufferSize) {
+                case BUFFER_SIZE_16MS: mult = 0.016; break;
                 case BUFFER_SIZE_32MS: mult = 0.032; break;
+                case BUFFER_SIZE_48MS: mult = 0.048; break;
                 case BUFFER_SIZE_64MS: mult = 0.064; break;
+                case BUFFER_SIZE_92MS: mult = 0.092; break;
                 case BUFFER_SIZE_128MS: mult = 0.128; break;
                 case BUFFER_SIZE_256MS: mult = 0.256; break;
                 case BUFFER_SIZE_512MS: mult = 0.512; break;
@@ -319,7 +332,7 @@ public class SoundSource implements AutoCloseable, Controllable {
                 case BUFFER_SIZE_2048MS: mult = 2.048; break;
                 default: mult = 0.512; break;
             }
-            this.bufferSize = Math.max((int) (audioFormat.getSampleRate() * audioFormat.getChannels() * mult), 4096);
+            this.bufferSize = Math.max((int) (audioFormat.getSampleRate() * mult), 4096);
         }
 
         // Set length and buffer the audio data
@@ -327,7 +340,6 @@ public class SoundSource implements AutoCloseable, Controllable {
         logger.debug("Buffer size: " + this.bufferSize);
         this.audioData = AudioBufferizer.bufferizeSamples(samples, this.bufferSize);
         buffersCount = this.audioData.length;
-        // Convert this.bufferSize in bytes, to multiplier for played audioData frgaments.
     }
     
     /**
@@ -355,6 +367,25 @@ public class SoundSource implements AutoCloseable, Controllable {
             mixer.addEffect(speedEffect); // Add effect to mixer
             logger.debug("Speed changer is attached to the mixer.");
         } catch (UnsupportedAudioEffectException ignored) {}
+
+        mixer.getPostGainControl().addListener(new AudioControlAdapter() {
+            @Override
+            public void onValueChanged(AudioControlEvent e) {
+                notifyListeners(NotifyType.VOLUME_CHANGED);
+            }
+        });
+        mixer.getPanControl().addListener(new AudioControlAdapter() {
+            @Override
+            public void onValueChanged(AudioControlEvent e) {
+                notifyListeners(NotifyType.PAN_CHANGED);
+            }
+        });
+        speedEffect.getSpeedControl().addListener(new AudioControlAdapter() {
+            @Override
+            public void onValueChanged(AudioControlEvent e) {
+                notifyListeners(NotifyType.SPEED_CHANGED);
+            }
+        });
 
         isOpen = true;
         isPlaying = false;
@@ -478,6 +509,7 @@ public class SoundSource implements AutoCloseable, Controllable {
         try {
             logger.debug("Playback loop started.");
             while (isPlaying && isOpen && !Thread.currentThread().isInterrupted() && played < buffersCount) {
+                long processNsStart = System.nanoTime();
                 if (pendingSeeking) {
                     // Short sample position changes block the thread temporarily
                     Thread.sleep(1);
@@ -503,6 +535,9 @@ public class SoundSource implements AutoCloseable, Controllable {
                     notifyListeners(NotifyType.LOOP);
                     logger.debug("Loop. Remaining loops: " + loop + "/" + loopCount + ".");
                 }
+
+                long processNsEnd = System.nanoTime();
+                GlobalPerformanceMonitor.addTimeRecord(this, processNsStart, processNsEnd);
             }
             Thread.sleep(AudioConverter.framesToMicroseconds(bufferSize / audioFormat.getFrameSize(), audioFormat) / 1000); // Wait for the last buffer to finish
             isPlaying = false; // Mark playback as stopped
@@ -847,5 +882,15 @@ public class SoundSource implements AutoCloseable, Controllable {
             return filepath.substring(index + 1); // Extract and return the extension
         }
         return ""; // Return empty string if no extension is found
+    }
+
+    @Override
+    public int getInstanceCount() {
+        return soundSourceInstances;
+    }
+
+    @Override
+    public int getCurrentInstance() {
+        return thisSoundInstance;
     }
 }
