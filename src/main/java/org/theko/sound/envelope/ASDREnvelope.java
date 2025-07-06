@@ -27,19 +27,20 @@ import org.theko.sound.control.FloatControl;
  * @see org.theko.sound.envelope.ASREnvelope
  * @see org.theko.sound.envelope.AHSDREnvelope
  * 
-  * @since v1.4.1
-* 
-* @author Theko
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class ASDREnvelope extends ASREnvelope {
+
     protected final FloatControl decay;
 
-    public ASDREnvelope(float attack, float sustain, float decay, float release) {
+    public ASDREnvelope (float attack, float sustain, float decay, float release) {
         super(attack, sustain, release);
         this.decay = new FloatControl("Decay", 0, 10, decay);
     }
 
-    public FloatControl getDecay() {
+    public FloatControl getDecay () {
         return decay;
     }
 }

@@ -28,10 +28,11 @@ package org.theko.sound.event;
  * @author Theko
  */
 public interface AudioLineListener {
-    void onOpen(AudioLineEvent e);
-    void onClose(AudioLineEvent e);
-    void onFlush(AudioLineEvent e);
-    void onDrain(AudioLineEvent e);
-    void onStart(AudioLineEvent e);
-    void onStop(AudioLineEvent e);
+
+    void onOpen (AudioLineEvent e);
+    void onClose (AudioLineEvent e);
+    void onFlush (AudioLineEvent e);
+    void onDrain (AudioLineEvent e);
+    void onStart (AudioLineEvent e);
+    void onStop (AudioLineEvent e);
 }

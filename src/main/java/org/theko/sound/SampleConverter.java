@@ -59,7 +59,7 @@ public class SampleConverter {
      * @return A 2D float array where each row represents a channel.
      * @throws IllegalArgumentException If volume array length is invalid.
      */
-    public static float[][] toSamples(byte[] data, AudioFormat audioFormat, float... volumes) {
+    public static float[][] toSamples (byte[] data, AudioFormat audioFormat, float... volumes) {
         int bytesPerSample = audioFormat.getBytesPerSample();
         boolean isBigEndian = audioFormat.isBigEndian();
         int channels = audioFormat.getChannels();
@@ -122,7 +122,7 @@ public class SampleConverter {
      * @return The encoded byte array.
      * @throws IllegalArgumentException If volume array length is invalid.
      */
-    public static byte[] fromSamples(float[][] samples, AudioFormat targetFormat, float... volumes) {
+    public static byte[] fromSamples (float[][] samples, AudioFormat targetFormat, float... volumes) {
         int samplesLength = samples[0].length;
         int bytesPerSample = targetFormat.getBytesPerSample();
         boolean isBigEndian = targetFormat.isBigEndian();
@@ -174,7 +174,7 @@ public class SampleConverter {
         return data;
     }
     
-    private static float ulawToFloat(ByteBuffer buffer) {
+    private static float ulawToFloat (ByteBuffer buffer) {
         int ulawByte = buffer.get() & 0xFF;
         int sign = (ulawByte & 0x80) != 0 ? -1 : 1;
         int exponent = (ulawByte >> 4) & 0x07;
@@ -184,7 +184,7 @@ public class SampleConverter {
         return Math.max(-1.0f, Math.min(1.0f, sign * sample / 2147483648.0f));  // Return normalized value
     }
 
-    private static float alawToFloat(ByteBuffer buffer) {
+    private static float alawToFloat (ByteBuffer buffer) {
         int alawByte = buffer.get() & 0xFF;
         int sign = (alawByte & 0x80) != 0 ? -1 : 1;
         int exponent = (alawByte >> 4) & 0x07;
@@ -194,7 +194,7 @@ public class SampleConverter {
         return Math.max(-1.0f, Math.min(1.0f, sign * sample / 32768.0f));  // Return normalized value
     }
 
-    private static void floatToUlaw(ByteBuffer buffer, float sample) {
+    private static void floatToUlaw (ByteBuffer buffer, float sample) {
         sample = Math.max(-1.0f, Math.min(1.0f, sample));
         sample *= 32768.0f;
 
@@ -211,7 +211,7 @@ public class SampleConverter {
         buffer.put((byte) (sign | (exponent << 4) | mantissa));
     }
 
-    private static void floatToAlaw(ByteBuffer buffer, float sample) {
+    private static void floatToAlaw (ByteBuffer buffer, float sample) {
         sample = Math.max(-1.0f, Math.min(1.0f, sample));
         sample *= 32768.0f;
 
@@ -228,7 +228,7 @@ public class SampleConverter {
         buffer.put((byte) (sign | (exponent << 4) | mantissa));
     }
 
-    private static float unsignedToFloat(ByteBuffer buffer, int bytesPerSample) {
+    private static float unsignedToFloat (ByteBuffer buffer, int bytesPerSample) {
         long value = 0;
         for (int i = 0; i < bytesPerSample; i++) {
             value = (value << 8) | (buffer.get() & 0xFF);
@@ -236,7 +236,7 @@ public class SampleConverter {
         return (float) value / ((1L << (bytesPerSample * 8)) - 1);
     }
 
-    private static float signedToFloat(ByteBuffer buffer, int bytesPerSample) {
+    private static float signedToFloat (ByteBuffer buffer, int bytesPerSample) {
         long value = 0;
         switch (bytesPerSample) {
             case 1:
@@ -272,7 +272,7 @@ public class SampleConverter {
         return (float) value / max;
     }
 
-    private static void floatToUnsigned(ByteBuffer buffer, float sample, int bytesPerSample) {
+    private static void floatToUnsigned (ByteBuffer buffer, float sample, int bytesPerSample) {
         sample = Math.max(0f, Math.min(1f, sample));
         long value = (long) (sample * ((1L << (bytesPerSample * 8)) - 1));
         for (int i = bytesPerSample - 1; i >= 0; i--) {
@@ -280,7 +280,7 @@ public class SampleConverter {
         }
     }
 
-    private static void floatToSigned(ByteBuffer buffer, float sample, int bytesPerSample) {
+    private static void floatToSigned (ByteBuffer buffer, float sample, int bytesPerSample) {
         sample = Math.max(-1.0f, Math.min(1.0f, sample));
         
         // Calculate max value based on sample size

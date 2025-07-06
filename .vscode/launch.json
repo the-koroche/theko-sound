@@ -10,7 +10,7 @@
             "name": "Current File",
             "request": "launch",
             "mainClass": "${file}",
-            "vmArgs": "-Dorg.slf4j.simpleLogger.defaultLogLevel=debug -Dorg.theko.sound.AudioClassLoader.exclude_custom=true"
+            "vmArgs": "-Dorg.slf4j.simpleLogger.defaultLogLevel=debug -Dorg.theko.sound.AudioClassScanner.exclude_custom=false"
         },
         {
             "type": "java",
@@ -18,7 +18,7 @@
             "request": "launch",
             "mainClass": "test.SoundWithEffectTest",
             "projectName": "theko-sound",
-            "vmArgs": "-Dorg.slf4j.simpleLogger.defaultLogLevel=debug -Dorg.theko.sound.AudioClassLoader.exclude_custom=true"
+            "vmArgs": "-Dorg.slf4j.simpleLogger.defaultLogLevel=debug -Dorg.theko.sound.AudioClassScanner.exclude_custom=true"
         },
         {
             "type": "java",

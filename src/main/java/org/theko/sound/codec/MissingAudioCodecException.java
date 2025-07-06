@@ -12,6 +12,7 @@ package org.theko.sound.codec;
  * @author Theko
  */
 public class MissingAudioCodecException extends RuntimeException {
+    
     public MissingAudioCodecException () {
         super();
     }

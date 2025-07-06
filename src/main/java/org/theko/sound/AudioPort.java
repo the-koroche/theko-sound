@@ -18,7 +18,7 @@ package org.theko.sound;
  * 
  * @author Theko
  */
-public class AudioPort implements AudioObject {
+public class AudioPort {
     
     private final String name;        // The name of the audio port
     private final String vendor;      // The vendor associated with the port
@@ -35,7 +35,7 @@ public class AudioPort implements AudioObject {
      * @param version The version of the port.
      * @param description A description providing details about the port.
      */
-    public AudioPort(AudioFlow flow, String name, String vendor, String version, String description) {
+    public AudioPort (AudioFlow flow, String name, String vendor, String version, String description) {
         this.name = name;
         this.vendor = vendor;
         this.version = version;
@@ -48,7 +48,7 @@ public class AudioPort implements AudioObject {
      * 
      * @return The name of the port.
      */
-    public String getName() {
+    public String getName () {
         return name;
     }
 
@@ -57,7 +57,7 @@ public class AudioPort implements AudioObject {
      * 
      * @return The vendor of the port.
      */
-    public String getVendor() {
+    public String getVendor () {
         return vendor;
     }
 
@@ -66,7 +66,7 @@ public class AudioPort implements AudioObject {
      * 
      * @return The version of the port.
      */
-    public String getVersion() {
+    public String getVersion () {
         return version;
     }
 
@@ -75,7 +75,7 @@ public class AudioPort implements AudioObject {
      * 
      * @return The description of the port.
      */
-    public String getDescription() {
+    public String getDescription () {
         return description;
     }
 
@@ -84,7 +84,7 @@ public class AudioPort implements AudioObject {
      * 
      * @return The flow type of the port (AudioFlow).
      */
-    public AudioFlow getFlow() {
+    public AudioFlow getFlow () {
         return flow;
     }
 
@@ -95,7 +95,7 @@ public class AudioPort implements AudioObject {
      * @return A string that represents the audio port.
      */
     @Override
-    public String toString() {
+    public String toString () {
         return "AudioPort {" + flow.toString() + ", Name: " + name + ", Vendor: " + vendor + ", Version: " + version + "}";
     }
 }

@@ -28,6 +28,7 @@ import org.theko.sound.AudioPort;
  * @author Theko
  */
 public interface AudioOutputBackend extends AudioBackend, AutoCloseable {
+
     /**
      * Opens the audio output backend with the specified audio port, format, and buffer size.
      *
@@ -36,7 +37,7 @@ public interface AudioOutputBackend extends AudioBackend, AutoCloseable {
      * @param bufferSize The size of the buffer for audio data.
      * @throws AudioBackendException If an error occurs while opening the backend.
      */
-    void open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException;
+    void open (AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException;
     /**
      * Opens the audio output backend with the specified audio port and format.
      *
@@ -44,44 +45,44 @@ public interface AudioOutputBackend extends AudioBackend, AutoCloseable {
      * @param audioFormat The {@link AudioFormat} for audio data.
      * @throws AudioBackendException If an error occurs while opening the backend.
      */
-    void open(AudioPort port, AudioFormat audioFormat) throws AudioBackendException;
+    void open (AudioPort port, AudioFormat audioFormat) throws AudioBackendException;
     /**
      * Checks if the audio output backend is currently open.
      *
      * @return {@code true} if the backend is open, {@code false} otherwise.
      * @throws AudioBackendException If an error occurs during the operation.
      */
-    boolean isOpen() throws AudioBackendException;
+    boolean isOpen () throws AudioBackendException;
     /**
      * Closes the audio output backend and releases resources.
      *
      * @throws AudioBackendException If an error occurs while closing the backend.
      */
-    void close() throws AudioBackendException;
+    void close () throws AudioBackendException;
     /**
      * Starts audio output operations on the backend.
      *
      * @throws AudioBackendException If an error occurs while starting the backend.
      */
-    void start() throws AudioBackendException;
+    void start () throws AudioBackendException;
     /**
      * Stops audio output operations on the backend.
      *
      * @throws AudioBackendException If an error occurs while stopping the backend.
      */
-    void stop() throws AudioBackendException;
+    void stop () throws AudioBackendException;
     /**
      * Flushes the audio output buffer to force immediate output.
      *
      * @throws AudioBackendException If an error occurs while flushing the buffer.
      */
-    void flush() throws AudioBackendException;
+    void flush () throws AudioBackendException;
     /**
      * Drains the audio output buffer to force all buffered data to be output.
      *
      * @throws AudioBackendException If an error occurs while draining the buffer.
      */
-    void drain() throws AudioBackendException;
+    void drain () throws AudioBackendException;
     /**
      * Writes audio data into the backend.
      *
@@ -91,14 +92,14 @@ public interface AudioOutputBackend extends AudioBackend, AutoCloseable {
      * @return The number of bytes successfully written.
      * @throws AudioBackendException If an error occurs while writing data.
      */
-    int write(byte[] data, int offset, int length) throws AudioBackendException;
+    int write (byte[] data, int offset, int length) throws AudioBackendException;
     /**
      * Returns the amount of free space in the audio output buffer.
      *
      * @return The number of bytes available in the buffer.
      * @throws AudioBackendException If an error occurs while retrieving the available space.
      */
-    int available() throws AudioBackendException;
+    int available () throws AudioBackendException;
 
     /**
      * Returns the size of the audio output buffer.
@@ -106,7 +107,7 @@ public interface AudioOutputBackend extends AudioBackend, AutoCloseable {
      * @return The size of the buffer.
      * @throws AudioBackendException If an error occurs while retrieving the buffer size.
      */
-    int getBufferSize() throws AudioBackendException;
+    int getBufferSize () throws AudioBackendException;
 
     /**
      * Returns the current frame position in the audio output stream.
@@ -114,14 +115,14 @@ public interface AudioOutputBackend extends AudioBackend, AutoCloseable {
      * @return The current frame position.
      * @throws AudioBackendException If an error occurs while retrieving the frame position.
      */
-    long getFramePosition() throws AudioBackendException;
+    long getFramePosition () throws AudioBackendException;
     /**
      * Returns the current position in the audio output stream in microseconds.
      *
      * @return The current position in microseconds.
      * @throws AudioBackendException If an error occurs while retrieving the position.
      */
-    long getMicrosecondPosition() throws AudioBackendException;
+    long getMicrosecondPosition () throws AudioBackendException;
 
     /**
      * Returns the current latency in the audio output stream in microseconds.
@@ -129,13 +130,13 @@ public interface AudioOutputBackend extends AudioBackend, AutoCloseable {
      * @return The current latency in microseconds.
      * @throws AudioBackendException If an error occurs while retrieving the latency.
      */
-    long getMicrosecondLatency() throws AudioBackendException;
+    long getMicrosecondLatency () throws AudioBackendException;
     /**
      * Returns the currently active audio port.
      *
      * @return The currently active audio port.
      * @throws AudioBackendException If an error occurs while retrieving the current port.
      */
-    AudioPort getCurrentAudioPort() throws AudioBackendException;
+    AudioPort getCurrentAudioPort () throws AudioBackendException;
 }
 

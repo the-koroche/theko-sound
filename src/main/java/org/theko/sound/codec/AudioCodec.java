@@ -12,7 +12,7 @@ import org.theko.sound.AudioFormat;
  * It provides methods for encoding and decoding audio data, as well as utility methods
  * to measure and log the elapsed time for these operations.
  *
- * <p>Subclasses must implement the {@link #decode(InputStream)} and {@link #encode(byte[], AudioFormat, List)}
+ * <p>Subclasses must implement the {@link #innerDecode(InputStream)} and {@link #innerEncode(byte[], AudioFormat, List)}
  * methods to provide specific codec functionality. Additionally, subclasses must provide
  * codec-specific information via the {@link #getInfo()} method.</p>
  *
@@ -25,7 +25,7 @@ import org.theko.sound.AudioFormat;
  * try (InputStream is = new FileInputStream("audiofile.wav")) {
  *     AudioDecodeResult result = codec.callDecode(is);
  *     // Process decoded audio data
- * } catch (AudioCodecException | IOException e) {
+ * } catch (AudioCodecException | IOException ex) {
  *     e.printStackTrace();
  * }
  * }</pre>
@@ -35,11 +35,12 @@ import org.theko.sound.AudioFormat;
  * @author Theko
  */
 public abstract class AudioCodec {
+
     private static final Logger logger = LoggerFactory.getLogger(AudioCodec.class);
 
 
-    protected abstract AudioDecodeResult decode(InputStream is) throws AudioCodecException;
-    protected abstract AudioEncodeResult encode(byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException;
+    protected abstract AudioDecodeResult innerDecode (InputStream is) throws AudioCodecException;
+    protected abstract AudioEncodeResult innerEncode (byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException;
 
     /**
      * Calls the decode method and logs the elapsed time.
@@ -50,9 +51,9 @@ public abstract class AudioCodec {
      * @throws AudioCodecException
      *             if the input stream is not a valid audio file for this codec
      */
-    public AudioDecodeResult callDecode(InputStream is) throws AudioCodecException {
+    public AudioDecodeResult decode (InputStream is) throws AudioCodecException {
         long startNs = System.nanoTime();
-        AudioDecodeResult adr = decode(is);
+        AudioDecodeResult adr = innerDecode(is);
         long endNs = System.nanoTime();
         logger.debug("Elapsed decoding time: " + (endNs - startNs) + " ns.");
         return adr;
@@ -69,13 +70,13 @@ public abstract class AudioCodec {
      *
      * @throws AudioCodecException if there is an error encoding the data
      */
-    public AudioEncodeResult callEncode(byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException {
+    public AudioEncodeResult encode (byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException {
         long startNs = System.nanoTime();
-        AudioEncodeResult aer = encode(data, format, tags);
+        AudioEncodeResult aer = innerEncode(data, format, tags);
         long endNs = System.nanoTime();
         logger.debug("Elapsed encoding time: " + (endNs - startNs) + " ns.");
         return aer;
     }
 
-    public abstract AudioCodecInfo getInfo();
+    public abstract AudioCodecInfo getInfo ();
 }

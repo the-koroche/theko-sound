@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.theko.sound.AudioClassLoader;
+import org.theko.sound.AudioClassScanner;
 
 /**
  * The {@code AudioCodecs} class is responsible for managing and providing access to audio codec information.
@@ -31,7 +31,7 @@ import org.theko.sound.AudioClassLoader;
  *   <li>{@code AudioCodec}: The interface or base class for audio codecs.</li>
  *   <li>{@code AudioCodecType}: Annotation used to mark audio codec classes.</li>
  *   <li>{@code AudioCodecInfo}: A class encapsulating metadata about an audio codec.</li>
- *   <li>{@code AudioClassLoader}: A utility class for discovering available codecs.</li>
+ *   <li>{@code AudioClassScanner}: A utility class for discovering available codecs.</li>
  *   <li>Custom exceptions such as {@code AudioCodecNotFoundException} and {@code AudioCodecCreationException}.</li>
  * </ul>
  * 
@@ -44,6 +44,7 @@ import org.theko.sound.AudioClassLoader;
  * @author Theko
  */
 public class AudioCodecs {
+
     private static final Logger logger = LoggerFactory.getLogger(AudioCodecs.class);
 
     // A collection to hold all registered audio codecs
@@ -53,16 +54,18 @@ public class AudioCodecs {
         registerCodecs();
     }
 
-    private AudioCodecs() { }
+    private AudioCodecs() {
+        throw new UnsupportedOperationException("This class cannot be instantiated.");
+    }
 
     /**
      * Register all audio codecs that are annotated with AudioCodecType
      */
-    private static void registerCodecs() {
+    private static void registerCodecs () {
         logger.debug("Registering audio codecs...");
         // Use Reflections to find all classes implementing AudioCodec
         audioCodecs.clear();
-        Set<Class<? extends AudioCodec>> allAudioCodecs = AudioClassLoader.getAvailableCodecs();
+        Set<Class<? extends AudioCodec>> allAudioCodecs = AudioClassScanner.getCodecClasses();
 
         for (Class<? extends AudioCodec> audioCodecClass : allAudioCodecs) {
             if (audioCodecClass.isAnnotationPresent(AudioCodecType.class)) {
@@ -78,7 +81,7 @@ public class AudioCodecs {
     /**
      * Get an AudioCodecInfo by its name
      */
-    public static AudioCodecInfo fromName(String name) throws AudioCodecNotFoundException {
+    public static AudioCodecInfo fromName (String name) throws AudioCodecNotFoundException {
         for (AudioCodecInfo audioCodec : audioCodecs) {
             if (audioCodec.getName().equalsIgnoreCase(name)) {
                 return audioCodec;
@@ -92,7 +95,7 @@ public class AudioCodecs {
      * Get an AudioCodecInfo by its exception
      * @param name File extension without a dot or an asterisk.
      */
-    public static AudioCodecInfo fromExtension(String extension) throws AudioCodecNotFoundException {
+    public static AudioCodecInfo fromExtension (String extension) throws AudioCodecNotFoundException {
         for (AudioCodecInfo audioCodec : audioCodecs) {
             if (audioCodec.getExtension().equalsIgnoreCase(extension)) {
                 return audioCodec;
@@ -102,20 +105,20 @@ public class AudioCodecs {
         throw new AudioCodecNotFoundException("No audio codecs found by extension: '" + extension + "'.");
     }
 
-    public static AudioCodec getCodec(AudioCodecInfo codecInfo) throws AudioCodecCreationException {
+    public static AudioCodec getCodec (AudioCodecInfo codecInfo) throws AudioCodecCreationException {
         try {
             return codecInfo.getCodecClass().getConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException e) {
-            logger.error(e.getMessage());
-            throw new AudioCodecCreationException(e);
+                | NoSuchMethodException | SecurityException ex) {
+            logger.error(ex.getMessage());
+            throw new AudioCodecCreationException(ex);
         }
     }
 
     /**
      * Get all registered audio codecs
      */
-    public static Collection<AudioCodecInfo> getAllCodecs() {
+    public static Collection<AudioCodecInfo> getAllCodecs () {
         return audioCodecs;
     }
 }

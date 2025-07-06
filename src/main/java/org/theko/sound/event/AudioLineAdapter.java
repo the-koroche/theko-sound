@@ -30,10 +30,11 @@ package org.theko.sound.event;
  * @author Theko
  */
 public class AudioLineAdapter implements AudioLineListener {
-    @Override public void onOpen(AudioLineEvent e) { }
-    @Override public void onClose(AudioLineEvent e) { }
-    @Override public void onFlush(AudioLineEvent e) { }
-    @Override public void onDrain(AudioLineEvent e) { }
-    @Override public void onStart(AudioLineEvent e) { }
-    @Override public void onStop(AudioLineEvent e) { }
+
+    @Override public void onOpen (AudioLineEvent e) { }
+    @Override public void onClose (AudioLineEvent e) { }
+    @Override public void onFlush (AudioLineEvent e) { }
+    @Override public void onDrain (AudioLineEvent e) { }
+    @Override public void onStart (AudioLineEvent e) { }
+    @Override public void onStop (AudioLineEvent e) { }
 }

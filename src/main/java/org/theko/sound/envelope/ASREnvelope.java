@@ -26,14 +26,15 @@ import org.theko.sound.control.FloatControl;
  * @see org.theko.sound.envelope.AREnvelope
  * @see org.theko.sound.envelope.ASDREnvelope
  * 
-  * @since v1.4.1
-* 
-* @author Theko
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class ASREnvelope extends AREnvelope {
+
     protected final FloatControl sustain;
 
-    public ASREnvelope(float attack, float sustain, float release) {
+    public ASREnvelope (float attack, float sustain, float release) {
         super(attack, release);
         this.sustain = new FloatControl("Sustaiun", 0, 10, sustain);
     }
@@ -43,7 +44,7 @@ public class ASREnvelope extends AREnvelope {
      * 
      * @return A FloatControl representing the sustain phase of the envelope.
      */
-    public FloatControl getSustain() {
+    public FloatControl getSustain () {
         return sustain;
     }
 }

@@ -26,11 +26,12 @@ import org.theko.sound.control.FloatControl;
  * @see org.theko.sound.control.Controllable
  * @see org.theko.sound.envelope.ASREnvelope
  * 
-  * @since v1.4.1
-* 
-* @author Theko
+ * @since v1.4.1
+ * 
+ * @author Theko
  */
 public class AREnvelope implements Controllable {
+
     protected final FloatControl attack, release;
 
     public AREnvelope (float attack, float release) {
@@ -43,7 +44,7 @@ public class AREnvelope implements Controllable {
      * 
      * @return A FloatControl representing the attack phase of the envelope.
      */
-    public FloatControl getAttack() {
+    public FloatControl getAttack () {
         return attack;
     }
 
@@ -52,7 +53,7 @@ public class AREnvelope implements Controllable {
      * 
      * @return A FloatControl representing the release phase of the envelope.
      */
-    public FloatControl getRelease() {
+    public FloatControl getRelease () {
         return release;
     }
 }

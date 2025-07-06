@@ -10,5 +10,6 @@ package org.theko.sound.resampling;
  * @author Theko
  */
 public interface ResampleMethod {
-    float[] resample(float[] input, int targetLength, int quality);
+    
+    float[] resample (float[] input, int targetLength, int quality);
 }

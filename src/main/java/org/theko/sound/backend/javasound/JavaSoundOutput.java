@@ -63,7 +63,7 @@ public class JavaSoundOutput extends JavaSoundBackend implements AudioOutputBack
     private AudioPort currentPort;
 
     @Override
-    public void open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException {
+    public void open (AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException {
         try {
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, getJavaSoundAudioFormat(audioFormat), bufferSize);
             Mixer mixer = getMixerForPort(port);
@@ -76,23 +76,23 @@ public class JavaSoundOutput extends JavaSoundBackend implements AudioOutputBack
             sourceDataLine.open(getJavaSoundAudioFormat(audioFormat), bufferSize);
             this.currentPort = port;
             open = true;
-        } catch (LineUnavailableException | UnsupportedAudioFormatException e) {
-            throw new AudioBackendException("Failed to open audio output line.", e);
+        } catch (LineUnavailableException | UnsupportedAudioFormatException ex) {
+            throw new AudioBackendException("Failed to open audio output line.", ex);
         }
     }
 
     @Override
-    public void open(AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
+    public void open (AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
         open(port, audioFormat, audioFormat.getByteRate() / 5);
     }
 
     @Override
-    public boolean isOpen() {
+    public boolean isOpen () {
         return open && sourceDataLine != null && sourceDataLine.isOpen();
     }
 
     @Override
-    public void close() throws AudioBackendException {
+    public void close () throws AudioBackendException {
         if (sourceDataLine != null) {
             sourceDataLine.close();
             open = false;
@@ -100,7 +100,7 @@ public class JavaSoundOutput extends JavaSoundBackend implements AudioOutputBack
     }
 
     @Override
-    public void start() throws AudioBackendException {
+    public void start () throws AudioBackendException {
         if (!isOpen()) {
             throw new AudioBackendException("Cannot start. Backend is not open.");
         }
@@ -108,28 +108,28 @@ public class JavaSoundOutput extends JavaSoundBackend implements AudioOutputBack
     }
 
     @Override
-    public void stop() throws AudioBackendException {
+    public void stop () throws AudioBackendException {
         if (isOpen()) {
             sourceDataLine.stop();
         }
     }
 
     @Override
-    public void flush() throws AudioBackendException {
+    public void flush () throws AudioBackendException {
         if (isOpen()) {
             sourceDataLine.flush();
         }
     }
 
     @Override
-    public void drain() throws AudioBackendException {
+    public void drain () throws AudioBackendException {
         if (isOpen()) {
             sourceDataLine.drain();
         }
     }
 
     @Override
-    public int write(byte[] data, int offset, int length) throws AudioBackendException {
+    public int write (byte[] data, int offset, int length) throws AudioBackendException {
         if (!isOpen()) {
             throw new AudioBackendException("Cannot write. Backend is not open.");
         }
@@ -137,7 +137,7 @@ public class JavaSoundOutput extends JavaSoundBackend implements AudioOutputBack
     }
 
     @Override
-    public int available() throws AudioBackendException {
+    public int available () throws AudioBackendException {
         if (!isOpen()) {
             throw new AudioBackendException("Cannot check availability. Backend is not open.");
         }
@@ -145,7 +145,7 @@ public class JavaSoundOutput extends JavaSoundBackend implements AudioOutputBack
     }
 
     @Override
-    public int getBufferSize() throws AudioBackendException {
+    public int getBufferSize () throws AudioBackendException {
         if (!isOpen()) {
             throw new AudioBackendException("Cannot get buffer size. Backend is not open.");
         }
@@ -153,7 +153,7 @@ public class JavaSoundOutput extends JavaSoundBackend implements AudioOutputBack
     }
 
     @Override
-    public long getFramePosition() throws AudioBackendException {
+    public long getFramePosition () throws AudioBackendException {
         if (!isOpen()) {
             throw new AudioBackendException("Cannot get frame position. Backend is not open.");
         }
@@ -161,7 +161,7 @@ public class JavaSoundOutput extends JavaSoundBackend implements AudioOutputBack
     }
 
     @Override
-    public long getMicrosecondPosition() throws AudioBackendException {
+    public long getMicrosecondPosition () throws AudioBackendException {
         if (!isOpen()) {
             throw new AudioBackendException("Cannot get microsecond position. Backend is not open.");
         }
@@ -169,7 +169,7 @@ public class JavaSoundOutput extends JavaSoundBackend implements AudioOutputBack
     }
 
     @Override
-    public long getMicrosecondLatency() throws AudioBackendException {
+    public long getMicrosecondLatency () throws AudioBackendException {
         if (!isOpen()) {
             throw new AudioBackendException("Cannot get latency. Backend is not open.");
         }
@@ -177,7 +177,7 @@ public class JavaSoundOutput extends JavaSoundBackend implements AudioOutputBack
     }
 
     @Override
-    public AudioPort getCurrentAudioPort() {
+    public AudioPort getCurrentAudioPort () {
         return currentPort;
     }
 }

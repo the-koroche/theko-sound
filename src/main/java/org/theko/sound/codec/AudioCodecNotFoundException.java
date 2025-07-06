@@ -14,6 +14,7 @@ package org.theko.sound.codec;
  * @author Theko
  */
 public class AudioCodecNotFoundException extends AudioCodecException {
+    
     public AudioCodecNotFoundException () {
         super();
     }

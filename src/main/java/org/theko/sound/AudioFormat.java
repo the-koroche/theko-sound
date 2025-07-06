@@ -1,5 +1,6 @@
 package org.theko.sound;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -33,12 +34,13 @@ import java.util.Objects;
  * 
  * @author Theko
  */
-public class AudioFormat implements AudioObject {
+public class AudioFormat implements Serializable {
+    
     public static final AudioFormat LOWEST_QUALITY_FORMAT = 
         new AudioFormat(8000, 8, 1, Encoding.PCM_UNSIGNED, false);
-    public static final AudioFormat LOWE_QUALITY_FORMAT = 
+    public static final AudioFormat LOW_QUALITY_FORMAT = 
         new AudioFormat(22500, 8, 1, Encoding.PCM_UNSIGNED, false);
-    public static final AudioFormat MEDIUM_QUALITY_FORMAT = 
+    public static final AudioFormat NORMAL_QUALITY_FORMAT = 
         new AudioFormat(44100, 16, 2, Encoding.PCM_SIGNED, false);
     public static final AudioFormat HIGH_QUALITY_FORMAT = 
         new AudioFormat(48000, 16, 2, Encoding.PCM_SIGNED, false);
@@ -76,7 +78,7 @@ public class AudioFormat implements AudioObject {
      * @param bigEndian     True for big-endian byte order, false for little-endian.
      * @throws IllegalArgumentException if any parameter is invalid.
      */
-    public AudioFormat(int sampleRate, int bitsPerSample, int channels, Encoding encoding, boolean bigEndian) {
+    public AudioFormat (int sampleRate, int bitsPerSample, int channels, Encoding encoding, boolean bigEndian) {
         this(sampleRate, bitsPerSample, channels, encoding, bigEndian, 
              (bitsPerSample / 8) * channels, 
              sampleRate * ((bitsPerSample / 8) * channels));
@@ -94,7 +96,7 @@ public class AudioFormat implements AudioObject {
      * @param byteRate      Bytes per second.
      * @throws IllegalArgumentException if any parameter is invalid.
      */
-    public AudioFormat(int sampleRate, int bitsPerSample, int channels, Encoding encoding, boolean bigEndian, int frameSize, int byteRate) {
+    public AudioFormat (int sampleRate, int bitsPerSample, int channels, Encoding encoding, boolean bigEndian, int frameSize, int byteRate) {
         if (sampleRate <= 0 || bitsPerSample <= 0 || channels <= 0 || frameSize <= 0 || byteRate <= 0) {
             throw new IllegalArgumentException("Invalid audio format parameters");
         }
@@ -113,41 +115,41 @@ public class AudioFormat implements AudioObject {
 
     // Getters
     /** @return The sample rate in Hz. */
-    public int getSampleRate() { return sampleRate; }
+    public int getSampleRate () { return sampleRate; }
 
     /** @return Bits per sample. */
-    public int getBitsPerSample() { return bitsPerSample; }
+    public int getBitsPerSample () { return bitsPerSample; }
 
     /** @return Bytes per sample. */
-    public int getBytesPerSample() { return bitsPerSample / 8; }
+    public int getBytesPerSample () { return bitsPerSample / 8; }
 
     /** @return The number of audio channels. */
-    public int getChannels() { return channels; }
+    public int getChannels () { return channels; }
 
     /** @return The encoding type. */
-    public Encoding getEncoding() { return encoding; }
+    public Encoding getEncoding () { return encoding; }
 
     /** @return True if big-endian, false if little-endian. */
-    public boolean isBigEndian() { return bigEndian; }
+    public boolean isBigEndian () { return bigEndian; }
 
     /** @return Bytes per frame. */
-    public int getFrameSize() { return frameSize; }
+    public int getFrameSize () { return frameSize; }
 
     /** @return Bytes per second. */
-    public int getByteRate() { return byteRate; }
+    public int getByteRate () { return byteRate; }
 
     // Utility methods
     /** @return True if stereo (2 channels). */
-    public boolean isStereo() { return channels == 2; }
+    public boolean isStereo () { return channels == 2; }
 
     /** @return True if mono (1 channel). */
-    public boolean isMono() { return channels == 1; }
+    public boolean isMono () { return channels == 1; }
 
     /** @return True if bit depth is greater than 16-bit (high resolution). */
-    public boolean isHighResolution() { return bitsPerSample > 16; }
+    public boolean isHighResolution () { return bitsPerSample > 16; }
 
     /** @return True if the format is lossless (PCM-based encoding). */
-    public boolean isLossless() {
+    public boolean isLossless () {
         return encoding == Encoding.PCM_SIGNED || encoding == Encoding.PCM_UNSIGNED || encoding == Encoding.PCM_FLOAT;
     }
 
@@ -157,7 +159,7 @@ public class AudioFormat implements AudioObject {
      * @param other Another AudioFormat instance.
      * @return True if the formats match, false otherwise.
      */
-    public boolean isSameFormat(AudioFormat other) {
+    public boolean isSameFormat (AudioFormat other) {
         return this.sampleRate == other.sampleRate &&
                 this.bitsPerSample == other.bitsPerSample &&
                 this.channels == other.channels &&
@@ -173,7 +175,7 @@ public class AudioFormat implements AudioObject {
      * @param newEncoding The new encoding.
      * @return A new AudioFormat instance with the specified encoding.
      */
-    public AudioFormat convertTo(Encoding newEncoding) {
+    public AudioFormat convertTo (Encoding newEncoding) {
         return new AudioFormat(sampleRate, bitsPerSample, channels, newEncoding, bigEndian, frameSize, byteRate);
     }
 
@@ -183,19 +185,19 @@ public class AudioFormat implements AudioObject {
      * @param newEndian True for big-endian, false for little-endian.
      * @return A new AudioFormat instance with the specified endianness.
      */
-    public AudioFormat withEndian(boolean newEndian) {
+    public AudioFormat withEndian (boolean newEndian) {
         return new AudioFormat(sampleRate, bitsPerSample, channels, encoding, newEndian, frameSize, byteRate);
     }
 
     // Overridden methods
     @Override
-    public String toString() {
+    public String toString () {
         return String.format("AudioFormat[%d Hz, %d-bit, %d channels, %s, %s-endian, %.2f KB/s]", 
                 sampleRate, bitsPerSample, channels, encoding, bigEndian ? "big" : "little", byteRate / 1024.0);
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals (Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         AudioFormat other = (AudioFormat) obj;
@@ -203,7 +205,7 @@ public class AudioFormat implements AudioObject {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode () {
         return Objects.hash(sampleRate, bitsPerSample, channels, encoding, bigEndian, frameSize, byteRate);
     }
 }

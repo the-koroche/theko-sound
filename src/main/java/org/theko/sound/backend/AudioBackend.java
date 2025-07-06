@@ -46,6 +46,7 @@ import org.theko.sound.AudioFormat.Encoding;
  * @author Theko
  */
 public interface AudioBackend {
+
     /**
      * Initializes the audio backend. This default implementation does nothing,
      * and it is expected that implementers override this method if initialization
@@ -53,7 +54,7 @@ public interface AudioBackend {
      *
      * @throws AudioBackendException if an error occurs during initialization.
      */
-    default void initialize() throws AudioBackendException {
+    default void initialize () throws AudioBackendException {
         // No default initialization logic provided.
     }
 
@@ -64,7 +65,7 @@ public interface AudioBackend {
      *
      * @throws AudioBackendException if an error occurs during shutdown.
      */
-    default void shutdown() throws AudioBackendException {
+    default void shutdown () throws AudioBackendException {
         // No default shutdown logic provided.
     }
 
@@ -74,7 +75,7 @@ public interface AudioBackend {
      *
      * @return a collection of all {@link AudioPort}s available on the backend.
      */
-    Collection<AudioPort> getAllPorts();
+    Collection<AudioPort> getAllPorts ();
 
     /**
      * Returns a collection of audio ports that are compatible with the specified
@@ -86,7 +87,7 @@ public interface AudioBackend {
      * @throws AudioPortsNotFoundException if no ports are found for the given flow.
      * @throws UnsupportedAudioFormatException if the format is not supported by the backend or ports.
      */
-    Collection<AudioPort> getAvailablePorts(AudioFlow flow, AudioFormat audioFormat)
+    Collection<AudioPort> getAvailablePorts (AudioFlow flow, AudioFormat audioFormat)
         throws AudioPortsNotFoundException, UnsupportedAudioFormatException;
 
     /**
@@ -96,7 +97,7 @@ public interface AudioBackend {
      * @param audioFormat the audio format to test compatibility for.
      * @return {@code true} if the port supports the specified format; {@code false} otherwise.
      */
-    boolean isPortSupporting(AudioPort port, AudioFormat audioFormat);
+    boolean isPortSupporting (AudioPort port, AudioFormat audioFormat);
     
 
     /**
@@ -109,20 +110,12 @@ public interface AudioBackend {
      * @param port the {@link AudioPort} whose format is requested.
      * @return the {@link AudioFormat} for the given port, or {@code null} if no compatible format is found.
      */
-    default AudioFormat getFormatForPort(AudioPort port) {
-        // Define common sample rates in Hz
+    default AudioFormat getFormatForPort (AudioPort port) {
         int[] sampleRates = {48000, 44100, 22500, 8000};
-        
-        // Define common bit depths in bits per sample
         int[] bitDepths = {32, 24, 16, 8};
-        
-        // Define common channel configurations (stereo or mono)
         int[] channels = {2, 1};
-        
-        // Define supported audio encodings
         Encoding[] encodings = {Encoding.PCM_FLOAT, Encoding.PCM_SIGNED, Encoding.PCM_UNSIGNED};
 
-        // Create a list to store generated audio formats
         List<AudioFormat> sortedFormats = new ArrayList<>();
         
         // Generate combinations of audio format properties
@@ -136,22 +129,19 @@ public interface AudioBackend {
                         if (bits == 8 && (enc == Encoding.PCM_FLOAT || (enc == Encoding.PCM_SIGNED && ch == 2))) continue;
                         if (enc == Encoding.PCM_FLOAT && bits != 32) continue;
 
-                        // Add the valid audio format to the list
                         sortedFormats.add(new AudioFormat(rate, bits, ch, enc, false));
                     }
                 }
             }
         }
 
-        // Iterate over generated formats to find a compatible one
         for (AudioFormat current : sortedFormats) {
-            // Check if the current format is supported by the port
             if (isPortSupporting(port, current)) {
-                return current; // Return the first compatible format found
+                return current;
             }
         }
 
-        // Return null if no compatible format is found
+        // No compatible format found
         return null;
     }
 
@@ -164,7 +154,7 @@ public interface AudioBackend {
      * @throws AudioPortsNotFoundException if no matching ports are available.
      * @throws UnsupportedAudioFormatException if the given format is not supported.
      */
-    Optional<AudioPort> getDefaultPort(AudioFlow flow, AudioFormat audioFormat)
+    Optional<AudioPort> getDefaultPort (AudioFlow flow, AudioFormat audioFormat)
         throws AudioPortsNotFoundException, UnsupportedAudioFormatException;
 
     /**
@@ -173,7 +163,7 @@ public interface AudioBackend {
      *
      * @return an {@link AudioInputBackend} representing the input side of this backend.
      */
-    AudioInputBackend getInputBackend();
+    AudioInputBackend getInputBackend ();
 
     /**
      * Returns the output backend associated with this audio backend, allowing
@@ -181,5 +171,5 @@ public interface AudioBackend {
      *
      * @return an {@link AudioOutputBackend} representing the output side of this backend.
      */
-    AudioOutputBackend getOutputBackend();
+    AudioOutputBackend getOutputBackend ();
 }

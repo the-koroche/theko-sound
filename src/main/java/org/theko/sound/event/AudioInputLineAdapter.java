@@ -18,5 +18,6 @@ package org.theko.sound.event;
  * @author Theko
  */
 public class AudioInputLineAdapter extends AudioLineAdapter implements AudioInputLineListener {
-    @Override public void onRead(AudioLineEvent e) { }
+
+    @Override public void onRead (AudioLineEvent e) { }
 }

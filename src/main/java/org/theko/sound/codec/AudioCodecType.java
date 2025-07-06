@@ -40,7 +40,8 @@ import java.lang.annotation.RetentionPolicy;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AudioCodecType {
-    String name() default "Unknown";
-    String extension();
-    String version() default "1.0";
+
+    String name () default "Unknown";
+    String extension ();
+    String version () default "1.0";
 }

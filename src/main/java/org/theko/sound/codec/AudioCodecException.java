@@ -10,6 +10,7 @@ package org.theko.sound.codec;
  * @author Theko
  */
 public class AudioCodecException extends Exception {
+    
     public AudioCodecException () {
         super();
     }

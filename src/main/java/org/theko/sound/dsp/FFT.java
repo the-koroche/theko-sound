@@ -25,7 +25,9 @@ package org.theko.sound.dsp;
  * @author Theko
  */
 public class FFT {
+
     private FFT () {
+        throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
     /**
@@ -37,7 +39,7 @@ public class FFT {
      * @throws IllegalArgumentException if the length of the two arrays is not
      *         equal
      */
-    public static void fft(float[] real, float[] imag) {
+    public static void fft (float[] real, float[] imag) {
         int n = real.length;
         int logN = Integer.numberOfTrailingZeros(n); // log2(n)
 
@@ -100,7 +102,7 @@ public class FFT {
      * @param imag the array containing the imaginary parts of the complex input 
      *             and output.
      */
-    public static void ifft(float[] real, float[] imag) {
+    public static void ifft (float[] real, float[] imag) {
         // Negate the imaginary parts
         int n = real.length;
         for (int i = 0; i < n; i++) {
@@ -128,7 +130,7 @@ public class FFT {
      * @param i the first index
      * @param j the second index
      */
-    private static void swap(float[] arr, int i, int j) {
+    private static void swap (float[] arr, int i, int j) {
         float temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;

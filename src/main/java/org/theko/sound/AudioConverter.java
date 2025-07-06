@@ -2,6 +2,8 @@ package org.theko.sound;
 
 import java.util.Arrays;
 
+import org.theko.sound.resampling.AudioResampler;
+
 /**
  * The AudioConverter class provides utility methods for converting audio data
  * between different formats, including channel manipulation, resampling, and
@@ -45,9 +47,8 @@ import java.util.Arrays;
  * @author Theko
  */
 public class AudioConverter {
-    public static final AudioResampler RESAMPLER = new AudioResampler();
 
-    private AudioConverter() {
+    private AudioConverter () {
     }
 
     /**
@@ -59,7 +60,7 @@ public class AudioConverter {
      * @return The converted audio data.
      * @throws IllegalArgumentException if unsupported channel manipulation is attempted.
      */
-    public static byte[] convert(byte[] data, AudioFormat source, AudioFormat target) {
+    public static byte[] convert (byte[] data, AudioFormat source, AudioFormat target) {
         if (source.isSameFormat(target)) return data;
 
         // Ensure that multi-channel audio conversion is not attempted improperly
@@ -75,7 +76,7 @@ public class AudioConverter {
 
         // Resample if the sample rate differs between source and target formats
         if (source.getSampleRate() != target.getSampleRate()) {
-            samples = RESAMPLER.resample(samples, (float) source.getSampleRate() / target.getSampleRate());
+            samples = AudioResampler.SHARED.resample(samples, (float) source.getSampleRate() / target.getSampleRate());
         }
 
         // Convert samples back to raw byte data in the target format
@@ -90,7 +91,7 @@ public class AudioConverter {
      * @param targetChannels The number of channels in the target audio.
      * @return The converted sample data with the appropriate number of channels.
      */
-    private static float[][] convertChannels(float[][] samples, int sourceChannels, int targetChannels) {
+    private static float[][] convertChannels (float[][] samples, int sourceChannels, int targetChannels) {
         if (sourceChannels == targetChannels) return samples;
 
         float[][] newSamples = new float[targetChannels][samples[0].length];
@@ -135,8 +136,8 @@ public class AudioConverter {
      * @param format       The audio format.
      * @return The equivalent number of audio frames.
      */
-    public static long microsecondsToFrames(long microseconds, AudioFormat format) {
-        return (microseconds * format.getSampleRate()) / 1_000_000L;
+    public static long microsecondsToFrames (long microseconds, int sampleRate) {
+        return (microseconds * sampleRate) / 1_000_000L;
     }
 
     /**
@@ -146,15 +147,15 @@ public class AudioConverter {
      * @param format The audio format.
      * @return The equivalent time duration in microseconds.
      */
-    public static long framesToMicroseconds(long frames, AudioFormat format) {
-        return (frames * 1_000_000L) / format.getSampleRate();
+    public static long framesToMicroseconds (long frames, int sampleRate) {
+        return (frames * 1_000_000L) / sampleRate;
     }
 
-    public static long samplesToMicrosecond(long samples, int sampleRate) {
+    public static long samplesToMicrosecond (long samples, int sampleRate) {
         return (long) (samples * 1000000.0 / sampleRate);
     }
 
-    public static long samplesToMicrosecond(float[][] samples, int sampleRate) {
+    public static long samplesToMicrosecond (float[][] samples, int sampleRate) {
         long maxSamples = 0;
         for (int ch = 0; ch < samples.length; ch++) {
             maxSamples = Math.max(samples[ch].length, maxSamples);
@@ -162,7 +163,7 @@ public class AudioConverter {
         return samplesToMicrosecond(maxSamples, sampleRate);
     }
 
-    public static long microsecondsToSamples(long microseconds, int sampleRate) {
+    public static long microsecondsToSamples (long microseconds, int sampleRate) {
         return (long) (microseconds * sampleRate / 1000000.0);
     }
 }

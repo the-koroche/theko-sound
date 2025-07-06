@@ -17,6 +17,7 @@ import org.theko.sound.AudioFormat;
  * @author Theko
  */
 public class AudioEncodeResult {
+
     private final byte[] fileData;
     private final AudioFormat format;
     private final List<AudioTag> tags;
@@ -29,19 +30,19 @@ public class AudioEncodeResult {
         this.tags = tags;
     }
 
-    public byte[] getFileData() {
+    public byte[] getFileData () {
         return fileData;
     }
 
-    public AudioFormat getAudioFormat() {
+    public AudioFormat getAudioFormat () {
         return format;
     }
 
-    public List<AudioTag> getTags() {
+    public List<AudioTag> getTags () {
         return Collections.unmodifiableList(tags);
     }
 
-    public String getInfo() {
+    public String getInfo () {
         StringBuilder outString = new StringBuilder();
         String tab = "  ";
         outString.append("--- ").append(codecInfo.getName() + " CODEC").append(" ---\n");
@@ -55,7 +56,7 @@ public class AudioEncodeResult {
     }
 
     @Override
-    public String toString() {
+    public String toString () {
         return "AudioEncodeResult {Encoder: " + codecInfo.getName() + ", " + format.toString() + ", Tags: " + tags.toString() + "}";
     }
 }

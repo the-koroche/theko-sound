@@ -15,5 +15,6 @@ package org.theko.sound.event;
  * @author Theko
  */
 public interface AudioOutputLineListener extends AudioLineListener {
-    void onWrite(AudioLineEvent e);
+    
+    void onWrite (AudioLineEvent e);
 }

@@ -63,10 +63,11 @@ import org.theko.sound.backend.AudioOutputBackend;
 * 
 * @author Theko
  */
-@AudioBackendType(name = "JavaSound", version = "1.0")
+@AudioBackendType (name = "JavaSound", version = "1.0")
 public class JavaSoundBackend implements AudioBackend {
+    
     @Override
-    public Collection<AudioPort> getAllPorts() {
+    public Collection<AudioPort> getAllPorts () {
         List<AudioPort> ports = new ArrayList<>();
 
         for (Mixer.Info info : AudioSystem.getMixerInfo()) {
@@ -86,8 +87,20 @@ public class JavaSoundBackend implements AudioBackend {
         return Collections.unmodifiableList(ports);
     }
 
+    private boolean hasOutputLines (Mixer mixer) {
+        return Arrays.stream(mixer.getSourceLineInfo()).anyMatch(info -> info instanceof DataLine.Info);
+    }
+
+    private boolean hasInputLines (Mixer mixer) {
+        return Arrays.stream(mixer.getTargetLineInfo()).anyMatch(info -> info instanceof DataLine.Info);
+    }
+
+    private AudioPort createPort (AudioFlow flow, Mixer.Info info) {
+        return new AudioPort(flow, info.getName(), info.getVendor(), info.getVersion(), info.getDescription());
+    }
+
     @Override
-    public Collection<AudioPort> getAvailablePorts(AudioFlow flow, AudioFormat audioFormat) throws AudioPortsNotFoundException, UnsupportedAudioFormatException {
+    public Collection<AudioPort> getAvailablePorts (AudioFlow flow, AudioFormat audioFormat) throws AudioPortsNotFoundException, UnsupportedAudioFormatException {
         List<AudioPort> availablePorts = new ArrayList<>();
 
         for (AudioPort port : getAllPorts()) {
@@ -104,50 +117,50 @@ public class JavaSoundBackend implements AudioBackend {
     }
 
     @Override
-    public boolean isPortSupporting(AudioPort port, AudioFormat audioFormat) {
+    public boolean isPortSupporting (AudioPort port, AudioFormat audioFormat) {
         try {
-        Mixer mixer = getMixerForPort(port);
-        if (mixer == null) return false;
+            Mixer mixer = getMixerForPort(port);
+            if (mixer == null) return false;
 
-        Line.Info lineInfo = (port.getFlow() == AudioFlow.OUT) ?
-                new DataLine.Info(SourceDataLine.class, getJavaSoundAudioFormat(audioFormat)) :
-                new DataLine.Info(TargetDataLine.class, getJavaSoundAudioFormat(audioFormat));
+            Line.Info lineInfo = (port.getFlow() == AudioFlow.OUT) ?
+                    new DataLine.Info(SourceDataLine.class, getJavaSoundAudioFormat(audioFormat)) :
+                    new DataLine.Info(TargetDataLine.class, getJavaSoundAudioFormat(audioFormat));
 
-        return mixer.isLineSupported(lineInfo);
+            return mixer.isLineSupported(lineInfo);
         } catch (UnsupportedAudioFormatException ex) {
             return false;
         }
     }
 
+    protected static Mixer getMixerForPort (AudioPort port) {
+        if (port == null) {
+            return AudioSystem.getMixer(null);
+        }
+        for (Mixer.Info info : AudioSystem.getMixerInfo()) {
+            if (info.getName().equals(port.getName())) {
+                return AudioSystem.getMixer(info);
+            }
+        }
+        return null;
+    }
+
     @Override
-    public Optional<AudioPort> getDefaultPort(AudioFlow flow, AudioFormat audioFormat) throws AudioPortsNotFoundException, UnsupportedAudioFormatException {
+    public Optional<AudioPort> getDefaultPort (AudioFlow flow, AudioFormat audioFormat) throws AudioPortsNotFoundException, UnsupportedAudioFormatException {
         Collection<AudioPort> availablePorts = getAvailablePorts(flow, audioFormat);
         return availablePorts.stream().findFirst();
     }
 
     @Override
-    public AudioInputBackend getInputBackend() {
+    public AudioInputBackend getInputBackend () {
         return new JavaSoundInput();
     }
 
     @Override
-    public AudioOutputBackend getOutputBackend() {
+    public AudioOutputBackend getOutputBackend () {
         return new JavaSoundOutput();
     }
 
-    private boolean hasOutputLines(Mixer mixer) {
-        return Arrays.stream(mixer.getSourceLineInfo()).anyMatch(info -> info instanceof DataLine.Info);
-    }
-
-    private boolean hasInputLines(Mixer mixer) {
-        return Arrays.stream(mixer.getTargetLineInfo()).anyMatch(info -> info instanceof DataLine.Info);
-    }
-
-    private AudioPort createPort(AudioFlow flow, Mixer.Info info) {
-        return new AudioPort(flow, info.getName(), info.getVendor(), info.getVersion(), info.getDescription());
-    }
-
-    protected static javax.sound.sampled.AudioFormat getJavaSoundAudioFormat(AudioFormat audioFormat) throws UnsupportedAudioFormatException {
+    protected static javax.sound.sampled.AudioFormat getJavaSoundAudioFormat (AudioFormat audioFormat) throws UnsupportedAudioFormatException {
         return new javax.sound.sampled.AudioFormat(
                 getJavaSoundAudioEncoding(audioFormat.getEncoding()),
                 audioFormat.getSampleRate(),
@@ -159,7 +172,7 @@ public class JavaSoundBackend implements AudioBackend {
         );
     }
 
-    protected static javax.sound.sampled.AudioFormat.Encoding getJavaSoundAudioEncoding(AudioFormat.Encoding encoding) throws UnsupportedAudioFormatException {
+    protected static javax.sound.sampled.AudioFormat.Encoding getJavaSoundAudioEncoding (AudioFormat.Encoding encoding) throws UnsupportedAudioFormatException {
         switch (encoding) {
             case ALAW: return javax.sound.sampled.AudioFormat.Encoding.ALAW;
             case ULAW: return javax.sound.sampled.AudioFormat.Encoding.ULAW;
@@ -168,17 +181,5 @@ public class JavaSoundBackend implements AudioBackend {
             case PCM_UNSIGNED: return javax.sound.sampled.AudioFormat.Encoding.PCM_UNSIGNED;
             default: throw new UnsupportedAudioFormatException("Encoding not supported: " + encoding);
         }
-    }
-
-    protected static Mixer getMixerForPort(AudioPort port) {
-        if (port == null) {
-            return AudioSystem.getMixer(null);
-        }
-        for (Mixer.Info info : AudioSystem.getMixerInfo()) {
-            if (info.getName().equals(port.getName())) {
-                return AudioSystem.getMixer(info);
-            }
-        }
-        return null;
     }
 }

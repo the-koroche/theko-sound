@@ -19,10 +19,10 @@ package org.theko.sound.backend;
  * @author Theko
  */
 public class AudioBackendInfo {
+
     private final String name, version;
     private final Class<? extends AudioBackend> audioBackend;
 
-    
     /**
      * Constructs an AudioBackendInfo object by extracting metadata from the given audio backend class.
      * The class must be annotated with {@link AudioBackendType}.
@@ -30,7 +30,7 @@ public class AudioBackendInfo {
      * @param audioBackend The audio backend class to extract information from.
      * @throws IllegalArgumentException if the class is not annotated with {@link AudioBackendType}.
      */
-    public AudioBackendInfo(Class<? extends AudioBackend> audioBackend) {
+    public AudioBackendInfo (Class<? extends AudioBackend> audioBackend) {
         // Check if the audio backend class has the AudioBackendType annotation
         if (audioBackend.isAnnotationPresent(AudioBackendType.class)) {
             // Retrieve the annotation to extract name and version
@@ -44,11 +44,11 @@ public class AudioBackendInfo {
         }
     }
 
-    public String getName() {
+    public String getName () {
         return name;
     }
 
-    public String getVersion() {
+    public String getVersion () {
         return version;
     }
 
@@ -57,12 +57,12 @@ public class AudioBackendInfo {
      *
      * @return The class of the audio backend.
      */
-    public Class<? extends AudioBackend> getBackendClass() {
+    public Class<? extends AudioBackend> getBackendClass () {
         return audioBackend;
     }
 
     @Override
-    public String toString() {
+    public String toString () {
         return "AudioBackendInfo {Class: " + audioBackend.getSimpleName() + ", Name: " + name + ", Version: " + version + "}";
     }
 }

@@ -16,6 +16,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.AudioFormat;
+import org.theko.sound.SampleConverter;
 import org.theko.sound.UnsupportedAudioEncodingException;
 import org.theko.sound.codec.AudioCodec;
 import org.theko.sound.codec.AudioCodecException;
@@ -42,8 +43,8 @@ import org.theko.sound.codec.AudioTag;
  * 
  * <p>Usage:</p>
  * <ul>
- *   <li>To decode a WAVE file, use the {@link #decode(InputStream)} method.</li>
- *   <li>To encode audio data into a WAVE file, use the {@link #encode(byte[], AudioFormat, List)} method.</li>
+ *   <li>To decode a WAVE file, use the {@link #innerDecode(InputStream)} method.</li>
+ *   <li>To encode audio data into a WAVE file, use the {@link #innerEncode(byte[], AudioFormat, List)} method.</li>
  *   <li>To retrieve codec information, use the {@link #getInfo()} method.</li>
  * </ul>
  * 
@@ -82,6 +83,7 @@ import org.theko.sound.codec.AudioTag;
  */
 @AudioCodecType(name = "WAVE", extension = "wav", version = "1.2")
 public class WAVECodec extends AudioCodec {
+
     private static final Logger logger = LoggerFactory.getLogger(WAVECodec.class);
 
     private static final byte[] RIFF_BYTES = "RIFF".getBytes(StandardCharsets.US_ASCII);
@@ -103,7 +105,7 @@ public class WAVECodec extends AudioCodec {
      *             if the input stream is not a valid WAVE file
      */
     @Override
-    public AudioDecodeResult decode(InputStream is) throws AudioCodecException {
+    public AudioDecodeResult innerDecode (InputStream is) throws AudioCodecException {
         try {
             logger.debug("Parsing WAVE...");
             DataInputStream dis = new DataInputStream(is);
@@ -176,11 +178,13 @@ public class WAVECodec extends AudioCodec {
                 logger.error("Invalid WAV file: missing 'data' chunk.");
                 throw new AudioCodecException("Invalid WAV file: missing 'data' chunk.");
             }
-            logger.debug("Pasing complete.");
+            logger.debug("Parsing complete.");
             logger.debug("Audio format: " + format);
-            logger.debug("Audio data size: " + audioData.length);
+            logger.debug("Audio data size (bytes): " + audioData.length);
             logger.debug("Metadata: " + tags);
-            return new AudioDecodeResult(CODEC_INFO, audioData, format, Collections.unmodifiableList(tags));
+
+            float[][] pcm = SampleConverter.toSamples(audioData, format);
+            return new AudioDecodeResult(CODEC_INFO, pcm, format, Collections.unmodifiableList(tags));
         } catch (IOException ex) {
             throw new AudioCodecException(ex);
         }
@@ -195,7 +199,7 @@ public class WAVECodec extends AudioCodec {
      * @throws AudioCodecException
      *             if the audio format is not supported
      */
-    protected static AudioFormat parseFormatChunk(byte[] fmtData) throws AudioCodecException {
+    protected static AudioFormat parseFormatChunk (byte[] fmtData) throws AudioCodecException {
         ByteBuffer bb = ByteBuffer.wrap(fmtData).order(ByteOrder.LITTLE_ENDIAN);
         int audioFormat = bb.getShort() & 0xffff;
         int channels = bb.getShort() & 0xffff;
@@ -245,7 +249,7 @@ public class WAVECodec extends AudioCodec {
      *            the WAVE INFO chunk ID
      * @return the audio tag ID, or null if not supported
      */
-    protected static String mapInfoIdToTag(String id) {
+    protected static String mapInfoIdToTag (String id) {
             switch (id) {
                 case "INAM": case "TITL": return "Title";
                 case "IART": return "Artist";
@@ -271,7 +275,7 @@ public class WAVECodec extends AudioCodec {
      * @param tags
      *            the list of tags to add to
      */
-    protected static void parseListChunk(byte[] listData, List<AudioTag> tags) {
+    protected static void parseListChunk (byte[] listData, List<AudioTag> tags) {
         ByteBuffer bb = ByteBuffer.wrap(listData).order(ByteOrder.LITTLE_ENDIAN);
         byte[] listType = new byte[4];
         bb.get(listType);
@@ -315,7 +319,7 @@ public class WAVECodec extends AudioCodec {
      *            the text to clean
      * @return the cleaned text
      */
-    protected static String cleanText(String text) {
+    protected static String cleanText (String text) {
         text = text.replaceAll("\0", "")
                     .replaceAll("[\\p{Cntrl}&&[^\n\t\r]]", "")
                     .trim();
@@ -337,7 +341,7 @@ public class WAVECodec extends AudioCodec {
      * @throws IOException
      *             if there is an error reading from the stream
      */
-    protected static void skipChunkData(DataInputStream dis, int chunkSize) throws IOException {
+    protected static void skipChunkData (DataInputStream dis, int chunkSize) throws IOException {
         long skipped = 0;
         while (skipped < chunkSize) {
             skipped += dis.skip(chunkSize - skipped);
@@ -355,7 +359,7 @@ public class WAVECodec extends AudioCodec {
      * @throws IOException
      *             if there is an error reading from the stream
      */
-    protected static void skipPadding(DataInputStream dis, int chunkSize) throws IOException {
+    protected static void skipPadding (DataInputStream dis, int chunkSize) throws IOException {
         if (chunkSize % 2 != 0) {
             dis.skipBytes(1);
         }
@@ -370,7 +374,7 @@ public class WAVECodec extends AudioCodec {
      * @throws IOException
      *             if there is an error reading from the stream
      */
-    protected static int readLittleEndianInt(DataInputStream dis) throws IOException {
+    protected static int readLittleEndianInt (DataInputStream dis) throws IOException {
         byte[] bytes = new byte[4];
         dis.readFully(bytes);
         return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
@@ -390,7 +394,7 @@ public class WAVECodec extends AudioCodec {
      *             if an error occurs during encoding, such as an I/O issue
      */
     @Override
-    public AudioEncodeResult encode(byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException {
+    public AudioEncodeResult innerEncode (byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException {
         try {
             // Check supported encodings
             int audioFormatCode = getAudioFormatCode(format.getEncoding());
@@ -410,8 +414,8 @@ public class WAVECodec extends AudioCodec {
             updateRiffSize(outputStream);
 
             return new AudioEncodeResult(CODEC_INFO, outputStream.toByteArray(), format, tags);
-        } catch (IOException e) {
-            throw new AudioCodecException(e);
+        } catch (IOException ex) {
+            throw new AudioCodecException(ex);
         }
     }
 
@@ -424,7 +428,7 @@ public class WAVECodec extends AudioCodec {
      *            the audio format containing encoding parameters
      * @return a byte array containing the format chunk data
      */
-    protected static byte[] createFormatChunk(int audioFormatCode, AudioFormat format) {
+    protected static byte[] createFormatChunk (int audioFormatCode, AudioFormat format) {
         return ByteBuffer.allocate(16)
                 .order(ByteOrder.LITTLE_ENDIAN)
                 .putShort((short) audioFormatCode)
@@ -436,7 +440,7 @@ public class WAVECodec extends AudioCodec {
                 .array();
     }
 
-    protected static byte[] createListChunk(List<AudioTag> tags) throws IOException {
+    protected static byte[] createListChunk (List<AudioTag> tags) throws IOException {
         ByteArrayOutputStream listChunkStream = new ByteArrayOutputStream();
         if (!tags.isEmpty()) {
             listChunkStream.write(INFO_BYTES);
@@ -477,7 +481,7 @@ public class WAVECodec extends AudioCodec {
      * @throws AudioCodecException
      *             if the encoding is not supported
      */
-    protected static int getAudioFormatCode(AudioFormat.Encoding encoding) throws AudioCodecException {
+    protected static int getAudioFormatCode (AudioFormat.Encoding encoding) throws AudioCodecException {
         switch (encoding) {
             case PCM_UNSIGNED: case PCM_SIGNED: // PCM
                 return 1;
@@ -502,7 +506,7 @@ public class WAVECodec extends AudioCodec {
      * @throws IOException
      *             if an I/O error occurs
      */
-    protected static void writeRiffHeader(ByteArrayOutputStream outputStream) throws IOException {
+    protected static void writeRiffHeader (ByteArrayOutputStream outputStream) throws IOException {
         outputStream.write(RIFF_BYTES);
         writeLittleEndianInt(outputStream, 0); // Placeholder for RIFF size
         outputStream.write(WAVE_BYTES);
@@ -515,7 +519,7 @@ public class WAVECodec extends AudioCodec {
      * position of the output stream.
      * @param outputStream the output stream containing the RIFF header
      */
-    protected static void updateRiffSize(ByteArrayOutputStream outputStream) {
+    protected static void updateRiffSize (ByteArrayOutputStream outputStream) {
         byte[] wavData = outputStream.toByteArray();
         int riffSize = wavData.length - 8;
         byte[] riffSizeBytes = ByteBuffer.allocate(4)
@@ -540,7 +544,7 @@ public class WAVECodec extends AudioCodec {
      * @throws IOException
      *             if an I/O error occurs
      */
-    protected static void writeChunk(ByteArrayOutputStream outputStream, byte[] chunkId, byte[] chunkData) throws IOException {
+    protected static void writeChunk (ByteArrayOutputStream outputStream, byte[] chunkId, byte[] chunkData) throws IOException {
         outputStream.write(chunkId);
         writeLittleEndianInt(outputStream, chunkData.length);
         outputStream.write(chunkData);
@@ -559,7 +563,7 @@ public class WAVECodec extends AudioCodec {
      * @throws IOException
      *             if an I/O error occurs while writing to the stream
      */
-    protected static void writeLittleEndianInt(ByteArrayOutputStream stream, int value) throws IOException {
+    protected static void writeLittleEndianInt (ByteArrayOutputStream stream, int value) throws IOException {
         byte[] bytes = ByteBuffer.allocate(4)
                 .order(ByteOrder.LITTLE_ENDIAN)
                 .putInt(value)
@@ -574,7 +578,7 @@ public class WAVECodec extends AudioCodec {
      *            the audio tag to map
      * @return the corresponding WAVE INFO chunk ID, or null if not supported
      */
-    protected static String mapTagToInfoId(String tag) {
+    protected static String mapTagToInfoId (String tag) {
         switch (tag) {
             case "Title": return "INAM";
             case "Artist": return "IART";
@@ -601,7 +605,7 @@ public class WAVECodec extends AudioCodec {
      * @return the audio codec information
      */
     @Override
-    public AudioCodecInfo getInfo() {
+    public AudioCodecInfo getInfo () {
         return CODEC_INFO;
     }
 }

@@ -1,5 +1,7 @@
 package org.theko.sound.control;
 
+import org.theko.sound.event.AudioControlEvent;
+
 /**
  * The {@code BooleanControl} class represents a type of {@link AudioControl}
  * that holds a boolean value. It provides methods to set and retrieve the
@@ -13,9 +15,10 @@ package org.theko.sound.control;
  * @author Theko
  */
 public class BooleanControl extends AudioControl {
+
     protected boolean value;
 
-    public BooleanControl(String name, boolean value) {
+    public BooleanControl (String name, boolean value) {
         super(name);
         this.value = value;
     }
@@ -25,17 +28,27 @@ public class BooleanControl extends AudioControl {
      * 
      * @param value The boolean value to set. If true, the control is enabled; if false, the control is disabled.
      */
-    public void setValue(boolean value) {
+    public void setValue (boolean value) {
         this.value = value;
+        notifyListeners(NotifyType.VALUE_CHANGE, new AudioControlEvent(this));
     }
 
     /**
-     * Retrieves the current boolean value of this BooleanControl.
+     * Checks if the current boolean value is true.
      *
-     * @return The boolean value indicating the current state of the control.
+     * @return {@code true} if the value is true, otherwise {@code false}.
      */
-    public boolean getValue() {
+    public boolean isEnabled () {
         return value;
+    }
+
+    /**
+     * Checks if the current boolean value is false.
+     *
+     * @return {@code true} if the value is false, otherwise {@code false}.
+     */
+    public boolean isDisabled () {
+        return !value;
     }
 
     /**
@@ -45,7 +58,7 @@ public class BooleanControl extends AudioControl {
      * @return A string that represents the boolean control.
      */
     @Override
-    public String toString() {
+    public String toString () {
         return String.format("AudioControl {Name: %s, Value: %b}", name, value);
     }
 }

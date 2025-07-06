@@ -10,8 +10,9 @@ package org.theko.sound.resampling;
  * @author Theko
  */
 public class LinearResampleMethod implements ResampleMethod {
+    
     @Override
-    public float[] resample(float[] input, int targetLength, int quality) {
+    public float[] resample (float[] input, int targetLength, int quality) {
         float[] output = new float[targetLength];
         float scale = (float) input.length / targetLength;
         for (int i = 0; i < targetLength; i++) {

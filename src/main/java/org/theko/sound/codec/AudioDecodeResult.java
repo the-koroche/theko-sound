@@ -16,31 +16,32 @@ import org.theko.sound.AudioFormat;
  * @author Theko
  */
 public class AudioDecodeResult {
-    private final byte[] data;
+
+    private final float[][] pcm;
     private final AudioFormat format;
     private final List<AudioTag> tags;
     private final AudioCodecInfo codecInfo;
 
-    public AudioDecodeResult (AudioCodecInfo codecInfo, byte[] data, AudioFormat format, List<AudioTag> tags) {
+    public AudioDecodeResult (AudioCodecInfo codecInfo, float[][] pcm, AudioFormat format, List<AudioTag> tags) {
         this.codecInfo = codecInfo;
-        this.data = data;
+        this.pcm = pcm;
         this.format = format;
         this.tags = tags;
     }
 
-    public byte[] getBytes() {
-        return data;
+    public float[][] getSamples () {
+        return pcm;
     }
 
-    public AudioFormat getAudioFormat() {
+    public AudioFormat getAudioFormat () {
         return format;
     }
 
-    public List<AudioTag> getTags() {
+    public List<AudioTag> getTags () {
         return Collections.unmodifiableList(tags);
     }
 
-    public String getInfo() {
+    public String getInfo () {
         StringBuilder outString = new StringBuilder();
         String tab = "  ";
         outString.append("--- ").append(codecInfo.getName() + " CODEC").append(" ---\n");
@@ -54,7 +55,7 @@ public class AudioDecodeResult {
     }
 
     @Override
-    public String toString() {
+    public String toString () {
         return "AudioDecodeResult {Decoder: " + codecInfo.getName() + ", " + format.toString() + ", Tags: " + tags.toString() + "}";
     }
 }

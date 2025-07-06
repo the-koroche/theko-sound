@@ -36,6 +36,7 @@ import java.util.List;
  * @author Theko
  */
 public interface Controllable {
+
     /**
      * Retrieves all AudioControl objects declared as fields in the implementing class.
      *
@@ -46,7 +47,7 @@ public interface Controllable {
      *
      * @return An unmodifiable list of AudioControl objects found in the implementing class.
      */
-    default List<AudioControl> getAllControls() {
+    default List<AudioControl> getAllControls () {
         List<AudioControl> controls = new ArrayList<>();
         Field[] fields = this.getClass().getDeclaredFields();
         for (Field field : fields) {
@@ -78,7 +79,7 @@ public interface Controllable {
      * @return The AudioControl with the specified name, or null if no 
      *         such control exists.
      */
-    default AudioControl getControl(String name) {
+    default AudioControl getControl (String name) {
         for (AudioControl control : getAllControls()) {
             if (control.getName().equals(name)) {
                 return control;
@@ -100,7 +101,7 @@ public interface Controllable {
      * @return The FloatControl with the specified name, or null if no 
      *         such control exists.
      */
-    default FloatControl getFloatControl(String name) {
+    default FloatControl getFloatControl (String name) {
         for (AudioControl control : getAllControls()) {
             if (control.getName().equals(name) && control instanceof FloatControl) {
                 return (FloatControl) control;
@@ -122,7 +123,7 @@ public interface Controllable {
      * @return The BooleanControl with the specified name, or null if no
      *         such control exists.
      */
-    default BooleanControl getBooleanControl(String name) {
+    default BooleanControl getBooleanControl (String name) {
         for (AudioControl control : getAllControls()) {
             if (control.getName().equals(name) && control instanceof BooleanControl) {
                 return (BooleanControl) control;

@@ -10,6 +10,7 @@ package org.theko.sound;
  * @author Theko
  */
 public class AudioPortsNotFoundException extends Exception {
+    
     public AudioPortsNotFoundException () {
         super();
     }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.theko.sound.AudioObject;
 import org.theko.sound.event.AudioControlEvent;
 import org.theko.sound.event.AudioControlListener;
 
@@ -30,7 +29,8 @@ import org.theko.sound.event.AudioControlListener;
  * 
  * @author Theko
  */
-public abstract class AudioControl implements AudioObject {
+public abstract class AudioControl {
+
     protected final String name;
     protected final List<AudioControlListener> listeners;
 
@@ -43,19 +43,19 @@ public abstract class AudioControl implements AudioObject {
         this.listeners = new ArrayList<>();
     }
 
-    public void addListener(AudioControlListener listener) {
+    public void addListener (AudioControlListener listener) {
         listeners.add(listener);
     }
 
-    public void removeListener(AudioControlListener listener) {
+    public void removeListener (AudioControlListener listener) {
         listeners.remove(listener);
     }
 
-    public List<AudioControlListener> getListeners() {
+    public List<AudioControlListener> getListeners () {
         return Collections.unmodifiableList(listeners);
     }
 
-    protected void notifyListeners(NotifyType type, AudioControlEvent event) {
+    protected void notifyListeners (NotifyType type, AudioControlEvent event) {
         for (AudioControlListener listener : listeners) {
             if (listener == null) continue;
             switch (type) {
@@ -69,7 +69,7 @@ public abstract class AudioControl implements AudioObject {
      *
      * @return The name of the audio control.
      */
-    public String getName() {
+    public String getName () {
         return name;
     }
 
@@ -80,7 +80,7 @@ public abstract class AudioControl implements AudioObject {
      * @return A string that represents the audio control.
      */
     @Override
-    public String toString() {
+    public String toString () {
         return String.format("AudioControl {Name: %s}", name);
     }
 }

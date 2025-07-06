@@ -25,10 +25,11 @@ package org.theko.sound.codec;
  * @author Theko
  */
 public class AudioCodecInfo {
+
     private final String name, extension, version;
     private final Class<? extends AudioCodec> codecClass;
 
-    public AudioCodecInfo(Class<? extends AudioCodec> codecClass) {
+    public AudioCodecInfo (Class<? extends AudioCodec> codecClass) {
                 if (codecClass.isAnnotationPresent(AudioCodecType.class)) {
             AudioCodecType audioCodecType = codecClass.getAnnotation(AudioCodecType.class);
             this.name = audioCodecType.name();
@@ -40,24 +41,24 @@ public class AudioCodecInfo {
         }
     }
 
-    public String getName() {
+    public String getName () {
         return name;
     }
 
-    public String getExtension() {
+    public String getExtension () {
         return extension;
     }
 
-    public String getVersion() {
+    public String getVersion () {
         return version;
     }
 
-    public Class<? extends AudioCodec> getCodecClass() {
+    public Class<? extends AudioCodec> getCodecClass () {
         return codecClass;
     }
 
     @Override
-    public String toString() {
+    public String toString () {
         return "AudioCodecInfo {Class: " + codecClass.getSimpleName() + ", Name: " + name + ", Extension: " + extension + ", Version: " + version + "}";
     }
 }

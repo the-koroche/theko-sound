@@ -37,6 +37,7 @@ package org.theko.sound.codec;
  * @author Theko
  */
 public class AudioTag {
+
     protected String key;
     protected String value;
 
@@ -58,20 +59,20 @@ public class AudioTag {
         this.value = value;
     }
 
-    public String getKey() {
+    public String getKey () {
         return key;
     }
 
-    public String getValue() {
+    public String getValue () {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue (String value) {
         this.value = value;
     }
 
     @Override
-    public String toString() {
+    public String toString () {
         return key + ": " + value;
     }
 }

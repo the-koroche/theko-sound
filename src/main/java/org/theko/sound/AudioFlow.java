@@ -10,6 +10,7 @@ package org.theko.sound;
  * @author Theko
  */
 public enum AudioFlow {
+    
     /** Audio input flow (e.g., recording from a microphone). */
     IN,
     /** Audio output flow (e.g., playing sound through speakers). */
@@ -21,7 +22,7 @@ public enum AudioFlow {
      * @param isOut If true, returns {@code OUT}; otherwise, returns {@code IN}.
      * @return The corresponding AudioFlow value.
      */
-    public static AudioFlow fromBoolean(boolean isOut) {
+    public static AudioFlow fromBoolean (boolean isOut) {
         return (isOut ? AudioFlow.OUT : AudioFlow.IN);
     }
 
@@ -31,7 +32,7 @@ public enum AudioFlow {
      * @return "IN" for input flow, "OUT" for output flow.
      */
     @Override
-    public String toString() {
+    public String toString () {
         switch (this) {
             case IN: return "IN";
             case OUT: return "OUT";

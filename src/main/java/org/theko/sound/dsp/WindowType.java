@@ -27,6 +27,7 @@ package org.theko.sound.dsp;
  * @author Theko
  */
 public enum WindowType {
+
     RECTANGULAR, HAMMING, HANN, BLACKMAN, BLACKMAN_HARRIS, FLAT_TOP, TRIANGULAR, WELCH, COSINE;
 
     /**
@@ -34,7 +35,7 @@ public enum WindowType {
      * @param size the size of the window
      * @return an array of window coefficients
      */
-    public double[] generate(int size) {
+    public double[] generate (int size) {
         double[] window = new double[size];
         switch (this) {
             // rectangular window

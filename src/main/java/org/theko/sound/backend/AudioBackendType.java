@@ -39,6 +39,7 @@ import java.lang.annotation.RetentionPolicy;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AudioBackendType {
-    String name();
-    String version() default "1.0";
+
+    String name ();
+    String version () default "1.0";
 }

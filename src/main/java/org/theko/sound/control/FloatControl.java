@@ -1,6 +1,7 @@
 package org.theko.sound.control;
 
 import org.theko.sound.event.AudioControlEvent;
+import org.theko.sound.utility.MathUtilities;
 
 /**
  * The {@code FloatControl} class represents a control for managing a floating-point value
@@ -31,11 +32,12 @@ import org.theko.sound.event.AudioControlEvent;
  * @author Theko
  */
 public class FloatControl extends AudioControl {
+
     protected float value;
     protected final float min, max;
 
     
-    public FloatControl(String name, float min, float max, float value) {
+    public FloatControl (String name, float min, float max, float value) {
         super(name);
         this.min = min;
         this.max = max;
@@ -48,7 +50,7 @@ public class FloatControl extends AudioControl {
      * 
      * @param value The new value for this control.
      */
-    public void setValue(float value) {
+    public void setValue (float value) {
         this.value = Math.clamp(value, min, max);
         notifyListeners(NotifyType.VALUE_CHANGE, new AudioControlEvent(this));
     }
@@ -58,7 +60,7 @@ public class FloatControl extends AudioControl {
      * 
      * @return The current value of this control.
      */
-    public float getValue() {
+    public float getValue () {
         return value;
     }
 
@@ -67,7 +69,7 @@ public class FloatControl extends AudioControl {
      * 
      * @return The minimum value that this control can have.
      */
-    public float getMin() {
+    public float getMin () {
         return min;
     }
 
@@ -77,7 +79,7 @@ public class FloatControl extends AudioControl {
      * 
      * @return The maximum value that this control can have.
      */
-    public float getMax() {
+    public float getMax () {
         return max;
     }
 
@@ -87,12 +89,8 @@ public class FloatControl extends AudioControl {
      * 
      * @return The normalized value of this control.
      */
-    public float getNormalized() {
-        return map(value, min, max, 0f, 1f);
-    }
-
-    private float map(float x, float inMin, float inMax, float outMin, float outMax) {
-        return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    public float getNormalized () {
+        return (float)MathUtilities.remapClamped(value, min, max, 0f, 1f);
     }
 
     /**
@@ -102,7 +100,7 @@ public class FloatControl extends AudioControl {
      * @return A string that represents the float control.
      */
     @Override
-    public String toString() {
+    public String toString () {
         return String.format("FloatControl {Name: %s, Value: %.2f, Min: %.2f, Max: %.2f}", name, value, min, max);
     }
 }

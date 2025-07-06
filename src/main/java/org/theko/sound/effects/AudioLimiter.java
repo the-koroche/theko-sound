@@ -1,10 +1,7 @@
 package org.theko.sound.effects;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.theko.sound.AudioEffect;
-import org.theko.sound.AudioFormat;
 import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.FloatControl;
 import org.theko.sound.envelope.ASREnvelope;
@@ -47,18 +44,28 @@ import org.theko.sound.envelope.ASREnvelope;
  * @author Theko
  */
 public class AudioLimiter extends AudioEffect {
-    private final FloatControl gain;
-    private final FloatControl softSaturationThreshold;
-    private final FloatControl limiterCeiling;
-    private final ASREnvelope envelope;
+    protected final FloatControl gain = 
+            new FloatControl("Gain", -24.0f, 24.0f, 0.0f); // dB
+    protected final FloatControl softSaturationThreshold = 
+            new FloatControl("Soft Saturation Threshold", -12.0f, 0.0f, -6.0f); // dB
+    protected final FloatControl limiterCeiling = 
+            new FloatControl("Limiter Ceiling", -20.0f, 0.0f, -0.1f); // dB
+    protected final ASREnvelope envelope = 
+            new ASREnvelope(0.005f, 0.2f, 0.05f); // 5 ms attack, 200 ms release, 50 ms sustain
 
-    public AudioLimiter(AudioFormat audioFormat) {
-        super(Type.REALTIME, audioFormat);
-    
-        this.gain = new FloatControl("Gain", -24.0f, 24.0f, 0.0f); // dB
-        this.softSaturationThreshold = new FloatControl("Soft Saturation Threshold", -12.0f, 0.0f, -6.0f); // dB
-        this.limiterCeiling = new FloatControl("Limiter Ceiling", -20.0f, 0.0f, -0.1f); // dB
-        this.envelope = new ASREnvelope(0.005f, 0.2f, 0.05f); // 5 ms attack, 200 ms release, 50 ms sustain
+    protected final List<AudioControl> limiterControls = List.of(
+        gain,
+        softSaturationThreshold,
+        limiterCeiling,
+        envelope.getAttack(),
+        envelope.getRelease(),
+        envelope.getSustain()
+    );
+
+    public AudioLimiter() {
+        super(Type.REALTIME);
+
+        allControls.addAll(limiterControls);
     }
 
     public FloatControl getGain() {
@@ -71,6 +78,10 @@ public class AudioLimiter extends AudioEffect {
 
     public FloatControl getLimiterCeiling() {
         return limiterCeiling;
+    }
+
+    public ASREnvelope getEnvelope() {
+        return envelope;
     }
 
     public FloatControl getAttack() {
@@ -86,10 +97,8 @@ public class AudioLimiter extends AudioEffect {
     }
 
     @Override
-    protected float[][] process(float[][] samples) {
+    public void render(float[][] samples, int sampleRate, int length) {
         int channels = samples.length;
-        int frames = samples[0].length;
-        float sampleRate = audioFormat.getSampleRate();
     
         float linearGain = (float) Math.pow(10.0, gain.getValue() / 20.0);
         float softThreshold = (float) Math.pow(10.0, softSaturationThreshold.getValue() / 20.0);
@@ -99,10 +108,10 @@ public class AudioLimiter extends AudioEffect {
         float releaseCoeff = (float) Math.exp(-1.0 / (sampleRate * getRelease().getValue()));
         float sustainSamples = getSustain().getValue() * sampleRate;
     
-        float envelope = 1.0f;
+        float envelopeValue = 1.0f;
         float sustainCounter = 0.0f;
     
-        for (int i = 0; i < frames; i++) {
+        for (int i = 0; i < length; i++) {
             // Вычисляем "максимальный" уровень среди всех каналов
             float maxAbs = 0.0f;
             for (int ch = 0; ch < channels; ch++) {
@@ -124,33 +133,21 @@ public class AudioLimiter extends AudioEffect {
                 }
             }
     
-            if (gainReduction < envelope) {
-                envelope = attackCoeff * (envelope - gainReduction) + gainReduction;
+            if (gainReduction < envelopeValue) {
+                envelopeValue = attackCoeff * (envelopeValue - gainReduction) + gainReduction;
                 sustainCounter = sustainSamples; // если снова пережимаем — сбрасываем sustain
             } else {
                 if (sustainCounter > 0.0f) {
                     sustainCounter--;
                 } else {
-                    envelope = releaseCoeff * (envelope - 1.0f) + 1.0f;
+                    envelopeValue = releaseCoeff * (envelopeValue - 1.0f) + 1.0f;
                 }
             }
     
             // Применяем итоговое усиление + лимитера
             for (int ch = 0; ch < channels; ch++) {
-                samples[ch][i] *= linearGain * envelope;
+                samples[ch][i] *= linearGain * envelopeValue;
             }
         }
-    
-        return samples;
-    }
-
-    @Override
-    public List<AudioControl> getAllControls() {
-        List<AudioControl> controls = new ArrayList<>();
-        controls.add(gain);
-        controls.add(softSaturationThreshold);
-        controls.add(limiterCeiling);
-        controls.addAll(envelope.getAllControls());
-        return controls;
     }
 }

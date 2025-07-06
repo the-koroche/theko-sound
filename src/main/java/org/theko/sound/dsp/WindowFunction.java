@@ -23,7 +23,9 @@ package org.theko.sound.dsp;
  * @author theko
  */
 public class WindowFunction {
+
     private WindowFunction () {
+        throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
     /**
@@ -33,7 +35,7 @@ public class WindowFunction {
      * @param type the type of window function to apply
      * @return a new array containing the windowed samples
      */
-    public static float[] apply(float[] data, WindowType type) {
+    public static float[] apply (float[] data, WindowType type) {
         double[] window = type.generate(data.length);
         float[] result = new float[data.length];
         for (int i = 0; i < data.length; i++) {
@@ -49,7 +51,7 @@ public class WindowFunction {
      * @param type the type of window function to use
      * @return a new array containing the generated window coefficients as floats
      */
-    public static float[] generate(int size, WindowType type) {
+    public static float[] generate (int size, WindowType type) {
         double[] window = type.generate(size);
         float[] result = new float[window.length];
         for (int i = 0; i < window.length; i++) {
