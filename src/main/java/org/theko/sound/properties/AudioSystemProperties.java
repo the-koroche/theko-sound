@@ -41,6 +41,9 @@ public final class AudioSystemProperties {
             parseResampleMethod(System.getProperty("org.theko.sound.shared.resampler.method", "lanczos"));
     public static final boolean RESAMPLER_LOG_HIGH_QUALITY =
             Boolean.parseBoolean(System.getProperty("org.theko.sound.resampler.logHighQuality", "true"));
+            
+    public static final boolean CHECK_LENGTH_MISMATCH_IN_MIXER =
+            Boolean.parseBoolean(System.getProperty("org.theko.sound.mixer.checkLengthMismatch", "true"));
 
     static {
         logProperties();
@@ -63,6 +66,8 @@ public final class AudioSystemProperties {
         logger.debug("Resampler shared quality: {}", RESAMPLER_SHARED_QUALITY);
         logger.debug("Resampler shared method: {}", RESAMPLER_SHARED_METHOD.getClass().getSimpleName());
         logger.debug("Resampler log high quality: {}", RESAMPLER_LOG_HIGH_QUALITY);
+
+        logger.debug("Check length mismatch in mixer: {}", CHECK_LENGTH_MISMATCH_IN_MIXER);
         logger.debug("Audio system properties initialized.");
     }
 

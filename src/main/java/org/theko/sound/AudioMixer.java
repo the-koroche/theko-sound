@@ -12,6 +12,7 @@ import org.theko.sound.effects.AudioEffect;
 import org.theko.sound.effects.IncompatibleEffectTypeException;
 import org.theko.sound.effects.MultipleVaryingSizeEffectsException;
 import org.theko.sound.effects.VaryingSizeEffect;
+import org.theko.sound.properties.AudioSystemProperties;
 import org.theko.sound.utility.ArrayUtilities;
 import org.theko.sound.utility.SamplesUtilities;
 
@@ -25,6 +26,7 @@ public class AudioMixer implements AudioNode {
     private final FloatControl preGainControl = new FloatControl("Pre-Gain", 0.0f, 2.0f, 1.0f);
     private final FloatControl postGainControl = new FloatControl("Post-Gain", 0.0f, 2.0f, 1.0f);
     private final FloatControl panControl = new FloatControl("Pan", -1.0f, 1.0f, 0.0f);
+    private final FloatControl stereoSeparationControl = new FloatControl("Stereo Separation", -1.0f, 1.0f, 0.0f);
 
     private final BooleanControl enableEffectsControl = new BooleanControl("Enable Effects", true);
     private final BooleanControl swapChannelsControl = new BooleanControl("Swap Channels", false);
@@ -32,6 +34,7 @@ public class AudioMixer implements AudioNode {
 
     private static final float PAN_EPSILON = 0.000001f;
     private static final float GAIN_EPSILON = 0.000001f;
+    private static final float STEREO_SEP_EPSILON = 0.000001f;
 
     public AudioMixer () {
 
@@ -110,6 +113,10 @@ public class AudioMixer implements AudioNode {
         return panControl;
     }
 
+    public FloatControl getStereoSeparationControl () {
+        return stereoSeparationControl;
+    }
+
     @Override
     public void render (float[][] samples, int sampleRate, int length) {
         if (samples == null || samples.length == 0 || length <= 0) {
@@ -153,6 +160,11 @@ public class AudioMixer implements AudioNode {
                     processEffectChain(mixed, sampleRate, varyingSizeEffectIndex + 1, effects.size());
                 }
             }
+        }
+
+        float separation = stereoSeparationControl.getValue();
+        if (separation * separation > STEREO_SEP_EPSILON) {
+            mixed = SamplesUtilities.stereoSeparation(mixed, separation);
         }
 
         if (swapChannelsControl.isEnabled()) {
@@ -223,16 +235,8 @@ public class AudioMixer implements AudioNode {
                 );
             }
 
-            int firstFrameCount = input[0].length;
-            for (int ch = 0; ch < channels; ch++) {
-                if (firstFrameCount != input[ch].length) {
-                    throw new LengthMismatchException(
-                        String.format(
-                            "Mismatch in frame count on channel %d at input %d. Expected %d, but got %d",
-                            ch, i, firstFrameCount, input[ch].length
-                        )
-                    );
-                }
+            if (AudioSystemProperties.CHECK_LENGTH_MISMATCH_IN_MIXER) {
+                SamplesUtilities.checkLength(input, frameCount);
             }
         }
     }
