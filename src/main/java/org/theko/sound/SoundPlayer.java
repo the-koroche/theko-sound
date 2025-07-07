@@ -3,12 +3,16 @@ package org.theko.sound;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.theko.sound.backend.AudioBackendCreationException;
 import org.theko.sound.backend.AudioBackendException;
 import org.theko.sound.backend.AudioBackendNotFoundException;
 import org.theko.sound.codec.AudioCodecNotFoundException;
 
 public class SoundPlayer extends SoundSource {
+
+    private static final Logger logger = LoggerFactory.getLogger(SoundPlayer.class);
 
     public static final int DEFAULT_BUFFER_SIZE = 4096;
 
@@ -86,5 +90,6 @@ public class SoundPlayer extends SoundSource {
     public void close () {
         super.close();
         outputLine.close();
+        logger.info("SoundPlayer closed.");
     }
 }
