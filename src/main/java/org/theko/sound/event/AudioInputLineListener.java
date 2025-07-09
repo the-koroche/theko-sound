@@ -9,7 +9,6 @@ package org.theko.sound.event;
  * @see AudioLineListener
  * 
  * @since v1.4.1
- * 
  * @author Theko
  */
 public interface AudioInputLineListener extends AudioLineListener {

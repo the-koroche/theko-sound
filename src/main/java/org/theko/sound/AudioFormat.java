@@ -31,7 +31,6 @@ import java.util.Objects;
  * @see Encoding
  * 
  * @since v1.0.0
- * 
  * @author Theko
  */
 public class AudioFormat implements Serializable {

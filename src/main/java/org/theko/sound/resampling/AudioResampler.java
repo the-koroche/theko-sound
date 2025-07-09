@@ -12,27 +12,66 @@ import org.theko.sound.utility.ArrayUtilities;
  * and float samples, applying time scaling.
  * 
  * @since v1.1.0
- * 
  * @author Theko
  */
 public class AudioResampler {
     
     private static final Logger logger = LoggerFactory.getLogger(AudioResampler.class);
 
+    /**
+     * A shared instance of AudioResampler with default settings.
+     * This instance can be used for quick access without needing to create a new one.
+     */
     public static final AudioResampler SHARED = new AudioResampler();
 
+    /**
+     * The quality of the resampling process.
+     * Higher values indicate better quality but may impact performance.
+     * Default is set to 2, which is a good balance between quality and performance.
+     */
     protected int quality;
+
+    /**
+     * The resample method used for audio resampling.
+     * It can be set to different algorithms like Lanczos, Linear, or Cubic.
+     */
     protected final ResampleMethod resampleMethod;
 
+    /**
+     * Constructs an AudioResampler with the specified resample method and quality.
+     * 
+     * @param resamplerMethod The resample method to use for audio resampling.
+     * @param quality The quality of the resampling process, must be greater than or equal to 1.
+     */
     public AudioResampler (ResampleMethod resamplerMethod, int quality) {
         this.resampleMethod = resamplerMethod;
         this.quality = quality;
     }
 
+    /**
+     * Constructs an AudioResampler with the default shared method and quality.
+     * The default method is set to the shared resample method defined in AudioSystemProperties.
+     * The default quality is set to the shared quality defined in AudioSystemProperties.
+     */
     public AudioResampler () {
         this(AudioSystemProperties.RESAMPLER_SHARED_METHOD, AudioSystemProperties.RESAMPLER_SHARED_QUALITY);
     }
 
+    /**
+     * Returns the current quality of the resampling process.
+     * 
+     * @return The quality of the resampling process.
+     */
+    public int getQuality () {
+        return quality;
+    }
+
+    /**
+     * Sets the quality of the resampling process.
+     * 
+     * @param quality The new quality value, must be greater than or equal to 1.
+     * @throws IllegalArgumentException if the quality is less than 1.
+     */
     public void setQuality (int quality) {
         if (quality < 1) {
             logger.error("Quality argument is less than 1.");
@@ -43,6 +82,14 @@ public class AudioResampler {
         this.quality = quality;
     }
 
+    /**
+     * Resamples the given audio samples to a new length based on the speed multiplier.
+     * 
+     * @param samples The audio samples to resample, represented as a 2D float array.
+     * @param speedMultiplier The factor by which to change the speed of the audio.
+     * @return A 2D float array containing the resampled audio samples.
+     * @throws IllegalArgumentException if the speed multiplier is zero.
+     */
     public float[][] resample (float[][] samples, float speedMultiplier) {
         if (speedMultiplier == 0) {
             throw new IllegalArgumentException("Speed multiplier cannot be zero.");
@@ -55,6 +102,14 @@ public class AudioResampler {
         return output;
     }
     
+    /**
+     * Resamples the given audio samples to a new length.
+     * 
+     * @param samples The audio samples to resample, represented as a 2D float array.
+     * @param newLength The desired length of the resampled audio samples.
+     * @return A 2D float array containing the resampled audio samples.
+     * @throws IllegalArgumentException if the new length is less than or equal to zero.
+     */
     public float[][] resample (float[][] samples, int newLength) {
         float[][] output = new float[samples.length][newLength];
         for (int ch = 0; ch < samples.length; ch++) {

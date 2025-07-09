@@ -21,7 +21,6 @@ package org.theko.sound.dsp;
  * </p>
  * 
  * @since v1.3.0
- * 
  * @author Theko
  */
 public class FFT {

@@ -24,7 +24,6 @@ package org.theko.sound.event;
  * <p>Implement this interface to handle audio line events in a custom way.</p>
  * 
  * @since v1.4.1
- * 
  * @author Theko
  */
 public interface AudioLineListener {

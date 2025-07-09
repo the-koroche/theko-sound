@@ -46,7 +46,6 @@ import org.theko.sound.backend.AudioInputBackend;
  * @see AudioFormat
  * 
  * @since v1.2.0
- * 
  * @author Theko
  */
 public class JavaSoundInput extends JavaSoundBackend implements AudioInputBackend {

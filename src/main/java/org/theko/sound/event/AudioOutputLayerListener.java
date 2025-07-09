@@ -1,7 +1,7 @@
 package org.theko.sound.event;
 
 /**
- * The {@code AudioOutputLineListener} interface extends the {@code AudioLineListener}
+ * The {@code AudioOutputLayerListener} interface extends the {@code AudioLineListener}
  * interface and provides a method to handle events related to writing audio data
  * to an output line.
  *
@@ -11,10 +11,9 @@ package org.theko.sound.event;
  * @see AudioLineListener
  * 
  * @since v1.4.1
- * 
  * @author Theko
  */
-public interface AudioOutputLineListener extends AudioLineListener {
+public interface AudioOutputLayerListener extends AudioLineListener {
     
     void onWrite (AudioLineEvent e);
 }

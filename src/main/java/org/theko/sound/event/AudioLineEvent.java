@@ -8,7 +8,6 @@ import org.theko.sound.AudioLine;
  * access to it through a getter method.
  * 
  * @since v1.4.1
- * 
  * @author Theko
  */
 public class AudioLineEvent {

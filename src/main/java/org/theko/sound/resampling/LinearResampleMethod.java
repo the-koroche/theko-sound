@@ -6,7 +6,6 @@ package org.theko.sound.resampling;
  * specified target length using linear interpolation.
  * 
  * @since v1.4.1
- * 
  * @author Theko
  */
 public class LinearResampleMethod implements ResampleMethod {

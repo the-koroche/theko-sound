@@ -5,7 +5,7 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.theko.sound.AudioFormat;
-import org.theko.sound.AudioOutputLine;
+import org.theko.sound.AudioOutputLayer;
 import org.theko.sound.AudioPortsNotFoundException;
 import org.theko.sound.UnsupportedAudioFormatException;
 import org.theko.sound.backend.AudioBackendCreationException;
@@ -48,7 +48,7 @@ public class SharedFunctions {
 
     public static void playAudioData(byte[] data, AudioFormat format) throws AudioBackendCreationException, AudioBackendNotFoundException {
         try {
-            AudioOutputLine aol = new AudioOutputLine();
+            AudioOutputLayer aol = new AudioOutputLayer();
             aol.open(format);
             aol.start();
             aol.write(data, 0, data.length);

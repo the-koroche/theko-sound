@@ -78,7 +78,6 @@ import org.theko.sound.codec.AudioTag;
  * @see AudioCodecException
  * 
  * @since v1.3.0
- * 
  * @author Theko
  */
 @AudioCodecType(name = "WAVE", extension = "wav", version = "1.2")

@@ -45,7 +45,6 @@ import java.util.Arrays;
  * @see AudioConverter
  * 
  * @since v1.2.0
- * 
  * @author Theko
  */
 public class SampleConverter {

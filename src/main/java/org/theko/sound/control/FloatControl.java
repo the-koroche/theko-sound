@@ -28,7 +28,6 @@ import org.theko.sound.utility.MathUtilities;
  * @see AudioControl
  * 
  * @since v1.2.0
- * 
  * @author Theko
  */
 public class FloatControl extends AudioControl {

@@ -6,7 +6,6 @@ package org.theko.sound.backend;
  * audio backend functionality.
  * 
  * @since v1.0.0
- * 
  * @author Theko
  */
 public class AudioBackendException extends RuntimeException {

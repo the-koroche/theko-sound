@@ -6,7 +6,6 @@ package org.theko.sound.codec;
  * encoding, decoding, or processing audio data.
  * 
  * @since v1.3.0
- * 
  * @author Theko
  */
 public class AudioCodecException extends Exception {

@@ -42,7 +42,6 @@ import org.theko.sound.AudioFormat.Encoding;
  * @see UnsupportedAudioFormatException
  * 
  * @since v1.0.0
- * 
  * @author Theko
  */
 public interface AudioBackend {

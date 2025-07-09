@@ -20,6 +20,20 @@ import org.theko.sound.codec.AudioCodec;
 import org.theko.sound.codec.formats.WAVECodec;
 import org.theko.sound.properties.AudioSystemProperties;
 
+/**
+ * The AudioClassScanner class is responsible for scanning the classpath for audio backend and codec classes.
+ * <p>It uses the Reflections library to find all subclasses of AudioBackend and AudioCodec,
+ * filtering out input and output backends to only include general audio backends.
+ * The scanned classes are stored in static sets for later retrieval.
+ * This class is not meant to be instantiated.
+ *
+ * @since v2.0.0
+ * @author Theko
+ * 
+ * @see ResourceLoader
+ * @see AudioBackend
+ * @see AudioCodec
+ */
 public final class AudioClassScanner {
 
     private AudioClassScanner () {
@@ -46,7 +60,14 @@ public final class AudioClassScanner {
         }
     }
 
-    // This operation is a time-heavy
+    /**
+     * Scans the classpath for audio backend and codec classes.
+     * This method uses the Reflections library to find all subclasses of AudioBackend and AudioCodec.
+     * It filters out input and output backends to only include general audio backends.
+     * The scanned classes are stored in static sets for later retrieval.
+     * This method is time consuming and should be called only once,
+     * typically at application startup.
+     */
     private static void scanClasses() {
         if (reflections == null) {
             try {
@@ -80,10 +101,24 @@ public final class AudioClassScanner {
         }
     }
 
+    /**
+     * Returns a set of all audio backend classes available in the system.
+     * If class scanning is enabled, it will include both predefined and scanned backends.
+     * Otherwise, it will return only the predefined backends.
+     *
+     * @return A set of audio backend classes.
+     */
     public static Set<Class<? extends AudioBackend>> getBackendClasses () {
         return scannedBackends != null ? Collections.unmodifiableSet(scannedBackends) : definedBackends;
     }
 
+    /**
+     * Returns a set of all audio codec classes available in the system.
+     * If class scanning is enabled, it will include both predefined and scanned codecs.
+     * Otherwise, it will return only the predefined codecs.
+     *
+     * @return A set of audio codec classes.
+     */
     public static Set<Class<? extends AudioCodec>> getCodecClasses () {
         return scannedCodecs != null ? Collections.unmodifiableSet(scannedCodecs) : definedCodecs;
     }

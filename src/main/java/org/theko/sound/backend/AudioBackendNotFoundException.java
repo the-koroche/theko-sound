@@ -11,7 +11,6 @@ package org.theko.sound.backend;
  * </ul>
  * 
  * @since v1.0.0
- * 
  * @author Theko
  */
 public class AudioBackendNotFoundException extends Exception {

@@ -27,7 +27,6 @@ import org.theko.sound.control.FloatControl;
  * @see org.theko.sound.envelope.ASREnvelope
  * 
  * @since v1.4.1
- * 
  * @author Theko
  */
 public class AREnvelope implements Controllable {

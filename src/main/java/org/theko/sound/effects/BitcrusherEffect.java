@@ -5,7 +5,20 @@ import java.util.List;
 import org.theko.sound.control.FloatControl;
 import org.theko.sound.control.AudioControl;
 
+/**
+ * BitcrusherEffect is an audio effect that reduces the bit depth and sample rate of audio samples,
+ * creating a lo-fi, distorted sound characteristic of bitcrushing.
+ * 
+ * This effect can be applied to audio samples in real-time, allowing for creative sound design
+ * and manipulation.
+ * 
+ * @author Theko
+ * @since v2.0.0
+ */
 public class BitcrusherEffect extends AudioEffect {
+
+    protected static final float BASE_SAMPLE_RATE = 22000.0f; // Base sample rate for bitcrusher
+
     protected final FloatControl bitdepth = new FloatControl("Bit Depth", 1, 16, 4);
     protected final FloatControl sampleRateReduction = new FloatControl("Sample Rate Reduction", 50f, 22000f, 2000f);
 
@@ -33,7 +46,7 @@ public class BitcrusherEffect extends AudioEffect {
         int channels = samples.length;
 
         float targetRate = sampleRateReduction.getValue();
-        float sampleStep = sampleRate / targetRate;
+        float sampleStep = BASE_SAMPLE_RATE / targetRate;
 
         int bitDepth = (int) bitdepth.getValue(); // from 1 to 16
         int levels = (1 << bitDepth) - 1;

@@ -21,7 +21,6 @@ package org.theko.sound.codec;
  * </p>
  * 
  * @since v1.3.1
- * 
  * @author Theko
  */
 public class AudioCodecInfo {

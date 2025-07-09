@@ -7,6 +7,16 @@ import org.theko.sound.resampling.LanczosResampleMethod;
 import org.theko.sound.resampling.ResampleMethod;
 import org.theko.sound.utility.ArrayUtilities;
 
+/**
+ * ResamplerEffect is an audio effect that allows for real-time resampling of audio samples.
+ * It uses a specified resampling method to adjust the speed of the audio playback.
+ * 
+ * This effect can be applied to audio samples to change their playback speed without altering
+ * the pitch, making it useful for various audio processing tasks.
+ * 
+ * @since v2.0.0
+ * @author Theko
+ */
 public class ResamplerEffect extends AudioEffect implements VaryingSizeEffect{
 
     private final FloatControl speedControl = new FloatControl("Speed", 0.001f, 50.0f, 1.0f);

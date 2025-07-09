@@ -16,7 +16,6 @@ package org.theko.sound;
  * </p>
  * 
  * @since v1.0.0
- * 
  * @author Theko
  */
 public class UnsupportedAudioEncodingException extends Exception {

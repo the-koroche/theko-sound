@@ -1,8 +1,8 @@
 package org.theko.sound.event;
 
 /**
- * The {@code AudioOutputLineAdapter} class extends {@code AudioLineAdapter} and implements
- * the {@code AudioOutputLineListener} interface. It provides an adapter implementation
+ * The {@code AudioOutputLayerAdapter} class extends {@code AudioLineAdapter} and implements
+ * the {@code AudioOutputLayerListener} interface. It provides an adapter implementation
  * for handling audio output line events.
  *
  * <p>This class can be used as a base class for creating custom audio output line
@@ -15,14 +15,13 @@ package org.theko.sound.event;
  * </ul>
  *
  * @see AudioLineAdapter
- * @see AudioOutputLineListener
+ * @see AudioOutputLayerListener
  * @see AudioLineEvent
  * 
  * @since v1.4.1
- * 
  * @author Theko
  */
-public class AudioOutputLineAdapter extends AudioLineAdapter implements AudioOutputLineListener {
+public class AudioOutputLayerAdapter extends AudioLineAdapter implements AudioOutputLayerListener {
     
     @Override public void onWrite (AudioLineEvent e) { }
 }

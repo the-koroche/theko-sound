@@ -13,7 +13,6 @@ import org.theko.sound.AudioFormat;
  * @see AudioCodec
  * 
  * @since v1.3.1
- * 
  * @author Theko
  */
 public class AudioEncodeResult {

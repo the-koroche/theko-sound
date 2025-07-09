@@ -23,21 +23,19 @@ import org.theko.sound.AudioFormat;
  * <pre>{@code
  * AudioCodec codec = new MyAudioCodec();
  * try (InputStream is = new FileInputStream("audiofile.wav")) {
- *     AudioDecodeResult result = codec.callDecode(is);
+ *     AudioDecodeResult result = codec.decode(is);
  *     // Process decoded audio data
  * } catch (AudioCodecException | IOException ex) {
  *     e.printStackTrace();
  * }
  * }</pre>
  *
-  * @since v1.3.0
- * 
+ * @since v1.3.0
  * @author Theko
  */
 public abstract class AudioCodec {
 
     private static final Logger logger = LoggerFactory.getLogger(AudioCodec.class);
-
 
     protected abstract AudioDecodeResult innerDecode (InputStream is) throws AudioCodecException;
     protected abstract AudioEncodeResult innerEncode (byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException;
@@ -78,5 +76,10 @@ public abstract class AudioCodec {
         return aer;
     }
 
+    /**
+     * Returns codec-specific information such as name, version, extension, etc.
+     *
+     * @return an instance of {@link AudioCodecInfo} containing codec details
+     */
     public abstract AudioCodecInfo getInfo ();
 }

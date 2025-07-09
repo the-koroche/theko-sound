@@ -11,7 +11,6 @@ package org.theko.sound;
  * recognized or supported by the application.</p>
  * 
  * @since v1.0.0
- * 
  * @author Theko
  */
 public class UnsupportedAudioFormatException extends Exception {

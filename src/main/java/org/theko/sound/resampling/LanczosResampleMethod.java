@@ -1,36 +1,11 @@
 package org.theko.sound.resampling;
 
 /**
- * The LanczosResampler class implements the ResamplerMethod interface and provides
- * functionality for resampling an input array of audio samples to a target length
- * using the Lanczos resampling algorithm. This algorithm is known for its high-quality
- * interpolation, particularly in audio and image processing.
- *
- * <p>The resampling process involves calculating the value of each sample in the
- * target array by applying the Lanczos kernel to a window of samples from the input
- * array. The quality of the resampling is determined by the size of the window,
- * which is controlled by the `quality` parameter.</p>
- *
- * <p>Key methods:</p>
- * <ul>
- *   <li>{@link #resample(float[], int, int)} - Resamples the input array to the specified target length.</li>
- *   <li>{@link #lanczosKernel(float, int)} - Computes the Lanczos kernel value for a given offset and window size.</li>
- * </ul>
- *
- * <p>Usage example:</p>
- * <pre>
- *     LanczosResampler resampler = new LanczosResampler();
- *     float[] input = { ... }; // Input audio samples
- *     int targetLength = 44100; // Desired output length
- *     int quality = 3; // Quality level (higher values increase computation time)
- *     float[] output = resampler.resample(input, targetLength, quality);
- * </pre>
- *
- * <p>Note: The quality parameter determines the size of the interpolation window.
- * Higher values result in better quality but increase computational cost.</p>
+ * LanczosResampleMethod implements a Lanczos resampling algorithm.
+ * This method uses the Lanczos kernel for interpolation,
+ * known for its high-quality interpolation in audio and image processing.
  * 
  * @since v1.4.1
- * 
  * @author Theko
  */
 public class LanczosResampleMethod implements ResampleMethod {

@@ -40,7 +40,6 @@ import org.theko.sound.envelope.ASREnvelope;
  * @see ASREnvelope
  * 
  * @since v1.4.1
- * 
  * @author Theko
  */
 public class AudioLimiter extends AudioEffect {
@@ -112,7 +111,7 @@ public class AudioLimiter extends AudioEffect {
         float sustainCounter = 0.0f;
     
         for (int i = 0; i < length; i++) {
-            // Вычисляем "максимальный" уровень среди всех каналов
+            // Calculate the maximum absolute value across all channels
             float maxAbs = 0.0f;
             for (int ch = 0; ch < channels; ch++) {
                 float value = samples[ch][i] * linearGain;
@@ -123,19 +122,19 @@ public class AudioLimiter extends AudioEffect {
     
             if (maxAbs > softThreshold) {
                 if (maxAbs > ceiling) {
-                    // Жесткая лимитация
+                    // Hard limiter
                     gainReduction = ceiling / maxAbs;
-                    sustainCounter = sustainSamples; // задержка отпускания
+                    sustainCounter = sustainSamples;
                 } else {
-                    // Мягкое насыщение
+                    // Soft saturation
                     float excess = (maxAbs - softThreshold) / (ceiling - softThreshold);
-                    gainReduction = (float) (1.0 / (1.0 + excess * excess)); // типа мягкая компрессия
+                    gainReduction = (float) (1.0 / (1.0 + excess * excess));
                 }
             }
     
             if (gainReduction < envelopeValue) {
                 envelopeValue = attackCoeff * (envelopeValue - gainReduction) + gainReduction;
-                sustainCounter = sustainSamples; // если снова пережимаем — сбрасываем sustain
+                sustainCounter = sustainSamples; // Reset sustain counter on attack
             } else {
                 if (sustainCounter > 0.0f) {
                     sustainCounter--;
@@ -144,7 +143,7 @@ public class AudioLimiter extends AudioEffect {
                 }
             }
     
-            // Применяем итоговое усиление + лимитера
+            // Apply gain reduction to all channels
             for (int ch = 0; ch < channels; ch++) {
                 samples[ch][i] *= linearGain * envelopeValue;
             }

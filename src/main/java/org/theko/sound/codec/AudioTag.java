@@ -33,7 +33,6 @@ package org.theko.sound.codec;
  * </pre>
  * 
  * @since v1.3.1
- * 
  * @author Theko
  */
 public class AudioTag {

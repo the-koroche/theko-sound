@@ -23,7 +23,6 @@ package org.theko.sound.dsp;
  * </p>
  * 
  * @since v1.4.1
- * 
  * @author Theko
  */
 public enum WindowType {

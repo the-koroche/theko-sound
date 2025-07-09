@@ -19,6 +19,41 @@ import org.theko.sound.effects.MultipleVaryingSizeEffectsException;
 import org.theko.sound.effects.ResamplerEffect;
 import org.theko.sound.utility.ArrayUtilities;
 
+/**
+ * The {@code SoundSource} class represents an audio source that can be controlled
+ * and played back. It implements the {@link AudioNode} and {@link Controllable} interfaces,
+ * allowing it to render audio samples and manage audio controls.
+ *
+ * <p>This class provides functionalities such as opening an audio file, rendering audio samples,
+ * and controlling playback. It supports looping and can reset playback state as needed.</p>
+ *
+ * <p>Key features include:</p>
+ * <ul>
+ *   <li>Opening audio files and decoding them into samples data.</li>
+ *   <li>Rendering audio samples through the {@link Playback} inner class.</li>
+ *   <li>Managing playback state with controls for speed, gain, and pan.</li>
+ *   <li>Support for looping and resetting playback.</li>
+ * </ul>
+ *
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * SoundSource soundSource = new SoundSource();
+ * soundSource.open(new File("path/to/audio/file"));
+ * soundSource.start();
+ * }</pre>
+ *
+ * <p>Note: This class relies on external utilities and effects such as {@link AudioMixer}
+ * and {@link ResamplerEffect} for processing audio data.</p>
+ *
+ * @see AudioNode
+ * @see Controllable
+ * @see Playback
+ * @see AudioMixer
+ * @see ResamplerEffect
+ * 
+ * @since v2.0.0
+ * @author Theko
+ */
 public class SoundSource implements AudioNode, Controllable {
 
     private static final Logger logger = LoggerFactory.getLogger(SoundSource.class);

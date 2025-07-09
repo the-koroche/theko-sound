@@ -26,7 +26,6 @@ package org.theko.sound.event;
  * @see AudioLineEvent
  * 
  * @since v1.4.1
- * 
  * @author Theko
  */
 public class AudioLineAdapter implements AudioLineListener {

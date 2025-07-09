@@ -8,7 +8,6 @@ package org.theko.sound.codec;
  * audio data but the necessary codec for decoding or encoding is unavailable.</p>
  * 
  * @since v1.3.0
- * 
  * @author Theko
  */
 public class MissingAudioCodecException extends RuntimeException {

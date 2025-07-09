@@ -43,7 +43,6 @@ import org.theko.sound.resampling.AudioResampler;
  * @see AudioFormat
  * 
  * @since v1.1.0
- * 
  * @author Theko
  */
 public class AudioConverter {

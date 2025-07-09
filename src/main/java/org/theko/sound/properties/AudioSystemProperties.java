@@ -4,6 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.resampling.*;
 
+/**
+ * AudioSystemProperties holds the configuration properties for the audio system.
+ * It includes thread types, priorities, resampling methods, mixer settings, and other.
+ * 
+ * This class is immutable and provides static access to the properties.
+ * 
+ * @since v2.0.0
+ */
 public final class AudioSystemProperties {
 
     private static final Logger logger = LoggerFactory.getLogger(AudioSystemProperties.class);
@@ -42,6 +50,12 @@ public final class AudioSystemProperties {
     public static final boolean RESAMPLER_LOG_HIGH_QUALITY =
             Boolean.parseBoolean(System.getProperty("org.theko.sound.resampler.logHighQuality", "true"));
             
+    public static final boolean ENABLE_EFFECTS_IN_MIXER =
+            Boolean.parseBoolean(System.getProperty("org.theko.sound.mixer.enableEffects", "true"));
+    public static final boolean SWAP_CHANNELS_IN_MIXER =
+            Boolean.parseBoolean(System.getProperty("org.theko.sound.mixer.swapChannels", "false"));
+    public static final boolean REVERSE_POLARITY_IN_MIXER =
+            Boolean.parseBoolean(System.getProperty("org.theko.sound.mixer.reversePolarity", "false"));
     public static final boolean CHECK_LENGTH_MISMATCH_IN_MIXER =
             Boolean.parseBoolean(System.getProperty("org.theko.sound.mixer.checkLengthMismatch", "true"));
 
@@ -68,6 +82,10 @@ public final class AudioSystemProperties {
         logger.debug("Resampler log high quality: {}", RESAMPLER_LOG_HIGH_QUALITY);
 
         logger.debug("Check length mismatch in mixer: {}", CHECK_LENGTH_MISMATCH_IN_MIXER);
+        logger.debug("Enable effects in mixer: {}", ENABLE_EFFECTS_IN_MIXER);
+        logger.debug("Swap channels in mixer: {}", SWAP_CHANNELS_IN_MIXER);
+        logger.debug("Reverse polarity in mixer: {}", REVERSE_POLARITY_IN_MIXER);
+
         logger.debug("Audio system properties initialized.");
     }
 

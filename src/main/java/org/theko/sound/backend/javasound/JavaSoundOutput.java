@@ -42,7 +42,6 @@ import org.theko.sound.backend.AudioOutputBackend;
  * @see SourceDataLine
  * 
  * @since v1.0.0
- * 
  * @author Theko
  */
 public class JavaSoundOutput extends JavaSoundBackend implements AudioOutputBackend {

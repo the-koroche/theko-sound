@@ -5,19 +5,50 @@ import java.util.Arrays;
 import org.theko.sound.ChannelsCountMismatchException;
 import org.theko.sound.LengthMismatchException;
 
+/**
+ * Utility class for array operations related to audio samples.
+ * <p>This class provides methods to cut, pad, copy, fill, and create 2D float arrays (matrices).
+ * It also includes methods for mutating samples in place.
+ * 
+ * @since v2.0.0
+ * @author Theko
+ * 
+ * @see SamplesUtilities
+ * @see MutatesSamples
+ */
 public class ArrayUtilities {
 
     private ArrayUtilities () {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
+    /**
+     * Cuts a 1D float array to a specified range.
+     *
+     * @param array The original float array to cut.
+     * @param start The starting index (inclusive).
+     * @param end The ending index (exclusive).
+     * @return A new float array containing the specified range.
+     * @throws IndexOutOfBoundsException if the indices are out of bounds.
+     */
     public static float[] cutArray (float[] array, int start, int end) {
         if (start < 0 || end > array.length || start > end) {
-            throw new IndexOutOfBoundsException("Invalid start or end indices.");
+            throw new IndexOutOfBoundsException("Invalid indices for cutting the array.");
         }
         return Arrays.copyOfRange(array, start, end);
     }
 
+    /**
+     * Cuts a 2D float array (matrix) to a specified range in both dimensions.
+     *
+     * @param array The original 2D float array to cut.
+     * @param startD1 The starting index for the first dimension (rows).
+     * @param endD1 The ending index for the first dimension (rows).
+     * @param startD2 The starting index for the second dimension (columns).
+     * @param endD2 The ending index for the second dimension (columns).
+     * @return A new 2D float array containing the specified range.
+     * @throws IndexOutOfBoundsException if the indices are out of bounds.
+     */
     public static float[][] cutArray (float[][] array, int startD1, int endD1, int startD2, int endD2) {
         if (startD1 < 0 || endD1 > array.length || startD1 > endD1) {
             throw new IndexOutOfBoundsException("Invalid D1 indices.");
@@ -35,6 +66,16 @@ public class ArrayUtilities {
         return result;
     }
 
+    /**
+     * Pads a 2D float array to a new specified length in both dimensions.
+     * If the original array is smaller than the new dimensions, it will be padded with zeros.
+     *
+     * @param original The original 2D float array to pad.
+     * @param newLengthD1 The new length for the first dimension (rows).
+     * @param newLengthD2 The new length for the second dimension (columns).
+     * @return A new 2D float array padded to the specified dimensions.
+     * @throws IllegalArgumentException if the original array is null or if the new lengths are less than or equal to zero.
+     */
     public static float[][] padArray(float[][] original, int newLengthD1, int newLengthD2) {
         if (original == null) {
             throw new IllegalArgumentException("Original array cannot be null.");
@@ -50,27 +91,44 @@ public class ArrayUtilities {
         return padded;
     }
 
-    public static void copyArray (float[][] source, float[][] target) {
+    /**
+     * Copies a 2D float array (matrix) from source to target.
+     * The source and target arrays must have the same number of channels (rows).
+     * Each channel must also have the same length.
+     *
+     * @param source The source 2D float array to copy from.
+     * @param target The target 2D float array to copy to.
+     * @throws LengthMismatchException if the lengths of the channels do not match.
+     * @throws ChannelsCountMismatchException if the number of channels does not match.
+     */
+    public static void copyArray (float[][] source, float[][] target) throws LengthMismatchException, ChannelsCountMismatchException {
         if (source == null || target == null) {
             throw new IllegalArgumentException("Source and target cannot be null.");
         }
         if (source.length != target.length) {
-            throw new RuntimeException(new ChannelsCountMismatchException("Channel count mismatch."));
+            throw new ChannelsCountMismatchException("Channel count mismatch.");
         }
 
         for (int ch = 0; ch < source.length; ch++) {
             if (source[ch].length != target[ch].length) {
-                throw new RuntimeException(new LengthMismatchException(
+                throw new LengthMismatchException(
                     String.format(
                         "Length mismatch at channel %d: source=%d, target=%d",
                         ch, source[ch].length, target[ch].length
                     )
-                ));
+                );
             }
             System.arraycopy(source[ch], 0, target[ch], 0, source[ch].length);
         }
     }
 
+    /**
+     * Fills a 2D float array (matrix) with zeros.
+     * This method sets all elements in each channel to zero.
+     *
+     * @param samples The 2D float array to fill with zeros.
+     * @throws IllegalArgumentException if the samples array is null or empty.
+     */
     public static void fillZeros(float[][] samples) {
         if (samples == null || samples.length == 0) {
             throw new IllegalArgumentException("Samples array cannot be null or empty.");
@@ -79,5 +137,25 @@ public class ArrayUtilities {
         for (int ch = 0; ch < samples.length; ch++) {
             Arrays.fill(samples[ch], 0.0f);
         }
+    }
+
+    /**
+     * Creates a 2D float array (matrix) with the specified number of channels and frame count.
+     * Each channel is initialized with zeros.
+     *
+     * @param channels The number of channels (rows) in the array.
+     * @param frameCount The number of frames (columns) in each channel.
+     * @return A 2D float array initialized with zeros.
+     * @throws IllegalArgumentException if channels or frameCount is less than or equal to zero.
+     */
+    public static float[][] createSamples(int channels, int frameCount) {
+        if (channels <= 0 || frameCount <= 0) {
+            throw new IllegalArgumentException("Channels and frameCount must be greater than zero.");
+        }
+        float[][] array = new float[channels][frameCount];
+        for (int i = 0; i < channels; i++) {
+            Arrays.fill(array[i], 0.0f);
+        }
+        return array;
     }
 }

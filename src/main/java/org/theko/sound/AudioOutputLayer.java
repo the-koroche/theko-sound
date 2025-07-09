@@ -10,9 +10,52 @@ import org.theko.sound.backend.AudioOutputBackend;
 import org.theko.sound.properties.AudioSystemProperties;
 import org.theko.sound.utility.ThreadUtilities;
 
-public class AudioOutputLine {
+/**
+ * The {@code AudioOutputLayer} class provides a high-level interface for playing audio.
+ * It acts as a wrapper around an {@link AudioOutputBackend}, handling the opening, starting, stopping,
+ * and closing of audio output, as well as buffer management and audio data writing.
+ * <p>
+ * This class supports both direct audio data writing and audio processing via a root {@link AudioNode}.
+ * When a root node is set, audio data is rendered through the node graph before being sent to the backend.
+ * </p>
+ *
+ * <h2>Usage Example:</h2>
+ * <pre>
+ *     AudioOutputLayer line = new AudioOutputLayer();
+ *     line.open(audioFormat);
+ *     line.start();
+ *     // Write audio data or set a root node for processing
+ *     line.stop();
+ *     line.close();
+ * </pre>
+ *
+ * <h2>Threading:</h2>
+ * <p>
+ * Audio processing is performed in a dedicated thread when a root node is set.
+ * </p>
+ *
+ * <h2>Buffer Management:</h2>
+ * <p>
+ * The buffer size can be specified when opening the line. The buffer size affects latency and throughput.
+ * </p>
+ *
+ * <h2>Exceptions:</h2>
+ * <ul>
+ *     <li>{@link AudioBackendCreationException} - Thrown if the backend cannot be created or opened.</li>
+ *     <li>{@link AudioBackendNotFoundException} - Thrown if no suitable backend is found.</li>
+ *     <li>{@link AudioBackendException} - Thrown for backend-specific errors during operation.</li>
+ *     <li>{@link UnsupportedAudioFormatException} - Thrown if the audio format is not supported.</li>
+ * </ul>
+ * 
+ * @see AudioNode
+ * @see AudioOutputBackend
+ *
+ * @author Theko
+ * @since v2.0.0
+ */
+public class AudioOutputLayer {
     
-    private static final Logger logger = LoggerFactory.getLogger(AudioOutputLine.class);
+    private static final Logger logger = LoggerFactory.getLogger(AudioOutputLayer.class);
 
     private final AudioOutputBackend aob;
     private AudioFormat audioFormat;
@@ -21,12 +64,12 @@ public class AudioOutputLine {
     private Thread processingThread;
     private int bufferSize = 2048;
 
-    public AudioOutputLine (AudioOutputBackend aob) {
+    public AudioOutputLayer (AudioOutputBackend aob) {
         this.aob = aob;
         logger.debug("Created audio output line: " + aob);
     }
 
-    public AudioOutputLine () throws AudioBackendCreationException, AudioBackendNotFoundException {
+    public AudioOutputLayer () throws AudioBackendCreationException, AudioBackendNotFoundException {
         this(AudioBackends.getOutputBackend(AudioBackends.getPlatformBackend()));
     }
 
@@ -59,7 +102,7 @@ public class AudioOutputLine {
     public void start () throws AudioBackendException {
         aob.start();
         processingThread = ThreadUtilities.createThread(
-            "AudioOutputLine-ProcessingThread",
+            "AudioOutputLayer-ProcessingThread",
             AudioSystemProperties.AUDIO_OUTPUT_LINE_THREAD_TYPE,
             AudioSystemProperties.AUDIO_OUTPUT_LINE_THREAD_PRIORITY,
             () -> {

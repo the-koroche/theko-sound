@@ -5,6 +5,18 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
+/**
+ * Utility class for loading resources from the classpath.
+ * <p>
+ * This class provides methods to load resources as streams or files.
+ * It ensures that the resource name is valid and exists in the classpath.
+ * </p>
+ * 
+ * @see AudioClassScanner
+ *
+ * @since v2.0.0
+ * @author Theko
+ */
 public class ResourceLoader {
     
     private ResourceLoader() {

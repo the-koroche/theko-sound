@@ -5,7 +5,6 @@ package org.theko.sound.codec;
  * It extends {@link AudioCodecException} to provide more specific context for codec creation failures.
  * 
  * @since v1.3.1
- * 
  * @author Theko
  */
 public class AudioCodecCreationException extends AudioCodecException {

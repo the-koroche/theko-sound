@@ -17,7 +17,6 @@ package org.theko.sound.backend;
  * </p>
  *
  * @since v1.0.0
- * 
  * @author Theko
  */
 public class AudioBackendCreationException extends Exception {

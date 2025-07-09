@@ -6,7 +6,6 @@ package org.theko.sound;
  * audio ports in the system.
  * 
  * @since v1.0.0
- * 
  * @author Theko
  */
 public class AudioPortsNotFoundException extends Exception {

@@ -1,5 +1,17 @@
 package org.theko.sound.resampling;
 
+/**
+ * CubicResampleMethod implements a cubic resampling algorithm
+ * using Catmull-Rom splines for smooth interpolation.
+ * This method is suitable for high-quality audio resampling,
+ * providing a good balance between performance and quality.
+ * 
+ * @since v2.0.0
+ * @author Theko
+ * 
+ * @see ResampleMethod
+ * @see LinearResampleMethod
+ */
 public class CubicResampleMethod implements ResampleMethod {
 
     @Override

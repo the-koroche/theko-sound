@@ -11,7 +11,6 @@ import org.theko.sound.event.AudioControlEvent;
  * such as enabling or disabling a feature.
  * 
  * @since v1.2.0
- * 
  * @author Theko
  */
 public class BooleanControl extends AudioControl {

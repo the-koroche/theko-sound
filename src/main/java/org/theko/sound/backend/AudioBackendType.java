@@ -33,7 +33,6 @@ import java.lang.annotation.RetentionPolicy;
  * @see AudioBackendInfo
  * 
  * @since v1.0.0
- * 
  * @author Theko
  */
 @Target(ElementType.TYPE)

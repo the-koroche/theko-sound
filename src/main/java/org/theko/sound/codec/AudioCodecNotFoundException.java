@@ -10,7 +10,6 @@ package org.theko.sound.codec;
  * or unsupported.</p>
  * 
  * @since v1.3.1
- * 
  * @author Theko
  */
 public class AudioCodecNotFoundException extends AudioCodecException {

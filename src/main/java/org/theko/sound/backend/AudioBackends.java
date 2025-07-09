@@ -51,7 +51,6 @@ import org.theko.sound.AudioClassScanner;
  * @see AudioOutputBackend
  * 
  * @since v1.0.0
- * 
  * @author Theko
  */
 public class AudioBackends {

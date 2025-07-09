@@ -1,23 +1,66 @@
 package org.theko.sound.utility;
 
+/**
+ * Utility class for mathematical operations related to audio processing.
+ * <p>This class provides methods for remapping values between ranges, linear interpolation,
+ * and quantization of floating-point values.
+ * 
+ * @since v2.0.0
+ * @author Theko
+ */
 public class MathUtilities {
 
     private MathUtilities () {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
+    /**
+     * Remaps a value from one range to another without clamping the result.
+     *
+     * @param x The value to remap.
+     * @param inMin The minimum of the input range.
+     * @param inMax The maximum of the input range.
+     * @param outMin The minimum of the output range.
+     * @param outMax The maximum of the output range.
+     * @return The remapped value.
+     */
     public static double remapUnclamped (double x, double inMin, double inMax, double outMin, double outMax) {
         return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     }
 
+    /**
+     * Remaps a value from one range to another, clamping the result to the output range.
+     *
+     * @param x The value to remap.
+     * @param inMin The minimum of the input range.
+     * @param inMax The maximum of the input range.
+     * @param outMin The minimum of the output range.
+     * @param outMax The maximum of the output range.
+     * @return The remapped value, clamped to the output range.
+     */
     public static double remapClamped (double x, double inMin, double inMax, double outMin, double outMax) {
         return Math.min(outMax, Math.max(outMin, remapUnclamped(x, inMin, inMax, outMin, outMax)));
     }
 
+    /**
+     * Linearly interpolates between two values based on a parameter t.
+     *
+     * @param a The start value.
+     * @param b The end value.
+     * @param t The interpolation parameter, typically in the range [0, 1].
+     * @return The interpolated value.
+     */
     public static double lerp (double a, double b, double t) {
         return a + (b - a) * t;
     }
 
+    /**
+     * Quantizes a floating-point value to the nearest multiple of a specified step size.
+     *
+     * @param x The value to quantize.
+     * @param step The step size for quantization.
+     * @return The quantized value.
+     */
     public static float quantize (float x, float step) {
         return Math.round(x / step) * step;
     }
