@@ -68,9 +68,6 @@ public class AudioMixer implements AudioNode {
 
     private static final float STEREO_SEP_EPSILON = 0.000001f;
 
-    public AudioMixer () {
-    }
-
     public void addInput (AudioNode input) {
         if (input == null) {
             logger.error("Attempted to add null input to AudioMixer");
