@@ -53,7 +53,7 @@ import org.theko.sound.utility.ThreadUtilities;
  * @author Theko
  * @since v2.0.0
  */
-public class AudioOutputLayer {
+public class AudioOutputLayer implements AutoCloseable {
     
     private static final Logger logger = LoggerFactory.getLogger(AudioOutputLayer.class);
 
@@ -73,7 +73,7 @@ public class AudioOutputLayer {
         this(AudioBackends.getOutputBackend(AudioBackends.getPlatformBackend()));
     }
 
-    public void open (AudioPort port, AudioFormat audioFormat, int bufferSizeInSamples) throws AudioBackendCreationException, AudioBackendNotFoundException {
+    public void open (AudioPort port, AudioFormat audioFormat, int bufferSizeInSamples) throws AudioBackendException {
         try {
             AudioPort targetPort = (port == null ? aob.getDefaultPort(AudioFlow.OUT, audioFormat).get() : port);
             aob.open(targetPort, audioFormat, bufferSizeInSamples * audioFormat.getFrameSize());
@@ -81,17 +81,17 @@ public class AudioOutputLayer {
             this.bufferSize = bufferSizeInSamples;
             logger.debug("Opened audio output line with {} port, {} format, and {} buffer size", targetPort, audioFormat, bufferSizeInSamples);
         } catch (AudioBackendException | AudioPortsNotFoundException ex) {
-            throw new AudioBackendCreationException("Failed to open audio output line.", ex);
+            throw new AudioBackendException("Failed to open audio output line.", ex);
         } catch (UnsupportedAudioFormatException ex) {
-            throw new AudioBackendCreationException("Unsupported audio format.", ex);
+            throw new AudioBackendException("Unsupported audio format.", ex);
         }
     }
 
-    public void open (AudioPort port, AudioFormat audioFormat) throws AudioBackendCreationException, AudioBackendNotFoundException {
+    public void open (AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
         this.open(port, audioFormat, 2048);
     }
 
-    public void open (AudioFormat audioFormat) throws AudioBackendCreationException, AudioBackendNotFoundException, AudioPortsNotFoundException, UnsupportedAudioFormatException {
+    public void open (AudioFormat audioFormat) throws AudioBackendException, AudioPortsNotFoundException, UnsupportedAudioFormatException {
         this.open(aob.getDefaultPort(AudioFlow.OUT, audioFormat).get(), audioFormat);
     }
 
@@ -168,6 +168,7 @@ public class AudioOutputLayer {
         this.rootNode = rootNode;
     }
 
+    @Override
     public void close () {
         aob.close();
     }
@@ -192,7 +193,7 @@ public class AudioOutputLayer {
         return aob.getCurrentAudioPort();
     }
 
-    private void process () throws InterruptedException {
+    private synchronized void process () throws InterruptedException {
         float[][] sampleBuffer = new float[audioFormat.getChannels()][bufferSize];
         long bufferMs = AudioConverter.samplesToMicrosecond(sampleBuffer, audioFormat.getSampleRate()) / 1000;
         while (!processingThread.isInterrupted()) {
@@ -202,6 +203,10 @@ public class AudioOutputLayer {
             rootNode.render(sampleBuffer, audioFormat.getSampleRate(), bufferSize);
             if (sampleBuffer[0].length != bufferSize) {
                 throw new RuntimeException(new LengthMismatchException());
+            }
+            if (!aob.isOpen()) {
+                logger.debug("Audio output line is closed");
+                return;
             }
             aob.write(SampleConverter.fromSamples(sampleBuffer, audioFormat), 0, bufferSize * audioFormat.getFrameSize());
         }

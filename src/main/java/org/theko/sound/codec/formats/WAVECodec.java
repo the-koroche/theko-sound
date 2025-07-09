@@ -97,11 +97,9 @@ public class WAVECodec extends AudioCodec {
     /**
      * Decodes a WAVE file from the given input stream.
      * 
-     * @param is
-     *            the input stream containing the WAVE file
+     * @param is the input stream containing the WAVE file
      * @return the decoded audio data, format, and metadata
-     * @throws AudioCodecException
-     *             if the input stream is not a valid WAVE file
+     * @throws AudioCodecException if the input stream is not a valid WAVE file
      */
     @Override
     public AudioDecodeResult innerDecode (InputStream is) throws AudioCodecException {
@@ -192,11 +190,9 @@ public class WAVECodec extends AudioCodec {
     /**
      * Parses the 'fmt ' chunk of a WAVE file and returns the audio format.
      * 
-     * @param fmtData
-     *            the 'fmt ' chunk data
+     * @param fmtData the 'fmt ' chunk data
      * @return the audio format
-     * @throws AudioCodecException
-     *             if the audio format is not supported
+     * @throws AudioCodecException if the audio format is not supported
      */
     protected static AudioFormat parseFormatChunk (byte[] fmtData) throws AudioCodecException {
         ByteBuffer bb = ByteBuffer.wrap(fmtData).order(ByteOrder.LITTLE_ENDIAN);
@@ -244,8 +240,7 @@ public class WAVECodec extends AudioCodec {
     /**
      * Maps a WAVE INFO chunk ID to a corresponding audio tag ID.
      * 
-     * @param id
-     *            the WAVE INFO chunk ID
+     * @param id the WAVE INFO chunk ID
      * @return the audio tag ID, or null if not supported
      */
     protected static String mapInfoIdToTag (String id) {
@@ -269,10 +264,8 @@ public class WAVECodec extends AudioCodec {
     /**
      * Parses a WAVE LIST chunk and adds the contained tags to the specified list.
      * 
-     * @param listData
-     *            the LIST chunk data
-     * @param tags
-     *            the list of tags to add to
+     * @param listData the LIST chunk data
+     * @param tags the list of tags to add to
      */
     protected static void parseListChunk (byte[] listData, List<AudioTag> tags) {
         ByteBuffer bb = ByteBuffer.wrap(listData).order(ByteOrder.LITTLE_ENDIAN);
@@ -314,8 +307,7 @@ public class WAVECodec extends AudioCodec {
      * - repeated whitespace
      * - non-ASCII characters
      * 
-     * @param text
-     *            the text to clean
+     * @param text the text to clean
      * @return the cleaned text
      */
     protected static String cleanText (String text) {
@@ -333,12 +325,9 @@ public class WAVECodec extends AudioCodec {
      * Skips over a chunk of data in the input stream, also skipping any
      * required padding (1 byte if the chunk size is odd).
      * 
-     * @param dis
-     *            the input stream to read from
-     * @param chunkSize
-     *            the size of the chunk to skip
-     * @throws IOException
-     *             if there is an error reading from the stream
+     * @param dis the input stream to read from
+     * @param chunkSize the size of the chunk to skip
+     * @throws IOException if there is an error reading from the stream
      */
     protected static void skipChunkData (DataInputStream dis, int chunkSize) throws IOException {
         long skipped = 0;
@@ -351,12 +340,9 @@ public class WAVECodec extends AudioCodec {
     /**
      * Skips over padding (1 byte) if the chunk size is odd.
      * 
-     * @param dis
-     *            the input stream to read from
-     * @param chunkSize
-     *            the size of the chunk to skip padding for
-     * @throws IOException
-     *             if there is an error reading from the stream
+     * @param dis the input stream to read from
+     * @param chunkSize the size of the chunk to skip padding for
+     * @throws IOException if there is an error reading from the stream
      */
     protected static void skipPadding (DataInputStream dis, int chunkSize) throws IOException {
         if (chunkSize % 2 != 0) {
@@ -367,11 +353,9 @@ public class WAVECodec extends AudioCodec {
     /**
      * Reads a 4-byte little-endian integer from the given DataInputStream.
      * 
-     * @param dis
-     *            the input stream to read from
+     * @param dis the input stream to read from
      * @return the value read from the stream
-     * @throws IOException
-     *             if there is an error reading from the stream
+     * @throws IOException if there is an error reading from the stream
      */
     protected static int readLittleEndianInt (DataInputStream dis) throws IOException {
         byte[] bytes = new byte[4];
@@ -382,15 +366,11 @@ public class WAVECodec extends AudioCodec {
     /**
      * Encodes audio data into the WAVE format.
      * 
-     * @param data
-     *            the audio data to encode
-     * @param format
-     *            the audio format specifying encoding parameters
-     * @param tags
-     *            a list of audio tags to include in the encoded output
+     * @param data the audio data to encode
+     * @param format the audio format specifying encoding parameters
+     * @param tags a list of audio tags to include in the encoded output
      * @return an AudioEncodeResult containing the encoded WAVE data, format, and tags
-     * @throws AudioCodecException
-     *             if an error occurs during encoding, such as an I/O issue
+     * @throws AudioCodecException if an error occurs during encoding, such as an I/O issue
      */
     @Override
     public AudioEncodeResult innerEncode (byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException {
@@ -421,10 +401,8 @@ public class WAVECodec extends AudioCodec {
     /**
      * Creates a format chunk for a WAVE file containing audio format information.
      *
-     * @param audioFormatCode
-     *            the audio format code (e.g. WAVE_FORMAT_PCM, WAVE_FORMAT_IEEE_FLOAT)
-     * @param format
-     *            the audio format containing encoding parameters
+     * @param audioFormatCode the audio format code (e.g. WAVE_FORMAT_PCM, WAVE_FORMAT_IEEE_FLOAT)
+     * @param format the audio format containing encoding parameters
      * @return a byte array containing the format chunk data
      */
     protected static byte[] createFormatChunk (int audioFormatCode, AudioFormat format) {
@@ -474,11 +452,9 @@ public class WAVECodec extends AudioCodec {
      * <li>7 for ULAW (8-bit)</li>
      * </ul>
      * 
-     * @param encoding
-     *            the audio format encoding
+     * @param encoding the audio format encoding
      * @return the audio format code
-     * @throws AudioCodecException
-     *             if the encoding is not supported
+     * @throws AudioCodecException if the encoding is not supported
      */
     protected static int getAudioFormatCode (AudioFormat.Encoding encoding) throws AudioCodecException {
         switch (encoding) {
@@ -500,10 +476,8 @@ public class WAVECodec extends AudioCodec {
      * initially set to 0. The size will be updated later by calling
      * {@link #updateRiffSize(ByteArrayOutputStream)}.
      * 
-     * @param outputStream
-     *            the output stream to write to
-     * @throws IOException
-     *             if an I/O error occurs
+     * @param outputStream the output stream to write to
+     * @throws IOException if an I/O error occurs
      */
     protected static void writeRiffHeader (ByteArrayOutputStream outputStream) throws IOException {
         outputStream.write(RIFF_BYTES);
@@ -534,14 +508,10 @@ public class WAVECodec extends AudioCodec {
      * endian byte order. If the chunk data is of odd length, a padding byte of
      * 0 is appended to make the total length even.
      * 
-     * @param outputStream
-     *            the output stream to write to
-     * @param chunkId
-     *            the chunk ID (e.g. "fmt ", "data", etc.)
-     * @param chunkData
-     *            the chunk data
-     * @throws IOException
-     *             if an I/O error occurs
+     * @param outputStream the output stream to write to
+     * @param chunkId the chunk ID (e.g. "fmt ", "data", etc.)
+     * @param chunkData the chunk data
+     * @throws IOException if an I/O error occurs
      */
     protected static void writeChunk (ByteArrayOutputStream outputStream, byte[] chunkId, byte[] chunkData) throws IOException {
         outputStream.write(chunkId);
@@ -555,12 +525,9 @@ public class WAVECodec extends AudioCodec {
     /**
      * Writes a 4-byte integer to the given ByteArrayOutputStream in little-endian byte order.
      *
-     * @param stream
-     *            the output stream to write to
-     * @param value
-     *            the integer value to write
-     * @throws IOException
-     *             if an I/O error occurs while writing to the stream
+     * @param stream the output stream to write to
+     * @param value the integer value to write
+     * @throws IOException if an I/O error occurs while writing to the stream
      */
     protected static void writeLittleEndianInt (ByteArrayOutputStream stream, int value) throws IOException {
         byte[] bytes = ByteBuffer.allocate(4)
@@ -573,8 +540,7 @@ public class WAVECodec extends AudioCodec {
     /**
      * Maps an audio tag to a corresponding WAVE INFO chunk ID.
      * 
-     * @param tag
-     *            the audio tag to map
+     * @param tag the audio tag to map
      * @return the corresponding WAVE INFO chunk ID, or null if not supported
      */
     protected static String mapTagToInfoId (String tag) {
