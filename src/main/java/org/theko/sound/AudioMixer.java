@@ -12,10 +12,44 @@ import org.theko.sound.effects.AudioEffect;
 import org.theko.sound.effects.IncompatibleEffectTypeException;
 import org.theko.sound.effects.MultipleVaryingSizeEffectsException;
 import org.theko.sound.effects.VaryingSizeEffect;
-import org.theko.sound.properties.AudioSystemProperties;
+import static org.theko.sound.properties.AudioSystemProperties.*;
 import org.theko.sound.utility.ArrayUtilities;
 import org.theko.sound.utility.SamplesUtilities;
 
+
+/**
+ * The {@code AudioMixer} class implements an audio mixing node that combines multiple {@link AudioNode} inputs,
+ * applies a chain of {@link AudioEffect}s, and provides various controls for gain, pan, stereo separation,
+ * channel swapping, and polarity reversal. It supports both fixed-size and varying-size effects, and ensures
+ * proper handling of input and output buffer lengths and channel counts.
+ * <p>
+ * Main features:
+ * <ul>
+ *   <li>Add and remove multiple audio inputs and effects.</li>
+ *   <li>Support for pre-gain and post-gain adjustment, pan, and stereo separation.</li>
+ *   <li>Enable or disable effects processing, swap channels, and reverse polarity.</li>
+ *   <li>Handles effects that require varying input/output buffer sizes.</li>
+ *   <li>Ensures thread-safe and robust error handling for input and effect management.</li>
+ * </ul>
+ * <p>
+ * Usage example:
+ * <pre>
+ *     AudioMixer mixer = new AudioMixer();
+ *     mixer.addInput(audioNode1);
+ *     mixer.addInput(audioNode2);
+ *     mixer.addEffect(reverbEffect);
+ *     float[][] buffer = new float[2][1024];
+ *     mixer.render(buffer, 44100, 1024);
+ * </pre>
+ *
+ * @see AudioNode
+ * @see AudioEffect
+ * @see FloatControl
+ * @see BooleanControl
+ * 
+ * @author Theko
+ * @since v2.0.0
+ */
 public class AudioMixer implements AudioNode {
     
     private static final Logger logger = LoggerFactory.getLogger(AudioMixer.class);
@@ -28,16 +62,13 @@ public class AudioMixer implements AudioNode {
     private final FloatControl panControl = new FloatControl("Pan", -1.0f, 1.0f, 0.0f);
     private final FloatControl stereoSeparationControl = new FloatControl("Stereo Separation", -1.0f, 1.0f, 0.0f);
 
-    private final BooleanControl enableEffectsControl = new BooleanControl("Enable Effects", true);
-    private final BooleanControl swapChannelsControl = new BooleanControl("Swap Channels", false);
-    private final BooleanControl reversePolarityControl = new BooleanControl("Reverse Polarity", false);
+    private final BooleanControl enableEffectsControl = new BooleanControl("Enable Effects", ENABLE_EFFECTS_IN_MIXER);
+    private final BooleanControl swapChannelsControl = new BooleanControl("Swap Channels", SWAP_CHANNELS_IN_MIXER);
+    private final BooleanControl reversePolarityControl = new BooleanControl("Reverse Polarity", REVERSE_POLARITY_IN_MIXER);
 
-    private static final float PAN_EPSILON = 0.000001f;
-    private static final float GAIN_EPSILON = 0.000001f;
     private static final float STEREO_SEP_EPSILON = 0.000001f;
 
     public AudioMixer () {
-
     }
 
     public void addInput (AudioNode input) {
@@ -117,6 +148,18 @@ public class AudioMixer implements AudioNode {
         return stereoSeparationControl;
     }
 
+    public BooleanControl getEnableEffectsControl () {
+        return enableEffectsControl;
+    }
+
+    public BooleanControl getSwapChannelsControl () {
+        return swapChannelsControl;
+    }
+
+    public BooleanControl getReversePolarityControl () {
+        return reversePolarityControl;
+    }
+
     @Override
     public void render (float[][] samples, int sampleRate, int length) {
         if (samples == null || samples.length == 0 || length <= 0) {
@@ -143,7 +186,7 @@ public class AudioMixer implements AudioNode {
         }
 
         float[][] mixed = mixInputs(collectedInputs, inputLength, channels);
-        applyGain(mixed, preGainControl.getValue(), 0.0f);
+        SamplesUtilities.adjustGainAndPan(mixed, preGainControl.getValue(), 0.0f);
 
         if (enableEffects) {
             int preVaryingEffectEnd = varyingSizeEffectIndex == -1 ? effects.size() : varyingSizeEffectIndex;
@@ -174,8 +217,14 @@ public class AudioMixer implements AudioNode {
             mixed = SamplesUtilities.reversePolarity(mixed);
         }
 
-        applyGain(mixed, postGainControl.getValue(), panControl.getValue());
-        ArrayUtilities.copyArray(mixed, samples);
+        SamplesUtilities.adjustGainAndPan(mixed, postGainControl.getValue(), panControl.getValue());
+        try {
+            ArrayUtilities.copyArray(mixed, samples);
+        } catch (ChannelsCountMismatchException | LengthMismatchException ex) {
+            logger.error("Failed to copy mixed samples to output.", ex);
+            throw new MixingException(ex);
+        }
+        
     }
 
     private int getTargetInputLength (int length) throws LengthMismatchException {
@@ -235,7 +284,7 @@ public class AudioMixer implements AudioNode {
                 );
             }
 
-            if (AudioSystemProperties.CHECK_LENGTH_MISMATCH_IN_MIXER) {
+            if (CHECK_LENGTH_MISMATCH_IN_MIXER) {
                 SamplesUtilities.checkLength(input, frameCount);
             }
         }
@@ -274,32 +323,6 @@ public class AudioMixer implements AudioNode {
             }
             // Else do nothing, as the effect is disabled or has zero mix level
         }
-    }
-
-    private void applyGain (float[][] samples, float gain, float pan) {
-        if (pan * pan <= PAN_EPSILON && gain * gain <= GAIN_EPSILON) return;
-
-        float leftVol = 1.0f;
-        float rightVol = 1.0f;
-        if (pan * pan > PAN_EPSILON) {
-            float angle = (float)((pan + 1.0f) * Math.PI / 4.0f);
-            leftVol  = (float)Math.cos(angle);
-            rightVol = (float)Math.sin(angle); 
-        }
-
-        for (int ch = 0; ch < samples.length; ch++) {
-            float channelVol = getVolumeForChannel(ch, gain, leftVol, rightVol);
-            float[] channelSamples = samples[ch];
-            for (int frame = 0; frame < channelSamples.length; frame++) {
-                channelSamples[frame] *= channelVol;
-            }
-        }
-    }
-
-    private float getVolumeForChannel (int ch, float gain, float leftVol, float rightVol) {
-        if (ch == 0) return gain * leftVol;
-        if (ch == 1) return gain * rightVol;
-        return gain;
     }
 
     private static class CollectedInputs {
