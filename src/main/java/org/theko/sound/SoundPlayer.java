@@ -16,9 +16,9 @@ public class SoundPlayer extends SoundSource {
 
     public static final int DEFAULT_BUFFER_SIZE = 4096;
 
-    private final AudioOutputLine outputLine;
+    private final AudioOutputLayer outputLine;
 
-    public SoundPlayer (AudioOutputLine outputLine) {
+    public SoundPlayer (AudioOutputLayer outputLine) {
         super();
         this.outputLine = outputLine;
             this.outputLine.setRootNode(this);
@@ -27,7 +27,7 @@ public class SoundPlayer extends SoundSource {
     public SoundPlayer () {
         super();
         try {
-            this.outputLine = new AudioOutputLine();
+            this.outputLine = new AudioOutputLayer();
             this.outputLine.setRootNode(this);
         } catch (AudioBackendCreationException | AudioBackendNotFoundException ex) {
             throw new RuntimeException("Audio backend creation failed.", ex);
