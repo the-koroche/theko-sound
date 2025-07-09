@@ -1,5 +1,6 @@
 package org.theko.sound;
 
+@Deprecated
 public class AudioSamples {
     
     public final float[][] samples; // [channels][frames]
