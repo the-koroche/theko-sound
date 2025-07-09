@@ -34,11 +34,29 @@ public class SoundPlayer extends SoundSource {
         }
     }
 
+    public SoundPlayer (File file) {
+        this();
+        try {
+            this.open(file);
+        } catch (FileNotFoundException | AudioCodecNotFoundException e) {
+            throw new RuntimeException("Failed to open audio file: " + file, e);
+        }
+    }
+
+    public SoundPlayer (String file) {
+        this();
+        try {
+            this.open(new File(file));
+        } catch (FileNotFoundException | AudioCodecNotFoundException e) {
+            throw new RuntimeException("Failed to open audio file: " + file, e);
+        }
+    }
+
     public void open (File file, AudioPort port, int bufferSize) throws FileNotFoundException, AudioCodecNotFoundException {
         super.open(file);
         try {
             this.outputLine.open(port, AudioFormat.NORMAL_QUALITY_FORMAT, bufferSize);
-        } catch (AudioBackendCreationException | AudioBackendNotFoundException e) {
+        } catch (AudioBackendException e) {
             throw new AudioBackendException("Audio backend creation failed.", e);
         }
     }
@@ -47,7 +65,7 @@ public class SoundPlayer extends SoundSource {
         super.open(file);
         try {
             this.outputLine.open(port, AudioFormat.NORMAL_QUALITY_FORMAT, DEFAULT_BUFFER_SIZE);
-        } catch (AudioBackendCreationException | AudioBackendNotFoundException e) {
+        } catch (AudioBackendException e) {
             throw new AudioBackendException("Audio backend creation failed.", e);
         }
     }
@@ -56,7 +74,7 @@ public class SoundPlayer extends SoundSource {
         super.open(file);
         try {
             this.outputLine.open(null, AudioFormat.NORMAL_QUALITY_FORMAT, DEFAULT_BUFFER_SIZE);
-        } catch (AudioBackendCreationException | AudioBackendNotFoundException e) {
+        } catch (AudioBackendException e) {
             throw new AudioBackendException("Audio backend creation failed.", e);
         }
     }

@@ -54,7 +54,7 @@ import org.theko.sound.utility.ArrayUtilities;
  * @since v2.0.0
  * @author Theko
  */
-public class SoundSource implements AudioNode, Controllable {
+public class SoundSource implements AudioNode, Controllable, AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(SoundSource.class);
 
@@ -105,6 +105,17 @@ public class SoundSource implements AudioNode, Controllable {
 
             playedSamples += safeLength;
         }
+    }
+
+    public SoundSource (File file) throws FileNotFoundException, AudioCodecNotFoundException {
+        this.open(file);
+    }
+
+    public SoundSource (String file) throws FileNotFoundException, AudioCodecNotFoundException {
+        this.open(file);
+    }
+
+    public SoundSource () {
     }
 
     public void open (File file) throws FileNotFoundException, AudioCodecNotFoundException {
@@ -217,6 +228,10 @@ public class SoundSource implements AudioNode, Controllable {
             return 0.0;
         }
         return samplesData[0].length / (double)audioFormat.getSampleRate();
+    }
+
+    public AudioFormat getAudioFormat () {
+        return audioFormat;
     }
 
     private void decodeAudioFile (File file) {
