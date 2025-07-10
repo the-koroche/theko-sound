@@ -117,10 +117,10 @@ public class AudioFormat implements Serializable {
     public int getSampleRate () { return sampleRate; }
 
     /** @return Bits per sample. */
-    public int getBitsPerSample () { return bitsPerSample; }
+    public int getSampleSizeInBits () { return bitsPerSample; }
 
     /** @return Bytes per sample. */
-    public int getBytesPerSample () { return bitsPerSample / 8; }
+    public int getSampleSizeInBytes () { return bitsPerSample / 8; }
 
     /** @return The number of audio channels. */
     public int getChannels () { return channels; }

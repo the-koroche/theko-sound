@@ -164,7 +164,7 @@ public class JavaSoundBackend implements AudioBackend {
         return new javax.sound.sampled.AudioFormat(
                 getJavaSoundAudioEncoding(audioFormat.getEncoding()),
                 audioFormat.getSampleRate(),
-                audioFormat.getBitsPerSample(),
+                audioFormat.getSampleSizeInBits(),
                 audioFormat.getChannels(),
                 audioFormat.getFrameSize(),
                 audioFormat.getByteRate() / audioFormat.getFrameSize(),
