@@ -1,5 +1,6 @@
 package org.theko.sound;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -248,7 +249,9 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
             AudioCodec audioCodec = AudioCodecs.getCodec(codec);
 
             logger.debug("Audio codec: {}", audioCodec.getClass().getSimpleName());
-            AudioDecodeResult decodeResult = audioCodec.decode(new FileInputStream(file));
+            AudioDecodeResult decodeResult = audioCodec.decode(
+                new BufferedInputStream(new FileInputStream(file), 1024 * 256)
+            );
 
             if (decodeResult == null || decodeResult.getSamples() == null || decodeResult.getSamples().length == 0) {
                 logger.error("Failed to decode audio file: {}", file.getName());
