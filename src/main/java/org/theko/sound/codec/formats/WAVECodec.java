@@ -16,7 +16,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.AudioFormat;
-import org.theko.sound.SampleConverter;
 import org.theko.sound.UnsupportedAudioEncodingException;
 import org.theko.sound.codec.AudioCodec;
 import org.theko.sound.codec.AudioCodecException;
@@ -25,6 +24,7 @@ import org.theko.sound.codec.AudioCodecType;
 import org.theko.sound.codec.AudioDecodeResult;
 import org.theko.sound.codec.AudioEncodeResult;
 import org.theko.sound.codec.AudioTag;
+import org.theko.sound.utility.FastPcmToSamplesConverter;
 
 /**
  * The {@code WAVECodec} class provides functionality for encoding and decoding
@@ -115,6 +115,7 @@ public class WAVECodec extends AudioCodec {
                 throw new AudioCodecException("Not a valid RIFF file.");
             }
 
+            long signatureCheckStartNs = System.nanoTime();
             // Skip file size (not used)
             readLittleEndianInt(dis);
 
@@ -125,7 +126,12 @@ public class WAVECodec extends AudioCodec {
                 logger.error("Not a valid WAVE file.");
                 throw new AudioCodecException("Not a valid WAVE file.");
             }
+
+            long signatureCheckNs = System.nanoTime() - signatureCheckStartNs;
             logger.debug("WAVE signatures is valid.");
+            logger.debug("Elapsed signature check time: " + signatureCheckNs + " ns.");
+
+            long totalDecodingStartNs = System.nanoTime();
 
             AudioFormat format = null;
             byte[] audioData = null;
@@ -141,28 +147,45 @@ public class WAVECodec extends AudioCodec {
 
                 if (Arrays.equals(FORMAT_BYTES, chunkIdBytes)) {
                     // Audio format
-                    logger.debug("Reading audio format...");
+                    long formatStartNs = System.nanoTime();
+
                     byte[] fmtData = new byte[chunkSize];
                     dis.readFully(fmtData);
                     format = parseFormatChunk(fmtData);
                     skipPadding(dis, chunkSize);
+
+                    long formatNs = System.nanoTime() - formatStartNs;
+                    logger.debug("Elapsed format parsing time: " + formatNs + " ns.");
                 } else if (Arrays.equals(DATA_BYTES, chunkIdBytes)) {
                     // Audio data
-                    logger.debug("Reading audio data...");
+                    long dataStartNs = System.nanoTime();
+
                     audioData = new byte[chunkSize];
                     dis.readFully(audioData);
                     skipPadding(dis, chunkSize);
+
+                    long dataNs = System.nanoTime() - dataStartNs;
+                    logger.debug("Elapsed data parsing time: " + dataNs + " ns.");
                 } else if (Arrays.equals(LIST_BYTES, chunkIdBytes)) {
                     // Metadata
-                    logger.debug("Reading metadata...");
+                    long listStartNs = System.nanoTime();
+
                     byte[] listData = new byte[chunkSize];
                     dis.readFully(listData);
                     parseListChunk(listData, tags);
                     skipPadding(dis, chunkSize);
+
+                    long listNs = System.nanoTime() - listStartNs;
+                    logger.debug("Elapsed list parsing time: " + listNs + " ns.");
                 } else {
+                    long skipStartNs = System.nanoTime();
+
                     // Skip unknown chunks
                     logger.info("Skip chunk \"" + new String(chunkIdBytes, StandardCharsets.US_ASCII) + "\" with size " + chunkSize + " bytes.");
                     skipChunkData(dis, chunkSize);
+
+                    long skipNs = System.nanoTime() - skipStartNs;
+                    logger.debug("Elapsed skip parsing time: " + skipNs + " ns.");
                 }
             }
 
@@ -180,7 +203,14 @@ public class WAVECodec extends AudioCodec {
             logger.debug("Audio data size (bytes): " + audioData.length);
             logger.debug("Metadata: " + tags);
 
-            float[][] pcm = SampleConverter.toSamples(audioData, format);
+            long totalDecodingNs = System.nanoTime() - totalDecodingStartNs;
+            logger.debug("Elapsed total decoding time: " + totalDecodingNs + " ns.");
+
+            long pcmConvertStartNs = System.nanoTime();
+            float[][] pcm = FastPcmToSamplesConverter.toSamples(audioData, format);
+            long pcmConvertNs = System.nanoTime() - pcmConvertStartNs;
+            logger.debug("Elapsed PCM conversion time: " + pcmConvertNs + " ns.");
+
             return new AudioDecodeResult(CODEC_INFO, pcm, format, Collections.unmodifiableList(tags));
         } catch (IOException ex) {
             throw new AudioCodecException(ex);
@@ -413,7 +443,7 @@ public class WAVECodec extends AudioCodec {
                 .putInt(format.getSampleRate())
                 .putInt(format.getByteRate())
                 .putShort((short) format.getFrameSize())
-                .putShort((short) format.getBitsPerSample())
+                .putShort((short) format.getSampleSizeInBits())
                 .array();
     }
 
