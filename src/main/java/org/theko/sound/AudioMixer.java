@@ -73,6 +73,10 @@ public class AudioMixer implements AudioNode {
             logger.error("Attempted to add null input to AudioMixer");
             throw new IllegalArgumentException("Input cannot be null");
         }
+        if (input instanceof AudioEffect) {
+            logger.error("Attempted to add an effect ({}) as an input to AudioMixer", input.getClass().getSimpleName());
+            throw new IllegalArgumentException("Input cannot be an effect");
+        }
         inputs.add(input);
     }
 
