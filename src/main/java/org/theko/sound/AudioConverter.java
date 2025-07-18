@@ -3,6 +3,7 @@ package org.theko.sound;
 import java.util.Arrays;
 
 import org.theko.sound.resampling.AudioResampler;
+import org.theko.sound.samples.SampleConverter;
 
 /**
  * The AudioConverter class provides utility methods for converting audio data

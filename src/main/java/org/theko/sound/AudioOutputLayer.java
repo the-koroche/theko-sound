@@ -8,6 +8,7 @@ import org.theko.sound.backend.AudioBackendNotFoundException;
 import org.theko.sound.backend.AudioBackends;
 import org.theko.sound.backend.AudioOutputBackend;
 import org.theko.sound.properties.AudioSystemProperties;
+import org.theko.sound.samples.SampleConverter;
 import org.theko.sound.utility.ThreadUtilities;
 
 /**
@@ -88,11 +89,11 @@ public class AudioOutputLayer implements AutoCloseable {
     }
 
     public void open (AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
-        this.open(port, audioFormat, 2048);
+        this.open(port, audioFormat, AudioSystemProperties.AUDIO_OUTPUT_LAYER_BUFFER_SIZE);
     }
 
     public void open (AudioFormat audioFormat) throws AudioBackendException, AudioPortsNotFoundException, UnsupportedAudioFormatException {
-        this.open(aob.getDefaultPort(AudioFlow.OUT, audioFormat).get(), audioFormat);
+        this.open(null, audioFormat);
     }
 
     public boolean isOpen () {

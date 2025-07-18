@@ -24,7 +24,7 @@ import org.theko.sound.codec.AudioCodecType;
 import org.theko.sound.codec.AudioDecodeResult;
 import org.theko.sound.codec.AudioEncodeResult;
 import org.theko.sound.codec.AudioTag;
-import org.theko.sound.utility.FastPcmToSamplesConverter;
+import org.theko.sound.samples.FastPcmToSamplesConverter;
 
 /**
  * The {@code WAVECodec} class provides functionality for encoding and decoding
