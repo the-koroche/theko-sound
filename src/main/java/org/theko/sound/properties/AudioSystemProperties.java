@@ -43,8 +43,11 @@ public final class AudioSystemProperties {
     public static final int CLEANER_THREAD_PRIORITY =
             parsePriority("org.theko.sound.threadPriority.cleaner", Thread.MIN_PRIORITY);
 
+    public static final int AUDIO_OUTPUT_LAYER_BUFFER_SIZE =
+            Integer.parseInt(System.getProperty("org.theko.sound.audioOutputLayer.defaultBufferSize", "2048"));
+
     public static final int RESAMPLER_SHARED_QUALITY =
-            Integer.parseInt(System.getProperty("org.theko.sound.shared.resampler.quality", "2"));
+            Integer.parseInt(System.getProperty("org.theko.sound.shared.resampler.quality", "3"));
     public static final ResampleMethod RESAMPLER_SHARED_METHOD =
             parseResampleMethod(System.getProperty("org.theko.sound.shared.resampler.method", "lanczos"));
     public static final boolean RESAMPLER_LOG_HIGH_QUALITY =
@@ -58,6 +61,11 @@ public final class AudioSystemProperties {
             Boolean.parseBoolean(System.getProperty("org.theko.sound.mixer.reversePolarity", "false"));
     public static final boolean CHECK_LENGTH_MISMATCH_IN_MIXER =
             Boolean.parseBoolean(System.getProperty("org.theko.sound.mixer.checkLengthMismatch", "true"));
+
+    public static final int RESAMPLER_EFFECT_QUALITY =
+            Integer.parseInt(System.getProperty("org.theko.sound.effects.resampler.quality", "2"));
+    public static final ResampleMethod RESAMPLER_EFFECT_METHOD =
+            parseResampleMethod(System.getProperty("org.theko.sound.effects.resampler.method", "lanczos"));
 
     static {
         logProperties();
@@ -77,6 +85,8 @@ public final class AudioSystemProperties {
         logger.debug("Cleaner thread: {}", 
                 formatThreadInfo(CLEANER_THREAD_TYPE, CLEANER_THREAD_PRIORITY));
 
+        logger.debug("Default buffer size for audio output layer: {}", AUDIO_OUTPUT_LAYER_BUFFER_SIZE);
+
         logger.debug("Resampler shared quality: {}", RESAMPLER_SHARED_QUALITY);
         logger.debug("Resampler shared method: {}", RESAMPLER_SHARED_METHOD.getClass().getSimpleName());
         logger.debug("Resampler log high quality: {}", RESAMPLER_LOG_HIGH_QUALITY);
@@ -85,6 +95,9 @@ public final class AudioSystemProperties {
         logger.debug("Enable effects in mixer: {}", ENABLE_EFFECTS_IN_MIXER);
         logger.debug("Swap channels in mixer: {}", SWAP_CHANNELS_IN_MIXER);
         logger.debug("Reverse polarity in mixer: {}", REVERSE_POLARITY_IN_MIXER);
+
+        logger.debug("Resampler effect quality: {}", RESAMPLER_EFFECT_QUALITY);
+        logger.debug("Resampler effect method: {}", RESAMPLER_EFFECT_METHOD.getClass().getSimpleName());
 
         logger.debug("Audio system properties initialized.");
     }
@@ -112,7 +125,6 @@ public final class AudioSystemProperties {
             case "linear": return new LinearResampleMethod();
             case "cubic": return new CubicResampleMethod();
             case "lanczos": return new LanczosResampleMethod();
-            case "timestretch": return new PhaseVocoderResampler();
             default:
                 logger.warn("Resample method '{}' not recognized. Falling back to CubicResampleMethod.", method);
                 return new LinearResampleMethod();
