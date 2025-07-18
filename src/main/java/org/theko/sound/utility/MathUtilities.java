@@ -24,7 +24,7 @@ public class MathUtilities {
      * @param outMax The maximum of the output range.
      * @return The remapped value.
      */
-    public static double remapUnclamped (double x, double inMin, double inMax, double outMin, double outMax) {
+    public static float remapUnclamped (float x, float inMin, float inMax, float outMin, float outMax) {
         return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     }
 
@@ -38,7 +38,7 @@ public class MathUtilities {
      * @param outMax The maximum of the output range.
      * @return The remapped value, clamped to the output range.
      */
-    public static double remapClamped (double x, double inMin, double inMax, double outMin, double outMax) {
+    public static float remapClamped (float x, float inMin, float inMax, float outMin, float outMax) {
         return Math.min(outMax, Math.max(outMin, remapUnclamped(x, inMin, inMax, outMin, outMax)));
     }
 
@@ -50,7 +50,7 @@ public class MathUtilities {
      * @param t The interpolation parameter, typically in the range [0, 1].
      * @return The interpolated value.
      */
-    public static double lerp (double a, double b, double t) {
+    public static float lerp (float a, float b, float t) {
         return a + (b - a) * t;
     }
 
