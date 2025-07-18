@@ -14,6 +14,7 @@ import org.theko.sound.effects.MultipleVaryingSizeEffectsException;
 import org.theko.sound.effects.VaryingSizeEffect;
 import static org.theko.sound.properties.AudioSystemProperties.*;
 import org.theko.sound.utility.ArrayUtilities;
+import org.theko.sound.utility.MathUtilities;
 import org.theko.sound.utility.SamplesUtilities;
 
 
@@ -68,7 +69,7 @@ public class AudioMixer implements AudioNode {
 
     private static final float STEREO_SEP_EPSILON = 0.000001f;
 
-    public void addInput (AudioNode input) {
+    public void addInput(AudioNode input) {
         if (input == null) {
             logger.error("Attempted to add null input to AudioMixer");
             throw new IllegalArgumentException("Input cannot be null");
@@ -77,7 +78,37 @@ public class AudioMixer implements AudioNode {
             logger.error("Attempted to add an effect ({}) as an input to AudioMixer", input.getClass().getSimpleName());
             throw new IllegalArgumentException("Input cannot be an effect");
         }
+        if (input.equals(this)) {
+            logger.error("Attempted to add self as an input to AudioMixer");
+            throw new IllegalArgumentException("Input cannot be self");
+        }
+
+        // Check for circular reference
+        if (input instanceof AudioMixer) {
+            AudioMixer mixerInput = (AudioMixer) input;
+            if (mixerInput.hasMixer(this)) {
+                logger.error("Detected circular reference when trying to add mixer {} to {}", 
+                            mixerInput.getClass().getSimpleName(), this.getClass().getSimpleName());
+                throw new IllegalArgumentException("Circular mixer reference detected");
+            }
+        }
+
         inputs.add(input);
+    }
+
+    private boolean hasMixer (AudioMixer mixer) {
+        for (AudioNode input : inputs) {
+            if (input.equals(mixer)) {
+                return true;
+            }
+            if (input instanceof AudioMixer) {
+                AudioMixer inputMixer = (AudioMixer) input;
+                if (inputMixer.hasMixer(mixer)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public void addEffect (AudioEffect effect) throws IncompatibleEffectTypeException, MultipleVaryingSizeEffectsException {
@@ -310,15 +341,15 @@ public class AudioMixer implements AudioNode {
     private void processEffectChain (float[][] samples, int sampleRate, int start, int end) {
         for (int i = start; i < end; i++) {
             AudioEffect effect = effects.get(i);
-            float[][] effectBuffer = ArrayUtilities.cutArray(samples, 0, samples.length, 0, samples[0].length);
-            effect.render(effectBuffer, sampleRate, effectBuffer[0].length);
             if (effect.getMixLevelControl().getValue() > 0.0f && effect.getEnableControl().isEnabled()) {
+                float[][] effectBuffer = ArrayUtilities.cutArray(samples, 0, samples.length, 0, samples[0].length);
+                effect.render(effectBuffer, sampleRate, effectBuffer[0].length);
                 float mixLevel = effect.getMixLevelControl().getValue();
                 for (int ch = 0; ch < samples.length; ch++) {
                     float[] channelSamples = samples[ch];
                     float[] effectChannelSamples = effectBuffer[ch];
                     for (int frame = 0; frame < channelSamples.length; frame++) {
-                        channelSamples[frame] += effectChannelSamples[frame] * mixLevel;
+                        channelSamples[frame] = MathUtilities.lerp(samples[ch][frame], effectChannelSamples[frame], mixLevel);
                     }
                 }
             }
