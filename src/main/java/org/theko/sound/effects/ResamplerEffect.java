@@ -3,7 +3,6 @@ package org.theko.sound.effects;
 import org.theko.sound.control.FloatControl;
 import org.theko.sound.properties.AudioSystemProperties;
 import org.theko.sound.resampling.AudioResampler;
-import org.theko.sound.resampling.LanczosResampleMethod;
 import org.theko.sound.resampling.ResampleMethod;
 import org.theko.sound.utility.ArrayUtilities;
 
@@ -24,11 +23,11 @@ public class ResamplerEffect extends AudioEffect implements VaryingSizeEffect{
 
     public ResamplerEffect(ResampleMethod method) {
         super(Type.REALTIME);
-        resampler = new AudioResampler(method, AudioSystemProperties.RESAMPLER_SHARED_QUALITY);
+        resampler = new AudioResampler(method, AudioSystemProperties.RESAMPLER_EFFECT_QUALITY);
     }
 
     public ResamplerEffect() {
-        this(new LanczosResampleMethod());
+        this(AudioSystemProperties.RESAMPLER_EFFECT_METHOD);
     }
 
     public FloatControl getSpeedControl() {
