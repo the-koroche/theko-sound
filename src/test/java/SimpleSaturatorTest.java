@@ -8,8 +8,9 @@ import org.theko.sound.UnsupportedAudioFormatException;
 import org.theko.sound.backend.AudioBackendCreationException;
 import org.theko.sound.backend.AudioBackendNotFoundException;
 import org.theko.sound.codec.AudioCodecNotFoundException;
+import org.theko.sound.effects.SimpleSaturatorEffect;
 
-public class AudioOutputMixerTest {
+public class SimpleSaturatorTest {
     public static void main(String[] args) {
         AudioMixerOutput out = null;
         try {
@@ -42,6 +43,11 @@ public class AudioOutputMixerTest {
             }
 
             outMixer.addInput(sound);
+            
+            SimpleSaturatorEffect saturator = new SimpleSaturatorEffect();
+            saturator.getSaturation().setValue(3.0f);
+
+            outMixer.addEffect(saturator);
 
             sound.start();
 

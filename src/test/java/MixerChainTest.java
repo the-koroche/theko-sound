@@ -8,8 +8,10 @@ import org.theko.sound.UnsupportedAudioFormatException;
 import org.theko.sound.backend.AudioBackendCreationException;
 import org.theko.sound.backend.AudioBackendNotFoundException;
 import org.theko.sound.codec.AudioCodecNotFoundException;
+import org.theko.sound.effects.BitcrusherEffect;
+import org.theko.sound.generator.NoiseGenerator;
 
-public class AudioOutputMixerTest {
+public class MixerChainTest {
     public static void main(String[] args) {
         AudioMixerOutput out = null;
         try {
@@ -23,7 +25,19 @@ public class AudioOutputMixerTest {
             AudioMixer outMixer = new AudioMixer();
             out.setMixer(outMixer);
 
+            AudioMixer soundMixer = new AudioMixer();
             SoundSource sound = new SoundSource();
+            soundMixer.addInput(sound);
+
+            BitcrusherEffect bitcrusherEffect = new BitcrusherEffect();
+            bitcrusherEffect.getBitdepth().setValue(4f);
+            bitcrusherEffect.getSampleRateReduction().setValue(2000f);
+
+            soundMixer.addEffect(bitcrusherEffect);
+
+            AudioMixer noiseMixer = new AudioMixer();
+            noiseMixer.addInput(new NoiseGenerator());
+            noiseMixer.getPostGainControl().setValue(0.02f);
 
             try {
                 sound.open(SharedFunctions.chooseAudioFile());
@@ -41,7 +55,8 @@ public class AudioOutputMixerTest {
                 return;
             }
 
-            outMixer.addInput(sound);
+            outMixer.addInput(soundMixer);
+            //outMixer.addInput(noiseMixer);
 
             sound.start();
 
