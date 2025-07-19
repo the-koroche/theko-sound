@@ -1,8 +1,7 @@
+import java.awt.FileDialog;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioOutputLayer;
@@ -13,6 +12,8 @@ import org.theko.sound.backend.AudioBackendNotFoundException;
 import org.theko.sound.codec.AudioCodecException;
 import org.theko.sound.codec.AudioCodecs;
 import org.theko.sound.codec.AudioDecodeResult;
+
+import java.awt.Frame;
 
 public class SharedFunctions {
     public static AudioDecodeResult decodeAudioFile(String filePath) {
@@ -25,13 +26,18 @@ public class SharedFunctions {
     }
 
     public static String chooseAudioFile() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Select an audio file");
-        fileChooser.setFileFilter(new FileNameExtensionFilter("Audio Files", "wav", "ogg", "flac"));
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        int result = fileChooser.showOpenDialog(null);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            return fileChooser.getSelectedFile().getAbsolutePath();
+        FileDialog fileDialog = new FileDialog((Frame) null, "Select an audio file (*.wav, *.ogg, *.flac)", FileDialog.LOAD);
+        fileDialog.setFilenameFilter((dir, name) ->
+            name.endsWith(".wav") || name.endsWith(".ogg") || name.endsWith(".flac")
+        );
+
+        fileDialog.setVisible(true);
+
+        String directory = fileDialog.getDirectory();
+        String filename = fileDialog.getFile();
+
+        if (directory != null && filename != null) {
+            return new File(directory, filename).getAbsolutePath();
         } else {
             System.out.println("No file selected.");
             return null;

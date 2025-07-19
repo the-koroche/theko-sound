@@ -1,3 +1,4 @@
+import java.awt.event.MouseAdapter;
 import java.io.FileNotFoundException;
 
 import javax.swing.JFrame;
@@ -14,7 +15,7 @@ import org.theko.sound.visualizer.WaveformVisualizer;
 
 public class AudioVisualizerTest {
     public static void main(String[] args) {
-        System.setProperty("org.theko.sound.audioOutputLayer.defaultBufferSize", "1024");
+        System.setProperty("org.theko.sound.audioOutputLayer.defaultBufferSize", "512");
 
         AudioMixerOutput out = null;
         try {
@@ -48,21 +49,31 @@ public class AudioVisualizerTest {
 
             outMixer.addInput(sound);
 
-            WaveformVisualizer wave = new WaveformVisualizer(30.0f);
+            WaveformVisualizer wave = new WaveformVisualizer(60.0f);
             outMixer.addEffect(wave);
 
             JFrame frame = new JFrame("Audio Visualizer Test");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.add(wave.getPanel());
-            frame.setSize(1920, 1080);
+            frame.setSize(1000, 140);
             frame.setUndecorated(true);
-            frame.setBackground(new java.awt.Color(0, 0, 0, 0));
+            frame.setBackground(new java.awt.Color(0, 0, 0, 127));
+            frame.setLocationRelativeTo(null);
+            frame.addMouseMotionListener(new MouseAdapter () {
+                @Override
+                public void mouseDragged(java.awt.event.MouseEvent e) {
+                    frame.setLocation(e.getXOnScreen() - frame.getWidth() / 2, e.getYOnScreen() - frame.getHeight() / 2);
+                }
+            });
             frame.setVisible(true);
 
             sound.start();
 
             try {
-                Thread.sleep(Math.min(50000, (int)(sound.getDuration() * 1000)));
+                while (sound.isPlaying()) {
+                    Thread.sleep(100);
+                    //wave.getDuration().setValue(wave.getDuration().getValue() * 0.95f);
+                }
             } catch (InterruptedException e) {
                 System.out.println("Interrupted.");
             }
