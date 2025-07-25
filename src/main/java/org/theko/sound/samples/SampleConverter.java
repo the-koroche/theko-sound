@@ -2,6 +2,8 @@ package org.theko.sound.samples;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 import java.util.Arrays;
 
 import org.theko.sound.AudioConverter;
@@ -53,15 +55,14 @@ import org.theko.sound.AudioFormat;
 public class SampleConverter {
 
     /**
-     * Converts raw byte data to normalized floating-point samples.
-     *
-     * @param data        The raw audio byte array.
-     * @param audioFormat The format of the audio data.
-     * @param volumes     Optional per-channel volume multipliers.
-     * @return A 2D float array where each row represents a channel.
-     * @throws IllegalArgumentException If volume array length is invalid.
+     * Converts raw audio byte data to normalized floating-point samples.
+     * 
+     * @param data The raw audio byte data.
+     * @param audioFormat The audio format associated with the byte data.
+     * @param volumes Optional volume multipliers for each channel. If not provided, the samples will be normalized to the range [-1, 1].
+     * @return A 2D array of floating-point samples, where each row represents a channel and each column represents a sample.
      */
-    public static float[][] toSamples (byte[] data, AudioFormat audioFormat, float... volumes) {
+    public static float[][] toSamples(byte[] data, AudioFormat audioFormat, float... volumes) {
         int bytesPerSample = audioFormat.getSampleSizeInBytes();
         boolean isBigEndian = audioFormat.isBigEndian();
         int channels = audioFormat.getChannels();
@@ -81,53 +82,102 @@ public class SampleConverter {
             System.arraycopy(volumes, 0, appliedVolumes, 0, channels);
         }
 
-        float[][] samples = new float[channels][data.length / bytesPerSample / channels];
+        int sampleCount = data.length / bytesPerSample / channels;
+        float[][] samples = new float[channels][sampleCount];
         ByteBuffer buffer = ByteBuffer.wrap(data).order(isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
 
-        // Read audio data and convert to float samples
-        for (int i = 0; i < samples[0].length; i++) {
-            for (int ch = 0; ch < channels; ch++) {
-                float value;
-                switch (audioFormat.getEncoding()) {
-                    case PCM_UNSIGNED:
-                        value = unsignedToFloat(buffer, bytesPerSample);
-                        break;
-                    case PCM_SIGNED:
-                        value = signedToFloat(buffer, bytesPerSample);
-                        break;
-                    case PCM_FLOAT:
-                        value = buffer.getFloat();
-                        break;
-                    case ULAW:
-                        value = ulawToFloat(buffer);
-                        break;
-                    case ALAW:
-                        value = alawToFloat(buffer);
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Unsupported encoding: " + audioFormat.getEncoding());
+        // Выносим проверку кодировки из внутреннего цикла
+        switch (audioFormat.getEncoding()) {
+            case PCM_UNSIGNED:
+                for (int i = 0; i < sampleCount; i++) {
+                    for (int ch = 0; ch < channels; ch++) {
+                        samples[ch][i] = unsignedToFloat(buffer, bytesPerSample) * appliedVolumes[ch];
+                    }
                 }
-                samples[ch][i] = value * appliedVolumes[ch];
-            }
+                break;
+                
+            case PCM_SIGNED:
+                // Оптимизация для распространенных размеров
+                if (bytesPerSample == 2) {
+                    ShortBuffer shortBuffer = buffer.asShortBuffer();
+                    for (int i = 0; i < sampleCount; i++) {
+                        for (int ch = 0; ch < channels; ch++) {
+                            float value = shortBuffer.get() / 32768.0f;
+                            samples[ch][i] = value * appliedVolumes[ch];
+                        }
+                    }
+                    buffer.position(buffer.position() + sampleCount * channels * 2);
+                } else if (bytesPerSample == 4) {
+                    FloatBuffer floatBuffer = buffer.asFloatBuffer();
+                    for (int i = 0; i < sampleCount; i++) {
+                        for (int ch = 0; ch < channels; ch++) {
+                            float value = floatBuffer.get();
+                            samples[ch][i] = value * appliedVolumes[ch];
+                        }
+                    }
+                    buffer.position(buffer.position() + sampleCount * channels * 4);
+                } else {
+                    for (int i = 0; i < sampleCount; i++) {
+                        for (int ch = 0; ch < channels; ch++) {
+                            samples[ch][i] = signedToFloat(buffer, bytesPerSample) * appliedVolumes[ch];
+                        }
+                    }
+                }
+                break;
+                
+            case PCM_FLOAT:
+                FloatBuffer floatBuffer = buffer.asFloatBuffer();
+                for (int i = 0; i < sampleCount; i++) {
+                    for (int ch = 0; ch < channels; ch++) {
+                        float value = floatBuffer.get();
+                        samples[ch][i] = value * appliedVolumes[ch];
+                    }
+                }
+                buffer.position(buffer.position() + sampleCount * channels * 4);
+                break;
+                
+            case ULAW:
+                for (int i = 0; i < sampleCount; i++) {
+                    for (int ch = 0; ch < channels; ch++) {
+                        samples[ch][i] = ulawToFloat(buffer) * appliedVolumes[ch];
+                    }
+                }
+                break;
+                
+            case ALAW:
+                for (int i = 0; i < sampleCount; i++) {
+                    for (int ch = 0; ch < channels; ch++) {
+                        samples[ch][i] = alawToFloat(buffer) * appliedVolumes[ch];
+                    }
+                }
+                break;
+                
+            default:
+                throw new IllegalArgumentException("Unsupported encoding: " + audioFormat.getEncoding());
         }
         return samples;
     }
 
     /**
-     * Converts floating-point samples to raw byte data.
-     *
-     * @param samples      A 2D float array of audio samples.
-     * @param targetFormat The target audio format.
-     * @param volumes      Optional per-channel volume multipliers.
-     * @return The encoded byte array.
-     * @throws IllegalArgumentException If volume array length is invalid.
+     * Convert floating-point samples to raw byte data.
+     * 
+     * @param samples A 2D array of floating-point samples, where each row represents a channel and each column represents a sample.
+     * @param targetFormat The target audio format to convert to.
+     * @param volumes Optional volume multipliers for each channel. If not provided, the samples will be normalized to the range [-1, 1].
+     * @return A byte array containing the converted raw audio data.
      */
-    public static byte[] fromSamples (float[][] samples, AudioFormat targetFormat, float... volumes) {
+    public static byte[] fromSamples(float[][] samples, AudioFormat targetFormat, float... volumes) {
         int samplesLength = samples[0].length;
         int bytesPerSample = targetFormat.getSampleSizeInBytes();
         boolean isBigEndian = targetFormat.isBigEndian();
         int channels = targetFormat.getChannels();
-        byte[] data = new byte[samplesLength * bytesPerSample * channels];
+
+        // Проверка согласованности каналов
+        for (int i = 1; i < channels; i++) {
+            if (samples[i].length != samplesLength) {
+                throw new IllegalArgumentException("All channels must have the same length");
+            }
+        }
 
         // Validate volume multipliers
         if (volumes.length != 0 && volumes.length != 1 && volumes.length != channels) {
@@ -144,32 +194,83 @@ public class SampleConverter {
             System.arraycopy(volumes, 0, appliedVolumes, 0, channels);
         }
 
-        // Convert samples to bytes
+        byte[] data = new byte[samplesLength * bytesPerSample * channels];
         ByteBuffer buffer = ByteBuffer.wrap(data).order(isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
-        for (int i = 0; i < samplesLength; i++) {
-            for (int channelIndex = 0; channelIndex < channels; channelIndex++) {
-                float sample = samples[channelIndex][i] * appliedVolumes[channelIndex];
 
-                switch (targetFormat.getEncoding()) {
-                    case PCM_UNSIGNED:
+        // Выносим проверку кодировки из внутреннего цикла
+        switch (targetFormat.getEncoding()) {
+            case PCM_UNSIGNED:
+                for (int i = 0; i < samplesLength; i++) {
+                    for (int ch = 0; ch < channels; ch++) {
+                        float sample = samples[ch][i] * appliedVolumes[ch];
                         floatToUnsigned(buffer, sample, bytesPerSample);
-                        break;
-                    case PCM_SIGNED:
-                        floatToSigned(buffer, sample, bytesPerSample);
-                        break;
-                    case PCM_FLOAT:
-                        buffer.putFloat(sample);
-                        break;
-                    case ULAW:
-                        floatToUlaw(buffer, sample);
-                        break;
-                    case ALAW:
-                        floatToAlaw(buffer, sample);
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Unsupported encoding: " + targetFormat.getEncoding());
+                    }
                 }
-            }
+                break;
+                
+            case PCM_SIGNED:
+                // Оптимизация для распространенных размеров
+                if (bytesPerSample == 2) {
+                    ShortBuffer shortBuffer = buffer.asShortBuffer();
+                    for (int i = 0; i < samplesLength; i++) {
+                        for (int ch = 0; ch < channels; ch++) {
+                            float sample = samples[ch][i] * appliedVolumes[ch];
+                            short value = (short) Math.max(Short.MIN_VALUE, 
+                                    Math.min(Short.MAX_VALUE, Math.round(sample * 32768.0f)));
+                            shortBuffer.put(value);
+                        }
+                    }
+                    buffer.position(buffer.position() + samplesLength * channels * 2);
+                } else if (bytesPerSample == 4) {
+                    FloatBuffer floatBuffer = buffer.asFloatBuffer();
+                    for (int i = 0; i < samplesLength; i++) {
+                        for (int ch = 0; ch < channels; ch++) {
+                            float sample = samples[ch][i] * appliedVolumes[ch];
+                            floatBuffer.put(sample);
+                        }
+                    }
+                    buffer.position(buffer.position() + samplesLength * channels * 4);
+                } else {
+                    for (int i = 0; i < samplesLength; i++) {
+                        for (int ch = 0; ch < channels; ch++) {
+                            float sample = samples[ch][i] * appliedVolumes[ch];
+                            floatToSigned(buffer, sample, bytesPerSample);
+                        }
+                    }
+                }
+                break;
+                
+            case PCM_FLOAT:
+                FloatBuffer floatBuffer = buffer.asFloatBuffer();
+                for (int i = 0; i < samplesLength; i++) {
+                    for (int ch = 0; ch < channels; ch++) {
+                        float sample = samples[ch][i] * appliedVolumes[ch];
+                        floatBuffer.put(sample);
+                    }
+                }
+                buffer.position(buffer.position() + samplesLength * channels * 4);
+                break;
+                
+            case ULAW:
+                for (int i = 0; i < samplesLength; i++) {
+                    for (int ch = 0; ch < channels; ch++) {
+                        float sample = samples[ch][i] * appliedVolumes[ch];
+                        floatToUlaw(buffer, sample);
+                    }
+                }
+                break;
+                
+            case ALAW:
+                for (int i = 0; i < samplesLength; i++) {
+                    for (int ch = 0; ch < channels; ch++) {
+                        float sample = samples[ch][i] * appliedVolumes[ch];
+                        floatToAlaw(buffer, sample);
+                    }
+                }
+                break;
+                
+            default:
+                throw new IllegalArgumentException("Unsupported encoding: " + targetFormat.getEncoding());
         }
         return data;
     }
@@ -236,8 +337,9 @@ public class SampleConverter {
         return (float) value / ((1L << (bytesPerSample * 8)) - 1);
     }
 
-    private static float signedToFloat (ByteBuffer buffer, int bytesPerSample) {
+    private static float signedToFloat(ByteBuffer buffer, int bytesPerSample) {
         long value = 0;
+        int bits = bytesPerSample * 8;
         switch (bytesPerSample) {
             case 1:
                 value = buffer.get();
@@ -250,12 +352,12 @@ public class SampleConverter {
                 byte b1 = buffer.get();
                 byte b2 = buffer.get();
                 if (buffer.order() == ByteOrder.BIG_ENDIAN) {
-                    value = (b0 << 16) | (b1 & 0xFF) << 8 | (b2 & 0xFF);
+                    value = (b0 << 16) | ((b1 & 0xFF) << 8) | (b2 & 0xFF);
                     if ((b0 & 0x80) != 0) {
                         value |= 0xFF000000L;
                     }
                 } else {
-                    value = (b2 << 16) | (b1 & 0xFF) << 8 | (b0 & 0xFF);
+                    value = (b2 << 16) | ((b1 & 0xFF) << 8) | (b0 & 0xFF);
                     if ((b2 & 0x80) != 0) {
                         value |= 0xFF000000L;
                     }
@@ -267,9 +369,8 @@ public class SampleConverter {
             default:
                 throw new IllegalArgumentException("Unsupported sample size: " + bytesPerSample);
         }
-        int bits = bytesPerSample * 8;
-        long max = (1L << (bits - 1)) - 1;
-        return (float) value / max;
+        long fullRange = 1L << (bits - 1);
+        return (float) (value / (double) fullRange);
     }
 
     private static void floatToUnsigned (ByteBuffer buffer, float sample, int bytesPerSample) {
@@ -280,24 +381,22 @@ public class SampleConverter {
         }
     }
 
-    private static void floatToSigned (ByteBuffer buffer, float sample, int bytesPerSample) {
+    private static void floatToSigned(ByteBuffer buffer, float sample, int bytesPerSample) {
         sample = Math.max(-1.0f, Math.min(1.0f, sample));
-        
-        // Calculate max value based on sample size
-        long max = (1L << (bytesPerSample * 8 - 1)) - 1; // 32767 for 16 bit
-        long min = -(1L << (bytesPerSample * 8 - 1));   // -32768 for 16 bit
-    
-        long value = Math.round(sample * max);
-        if (value > max) value = max;
-        if (value < min) value = min;
-    
+        int bits = bytesPerSample * 8;
+        long fullRange = 1L << (bits - 1);
+        long value = Math.round(sample * fullRange);
+        long max = fullRange - 1;
+        long min = -fullRange;
+        value = Math.max(min, Math.min(max, value));
+
         if (buffer.order() == ByteOrder.BIG_ENDIAN) {
             for (int i = bytesPerSample - 1; i >= 0; i--) {
-                buffer.put((byte) ((value >> (i * 8)) & 0xFF));
+                buffer.put((byte) (value >>> (i * 8)));
             }
         } else {
             for (int i = 0; i < bytesPerSample; i++) {
-                buffer.put((byte) ((value >> (i * 8)) & 0xFF));
+                buffer.put((byte) (value >>> (i * 8)));
             }
         }
     }
