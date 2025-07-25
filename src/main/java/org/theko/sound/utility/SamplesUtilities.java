@@ -211,6 +211,8 @@ public class SamplesUtilities {
      * @param samples The audio samples to adjust, represented as a 2D float array.
      * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged.
      * @param pan The pan value to apply. A value of 0.0f is center, -1.0f is left, and 1.0f is right.
+     * @return A new 2D float array with adjusted samples.
+     * @throws IllegalArgumentException if the samples array is null or empty.
      */
     public static float[][] adjustGainAndPan (float[][] samples, float gain, float pan) {
         if (samples == null || samples.length == 0) {
