@@ -42,50 +42,47 @@ public class VisualFrame extends JFrame {
         mainContent.setAlignmentX(0f);
         mainContent.setAlignmentY(0f);
 
-        JFrame frame = new JFrame("Audio Visualizer Test");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setContentPane(layered);
-        frame.setSize(1000, 750);
-        frame.setUndecorated(true);
-        frame.setBackground(new java.awt.Color(62, 70, 75, 127));
-        frame.setLocationRelativeTo(null);
-        frame.setAlwaysOnTop(true);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setContentPane(layered);
+        setSize(1000, 750);
+        setUndecorated(true);
+        setBackground(new java.awt.Color(62, 70, 75, 127));
+        setLocationRelativeTo(null);
+        setAlwaysOnTop(true);
 
         int roundRadius = 20;
 
-        int w = frame.getWidth();
-        int h = frame.getHeight();
+        int w = getWidth();
+        int h = getHeight();
 
-        frame.setShape(new RoundRectangle2D.Float(0, 0, w, h, roundRadius, roundRadius));
+        setShape(new RoundRectangle2D.Float(0, 0, w, h, roundRadius, roundRadius));
 
-        frame.addComponentListener(new ComponentAdapter() {
+        addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 vignette.setSize(layered.getSize());
                 mainContent.setSize(layered.getSize());
 
-                int w = frame.getWidth();
-                int h = frame.getHeight();
+                int w = getWidth();
+                int h = getHeight();
 
-                frame.setShape(new RoundRectangle2D.Float(0, 0, w, h, roundRadius, roundRadius));
+                setShape(new RoundRectangle2D.Float(0, 0, w, h, roundRadius, roundRadius));
             }
         });
 
         final Point clickPoint = new Point();
-        frame.addMouseListener(new MouseAdapter() {
+        addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 clickPoint.setLocation(e.getPoint());
             }
         });
-        frame.addMouseMotionListener(new MouseAdapter() {
+        addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
                 Point screen = e.getLocationOnScreen();
-                frame.setLocation(screen.x - clickPoint.x, screen.y - clickPoint.y);
+                setLocation(screen.x - clickPoint.x, screen.y - clickPoint.y);
             }
         });
-
-        frame.setVisible(true);
     }
 }

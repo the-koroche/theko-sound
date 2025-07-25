@@ -69,6 +69,8 @@ public class AudioVisualizerTest {
             sound.stop();
             sound.close();
             out.close();
+
+            vis.close();
             frame.dispose();
         } catch (Exception e) {
             System.out.println("TEST PASS FAILED! " + e.getMessage());
