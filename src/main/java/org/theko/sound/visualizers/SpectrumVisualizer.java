@@ -39,6 +39,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
     protected InterpolationMode spectrumInterpolationMode = InterpolationMode.EASING;
 
     protected int channelToShow = 0;
+    protected WindowType windowType = WindowType.HANN;
     protected int fftWindowSize = 1024;
     protected float minAmplitudeNormalizer = 1.0f;
     protected float amplitudeExponent = 2.0f;
@@ -212,7 +213,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
                 }
             }
 
-            real = WindowFunction.apply(real, WindowType.BLACKMAN_HARRIS);
+            real = WindowFunction.apply(real, windowType);
             
             FFT.fft(real, imag);
             
@@ -341,6 +342,15 @@ public class SpectrumVisualizer extends AudioVisualizer {
 
     public int getFftWindowSize () {
         return fftWindowSize;
+    }
+
+    public void setWindowType (WindowType type) {
+        if (type == null) return;
+        this.windowType = type;
+    }
+
+    public WindowType getWindowType () {
+        return windowType;
     }
 
     public void setChannelToShow (int channel) {
