@@ -281,6 +281,14 @@ public class WaveformVisualizer extends AudioVisualizer {
         return strokeWeight;
     }
 
+    public void setInterpolateStereo (boolean interpolate) {
+        this.interpolateStereo = interpolate;
+    }
+
+    public boolean isInterpolateStereo () {
+        return interpolateStereo;
+    }
+
     @Override
     protected void repaint () {
         getPanel().repaint();
