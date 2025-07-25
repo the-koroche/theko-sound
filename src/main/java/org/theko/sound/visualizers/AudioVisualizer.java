@@ -115,6 +115,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
     public void close () {
         repaintTimer.stop();
         onEnd();
+        panel.setVisible(false);
     }
 
     /**
