@@ -71,14 +71,14 @@ public final class AudioClassScanner {
     private static void scanClasses() {
         if (reflections == null) {
             try {
+                scannedBackends = new HashSet<>(definedBackends);
+                scannedCodecs = new HashSet<>(definedCodecs);
+
                 reflections = new Reflections(
                     new ConfigurationBuilder()
                         .addUrls(ClasspathHelper.forJavaClassPath())
                         .setScanners(Scanners.SubTypes)
                 );
-
-                scannedBackends = new HashSet<>(definedBackends);
-                scannedCodecs = new HashSet<>(definedCodecs);
 
                 Set<Class<? extends AudioBackend>> allBackends = reflections.getSubTypesOf(AudioBackend.class);
 
@@ -95,8 +95,10 @@ public final class AudioClassScanner {
                     scannedBackends.size(), scannedCodecs.size());
 
             } catch (ReflectionsException ex) {
-                logger.error("Error initializing Reflections", ex);
+                logger.error("Error initializing 'org.reflections.Reflections'", ex);
                 logger.warn("Falling back to predefined packages.");
+                logger.info("Found {} audio backends, {} codecs",
+                    scannedBackends.size(), scannedCodecs.size());
             }
         }
     }
