@@ -38,6 +38,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
 
     protected InterpolationMode spectrumInterpolationMode = InterpolationMode.EASING;
 
+    protected int channelToShow = 0;
     protected int fftWindowSize = 1024;
     protected float minAmplitudeNormalizer = 1.0f;
     protected float amplitudeExponent = 2.0f;
@@ -69,9 +70,9 @@ public class SpectrumVisualizer extends AudioVisualizer {
     protected final List<AudioControl> visualizerControls = List.of(gainControl);
 
     protected final List<float[]> audioBuffers = new ArrayList<>(10);
-    protected float[] recentAudioWindow = new float[0];
+    protected float[] recentAudioWindow = new float[channelToShow];
 
-    protected float[] displayedSpectrum = new float[0];
+    protected float[] displayedSpectrum = new float[channelToShow];
 
     public enum InterpolationMode {
         NONE,
@@ -195,7 +196,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
         }
 
         private float[] getSpectrum (float[] samples) {
-            if (samples.length == 0) return new float[0];
+            if (samples.length == 0) return new float[channelToShow];
             
             int inputLength = samples.length;
             int fftLength = 1;
@@ -342,6 +343,15 @@ public class SpectrumVisualizer extends AudioVisualizer {
         return fftWindowSize;
     }
 
+    public void setChannelToShow (int channel) {
+        if (channel < 0 || channel > getSamplesBuffer().length) return;
+        this.channelToShow = channel;
+    }
+
+    public int getChannelToShow () {
+        return channelToShow;
+    }
+
     @Override
     protected void initialize() {
         SpectrumPanel panel = new SpectrumPanel();
@@ -357,7 +367,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
     
     @Override
     protected void onBufferUpdate() {
-        float[] newSamples = getSamplesBuffer()[0];
+        float[] newSamples = getSamplesBuffer()[channelToShow];
         audioBuffers.add(newSamples);
 
         int requiredSamples = fftWindowSize + getLength();
