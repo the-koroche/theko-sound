@@ -3,6 +3,7 @@ package org.theko.sound.properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.resampling.*;
+import org.theko.sound.utility.FormatUtilities;
 
 /**
  * AudioSystemProperties holds the configuration properties for the audio system.
@@ -23,6 +24,8 @@ public final class AudioSystemProperties {
             return "virtual".equalsIgnoreCase(str) ? VIRTUAL : PLATFORM;
         }
     }
+
+    public static final boolean IS_SUPPORTING_JAVA_21 = Runtime.version().feature() >= 21;
 
     private static final int DEFAULT_AUDIO_OUTPUT_LINE_THREAD_PRIORITY = (Thread.NORM_PRIORITY + Thread.MAX_PRIORITY) / 2;
 
@@ -67,6 +70,9 @@ public final class AudioSystemProperties {
     public static final ResampleMethod RESAMPLER_EFFECT_METHOD =
             parseResampleMethod(System.getProperty("org.theko.sound.effects.resampler.method", "lanczos"));
 
+    public static final boolean WAVE_CODEC_INFO_CLEAN_TEXT =
+            Boolean.parseBoolean(System.getProperty("org.theko.sound.codec.wave.cleanText", "true"));
+
     static {
         logProperties();
     }
@@ -76,34 +82,48 @@ public final class AudioSystemProperties {
     }
 
     private static void logProperties() {
+        logger.debug("--- Class Scanner Properties ---");
         logger.debug("Scan classes: {}", SCAN_CLASSES);
+        
+        boolean hasAnyVirtual = 
+                AUDIO_OUTPUT_LINE_THREAD_TYPE == ThreadType.VIRTUAL ||
+                AUTOMATION_THREAD_TYPE == ThreadType.VIRTUAL ||
+                CLEANER_THREAD_TYPE == ThreadType.VIRTUAL;
+        
+        if (!IS_SUPPORTING_JAVA_21 && hasAnyVirtual) {
+            logger.warn("Java version does not support virtual threads. Virtual threads will be ignored.");
+        }
 
+        logger.debug("--- Thread Properties ---");
         logger.debug("Audio output line thread: {}", 
-                formatThreadInfo(AUDIO_OUTPUT_LINE_THREAD_TYPE, AUDIO_OUTPUT_LINE_THREAD_PRIORITY));
+                FormatUtilities.formatThreadInfo(AUDIO_OUTPUT_LINE_THREAD_TYPE, AUDIO_OUTPUT_LINE_THREAD_PRIORITY));
         logger.debug("Automation thread: {}", 
-                formatThreadInfo(AUTOMATION_THREAD_TYPE, AUTOMATION_THREAD_PRIORITY));
+                FormatUtilities.formatThreadInfo(AUTOMATION_THREAD_TYPE, AUTOMATION_THREAD_PRIORITY));
         logger.debug("Cleaner thread: {}", 
-                formatThreadInfo(CLEANER_THREAD_TYPE, CLEANER_THREAD_PRIORITY));
+                FormatUtilities.formatThreadInfo(CLEANER_THREAD_TYPE, CLEANER_THREAD_PRIORITY));
 
+        logger.debug("--- Audio Output Layer Properties ---");
         logger.debug("Default buffer size for audio output layer: {}", AUDIO_OUTPUT_LAYER_BUFFER_SIZE);
 
+        logger.debug("--- Resampler Properties ---");
         logger.debug("Resampler shared quality: {}", RESAMPLER_SHARED_QUALITY);
         logger.debug("Resampler shared method: {}", RESAMPLER_SHARED_METHOD.getClass().getSimpleName());
         logger.debug("Resampler log high quality: {}", RESAMPLER_LOG_HIGH_QUALITY);
 
+        logger.debug("--- Mixer Properties ---");
         logger.debug("Check length mismatch in mixer: {}", CHECK_LENGTH_MISMATCH_IN_MIXER);
         logger.debug("Enable effects in mixer: {}", ENABLE_EFFECTS_IN_MIXER);
         logger.debug("Swap channels in mixer: {}", SWAP_CHANNELS_IN_MIXER);
         logger.debug("Reverse polarity in mixer: {}", REVERSE_POLARITY_IN_MIXER);
 
+        logger.debug("--- Resampler Effect Properties ---");
         logger.debug("Resampler effect quality: {}", RESAMPLER_EFFECT_QUALITY);
         logger.debug("Resampler effect method: {}", RESAMPLER_EFFECT_METHOD.getClass().getSimpleName());
 
-        logger.debug("Audio system properties initialized.");
-    }
+        logger.debug("--- Wave Codec Properties ---");
+        logger.debug("Wave codec clean text: {}", WAVE_CODEC_INFO_CLEAN_TEXT);
 
-    private static String formatThreadInfo(ThreadType type, int priority) {
-        return String.format("%s(priority=%d)", type.name().toLowerCase(), priority);
+        logger.debug("Audio system properties initialized.");
     }
 
     private static int parsePriority(String key, int defaultValue) {
