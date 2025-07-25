@@ -3,12 +3,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-import org.theko.sound.AudioFormat;
-import org.theko.sound.AudioOutputLayer;
-import org.theko.sound.AudioPortsNotFoundException;
-import org.theko.sound.UnsupportedAudioFormatException;
-import org.theko.sound.backend.AudioBackendCreationException;
-import org.theko.sound.backend.AudioBackendNotFoundException;
 import org.theko.sound.codec.AudioCodecException;
 import org.theko.sound.codec.AudioCodecs;
 import org.theko.sound.codec.AudioDecodeResult;
@@ -50,18 +44,5 @@ public class SharedFunctions {
             return filepath.substring(index + 1);
         }
         return "";
-    }
-
-    public static void playAudioData(byte[] data, AudioFormat format) throws AudioBackendCreationException, AudioBackendNotFoundException {
-        try {
-            AudioOutputLayer aol = new AudioOutputLayer();
-            aol.open(format);
-            aol.start();
-            aol.write(data, 0, data.length);
-            aol.stop();
-            aol.close();
-        } catch (UnsupportedAudioFormatException | AudioPortsNotFoundException ex) {
-            ex.printStackTrace();
-        }
     }
 }
