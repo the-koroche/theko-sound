@@ -43,13 +43,13 @@ public class AudioInputLine implements AudioNode {
      */
     public void open (AudioPort port, AudioFormat audioFormat, int bufferSizeInSamples) throws AudioBackendException {
         try {
-            AudioPort targetPort = (port == null ? aib.getDefaultPort(AudioFlow.OUT, audioFormat).get() : port);
+            AudioPort targetPort = (port == null ? aib.getDefaultPort(AudioFlow.IN, audioFormat).get() : port);
             aib.open(targetPort, audioFormat, bufferSizeInSamples * audioFormat.getFrameSize());
             this.audioFormat = audioFormat;
             this.bufferSize = bufferSizeInSamples;
             logger.debug("Opened audio input line with {} port, {} format, and {} buffer size", targetPort, audioFormat, bufferSizeInSamples);
         } catch (AudioBackendException | AudioPortsNotFoundException ex) {
-            throw new AudioBackendException("Failed to open audio output line.", ex);
+            throw new AudioBackendException("Failed to open audio input line.", ex);
         } catch (UnsupportedAudioFormatException ex) {
             throw new AudioBackendException("Unsupported audio format.", ex);
         }
@@ -127,7 +127,7 @@ public class AudioInputLine implements AudioNode {
     @Override
     public void render (float[][] samples, int sampleRate) throws AudioBackendException {
         int length = samples[0].length;
-        int buffLength = length * audioFormat.getFrameSize() * audioFormat.getChannels();
+        int buffLength = length * audioFormat.getFrameSize();
         byte[] buffer = new byte[buffLength];
         aib.read(buffer, 0, buffLength);
         float[][] bufferSamp = SampleConverter.toSamples(buffer, audioFormat);
