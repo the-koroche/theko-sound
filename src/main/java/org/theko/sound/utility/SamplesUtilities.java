@@ -212,9 +212,18 @@ public class SamplesUtilities {
      * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged.
      * @param pan The pan value to apply. A value of 0.0f is center, -1.0f is left, and 1.0f is right.
      */
-    @MutatesSamples
-    public static void adjustGainAndPan (float[][] samples, float gain, float pan) {
-        if (pan * pan <= PAN_EPSILON && gain * gain <= GAIN_EPSILON) return;
+    public static float[][] adjustGainAndPan (float[][] samples, float gain, float pan) {
+        if (samples == null || samples.length == 0) {
+            throw new IllegalArgumentException("Samples array cannot be null or empty.");
+        }
+
+        if (pan * pan <= PAN_EPSILON && gain * gain <= GAIN_EPSILON) return samples;
+
+        float[][] adjusted = new float[samples.length][];
+        for (int ch = 0; ch < samples.length; ch++) {
+            adjusted[ch] = new float[samples[ch].length];
+            System.arraycopy(samples[ch], 0, adjusted[ch], 0, samples[ch].length);
+        }
 
         float leftVol = 1.0f;
         float rightVol = 1.0f;
@@ -226,11 +235,13 @@ public class SamplesUtilities {
 
         for (int ch = 0; ch < samples.length; ch++) {
             float channelVol = getVolumeForChannel(ch, gain, leftVol, rightVol);
-            float[] channelSamples = samples[ch];
+            float[] channelSamples = adjusted[ch];
             for (int frame = 0; frame < channelSamples.length; frame++) {
                 channelSamples[frame] *= channelVol;
             }
         }
+
+        return adjusted;
     }
 
     private static float getVolumeForChannel (int ch, float gain, float leftVol, float rightVol) {
