@@ -1,5 +1,7 @@
 package org.theko.sound.codec;
 
+import java.util.List;
+
 /**
  * The {@code AudioTag} class represents a key-value pair for audio metadata tags.
  * It provides predefined constants for common audio metadata fields such as title,
@@ -68,6 +70,15 @@ public class AudioTag {
 
     public void setValue (String value) {
         this.value = value;
+    }
+
+    public static String getValue (List<AudioTag> tags, String name) {
+        for (AudioTag tag : tags) {
+            if (tag.getKey().equalsIgnoreCase(name)) {
+                return tag.getValue();
+            }
+        }
+        return null;
     }
 
     @Override
