@@ -72,8 +72,9 @@ public class AudioOutputLayer implements AutoCloseable {
      * @param aob The audio output backend to use.
      */
     public AudioOutputLayer (AudioOutputBackend aob) {
+        if (aob == null) throw new IllegalArgumentException("AudioOutputBackend cannot be null");
         this.aob = aob;
-        logger.debug("Created audio output line: " + aob);
+        logger.debug("Created audio output line with backend: " + aob.getClass().getSimpleName());
     }
 
     /**
@@ -172,7 +173,9 @@ public class AudioOutputLayer implements AutoCloseable {
      */
     public void stop () throws AudioBackendException {
         aob.stop();
-        processingThread.interrupt();
+        if (processingThread != null && processingThread.isAlive()) {
+            processingThread.interrupt();
+        }
         logger.debug("Stopped audio output line");
     }
 
