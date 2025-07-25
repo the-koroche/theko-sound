@@ -66,15 +66,33 @@ public class AudioOutputLayer implements AutoCloseable {
     private Thread processingThread;
     private int bufferSize = 2048;
 
+    /**
+     * Constructs an {@code AudioOutputLayer} with the specified {@link AudioOutputBackend} backend.
+     * 
+     * @param aob The audio output backend to use.
+     */
     public AudioOutputLayer (AudioOutputBackend aob) {
         this.aob = aob;
         logger.debug("Created audio output line: " + aob);
     }
 
+    /**
+     * Constructs an {@code AudioOutputLayer} with the specified {@link AudioOutputBackend} backend.
+     * 
+     * @param aob The audio output backend to use.
+     */
     public AudioOutputLayer () throws AudioBackendCreationException, AudioBackendNotFoundException {
         this(AudioBackends.getOutputBackend(AudioBackends.getPlatformBackend()));
     }
 
+    /**
+     * Opens the audio output line with the specified port, format, and buffer size.
+     * 
+     * @param port The {@link AudioPort} to be used.
+     * @param audioFormat The {@link AudioFormat} for audio data.
+     * @param bufferSizeInSamples The size of the buffer for audio data in samples.
+     * @throws AudioBackendException If an error occurs while opening the backend.
+     */
     public void open (AudioPort port, AudioFormat audioFormat, int bufferSizeInSamples) throws AudioBackendException {
         try {
             AudioPort targetPort = (port == null ? aob.getDefaultPort(AudioFlow.OUT, audioFormat).get() : port);
@@ -89,18 +107,43 @@ public class AudioOutputLayer implements AutoCloseable {
         }
     }
 
+    /**
+     * Opens the audio output line with the specified port and format.
+     * 
+     * @param port The {@link AudioPort} to be used.
+     * @param audioFormat The {@link AudioFormat} for audio data.
+     * @throws AudioBackendException If an error occurs while opening the backend.
+     */
     public void open (AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
         this.open(port, audioFormat, AudioSystemProperties.AUDIO_OUTPUT_LAYER_BUFFER_SIZE);
     }
 
+    /**
+     * Opens the audio output line with the specified format.
+     * 
+     * @param audioFormat The {@link AudioFormat} for audio data.
+     * @throws AudioBackendException If an error occurs while opening the backend.
+     */
     public void open (AudioFormat audioFormat) throws AudioBackendException, AudioPortsNotFoundException, UnsupportedAudioFormatException {
         this.open(null, audioFormat);
     }
 
+    /**
+     * Checks if the audio output line is open.
+     * 
+     * @return True if the audio output line is open, false otherwise.
+     */
     public boolean isOpen () {
         return aob.isOpen();
     }
 
+    /**
+     * Starts the audio output line, processing audio data from the root node.
+     * Creates a processing thread and starts it.
+     * The thread is set as a daemon thread to not block JVM exit.
+     * 
+     * @throws AudioBackendException If an error occurs while starting the backend.
+     */
     public void start () throws AudioBackendException {
         aob.start();
         processingThread = ThreadUtilities.createThread(
@@ -123,67 +166,127 @@ public class AudioOutputLayer implements AutoCloseable {
         logger.debug("Started audio output line");
     }
 
+    /**
+     * Stops the audio output line and interrupts the processing thread.
+     * @throws AudioBackendException If an error occurs while stopping the backend.
+     */
     public void stop () throws AudioBackendException {
         aob.stop();
         processingThread.interrupt();
         logger.debug("Stopped audio output line");
     }
 
+    /**
+     * Flushes the audio output buffer, discarding any buffered data.
+     * @throws AudioBackendException If an error occurs while flushing the buffer.
+     */
     public void flush () throws AudioBackendException {
         aob.flush();
     }
 
+    /**
+     * Drains the audio output buffer, ensuring all buffered data is processed.
+     * @throws AudioBackendException If an error occurs while draining the buffer.
+     */
     public void drain () throws AudioBackendException {
         aob.drain();
     }
 
+    /**
+     * Returns the number of available frames in the audio output buffer.
+     * @return The number of available frames.
+     */
     public int available () {
         return aob.available();
     }
 
+    /**
+     * Returns the size of the audio output buffer.
+     * @return The size of the audio output buffer.
+     */
     public int getLineBufferSize () {
         return bufferSize;
     }
 
+    /**
+     * Returns the size of the audio output backend's buffer.
+     * @return The size of the audio output backend's buffer.
+     */
     public int getBackendBufferSize () {
         return aob.getBufferSize();
     }
 
+    /**
+     * Sets the size of the audio output buffer.
+     * @param bufferSize The new size of the audio output buffer.
+     */
     public void setBufferSize (int bufferSize) {
         // This method doesn't update the audio output backend's buffer size
         this.bufferSize = bufferSize;
         logger.debug("Updated audio output layer buffer size to {}", bufferSize);
     }
 
+    /**
+     * Sets the root node for audio processing.
+     * @param rootNode The new root node for audio processing.
+     */
     public void setRootNode (AudioNode rootNode) {
         this.rootNode = rootNode;
     }
 
+    /**
+     * Closes the audio output line, stopping the processing thread and closing the backend.
+     */
     @Override
     public void close () {
+        stop();
         aob.close();
     }
 
+    /**
+     * Returns the audio format of the audio output line.
+     * @return The audio format of the audio output line.
+     */
     public AudioFormat getAudioFormat () {
         return audioFormat;
     }
 
+    /**
+     * Returns the current frame position of the audio output line.
+     * @return The current frame position.
+     */
     public long getFramePosition () {
         return aob.getFramePosition();
     }
 
+    /**
+     * Returns the current microsecond position of the audio output line.
+     * @return The current microsecond position.
+     */
     public long getMicrosecondPosition () {
         return aob.getMicrosecondPosition();
     }
 
+    /**
+     * Returns the latency of the audio output line in microseconds.
+     * @return The latency in microseconds.
+     */
     public long getMicrosecondLatency () {
         return aob.getMicrosecondLatency();
     }
 
+    /**
+     * Returns the current audio port of the audio output line.
+     * @return The current audio port.
+     */
     public AudioPort getCurrentAudioPort () {
         return aob.getCurrentAudioPort();
     }
 
+    /**
+     * Processes audio data from the root node and writes it to the audio output backend.
+     * @throws InterruptedException If the processing thread is interrupted.
+     */
     private void process () throws InterruptedException {
         float[][] sampleBuffer = new float[audioFormat.getChannels()][bufferSize];
         long bufferMs = AudioConverter.samplesToMicrosecond(sampleBuffer, audioFormat.getSampleRate()) / 1000;
@@ -208,6 +311,10 @@ public class AudioOutputLayer implements AutoCloseable {
         }
     }
 
+    /**
+     * Returns the audio output backend used by the audio output line.
+     * @return The audio output backend.
+     */
     public AudioOutputBackend getAudioOutputBackend () {
         return aob;
     }
