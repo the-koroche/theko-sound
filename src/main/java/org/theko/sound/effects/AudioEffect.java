@@ -1,14 +1,17 @@
 package org.theko.sound.effects;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import org.theko.sound.AudioNode;
+import org.theko.sound.LengthMismatchException;
 import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.BooleanControl;
 import org.theko.sound.control.Controllable;
 import org.theko.sound.control.FloatControl;
+import org.theko.sound.utility.SamplesUtilities;
 
 /**
  * AudioEffect is an abstract class representing an audio effect that can be applied to audio samples.
@@ -31,24 +34,24 @@ public abstract class AudioEffect implements AudioNode, Controllable {
      * the mix level will be ignored, only 0.0f (no effect) or 1.0f (full effect)
      * will be used, without any in-between values.
      */
-    protected final FloatControl mixLevel = new FloatControl("Mix Level", 0.0f, 1.0f, 1.0f);
+    private final FloatControl mixLevel = new FloatControl("Mix Level", 0.0f, 1.0f, 1.0f);
 
     /**
      * The enable control allows toggling the effect on or off.
      */
-    protected final BooleanControl enable = new BooleanControl("Enable", true);
+    private final BooleanControl enable = new BooleanControl("Enable", true);
 
     /**
      * A list of controls that are used for mixing the effect.
      * This includes the mix level and enable controls.
      */
-    protected final List<AudioControl> mixingControls = List.of(mixLevel, enable);
+    private final List<AudioControl> mixingControls = List.of(mixLevel, enable);
 
     /**
      * A list of all controls available for this audio effect.
      * This includes the mixing controls and any additional controls specific to the effect.
      */
-    protected final List<AudioControl> allControls = new ArrayList<>(mixingControls);
+    private final List<AudioControl> allControls = new ArrayList<>(mixingControls);
 
     /**
      * The type of audio effect, which can be either REALTIME or OFFLINE_PROCESSING.
@@ -75,7 +78,25 @@ public abstract class AudioEffect implements AudioNode, Controllable {
      * @param length The length of the audio samples.
      */
     @Override
-    public abstract void render (float[][] samples, int sampleRate, int length);
+    public final void render (float[][] samples, int sampleRate) {
+        if (sampleRate <= 0) {
+            throw new IllegalArgumentException("Sample rate must be positive.");
+        }
+
+        if (samples == null || samples.length == 0) {
+            throw new IllegalArgumentException("Samples must not be null or empty.");
+        }
+
+        try {
+            SamplesUtilities.checkLength(samples);
+        } catch (LengthMismatchException e) {
+            throw new RuntimeException("Samples length mismatch.", e);
+        }
+ 
+        effectRender(samples, sampleRate);
+    }
+
+    protected abstract void effectRender (float[][] samples, int sampleRate);
 
     /**
      * Returns the type of the audio effect.
@@ -113,6 +134,19 @@ public abstract class AudioEffect implements AudioNode, Controllable {
      */
     @Override
     public List<AudioControl> getAllControls () {
-        return allControls;
+        return Collections.unmodifiableList(allControls);
+    }
+
+    /**
+     * Adds a list of controls to the list of all controls for this audio effect.
+     * 
+     * @param controls The list of controls to add.
+     */
+    protected void addControls (List<AudioControl> controls) {
+        for (AudioControl control : controls) {
+            if (!allControls.contains(control)) {
+                allControls.add(control);
+            }
+        }
     }
 }

@@ -27,22 +27,22 @@ public class BitcrusherEffect extends AudioEffect {
         sampleRateReduction
     );
 
-    public BitcrusherEffect() {
+    public BitcrusherEffect () {
         super(Type.REALTIME);
 
-        allControls.addAll(bitcrusherControls);
+        addControls(bitcrusherControls);
     }
 
-    public FloatControl getBitdepth() {
+    public FloatControl getBitdepth () {
         return bitdepth;
     }
 
-    public FloatControl getSampleRateReduction() {
+    public FloatControl getSampleRateReduction () {
         return sampleRateReduction;
     }
 
     @Override
-    public void render(float[][] samples, int sampleRate, int length) {
+    public void effectRender (float[][] samples, int sampleRate) {
         int channels = samples.length;
 
         float targetRate = sampleRateReduction.getValue();
@@ -57,7 +57,7 @@ public class BitcrusherEffect extends AudioEffect {
             float heldSample = 0.0f;
             float sampleCounter = 0.0f;
 
-            for (int i = 0; i < length; i++) {
+            for (int i = 0; i < channel.length; i++) {
                 if (sampleCounter <= 0.0f) {
                     heldSample = Math.round(channel[i] * levels) / (float) levels;
                     sampleCounter += sampleStep;

@@ -30,11 +30,11 @@ public class StereoWidthEffect extends AudioEffect {
     public StereoWidthEffect() {
         super(Type.REALTIME);
 
-        allControls.addAll(stereoWidthControls);
+        addControls(stereoWidthControls);
     }
 
     @Override
-    public void render(float[][] samples, int sampleRate, int length) {
+    public void effectRender (float[][] samples, int sampleRate) {
         float[][] separated = SamplesUtilities.stereoSeparation(samples, stereoWidth.getValue());
         try {
             ArrayUtilities.copyArray(separated, samples);

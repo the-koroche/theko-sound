@@ -61,25 +61,25 @@ public class AudioLimiter extends AudioEffect {
         envelope.getSustain()
     );
 
-    public AudioLimiter() {
+    public AudioLimiter () {
         super(Type.REALTIME);
 
-        allControls.addAll(limiterControls);
+        addControls(limiterControls);
     }
 
-    public FloatControl getGain() {
+    public FloatControl getGain () {
         return gain;
     }
 
-    public FloatControl getSoftSaturationThreshold() {
+    public FloatControl getSoftSaturationThreshold () {
         return softSaturationThreshold;
     }
 
-    public FloatControl getLimiterCeiling() {
+    public FloatControl getLimiterCeiling () {
         return limiterCeiling;
     }
 
-    public ASREnvelope getEnvelope() {
+    public ASREnvelope getEnvelope () {
         return envelope;
     }
 
@@ -87,17 +87,18 @@ public class AudioLimiter extends AudioEffect {
         return envelope.getAttack();
     }
 
-    public FloatControl getRelease() {
+    public FloatControl getRelease () {
         return envelope.getRelease();
     }
 
-    public FloatControl getSustain() {
+    public FloatControl getSustain () {
         return envelope.getSustain();
     }
 
     @Override
-    public void render(float[][] samples, int sampleRate, int length) {
+    protected void effectRender (float[][] samples, int sampleRate) {
         int channels = samples.length;
+        int length = samples[0].length;
     
         float linearGain = (float) Math.pow(10.0, gain.getValue() / 20.0);
         float softThreshold = (float) Math.pow(10.0, softSaturationThreshold.getValue() / 20.0);
