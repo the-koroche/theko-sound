@@ -24,7 +24,8 @@ import org.theko.sound.codec.AudioCodecType;
 import org.theko.sound.codec.AudioDecodeResult;
 import org.theko.sound.codec.AudioEncodeResult;
 import org.theko.sound.codec.AudioTag;
-import org.theko.sound.samples.FastPcmToSamplesConverter;
+import org.theko.sound.properties.AudioSystemProperties;
+import org.theko.sound.samples.SampleConverter;
 
 /**
  * The {@code WAVECodec} class provides functionality for encoding and decoding
@@ -80,7 +81,7 @@ import org.theko.sound.samples.FastPcmToSamplesConverter;
  * @since v1.3.0
  * @author Theko
  */
-@AudioCodecType(name = "WAVE", extension = "wav", version = "1.2")
+@AudioCodecType(name = "WAVE", extensions = {"wav", "wave"}, version = "1.2")
 public class WAVECodec extends AudioCodec {
 
     private static final Logger logger = LoggerFactory.getLogger(WAVECodec.class);
@@ -108,14 +109,14 @@ public class WAVECodec extends AudioCodec {
             DataInputStream dis = new DataInputStream(is);
 
             // Check RIFF header
+            long signatureCheckStartNs = System.nanoTime();
+
             byte[] riffHeader = new byte[4];
             dis.readFully(riffHeader);
             if (!Arrays.equals(RIFF_BYTES, riffHeader)) {
                 logger.error("Not a valid RIFF file.");
                 throw new AudioCodecException("Not a valid RIFF file.");
             }
-
-            long signatureCheckStartNs = System.nanoTime();
             // Skip file size (not used)
             readLittleEndianInt(dis);
 
@@ -145,48 +146,31 @@ public class WAVECodec extends AudioCodec {
 
                 int chunkSize = readLittleEndianInt(dis);
 
+                long startNs = System.nanoTime();
                 if (Arrays.equals(FORMAT_BYTES, chunkIdBytes)) {
                     // Audio format
-                    long formatStartNs = System.nanoTime();
-
                     byte[] fmtData = new byte[chunkSize];
                     dis.readFully(fmtData);
                     format = parseFormatChunk(fmtData);
                     skipPadding(dis, chunkSize);
-
-                    long formatNs = System.nanoTime() - formatStartNs;
-                    logger.debug("Elapsed format parsing time: " + formatNs + " ns.");
                 } else if (Arrays.equals(DATA_BYTES, chunkIdBytes)) {
                     // Audio data
-                    long dataStartNs = System.nanoTime();
-
                     audioData = new byte[chunkSize];
                     dis.readFully(audioData);
                     skipPadding(dis, chunkSize);
-
-                    long dataNs = System.nanoTime() - dataStartNs;
-                    logger.debug("Elapsed data parsing time: " + dataNs + " ns.");
                 } else if (Arrays.equals(LIST_BYTES, chunkIdBytes)) {
                     // Metadata
-                    long listStartNs = System.nanoTime();
-
                     byte[] listData = new byte[chunkSize];
                     dis.readFully(listData);
                     parseListChunk(listData, tags);
                     skipPadding(dis, chunkSize);
-
-                    long listNs = System.nanoTime() - listStartNs;
-                    logger.debug("Elapsed list parsing time: " + listNs + " ns.");
                 } else {
-                    long skipStartNs = System.nanoTime();
-
                     // Skip unknown chunks
                     logger.info("Skip chunk \"" + new String(chunkIdBytes, StandardCharsets.US_ASCII) + "\" with size " + chunkSize + " bytes.");
                     skipChunkData(dis, chunkSize);
-
-                    long skipNs = System.nanoTime() - skipStartNs;
-                    logger.debug("Elapsed skip parsing time: " + skipNs + " ns.");
                 }
+                long endNs = System.nanoTime();
+                logger.debug("Elapsed chunk '{}' decoding time: " + (endNs - startNs) + " ns.", new String(chunkIdBytes, StandardCharsets.US_ASCII));
             }
 
             if (format == null) {
@@ -198,18 +182,21 @@ public class WAVECodec extends AudioCodec {
                 logger.error("Invalid WAV file: missing 'data' chunk.");
                 throw new AudioCodecException("Invalid WAV file: missing 'data' chunk.");
             }
-            logger.debug("Parsing complete.");
-            logger.debug("Audio format: " + format);
-            logger.debug("Audio data size (bytes): " + audioData.length);
-            logger.debug("Metadata: " + tags);
 
             long totalDecodingNs = System.nanoTime() - totalDecodingStartNs;
             logger.debug("Elapsed total decoding time: " + totalDecodingNs + " ns.");
 
             long pcmConvertStartNs = System.nanoTime();
-            float[][] pcm = FastPcmToSamplesConverter.toSamples(audioData, format);
+            float[][] pcm = SampleConverter.toSamples(audioData, format);
             long pcmConvertNs = System.nanoTime() - pcmConvertStartNs;
             logger.debug("Elapsed PCM conversion time: " + pcmConvertNs + " ns.");
+
+            int ms = (int)((audioData.length / (format.getFrameSize() * format.getSampleRate())) * 1000);
+
+            logger.debug("--- Decoded Audio Info --- ");
+            logger.debug("Audio format: {}", format);
+            logger.debug("Audio data size (bytes): {}, (ms): {}", audioData.length, ms);
+            logger.debug("Metadata: {}", tags);
 
             return new AudioDecodeResult(CODEC_INFO, pcm, format, Collections.unmodifiableList(tags));
         } catch (IOException ex) {
@@ -252,7 +239,7 @@ public class WAVECodec extends AudioCodec {
                 encoding = AudioFormat.Encoding.ALAW;
                 break;
             default:
-                logger.error("Not supported audio format.");
+                logger.error("Not supported audio format '{}'.", audioFormat);
                 throw new AudioCodecException(new UnsupportedAudioEncodingException("Not supported audio format."));
         }
 
@@ -319,12 +306,14 @@ public class WAVECodec extends AudioCodec {
                 bb.get();
             }
     
-            String value = cleanText(new String(valueBytes, StandardCharsets.UTF_8));
+            String decodedValue = new String(valueBytes, StandardCharsets.UTF_8);
+            String value = AudioSystemProperties.WAVE_CODEC_INFO_CLEAN_TEXT ? cleanText(decodedValue) : decodedValue;
+
             String tag = mapInfoIdToTag(id);
             if (tag != null) {
                 tags.add(new AudioTag(tag, value));
             } else {
-                logger.info("Unknown tag: " + id + " = " + value);
+                logger.info("Unknown tag: '{}' = '{}'", id, value);
             }
         }
     }
