@@ -227,7 +227,7 @@ public class AudioMixer implements AudioNode {
         }
 
         float[][] mixed = mixInputs(collectedInputs, inputLength, channels);
-        SamplesUtilities.adjustGainAndPan(mixed, preGainControl.getValue(), 0.0f);
+        mixed = SamplesUtilities.adjustGainAndPan(mixed, preGainControl.getValue(), 0.0f);
 
         if (enableEffects) {
             int preVaryingEffectEnd = varyingSizeEffectIndex == -1 ? effects.size() : varyingSizeEffectIndex;
