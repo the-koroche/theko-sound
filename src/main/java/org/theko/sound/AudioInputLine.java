@@ -26,7 +26,9 @@ public class AudioInputLine implements AudioNode {
     private int bufferSize;
 
     public AudioInputLine(AudioInputBackend aib) {
+        if (aib == null) throw new IllegalArgumentException("Audio input backend cannot be null.");
         this.aib = aib;
+        logger.debug("Created audio input line with backend: {}", aib.getClass().getSimpleName());
     }
 
     public AudioInputLine () throws AudioBackendCreationException, AudioBackendNotFoundException {
