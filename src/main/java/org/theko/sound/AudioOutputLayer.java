@@ -7,6 +7,7 @@ import org.theko.sound.backend.AudioBackendException;
 import org.theko.sound.backend.AudioBackendNotFoundException;
 import org.theko.sound.backend.AudioBackends;
 import org.theko.sound.backend.AudioOutputBackend;
+import org.theko.sound.backend.BackendNotOpenException;
 import org.theko.sound.properties.AudioSystemProperties;
 import org.theko.sound.samples.SampleConverter;
 import org.theko.sound.utility.ThreadUtilities;
@@ -136,18 +137,6 @@ public class AudioOutputLayer implements AutoCloseable {
         aob.drain();
     }
 
-    public int write (byte[] data, int offset, int length) throws AudioBackendException {
-        if (!isOpen()) {
-            throw new AudioBackendException("Cannot write. Backend is not open.");
-        }
-        if (rootNode == null) {
-            return aob.write(data, offset, length);
-        } else {
-            logger.warn("The root node is not null, so the audio data will not be written.");
-            return -1;
-        }
-    }
-
     public int available () {
         return aob.available();
     }
@@ -163,6 +152,7 @@ public class AudioOutputLayer implements AutoCloseable {
     public void setBufferSize (int bufferSize) {
         // This method doesn't update the audio output backend's buffer size
         this.bufferSize = bufferSize;
+        logger.debug("Updated audio output layer buffer size to {}", bufferSize);
     }
 
     public void setRootNode (AudioNode rootNode) {
@@ -194,22 +184,27 @@ public class AudioOutputLayer implements AutoCloseable {
         return aob.getCurrentAudioPort();
     }
 
-    private synchronized void process () throws InterruptedException {
+    private void process () throws InterruptedException {
         float[][] sampleBuffer = new float[audioFormat.getChannels()][bufferSize];
         long bufferMs = AudioConverter.samplesToMicrosecond(sampleBuffer, audioFormat.getSampleRate()) / 1000;
         while (!processingThread.isInterrupted()) {
-            if (rootNode == null) {
-                Thread.sleep(bufferMs);
-            }
-            rootNode.render(sampleBuffer, audioFormat.getSampleRate(), bufferSize);
-            if (sampleBuffer[0].length != bufferSize) {
-                throw new RuntimeException(new LengthMismatchException());
-            }
-            if (!aob.isOpen()) {
+            try {
+                AudioNode snapshot = rootNode;
+                if (snapshot == null) {
+                    Thread.sleep(bufferMs);
+                    continue;
+                }
+                snapshot.render(sampleBuffer, audioFormat.getSampleRate());
+                if (sampleBuffer[0].length != bufferSize) {
+                    throw new RuntimeException(new LengthMismatchException());
+                }
+                aob.write(SampleConverter.fromSamples(sampleBuffer, audioFormat), 0, bufferSize * audioFormat.getFrameSize());
+            } catch (BackendNotOpenException ex) {
                 logger.debug("Audio output line is closed");
                 return;
+            } catch (Exception ex) {
+                logger.error("Error in audio output line processing thread", ex);
             }
-            aob.write(SampleConverter.fromSamples(sampleBuffer, audioFormat), 0, bufferSize * audioFormat.getFrameSize());
         }
     }
 
