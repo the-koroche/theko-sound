@@ -193,10 +193,19 @@ public class AudioMixer implements AudioNode {
     }
 
     @Override
-    public void render (float[][] samples, int sampleRate, int length) {
-        if (samples == null || samples.length == 0 || length <= 0) {
-            throw new IllegalArgumentException("Samples array cannot be null or empty, and length must be greater than zero.");
+    public void render (float[][] samples, int sampleRate) {
+        if (samples == null || samples.length == 0) {
+            throw new IllegalArgumentException("Samples array cannot be null or empty.");
         }
+
+        try {
+            SamplesUtilities.checkLength(samples);
+        } catch (LengthMismatchException e) {
+            logger.error("Input length is not valid.", e);
+            throw new MixingException(e);
+        }
+
+        int length = samples[0].length;
 
         boolean enableEffects = enableEffectsControl.isEnabled();
         int inputLength = length;
@@ -228,7 +237,7 @@ public class AudioMixer implements AudioNode {
                 if (inputLength < length) {
                     mixed = ArrayUtilities.padArray(mixed, channels, length);
                 }
-                effects.get(varyingSizeEffectIndex).render(mixed, sampleRate, inputLength);
+                effects.get(varyingSizeEffectIndex).render(mixed, sampleRate);
                 if (inputLength > length) {
                     mixed = ArrayUtilities.cutArray(mixed, 0, channels, 0, length);
                 } else {
@@ -288,7 +297,11 @@ public class AudioMixer implements AudioNode {
 
         for (int i = 0; i < inputs.size(); i++) {
             try {
-                inputs.get(i).render(inputBuffers[i], sampleRate, frameCount);
+                if (inputs.get(i) == null) {
+                    logger.warn("Null input at index {}", i);
+                    continue;
+                }
+                inputs.get(i).render(inputBuffers[i], sampleRate);
                 valid[i] = true;
             } catch (Exception ex) {
                 logger.warn("Render failed for input[{}]: {}", i, ex.toString());
@@ -338,22 +351,45 @@ public class AudioMixer implements AudioNode {
         return mixed;
     }
 
-    private void processEffectChain (float[][] samples, int sampleRate, int start, int end) {
+    private void processEffectChain(float[][] samples, int sampleRate, int start, int end) {
+        int numChannels = samples.length;
+        int numFrames = samples[0].length;
+
         for (int i = start; i < end; i++) {
             AudioEffect effect = effects.get(i);
-            if (effect.getMixLevelControl().getValue() > 0.0f && effect.getEnableControl().isEnabled()) {
-                float[][] effectBuffer = ArrayUtilities.cutArray(samples, 0, samples.length, 0, samples[0].length);
-                effect.render(effectBuffer, sampleRate, effectBuffer[0].length);
-                float mixLevel = effect.getMixLevelControl().getValue();
-                for (int ch = 0; ch < samples.length; ch++) {
-                    float[] channelSamples = samples[ch];
-                    float[] effectChannelSamples = effectBuffer[ch];
-                    for (int frame = 0; frame < channelSamples.length; frame++) {
-                        channelSamples[frame] = MathUtilities.lerp(samples[ch][frame], effectChannelSamples[frame], mixLevel);
-                    }
+
+            if (effect == null) {
+                logger.warn("Effect at index {} is null.", i);
+                continue;
+            }
+
+            float mixLevel = effect.getMixLevelControl().getValue();
+            if (mixLevel <= 0.0f || !effect.getEnableControl().isEnabled()) {
+                continue;
+            }
+
+            // Optimization: if mix level is 1.0, skip the mix
+            if (mixLevel >= 1.0f) {
+                effect.render(samples, sampleRate);
+                continue;
+            }
+
+            // Clone the input buffer
+            float[][] effectBuffer = new float[numChannels][numFrames];
+            for (int ch = 0; ch < numChannels; ch++) {
+                System.arraycopy(samples[ch], 0, effectBuffer[ch], 0, numFrames);
+            }
+
+            effect.render(effectBuffer, sampleRate);
+
+            // Mix
+            for (int ch = 0; ch < numChannels; ch++) {
+                float[] out = samples[ch];
+                float[] fx = effectBuffer[ch];
+                for (int f = 0; f < numFrames; f++) {
+                    out[f] = MathUtilities.lerp(out[f], fx[f], mixLevel);
                 }
             }
-            // Else do nothing, as the effect is disabled or has zero mix level
         }
     }
 
