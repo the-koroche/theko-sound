@@ -44,7 +44,7 @@ public class VisualFrame extends JFrame {
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setContentPane(layered);
-        setSize(1000, 750);
+        setSize(width, height);
         setUndecorated(true);
         setBackground(new java.awt.Color(62, 70, 75, 127));
         setLocationRelativeTo(null);
