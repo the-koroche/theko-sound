@@ -40,7 +40,7 @@ public class FloatControl extends AudioControl {
         super(name);
         this.min = min;
         this.max = max;
-        this.value = Math.clamp(value, min, max);
+        this.value = MathUtilities.clamp(value, min, max);
     }
 
     /**
@@ -50,7 +50,7 @@ public class FloatControl extends AudioControl {
      * @param value The new value for this control.
      */
     public void setValue (float value) {
-        this.value = Math.clamp(value, min, max);
+        this.value = MathUtilities.clamp(value, min, max);
         notifyListeners(NotifyType.VALUE_CHANGE, new AudioControlEvent(this));
     }
     

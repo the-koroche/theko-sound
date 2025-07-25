@@ -64,4 +64,15 @@ public class MathUtilities {
     public static float quantize (float x, float step) {
         return Math.round(x / step) * step;
     }
+
+    /** Clamps a value within a specified range.
+     * 
+     * @param x The value to clamp.
+     * @param min The minimum value of the range.
+     * @param max The maximum value of the range.
+     * @return The clamped value.
+     */
+    public static float clamp (float x, float min, float max) {
+        return Math.min(max, Math.max(min, x));
+    }
 }
