@@ -5,5 +5,5 @@ import org.theko.sound.AudioNode;
 public abstract class AudioGenerator implements AudioNode {
 
     @Override
-    public abstract void render (float[][] samples, int sampleRate, int length);
+    public abstract void render (float[][] samples, int sampleRate);
 }
