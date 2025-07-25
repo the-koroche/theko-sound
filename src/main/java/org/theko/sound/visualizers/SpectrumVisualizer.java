@@ -38,7 +38,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
 
     protected InterpolationMode spectrumInterpolationMode = InterpolationMode.EASING;
 
-    protected int fftWindowSize = 16384;
+    protected int fftWindowSize = 1024;
     protected float minAmplitudeNormalizer = 1.0f;
     protected float amplitudeExponent = 2.0f;
 
