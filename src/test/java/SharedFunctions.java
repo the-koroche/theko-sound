@@ -30,6 +30,8 @@ public class SharedFunctions {
         String directory = fileDialog.getDirectory();
         String filename = fileDialog.getFile();
 
+        fileDialog.dispose();
+
         if (directory != null && filename != null) {
             return new File(directory, filename).getAbsolutePath();
         } else {
