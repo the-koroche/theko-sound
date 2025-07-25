@@ -3,6 +3,8 @@ package org.theko.sound;
 import java.io.Serializable;
 import java.util.Objects;
 
+import org.theko.sound.utility.FormatUtilities;
+
 /**
  * Represents an audio format with various properties such as sample rate, bit depth, 
  * number of channels, encoding type, and endianness. This class provides utility 
@@ -191,8 +193,8 @@ public class AudioFormat implements Serializable {
     // Overridden methods
     @Override
     public String toString () {
-        return String.format("AudioFormat[%d Hz, %d-bit, %d channels, %s, %s-endian, %.2f KB/s]", 
-                sampleRate, bitsPerSample, channels, encoding, bigEndian ? "big" : "little", byteRate / 1024.0);
+        return String.format("AudioFormat[%d Hz, %d-bit, %d channels, %s, %s-endian, %s/s]", 
+                sampleRate, bitsPerSample, channels, encoding, bigEndian ? "big" : "little", FormatUtilities.formatBytes(byteRate, true));
     }
 
     @Override
