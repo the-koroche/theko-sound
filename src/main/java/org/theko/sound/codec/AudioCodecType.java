@@ -41,6 +41,6 @@ import java.lang.annotation.RetentionPolicy;
 public @interface AudioCodecType {
 
     String name () default "Unknown";
-    String extension ();
+    String[] extensions ();
     String version () default "1.0";
 }

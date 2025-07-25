@@ -95,9 +95,15 @@ public class AudioCodecs {
      * @param name File extension without a dot or an asterisk.
      */
     public static AudioCodecInfo fromExtension (String extension) throws AudioCodecNotFoundException {
+        if (extension.startsWith(".")) {
+            extension = extension.substring(1);
+        }
         for (AudioCodecInfo audioCodec : audioCodecs) {
-            if (audioCodec.getExtension().equalsIgnoreCase(extension)) {
-                return audioCodec;
+            String[] codecExtensions = audioCodec.getExtensions();
+            for (String codecExtension : codecExtensions) {
+                if (codecExtension.equalsIgnoreCase(extension)) {
+                    return audioCodec;
+                }
             }
         }
         logger.error("No audio codecs found by extension: '" + extension + "'.");

@@ -2,14 +2,14 @@ package org.theko.sound.codec;
 
 /**
  * Represents metadata information about an audio codec. This class extracts
- * codec details such as name, file extension, and version from the provided
+ * codec details such as name, file extensions, and version from the provided
  * codec class, which must be annotated with {@link AudioCodecType}.
  * 
  * <p>
  * The metadata includes:
  * <ul>
  *   <li>Name of the codec</li>
- *   <li>File extension associated with the codec</li>
+ *   <li>File extensions associated with the codec</li>
  *   <li>Version of the codec</li>
  *   <li>The codec class itself</li>
  * </ul>
@@ -25,14 +25,16 @@ package org.theko.sound.codec;
  */
 public class AudioCodecInfo {
 
-    private final String name, extension, version;
+    private final String name;
+    private final String[] extensions;
+    private final String version;
     private final Class<? extends AudioCodec> codecClass;
 
     public AudioCodecInfo (Class<? extends AudioCodec> codecClass) {
                 if (codecClass.isAnnotationPresent(AudioCodecType.class)) {
             AudioCodecType audioCodecType = codecClass.getAnnotation(AudioCodecType.class);
             this.name = audioCodecType.name();
-            this.extension = audioCodecType.extension();
+            this.extensions = audioCodecType.extensions();
             this.version = audioCodecType.version();
             this.codecClass = codecClass;
         } else {
@@ -44,8 +46,12 @@ public class AudioCodecInfo {
         return name;
     }
 
+    public String[] getExtensions () {
+        return extensions;
+    }
+
     public String getExtension () {
-        return extension;
+        return extensions[0];
     }
 
     public String getVersion () {
@@ -58,6 +64,6 @@ public class AudioCodecInfo {
 
     @Override
     public String toString () {
-        return "AudioCodecInfo {Class: " + codecClass.getSimpleName() + ", Name: " + name + ", Extension: " + extension + ", Version: " + version + "}";
+        return "AudioCodecInfo {Class: " + codecClass.getSimpleName() + ", Name: " + name + ", Extensions: [" + String.join(", ", extensions) + "], Version: " + version + "}";
     }
 }
