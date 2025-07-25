@@ -6,7 +6,7 @@
 
     <groupId>theko.sound</groupId>
     <artifactId>theko-sound</artifactId>
-    <version>v2.3.0</version>
+    <version>v2.3.1</version>
 
     <name>Theko-Sound</name>
     <description>A high-performance audio library for sound processing, supporting popular platforms. Includes support for audio backends, format conversion, mixing, effects application, and codec management. Provides a flexible interface for audio playback, recording, and processing with high performance and extensibility.</description>
