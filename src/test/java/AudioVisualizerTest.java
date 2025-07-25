@@ -16,7 +16,7 @@ import visual.VisualFrame;
 
 public class AudioVisualizerTest {
     public static void main(String[] args) {
-        System.setProperty("org.theko.sound.audioOutputLayer.defaultBufferSize", "8192");
+        System.setProperty("org.theko.sound.audioOutputLayer.defaultBufferSize", "1024");
         
         AudioMixerOutput out = null;
         try {
