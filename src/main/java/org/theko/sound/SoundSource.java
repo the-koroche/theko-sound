@@ -72,11 +72,13 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
 
     public class Playback implements AudioNode {
         @Override
-        public void render (float[][] samples, int sampleRate, int length) {
+        public void render (float[][] samples, int sampleRate) {
             if (!isPlaying) {
                 ArrayUtilities.fillZeros(samples);
                 return;
             }
+
+            int length = samples[0].length;
 
             int available = samplesData[0].length - playedSamples;
             int safeLength = Math.min(length, available);
@@ -149,23 +151,33 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
     }
 
     public void start () {
+        if (isPlaying) return;
         isPlaying = true;
         playedSamples = 0;
+        logger.debug("Playback started.");
     }
 
     public void stop () {
+        if (!isPlaying) return;
         isPlaying = false;
         playedSamples = 0;
+        logger.debug("Playback stopped.");
     }
 
     @Override
-    public void render (float[][] samples, int sampleRate, int length) {
-        innerMixer.render(samples, sampleRate, length);
+    public void render (float[][] samples, int sampleRate) {
+        innerMixer.render(samples, sampleRate);
     }
 
     public void close () {
+        logger.debug("Closing sound source...");
         stop();
         samplesData = null;
+        audioFormat = null;
+        innerMixer = null;
+        resamplerEffect = null;
+
+        logger.debug("Sound source closed.");
     }
 
     public void reset () {
@@ -206,6 +218,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
 
     public void setSamplePosition (int position) {
         if (position < 0 || position > samplesData[0].length) {
+            logger.error("Position must be between 0 and {}", samplesData[0].length);
             throw new IllegalArgumentException("Position must be between 0 and " + samplesData[0].length);
         }
         playedSamples = position;
@@ -262,8 +275,10 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
             this.audioFormat = decodeResult.getAudioFormat();
             logger.debug("Decoded audio file: {} with format: {}", file.getName(), audioFormat);
         } catch (AudioCodecException ex) {
+            logger.error("Failed to decode audio file: {}", file.getName(), ex);
             ex.printStackTrace();
         } catch (FileNotFoundException ex) {
+            logger.error("Failed to open audio file: {}", file.getName(), ex);
             ex.printStackTrace();
         }
     }
