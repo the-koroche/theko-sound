@@ -258,7 +258,7 @@ public class AudioMixer implements AudioNode {
             mixed = SamplesUtilities.reversePolarity(mixed);
         }
 
-        SamplesUtilities.adjustGainAndPan(mixed, postGainControl.getValue(), panControl.getValue());
+        mixed = SamplesUtilities.adjustGainAndPan(mixed, postGainControl.getValue(), panControl.getValue());
         try {
             ArrayUtilities.copyArray(mixed, samples);
         } catch (ChannelsCountMismatchException | LengthMismatchException ex) {
