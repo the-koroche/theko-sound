@@ -35,6 +35,7 @@ public class WaveformVisualizer extends AudioVisualizer {
     protected float displayDuration = 0.1f;
     protected boolean splitStereo = false;
     protected boolean showIdleLine = true;
+    protected boolean interpolateStereo = false;
 
     protected static final float MIN_STROKE_WEIGHT = 0.1f;
     protected static final float MAX_STROKE_WEIGHT = 10.0f;
@@ -94,9 +95,15 @@ public class WaveformVisualizer extends AudioVisualizer {
             if (channels == 1) {
                 drawMonoWaveform(g2d, samples[0], samplesPerPixel, sampleCount, sampleOffset, midY, width, scaleY);
             } else {
-                if (!splitStereo) {
+                if (!splitStereo && !interpolateStereo) {
                     drawStereoWaveform(g2d, samples, samplesPerPixel, sampleCount, sampleOffset, midY, width, scaleY);
-                } else {
+                } else if (!splitStereo && interpolateStereo) {
+                    float[] interpolatedSamples = new float[sampleCount];
+                    for (int i = 0; i < sampleCount; i++) {
+                        interpolatedSamples[i] = (samples[0][i] + samples[1][i]) / 2f;
+                    }
+                    drawMonoWaveform(g2d, interpolatedSamples, samplesPerPixel, sampleCount, sampleOffset, midY, width, scaleY);
+                } else if (splitStereo) {
                     scaleY *= 0.5;
 
                     float upperY = midY / 2;
@@ -119,119 +126,80 @@ public class WaveformVisualizer extends AudioVisualizer {
             int totalSamples,
             int offsetSamples,
             float baselineY,
-            float panelWidth,
+            int panelWidth,
             float amplitudeScale
-            ) {
-            if (samplesPerPixel >= 1f) {
-                for (int x = 0; x < panelWidth; x++) {
-                    int sampleIndex = Math.min((int)(x * samplesPerPixel) + offsetSamples, totalSamples - 1);
-                    int end = (int)Math.min(channelSamples.length, sampleIndex + samplesPerPixel);
+        ) {
+            float prevY = baselineY - clamp(channelSamples[offsetSamples]) * amplitudeScale;
 
-                    float min = 1f;
-                    float max = -1f;
+            for (int x = 1; x < panelWidth; x++) {
+                float samplePos = x * samplesPerPixel + offsetSamples;
+                if (samplePos >= totalSamples - 1) break;
 
-                    for (int i = sampleIndex; i < end; i++) {
-                        float s = clamp(channelSamples[i]);
-                        if (s < min) min = s;
-                        if (s > max) max = s;
-                    }
+                int index = (int) samplePos;
+                float frac = samplePos - index;
 
-                    int y1 = (int)(baselineY - max * amplitudeScale);
-                    int y2 = (int)(baselineY - min * amplitudeScale);
+                float sampleValue = MathUtilities.lerp(channelSamples[index], channelSamples[index + 1], frac);
+                float y = baselineY - clamp(sampleValue) * amplitudeScale;
 
-                    g2d.drawLine(x, y1, x, y2);
-                }
-            } else {
-                // Interpolation between samples
-                for (int x = 1; x < panelWidth; x++) {
-                    float samplePos1 = (x - 1) * samplesPerPixel + offsetSamples;
-                    float samplePos2 = x * samplesPerPixel + offsetSamples;
-
-                    int index1 = (int) samplePos1;
-                    int index2 = (int) samplePos2;
-
-                    if (index2 >= totalSamples) {
-                        break;
-                    }
-
-                    float frac1 = samplePos1 - index1;
-                    float frac2 = samplePos2 - index2;
-
-                    float s1 = MathUtilities.lerp(channelSamples[index1], channelSamples[Math.min(index1 + 1, totalSamples - 1)], frac1);
-                    float s2 = MathUtilities.lerp(channelSamples[index2], channelSamples[Math.min(index2 + 1, totalSamples - 1)], frac2);
-
-                    int y1 = (int)(baselineY - clamp(s1) * amplitudeScale);
-                    int y2 = (int)(baselineY - clamp(s2) * amplitudeScale);
-
-                    g2d.drawLine(x - 1, y1, x, y2);
-                }
+                g2d.drawLine(x - 1, (int) prevY, x, (int) y);
+                prevY = y;
             }
         }
 
-        private void drawStereoWaveform (
+        private void drawStereoWaveform(
             Graphics2D g2d,
-            float[][] samples, 
-            float samplesPerPixel, 
-            int totalSamples, 
-            int offsetSamples, 
-            float baselineY, 
-            float panelWidth, 
+            float[][] samples,
+            float samplesPerPixel,
+            int totalSamples,
+            int offsetSamples,
+            float baselineY,
+            int panelWidth,
             float amplitudeScale
-            ) {
-            if (samplesPerPixel >= 1f) {
-                for (int x = 0; x < panelWidth; x++) {
-                    int sampleIndex = Math.min((int)(x * samplesPerPixel) + offsetSamples, totalSamples - 1);
-                    int end = (int)Math.min(samples[0].length, sampleIndex + samplesPerPixel);
+        ) {
+            // Get the first vertical range (min, max) at x=0
+            float samplePos0 = offsetSamples;
+            int index0 = (int) samplePos0;
+            float frac0 = samplePos0 - index0;
 
-                    float min = 1f;
-                    float max = -1f;
+            // Check for out of bounds
+            if (index0 >= totalSamples - 1) return;
 
-                    for (int i = sampleIndex; i < end; i++) {
-                        float sampleLeft = clamp(samples[0][i]);
-                        float sampleRight = clamp(samples[1][i]);
+            float left0 = MathUtilities.lerp(samples[0][index0], samples[0][Math.min(index0 + 1, totalSamples - 1)], frac0);
+            float right0 = MathUtilities.lerp(samples[1][index0], samples[1][Math.min(index0 + 1, totalSamples - 1)], frac0);
 
-                        float localMin = Math.min(sampleLeft, sampleRight);
-                        float localMax = Math.max(sampleLeft, sampleRight);
+            float minPrev = clamp(Math.min(left0, right0));
+            float maxPrev = clamp(Math.max(left0, right0));
 
-                        if (localMin < min) min = localMin;
-                        if (localMax > max) max = localMax;
-                    }
+            for (int x = 1; x < panelWidth; x++) {
+                float samplePos = x * samplesPerPixel + offsetSamples;
+                if (samplePos >= totalSamples - 1) break;
 
-                    float y1 = baselineY - max * amplitudeScale;
-                    float y2 = baselineY - min * amplitudeScale;
+                int index = (int) samplePos;
+                float frac = samplePos - index;
 
-                    g2d.drawLine(x, (int)y1, x, (int)y2);
-                }
-            } else {
-                // Interpolation between samples
-                for (int x = 1; x < panelWidth; x++) {
-                    float samplePos1 = (x - 1) * samplesPerPixel + offsetSamples;
-                    float samplePos2 = x * samplesPerPixel + offsetSamples;
+                float leftSample = MathUtilities.lerp(samples[0][index], samples[0][Math.min(index + 1, totalSamples - 1)], frac);
+                float rightSample = MathUtilities.lerp(samples[1][index], samples[1][Math.min(index + 1, totalSamples - 1)], frac);
 
-                    int index1 = (int) samplePos1;
-                    int index2 = (int) samplePos2;
+                float minCurr = clamp(Math.min(leftSample, rightSample));
+                float maxCurr = clamp(Math.max(leftSample, rightSample));
 
-                    if (index2 >= totalSamples) {
-                        break;
-                    }
+                int yMinPrev = (int) (baselineY - maxPrev * amplitudeScale);
+                int yMaxPrev = (int) (baselineY - minPrev * amplitudeScale);
+                int yMinCurr = (int) (baselineY - maxCurr * amplitudeScale);
+                int yMaxCurr = (int) (baselineY - minCurr * amplitudeScale);
 
-                    float frac1 = samplePos1 - index1;
-                    float frac2 = samplePos2 - index2;
+                // Draw 4 lines to create filled rectangle
+                // Left vertical line (connects x-1 point)
+                g2d.drawLine(x - 1, yMinPrev, x - 1, yMaxPrev);
+                // Right line (connects x point)
+                g2d.drawLine(x, yMinCurr, x, yMaxCurr);
+                // Top line (connects top points)
+                g2d.drawLine(x - 1, yMinPrev, x, yMinCurr);
+                // Bottom line (connects bottom points)
+                g2d.drawLine(x - 1, yMaxPrev, x, yMaxCurr);
 
-                    // Interpolate
-                    float sL1 = MathUtilities.lerp(samples[0][index1], samples[0][Math.min(index1 + 1, totalSamples - 1)], frac1);
-                    float sR1 = MathUtilities.lerp(samples[1][index1], samples[1][Math.min(index1 + 1, totalSamples - 1)], frac1);
-                    float sL2 = MathUtilities.lerp(samples[0][index2], samples[0][Math.min(index2 + 1, totalSamples - 1)], frac2);
-                    float sR2 = MathUtilities.lerp(samples[1][index2], samples[1][Math.min(index2 + 1, totalSamples - 1)], frac2);
-
-                    float y1max = clamp(Math.max(sL1, sR1));
-                    float y2min = clamp(Math.min(sL2, sR2));
-
-                    int yStart = (int)(baselineY - y1max * amplitudeScale);
-                    int yEnd = (int)(baselineY - y2min * amplitudeScale);
-
-                    g2d.drawLine(x - 1, yStart, x, yEnd);
-                }
+                minPrev = minCurr;
+                maxPrev = maxCurr;
             }
         }
 
