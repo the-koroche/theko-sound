@@ -10,6 +10,7 @@ import org.theko.sound.backend.AudioBackendNotFoundException;
 import org.theko.sound.codec.AudioCodecNotFoundException;
 import org.theko.sound.visualizers.AudioVisualizer;
 import org.theko.sound.visualizers.SpectrumVisualizer;
+import org.theko.sound.visualizers.WaveformVisualizer;
 
 import visual.VisualFrame;
 
@@ -50,10 +51,15 @@ public class AudioVisualizerTest {
 
             outMixer.addInput(sound);
 
-            AudioVisualizer vis = new SpectrumVisualizer(60.0f);
-            outMixer.addEffect(vis);
+            AudioVisualizer spectrumVisualizer = new SpectrumVisualizer(60.0f);
+            outMixer.addEffect(spectrumVisualizer);
+            VisualFrame spectrumFrame = new VisualFrame("Spectrum", spectrumVisualizer.getPanel(), 720, 480);
+            spectrumFrame.setVisible(true);
 
-            VisualFrame frame = new VisualFrame("Audio Visualizer", vis.getPanel(), 640, 480);
+            AudioVisualizer waveformVisualizer = new WaveformVisualizer(60.0f);
+            outMixer.addEffect(waveformVisualizer);
+            VisualFrame waveformFrame = new VisualFrame("Waveform", waveformVisualizer.getPanel(), 320, 160);
+            waveformFrame.setVisible(true);
 
             sound.start();
 
@@ -70,8 +76,11 @@ public class AudioVisualizerTest {
             sound.close();
             out.close();
 
-            vis.close();
-            frame.dispose();
+            spectrumVisualizer.close();
+            spectrumFrame.dispose();
+
+            waveformVisualizer.close();
+            waveformFrame.dispose();
         } catch (Exception e) {
             System.out.println("TEST PASS FAILED! " + e.getMessage());
             if (out != null) out.close(); // Usually doesn't throw an exception
