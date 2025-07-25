@@ -284,8 +284,8 @@ public class SampleConverter {
         sample = Math.max(-1.0f, Math.min(1.0f, sample));
         
         // Calculate max value based on sample size
-        long max = (1L << (bytesPerSample * 8 - 1)) - 1; // 32767 for 16 бит
-        long min = -(1L << (bytesPerSample * 8 - 1));   // -32768 for 16 бит
+        long max = (1L << (bytesPerSample * 8 - 1)) - 1; // 32767 for 16 bit
+        long min = -(1L << (bytesPerSample * 8 - 1));   // -32768 for 16 bit
     
         long value = Math.round(sample * max);
         if (value > max) value = max;
