@@ -7,6 +7,7 @@ import org.theko.sound.AudioPort;
 import org.theko.sound.UnsupportedAudioFormatException;
 import org.theko.sound.backend.AudioBackendException;
 import org.theko.sound.backend.AudioInputBackend;
+import org.theko.sound.backend.BackendNotOpenException;
 
 /**
  * The {@code JavaSoundInput} class is an implementation of the {@link AudioInputBackend}
@@ -79,8 +80,10 @@ public class JavaSoundInput extends JavaSoundBackend implements AudioInputBacken
             targetDataLine.open(getJavaSoundAudioFormat(audioFormat), bufferSize);
             this.currentPort = port;
             open = true;
-        } catch (LineUnavailableException | UnsupportedAudioFormatException ex) {
+        } catch (LineUnavailableException ex) {
             throw new AudioBackendException("Failed to open audio output line.", ex);
+        } catch (UnsupportedAudioFormatException ex) {
+            throw new AudioBackendException("Unsupported audio format.", ex);
         }
     }
 
@@ -103,9 +106,9 @@ public class JavaSoundInput extends JavaSoundBackend implements AudioInputBacken
     }
 
     @Override
-    public void start () throws AudioBackendException {
+    public void start () throws BackendNotOpenException {
         if (!isOpen()) {
-            throw new AudioBackendException("Cannot start. Backend is not open.");
+            throw new BackendNotOpenException("Cannot start. Backend is not open.");
         }
         targetDataLine.start();
     }
@@ -132,49 +135,49 @@ public class JavaSoundInput extends JavaSoundBackend implements AudioInputBacken
     }
 
     @Override
-    public int read (byte[] data, int offset, int length) throws AudioBackendException {
+    public int read (byte[] data, int offset, int length) throws BackendNotOpenException {
         if (!isOpen()) {
-            throw new AudioBackendException("Cannot write. Backend is not open.");
+            throw new BackendNotOpenException("Cannot write. Backend is not open.");
         }
         return targetDataLine.read(data, offset, length);
     }
 
     @Override
-    public int available () throws AudioBackendException {
+    public int available () throws BackendNotOpenException {
         if (!isOpen()) {
-            throw new AudioBackendException("Cannot check availability. Backend is not open.");
+            throw new BackendNotOpenException("Cannot check availability. Backend is not open.");
         }
         return targetDataLine.available();
     }
 
     @Override
-    public int getBufferSize () throws AudioBackendException {
+    public int getBufferSize () throws BackendNotOpenException {
         if (!isOpen()) {
-            throw new AudioBackendException("Cannot get buffer size. Backend is not open.");
+            throw new BackendNotOpenException("Cannot get buffer size. Backend is not open.");
         }
         return targetDataLine.getBufferSize();
     }
 
     @Override
-    public long getFramePosition () throws AudioBackendException {
+    public long getFramePosition () throws BackendNotOpenException {
         if (!isOpen()) {
-            throw new AudioBackendException("Cannot get frame position. Backend is not open.");
+            throw new BackendNotOpenException("Cannot get frame position. Backend is not open.");
         }
         return targetDataLine.getLongFramePosition();
     }
 
     @Override
-    public long getMicrosecondPosition () throws AudioBackendException {
+    public long getMicrosecondPosition () throws BackendNotOpenException {
         if (!isOpen()) {
-            throw new AudioBackendException("Cannot get microsecond position. Backend is not open.");
+            throw new BackendNotOpenException("Cannot get microsecond position. Backend is not open.");
         }
         return targetDataLine.getMicrosecondPosition();
     }
 
     @Override
-    public long getMicrosecondLatency () throws AudioBackendException {
+    public long getMicrosecondLatency () throws BackendNotOpenException {
         if (!isOpen()) {
-            throw new AudioBackendException("Cannot get latency. Backend is not open.");
+            throw new BackendNotOpenException("Cannot get latency. Backend is not open.");
         }
         return (long)((targetDataLine.getBufferSize() * 1000000L) / targetDataLine.getFormat().getFrameRate());
     }
