@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import org.theko.sound.codec.AudioCodecInfo;
 import org.theko.sound.codec.AudioCodecNotFoundException;
 import org.theko.sound.codec.AudioCodecs;
 import org.theko.sound.codec.AudioDecodeResult;
+import org.theko.sound.codec.AudioTag;
 import org.theko.sound.control.Controllable;
 import org.theko.sound.control.FloatControl;
 import org.theko.sound.effects.IncompatibleEffectTypeException;
@@ -61,6 +63,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
 
     private float[][] samplesData;
     private AudioFormat audioFormat;
+    private List<AudioTag> tags;
     
     protected AudioMixer innerMixer;
     protected ResamplerEffect resamplerEffect;
@@ -174,8 +177,6 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
         stop();
         samplesData = null;
         audioFormat = null;
-        innerMixer = null;
-        resamplerEffect = null;
 
         logger.debug("Sound source closed.");
     }
@@ -248,6 +249,10 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
         return audioFormat;
     }
 
+    public List<AudioTag> getTags () {
+        return tags;
+    }
+
     private void decodeAudioFile (File file) {
         try {
             String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1);
@@ -273,6 +278,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
             
             this.samplesData = decodeResult.getSamples();
             this.audioFormat = decodeResult.getAudioFormat();
+            this.tags = decodeResult.getTags();
             logger.debug("Decoded audio file: {} with format: {}", file.getName(), audioFormat);
         } catch (AudioCodecException ex) {
             logger.error("Failed to decode audio file: {}", file.getName(), ex);
