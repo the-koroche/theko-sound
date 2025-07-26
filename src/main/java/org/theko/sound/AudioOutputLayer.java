@@ -64,7 +64,7 @@ public class AudioOutputLayer implements AutoCloseable {
     private AudioNode rootNode;
 
     private Thread processingThread;
-    private int bufferSize = 2048;
+    private int bufferSize;
 
     /**
      * Constructs an {@code AudioOutputLayer} with the specified {@link AudioOutputBackend} backend.
