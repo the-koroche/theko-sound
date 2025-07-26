@@ -14,8 +14,6 @@ public class SoundPlayer extends SoundSource {
 
     private static final Logger logger = LoggerFactory.getLogger(SoundPlayer.class);
 
-    public static final int DEFAULT_BUFFER_SIZE = 4096;
-
     private final AudioOutputLayer outputLine;
 
     public SoundPlayer (AudioOutputLayer outputLine) {
@@ -64,7 +62,7 @@ public class SoundPlayer extends SoundSource {
     public void open (File file, AudioPort port) throws FileNotFoundException, AudioCodecNotFoundException {
         super.open(file);
         try {
-            this.outputLine.open(port, AudioFormat.NORMAL_QUALITY_FORMAT, DEFAULT_BUFFER_SIZE);
+            this.outputLine.open(port, AudioFormat.NORMAL_QUALITY_FORMAT);
         } catch (AudioBackendException e) {
             throw new AudioBackendException("Audio backend creation failed.", e);
         }
@@ -73,7 +71,7 @@ public class SoundPlayer extends SoundSource {
     @Override public void open (File file) throws FileNotFoundException, AudioCodecNotFoundException {
         super.open(file);
         try {
-            this.outputLine.open(null, AudioFormat.NORMAL_QUALITY_FORMAT, DEFAULT_BUFFER_SIZE);
+            this.outputLine.open(null, AudioFormat.NORMAL_QUALITY_FORMAT);
         } catch (AudioBackendException e) {
             throw new AudioBackendException("Audio backend creation failed.", e);
         }
