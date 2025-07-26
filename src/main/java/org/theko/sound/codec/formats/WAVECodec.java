@@ -191,7 +191,7 @@ public class WAVECodec extends AudioCodec {
             long pcmConvertNs = System.nanoTime() - pcmConvertStartNs;
             logger.debug("Elapsed PCM conversion time: " + pcmConvertNs + " ns.");
 
-            int ms = (int)((audioData.length / (format.getFrameSize() * format.getSampleRate())) * 1000);
+            int ms = (int)((audioData.length / (float)(format.getFrameSize() * format.getSampleRate())) * 1000);
 
             logger.debug("--- Decoded Audio Info --- ");
             logger.debug("Audio format: {}", format);
