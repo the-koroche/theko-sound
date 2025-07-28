@@ -147,7 +147,7 @@ public class AudioOutputLayer implements AutoCloseable {
      */
     public void start () throws AudioBackendException {
         aob.start();
-        processingThread = ThreadUtilities.createThread(
+        processingThread = ThreadUtilities.startThread(
             "AudioOutputLayer-ProcessingThread",
             AudioSystemProperties.AUDIO_OUTPUT_LINE_THREAD_TYPE,
             AudioSystemProperties.AUDIO_OUTPUT_LINE_THREAD_PRIORITY,
@@ -162,9 +162,9 @@ public class AudioOutputLayer implements AutoCloseable {
                 }
             }
         );
-        processingThread.setDaemon(true);
-        processingThread.start();
-        logger.debug("Started audio output line");
+        if (processingThread == null) 
+            throw new RuntimeException("Failed to start audio output line processing thread. Processing thread is null.");
+        logger.debug("Started audio output line. Processing thread: {}", processingThread);
     }
 
     /**
@@ -293,7 +293,7 @@ public class AudioOutputLayer implements AutoCloseable {
     private void process () throws InterruptedException {
         float[][] sampleBuffer = new float[audioFormat.getChannels()][bufferSize];
         long bufferMs = AudioConverter.samplesToMicrosecond(sampleBuffer, audioFormat.getSampleRate()) / 1000;
-        while (!processingThread.isInterrupted()) {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 AudioNode snapshot = rootNode;
                 if (snapshot == null) {
