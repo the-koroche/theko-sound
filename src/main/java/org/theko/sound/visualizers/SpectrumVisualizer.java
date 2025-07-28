@@ -337,7 +337,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
     }
 
     public void setFftWindowSize (int size) {
-        this.fftWindowSize = (int) MathUtilities.clamp(size, MIN_FFT_SIZE, MAX_FFT_SIZE);
+        this.fftWindowSize = MathUtilities.clamp(size, MIN_FFT_SIZE, MAX_FFT_SIZE);
     }
 
     public int getFftWindowSize () {
