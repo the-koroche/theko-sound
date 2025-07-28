@@ -240,9 +240,8 @@ public class AudioMixer implements AudioNode {
                 effects.get(varyingSizeEffectIndex).render(mixed, sampleRate);
                 if (inputLength > length) {
                     mixed = ArrayUtilities.cutArray(mixed, 0, channels, 0, length);
-                } else {
-                    processEffectChain(mixed, sampleRate, varyingSizeEffectIndex + 1, effects.size());
                 }
+                processEffectChain(mixed, sampleRate, varyingSizeEffectIndex + 1, effects.size());
             }
         }
 
