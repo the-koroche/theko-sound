@@ -64,6 +64,7 @@ public class AudioOutputLayer implements AutoCloseable {
     private AudioNode rootNode;
 
     private Thread processingThread;
+    private boolean isPlaying;
     private int bufferSize;
 
     /**
@@ -146,6 +147,7 @@ public class AudioOutputLayer implements AutoCloseable {
      * @throws AudioBackendException If an error occurs while starting the backend.
      */
     public void start () throws AudioBackendException {
+        if (isPlaying) return;
         aob.start();
         processingThread = ThreadUtilities.startThread(
             "AudioOutputLayer-ProcessingThread",
@@ -164,6 +166,7 @@ public class AudioOutputLayer implements AutoCloseable {
         );
         if (processingThread == null) 
             throw new RuntimeException("Failed to start audio output line processing thread. Processing thread is null.");
+        isPlaying = true;
         logger.debug("Started audio output line. Processing thread: {}", processingThread);
     }
 
@@ -172,10 +175,12 @@ public class AudioOutputLayer implements AutoCloseable {
      * @throws AudioBackendException If an error occurs while stopping the backend.
      */
     public void stop () throws AudioBackendException {
+        if (!isPlaying) return;
         aob.stop();
         if (processingThread != null && processingThread.isAlive()) {
             processingThread.interrupt();
         }
+        isPlaying = false;
         logger.debug("Stopped audio output line");
     }
 
@@ -244,6 +249,7 @@ public class AudioOutputLayer implements AutoCloseable {
     public void close () {
         stop();
         aob.close();
+        logger.debug("Closed audio output line");
     }
 
     /**
