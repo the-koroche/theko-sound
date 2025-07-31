@@ -3,6 +3,7 @@ package org.theko.sound;
 import java.io.Serializable;
 import java.util.Objects;
 
+import org.theko.sound.codec.AudioEncoding;
 import org.theko.sound.utility.FormatUtilities;
 
 /**
@@ -178,6 +179,23 @@ public class AudioFormat implements Serializable {
      */
     public AudioFormat convertTo (Encoding newEncoding) {
         return new AudioFormat(sampleRate, bitsPerSample, channels, newEncoding, bigEndian, frameSize, byteRate);
+    }
+
+    public AudioFormat convertTo(AudioEncoding newEncoding) {
+        switch (newEncoding) {
+            case PCM_UNSIGNED:
+                return convertTo(Encoding.PCM_UNSIGNED);
+            case PCM_SIGNED:
+                return convertTo(Encoding.PCM_SIGNED);
+            case PCM_FLOAT:
+                return convertTo(Encoding.PCM_FLOAT);
+            case ULAW:
+                return convertTo(Encoding.ULAW);
+            case ALAW:
+                return convertTo(Encoding.ALAW);
+            default:
+                throw new IllegalArgumentException("Unsupported encoding: " + newEncoding);
+        }
     }
 
     /**
