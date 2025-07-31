@@ -23,7 +23,12 @@ public class ResourceLoader {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
-    public static InputStream getResourceStream (String resourceName) {
+    /**
+     * Loads a resource as a stream from the classpath.
+     * @param resourceName The name of the resource to load.
+     * @return The resource as a stream.
+     */
+    public static InputStream getResourceStream(String resourceName) {
         if (resourceName == null || resourceName.isEmpty()) {
             throw new IllegalArgumentException("Resource name cannot be null or empty.");
         }
@@ -37,11 +42,18 @@ public class ResourceLoader {
         return stream;
     }
 
-    public static File getResourceFile (String resourceName) {
+    /**
+     * Loads a resource as a file from the classpath.
+     * It creates a temporary file and copies the resource to it.
+     * @param resourceName The name of the resource to load.
+     * @return The resource as a file.
+     */
+    public static File getResourceFile(String resourceName) {
         try (InputStream resourceStream = getResourceStream(resourceName)) {
             String prefix = resourceName.replaceAll("[^a-zA-Z0-9]", "_");
             if (prefix.length() < 3) prefix += "___";
-            File tempFile = File.createTempFile(prefix, ".tmp");
+            String extension = resourceName.substring(resourceName.lastIndexOf('.'));
+            File tempFile = File.createTempFile(prefix, extension);
             tempFile.deleteOnExit();
             Files.copy(resourceStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             return tempFile;
