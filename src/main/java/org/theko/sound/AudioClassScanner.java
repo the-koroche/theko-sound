@@ -16,6 +16,8 @@ import org.theko.sound.backend.AudioBackend;
 import org.theko.sound.backend.AudioInputBackend;
 import org.theko.sound.backend.AudioOutputBackend;
 import org.theko.sound.backend.javasound.JavaSoundBackend;
+import org.theko.sound.backend.wasapi.WASAPIExclusiveBackend;
+import org.theko.sound.backend.wasapi.WASAPISharedBackend;
 import org.theko.sound.codec.AudioCodec;
 import org.theko.sound.codec.formats.WAVECodec;
 import org.theko.sound.properties.AudioSystemProperties;
@@ -36,14 +38,16 @@ import org.theko.sound.properties.AudioSystemProperties;
  */
 public final class AudioClassScanner {
 
-    private AudioClassScanner () {
+    private AudioClassScanner() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
     private static final Logger logger = LoggerFactory.getLogger(AudioClassScanner.class);
 
     private static final Set<Class<? extends AudioBackend>> definedBackends = Set.of(
-        JavaSoundBackend.class
+        JavaSoundBackend.class,
+        WASAPISharedBackend.class,
+        WASAPIExclusiveBackend.class
     );
 
     private static final Set<Class<? extends AudioCodec>> definedCodecs = Set.of(
@@ -55,7 +59,7 @@ public final class AudioClassScanner {
     private static Set<Class<? extends AudioCodec>> scannedCodecs;
 
     static {
-        if (!AudioSystemProperties.SCAN_CLASSES) {
+        if (AudioSystemProperties.SCAN_CLASSES) {
             scanClasses();
         }
     }
