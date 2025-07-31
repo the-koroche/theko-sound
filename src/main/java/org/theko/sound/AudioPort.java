@@ -24,22 +24,26 @@ public class AudioPort {
     private final String version;     // The version of the audio port
     private final String description; // A description of the port's functionality
     private final AudioFlow flow;     // The flow direction (input/output) of the audio port
+
+    private final Object link;        // The link object associated with the port
     
     /**
      * Constructor to create an AudioPort instance.
      * 
+     * @param link The link object associated with the port.
      * @param flow The flow type of the port (input or output).
      * @param name The name of the port.
      * @param vendor The vendor name of the port.
      * @param version The version of the port.
      * @param description A description providing details about the port.
      */
-    public AudioPort (AudioFlow flow, String name, String vendor, String version, String description) {
+    public AudioPort (Object link, AudioFlow flow, String name, String vendor, String version, String description) {
         this.name = name;
         this.vendor = vendor;
         this.version = version;
         this.description = description;
         this.flow = flow;
+        this.link = link;
     }
 
     /**
@@ -88,13 +92,30 @@ public class AudioPort {
     }
 
     /**
+     * Returns the link object associated with the audio port.
+     * 
+     * @return The link object.
+     */
+    public Object getLink () {
+        return link;
+    }
+
+    @Override
+    public boolean equals (Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        AudioPort other = (AudioPort) obj;
+        return link.equals(other.link);
+    }
+
+    /**
      * Provides a string representation of the AudioPort object, including 
-     * flow type, name, vendor, and version.
+     * flow type, name, vendor, version and the link object.
      * 
      * @return A string that represents the audio port.
      */
     @Override
     public String toString () {
-        return "AudioPort {" + flow.toString() + ", Name: " + name + ", Vendor: " + vendor + ", Version: " + version + "}";
+        return String.format("AudioPort {Flow: %s, Name: %s, Vendor: %s, Version: %s, Link Object: %s@%s}", flow, name, vendor, version, link.getClass().getSimpleName(), link.hashCode());
     }
 }
