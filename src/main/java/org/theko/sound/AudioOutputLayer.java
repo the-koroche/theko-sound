@@ -76,6 +76,7 @@ public class AudioOutputLayer implements AutoCloseable {
         if (aob == null) throw new IllegalArgumentException("AudioOutputBackend cannot be null");
         this.aob = aob;
         logger.debug("Created audio output line with backend: " + aob.getClass().getSimpleName());
+        aob.initialize();
     }
 
     /**
@@ -95,17 +96,58 @@ public class AudioOutputLayer implements AutoCloseable {
      * @param bufferSizeInSamples The size of the buffer for audio data in samples.
      * @throws AudioBackendException If an error occurs while opening the backend.
      */
+    @SuppressWarnings("incomplete-switch")
     public void open (AudioPort port, AudioFormat audioFormat, int bufferSizeInSamples) throws AudioBackendException {
         try {
-            AudioPort targetPort = (port == null ? aob.getDefaultPort(AudioFlow.OUT, audioFormat).get() : port);
-            aob.open(targetPort, audioFormat, bufferSizeInSamples * audioFormat.getFrameSize());
-            this.audioFormat = audioFormat;
+            logger.debug("Trying to open audio output line with port: {}, format: {}, buffer size: {}", port, audioFormat, bufferSizeInSamples);
+            AudioPort targetPort = (port == null ? aob.getDefaultPort(AudioFlow.OUT).get() : port);
+            AudioFormat highestSupportableFormat = aob.getBestMatchFormat(targetPort);
+            int targetSampleSize = Math.min(highestSupportableFormat.getSampleSizeInBits(), audioFormat.getSampleSizeInBits());
+            switch (highestSupportableFormat.getEncoding()) {
+                case ALAW:
+                    audioFormat = audioFormat.convertTo(AudioFormat.Encoding.ALAW);
+                    break;
+                case ULAW:
+                    switch (audioFormat.getEncoding()) {
+                        case PCM_UNSIGNED:
+                        case PCM_SIGNED:
+                        case PCM_FLOAT:
+                            audioFormat = audioFormat.convertTo(AudioFormat.Encoding.ULAW);
+                            break;
+                    }
+                    break;
+                case PCM_UNSIGNED:
+                    switch (audioFormat.getEncoding()) {
+                        case PCM_SIGNED:
+                        case PCM_FLOAT:
+                            audioFormat = audioFormat.convertTo(AudioFormat.Encoding.PCM_UNSIGNED);
+                            break;
+                    }
+                    break;
+                case PCM_SIGNED:
+                    switch (audioFormat.getEncoding()) {
+                        case PCM_FLOAT:
+                            audioFormat = audioFormat.convertTo(AudioFormat.Encoding.PCM_SIGNED);
+                            break;
+                    }
+                    break;
+            }
+            AudioFormat targetFormat = new AudioFormat(
+                audioFormat.getSampleRate(),
+                targetSampleSize,
+                audioFormat.getChannels(),
+                audioFormat.getEncoding(),
+                audioFormat.isBigEndian()
+            );
+            if (!targetFormat.equals(audioFormat)) {
+                logger.warn("Audio format conversion: {} -> {}", audioFormat, targetFormat);
+            }
+            aob.open(targetPort, targetFormat, bufferSizeInSamples * targetFormat.getFrameSize());
+            this.audioFormat = targetFormat;
             this.bufferSize = bufferSizeInSamples;
-            logger.debug("Opened audio output line with {} port, {} format, and {} buffer size", targetPort, audioFormat, bufferSizeInSamples);
+            logger.debug("Opened audio output line with {} port, {} format, and {} buffer size", targetPort, targetFormat, bufferSizeInSamples);
         } catch (AudioBackendException | AudioPortsNotFoundException ex) {
             throw new AudioBackendException("Failed to open audio output line.", ex);
-        } catch (UnsupportedAudioFormatException ex) {
-            throw new AudioBackendException("Unsupported audio format.", ex);
         }
     }
 
@@ -249,6 +291,7 @@ public class AudioOutputLayer implements AutoCloseable {
     public void close () {
         stop();
         aob.close();
+        aob.shutdown();
         logger.debug("Closed audio output line");
     }
 
