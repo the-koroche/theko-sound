@@ -32,7 +32,7 @@ Designed for use in games, DAWs, media players, and audio visualization tools.
 | Backend     | Status        |
 | ----------- | ------------- |
 | JavaSound   | ✅ Implemented |
-| WASAPI      | 🔜 Planned    |
+| WASAPI      | 🔧 In progress |
 | DirectSound | 🔜 Planned    |
 | PulseAudio  | 🔜 Planned    |
 | ALSA        | 🔜 Planned    |
