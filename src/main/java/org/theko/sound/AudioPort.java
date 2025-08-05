@@ -190,8 +190,8 @@ public class AudioPort {
     @Override
     public String toString () {
         return String.format(
-            "AudioPort [Is Active: %b, Flow: %s, Name: %s, Vendor: %s, Version: %s, Mix Format: %s, Link: %s@%s]",
-            isActive, flow, name, vendor, version, mixFormat,
+            "AudioPort {Name: %s, Vendor: %s, Flow: %s, Is Active: %b, Mix Format: %s, Link: %s@%s}",
+            name, vendor, flow, isActive, mixFormat,
             link.getClass().getSimpleName(), link.hashCode()
         );
     }

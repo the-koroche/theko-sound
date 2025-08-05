@@ -7,7 +7,7 @@ import org.theko.sound.codec.AudioEncoding;
 import org.theko.sound.utility.FormatUtilities;
 
 /**
- * Represents an audio format with various properties such as sample rate, bit depth, 
+ * Represents an audio format with various properties such as sample rate, bit depth,
  * number of channels, encoding type, and endianness. This class provides utility 
  * methods to analyze and manipulate audio format properties.
  * 
@@ -81,8 +81,8 @@ public class AudioFormat implements Serializable {
      * @throws IllegalArgumentException if any parameter is invalid.
      */
     public AudioFormat (int sampleRate, int bitsPerSample, int channels, Encoding encoding, boolean bigEndian) {
-        this(sampleRate, bitsPerSample, channels, encoding, bigEndian, 
-             (bitsPerSample / 8) * channels, 
+        this(sampleRate, bitsPerSample, channels, encoding, bigEndian,
+             (bitsPerSample / 8) * channels,
              sampleRate * ((bitsPerSample / 8) * channels));
     }
 
@@ -211,7 +211,7 @@ public class AudioFormat implements Serializable {
     // Overridden methods
     @Override
     public String toString () {
-        return String.format("AudioFormat[%d Hz, %d-bit, %d channels, %s, %s-endian, %s/s]", 
+        return String.format("AudioFormat{%d Hz, %d-bit, %d channels, %s, %s-endian, %s/s}",
                 sampleRate, bitsPerSample, channels, encoding, bigEndian ? "big" : "little", FormatUtilities.formatBytes(byteRate, true));
     }
 
