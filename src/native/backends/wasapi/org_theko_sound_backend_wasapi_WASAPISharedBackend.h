@@ -41,14 +41,6 @@ JNIEXPORT jobject JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBacken
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedBackend
- * Method:    getMixFormat0
- * Signature: (Lorg/theko/sound/AudioPort;)Lorg/theko/sound/AudioFormat;
- */
-JNIEXPORT jobject JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_getMixFormat0
-  (JNIEnv *, jobject, jobject);
-
-/*
- * Class:     org_theko_sound_backend_wasapi_WASAPISharedBackend
  * Method:    isFormatSupported0
  * Signature: (Lorg/theko/sound/AudioPort;Lorg/theko/sound/AudioFormat;)Z
  */

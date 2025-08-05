@@ -89,6 +89,14 @@ JNIEXPORT jlong JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_g
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedOutput
+ * Method:    getMicrosecondLatency0
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_getMicrosecondLatency0
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     org_theko_sound_backend_wasapi_WASAPISharedOutput
  * Method:    getCurrentAudioPort0
  * Signature: ()Lorg/theko/sound/AudioPort;
  */
