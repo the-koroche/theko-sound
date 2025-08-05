@@ -2,17 +2,12 @@ package org.theko.sound;
 
 /**
  * The {@code AudioPort} class represents an audio port with specific attributes
- * such as its name, vendor, version, description, and flow direction (input or output).
+ * such as its name, vendor, version, description, flow direction (input or output),
+ * activity status, audio format, and a link object.
  * It provides methods to retrieve these attributes and a string representation
  * of the audio port.
  * 
  * <p>This class is immutable, meaning its state cannot be changed after it is created.</p>
- * 
- * <p>Example usage:</p>
- * <pre>
- *     AudioPort port = new AudioPort(AudioFlow.INPUT, "Mic Input", "Default", "1.0", "Microphone input port");
- *     System.out.println(port.getName()); // Outputs: Mic Input
- * </pre>
  * 
  * @since v1.0.0
  * @author Theko
@@ -25,6 +20,9 @@ public class AudioPort {
     private final String description; // A description of the port's functionality
     private final AudioFlow flow;     // The flow direction (input/output) of the audio port
 
+    private final boolean isActive;   // Whether the port is active or not
+    private final AudioFormat mixFormat;    // The audio format used for mixing
+
     private final Object link;        // The link object associated with the port
     
     /**
@@ -32,18 +30,106 @@ public class AudioPort {
      * 
      * @param link The link object associated with the port.
      * @param flow The flow type of the port (input or output).
+     * @param isActive Whether the port is active or not.
+     * @param mixFormat The audio format used for mixing audio data.
      * @param name The name of the port.
      * @param vendor The vendor name of the port.
      * @param version The version of the port.
      * @param description A description providing details about the port.
      */
-    public AudioPort (Object link, AudioFlow flow, String name, String vendor, String version, String description) {
+    public AudioPort (
+            Object link,
+            AudioFlow flow,
+            boolean isActive,
+            AudioFormat mixFormat,
+            String name,
+            String vendor,
+            String version,
+            String description) {
         this.name = name;
         this.vendor = vendor;
         this.version = version;
         this.description = description;
         this.flow = flow;
+        this.isActive = isActive;
+        this.mixFormat = mixFormat;
         this.link = link;
+    }
+
+    /**
+     * Constructor to create an AudioPort instance with an active state set to true.
+     * 
+     * @param link The link object associated with the port.
+     * @param flow The flow type of the port (input or output).
+     * @param mixFormat The audio format used for mixing audio data.
+     * @param name The name of the port.
+     * @param vendor The vendor name of the port.
+     * @param version The version of the port.
+     */
+    public AudioPort (
+            Object link,
+            AudioFlow flow,
+            AudioFormat mixFormat,
+            String name,
+            String vendor,
+            String version,
+            String description) {
+        this(link, flow, true, mixFormat, name, vendor, version, description);
+    }
+
+    /**
+     * Constructor to create an AudioPort instance with an active state set to true and a description set to "Unknown".
+     * 
+     * @param link The link object associated with the port.
+     * @param flow The flow type of the port (input or output).
+     * @param mixFormat The audio format used for mixing audio data.
+     * @param name The name of the port.
+     * @param vendor The vendor name of the port.
+     */
+    public AudioPort (
+            Object link,
+            AudioFlow flow,
+            boolean isActive,
+            AudioFormat mixFormat,
+            String name,
+            String vendor) {
+        this(link, flow, isActive, mixFormat, name, vendor, "Unknown", "Unknown");
+    }
+
+    /**
+     * Returns the link object associated with the audio port.
+     * 
+     * @return The link object.
+     */
+    public Object getLink () {
+        return link;
+    }
+
+    /**
+     * Returns the flow direction of the audio port (input or output).
+     * 
+     * @return The flow type of the port (AudioFlow).
+     */
+    public AudioFlow getFlow () {
+        return flow;
+    }
+
+    /**
+     * Returns whether the audio port is active or not.
+     * 
+     * @return True if the port is active, false otherwise.
+     */
+    public boolean isActive () {
+        return isActive;
+    }
+
+    /**
+     * Returns the audio format associated with the audio port.
+     * 
+     * @return The audio format.
+     */
+    public AudioFormat getMixFormat () {
+        return mixFormat;
     }
 
     /**
@@ -83,23 +169,11 @@ public class AudioPort {
     }
 
     /**
-     * Returns the flow direction of the audio port (input or output).
+     * Compares two AudioPort objects based on their link objects.
      * 
-     * @return The flow type of the port (AudioFlow).
+     * @param obj The object to compare with.
+     * @return True if the objects are equal, false otherwise.
      */
-    public AudioFlow getFlow () {
-        return flow;
-    }
-
-    /**
-     * Returns the link object associated with the audio port.
-     * 
-     * @return The link object.
-     */
-    public Object getLink () {
-        return link;
-    }
-
     @Override
     public boolean equals (Object obj) {
         if (this == obj) return true;
@@ -109,13 +183,16 @@ public class AudioPort {
     }
 
     /**
-     * Provides a string representation of the AudioPort object, including 
-     * flow type, name, vendor, version and the link object.
+     * Provides a string representation of the AudioPort object.
      * 
      * @return A string that represents the audio port.
      */
     @Override
     public String toString () {
-        return String.format("AudioPort {Flow: %s, Name: %s, Vendor: %s, Version: %s, Link Object: %s@%s}", flow, name, vendor, version, link.getClass().getSimpleName(), link.hashCode());
+        return String.format(
+            "AudioPort [Is Active: %b, Flow: %s, Name: %s, Vendor: %s, Version: %s, Mix Format: %s, Link: %s@%s]",
+            isActive, flow, name, vendor, version, mixFormat,
+            link.getClass().getSimpleName(), link.hashCode()
+        );
     }
 }
