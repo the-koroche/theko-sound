@@ -67,7 +67,7 @@ public class JavaSoundInput extends JavaSoundBackend implements AudioInputBacken
     private AudioPort currentPort;
 
     @Override
-    public void open (AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException {
+    public void open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException {
         try {
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, getJavaSoundAudioFormat(audioFormat), bufferSize);
             Mixer mixer = getMixerForPort(port);
@@ -88,17 +88,17 @@ public class JavaSoundInput extends JavaSoundBackend implements AudioInputBacken
     }
 
     @Override
-    public void open (AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
+    public void open(AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
         open(port, audioFormat, audioFormat.getByteRate() / 5);
     }
 
     @Override
-    public boolean isOpen () {
+    public boolean isOpen() {
         return open && targetDataLine != null && targetDataLine.isOpen();
     }
 
     @Override
-    public void close () throws AudioBackendException {
+    public void close() throws AudioBackendException {
         if (targetDataLine != null) {
             targetDataLine.close();
             open = false;
@@ -106,7 +106,7 @@ public class JavaSoundInput extends JavaSoundBackend implements AudioInputBacken
     }
 
     @Override
-    public void start () throws BackendNotOpenException {
+    public void start() throws BackendNotOpenException {
         if (!isOpen()) {
             throw new BackendNotOpenException("Cannot start. Backend is not open.");
         }
@@ -114,28 +114,28 @@ public class JavaSoundInput extends JavaSoundBackend implements AudioInputBacken
     }
 
     @Override
-    public void stop () throws AudioBackendException {
+    public void stop() throws AudioBackendException {
         if (isOpen()) {
             targetDataLine.stop();
         }
     }
 
     @Override
-    public void flush () throws AudioBackendException {
+    public void flush() throws AudioBackendException {
         if (isOpen()) {
             targetDataLine.flush();
         }
     }
 
     @Override
-    public void drain () throws AudioBackendException {
+    public void drain() throws AudioBackendException {
         if (isOpen()) {
             targetDataLine.drain();
         }
     }
 
     @Override
-    public int read (byte[] data, int offset, int length) throws BackendNotOpenException {
+    public int read(byte[] data, int offset, int length) throws BackendNotOpenException {
         if (!isOpen()) {
             throw new BackendNotOpenException("Cannot write. Backend is not open.");
         }
@@ -143,7 +143,7 @@ public class JavaSoundInput extends JavaSoundBackend implements AudioInputBacken
     }
 
     @Override
-    public int available () throws BackendNotOpenException {
+    public int available() throws BackendNotOpenException {
         if (!isOpen()) {
             throw new BackendNotOpenException("Cannot check availability. Backend is not open.");
         }
@@ -151,7 +151,7 @@ public class JavaSoundInput extends JavaSoundBackend implements AudioInputBacken
     }
 
     @Override
-    public int getBufferSize () throws BackendNotOpenException {
+    public int getBufferSize() throws BackendNotOpenException {
         if (!isOpen()) {
             throw new BackendNotOpenException("Cannot get buffer size. Backend is not open.");
         }
@@ -159,7 +159,7 @@ public class JavaSoundInput extends JavaSoundBackend implements AudioInputBacken
     }
 
     @Override
-    public long getFramePosition () throws BackendNotOpenException {
+    public long getFramePosition() throws BackendNotOpenException {
         if (!isOpen()) {
             throw new BackendNotOpenException("Cannot get frame position. Backend is not open.");
         }
@@ -167,7 +167,7 @@ public class JavaSoundInput extends JavaSoundBackend implements AudioInputBacken
     }
 
     @Override
-    public long getMicrosecondPosition () throws BackendNotOpenException {
+    public long getMicrosecondPosition() throws BackendNotOpenException {
         if (!isOpen()) {
             throw new BackendNotOpenException("Cannot get microsecond position. Backend is not open.");
         }
@@ -175,7 +175,7 @@ public class JavaSoundInput extends JavaSoundBackend implements AudioInputBacken
     }
 
     @Override
-    public long getMicrosecondLatency () throws BackendNotOpenException {
+    public long getMicrosecondLatency() throws BackendNotOpenException {
         if (!isOpen()) {
             throw new BackendNotOpenException("Cannot get latency. Backend is not open.");
         }
@@ -183,7 +183,7 @@ public class JavaSoundInput extends JavaSoundBackend implements AudioInputBacken
     }
 
     @Override
-    public AudioPort getCurrentAudioPort () {
+    public AudioPort getCurrentAudioPort() {
         return currentPort;
     }
 }
