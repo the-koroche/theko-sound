@@ -108,6 +108,34 @@ public final class AudioClassScanner {
     }
 
     /**
+     * Adds a new audio backend class to the scanned backends set.
+     * If the class is already in the set, a warning message is logged.
+     *
+     * @param backend The class of the audio backend to add.
+     */
+    public static void addBackend (Class<? extends AudioBackend> backend) {
+        if (scannedBackends.contains(backend)) {
+            logger.warn("Duplicate audio backend: {}", backend.getSimpleName());
+            return;
+        }
+        scannedBackends.add(backend);
+    }
+
+    /**
+     * Adds a new audio codec class to the scanned codecs set.
+     * If the class is already in the set, a warning message is logged.
+     *
+     * @param codec The class of the audio codec to add.
+     */
+    public static void addCodec (Class<? extends AudioCodec> codec) {
+        if (scannedCodecs.contains(codec)) {
+            logger.warn("Duplicate audio codec: {}", codec.getSimpleName());
+            return;
+        }
+        scannedCodecs.add(codec);
+    }
+
+    /**
      * Returns a set of all audio backend classes available in the system.
      * If class scanning is enabled, it will include both predefined and scanned backends.
      * Otherwise, it will return only the predefined backends.
