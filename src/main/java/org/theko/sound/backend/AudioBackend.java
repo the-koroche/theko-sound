@@ -96,15 +96,6 @@ public interface AudioBackend {
      * @return {@code true} if the port supports the specified format; {@code false} otherwise.
      */
     boolean isFormatSupported(AudioPort port, AudioFormat audioFormat);
-    
-
-    /**
-     * Retrieves the audio format associated with the given audio port.
-     *
-     * @param port the {@link AudioPort} whose format is requested.
-     * @return the {@link AudioFormat} for the given port, or {@code null} if no compatible format is found.
-     */
-    AudioFormat getBestMatchFormat(AudioPort port);
 
     /**
      * Retrieves the default audio port for the specified audio flow.
