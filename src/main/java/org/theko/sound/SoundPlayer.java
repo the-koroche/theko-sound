@@ -16,13 +16,13 @@ public class SoundPlayer extends SoundSource {
 
     private final AudioOutputLayer outputLine;
 
-    public SoundPlayer (AudioOutputLayer outputLine) {
+    public SoundPlayer(AudioOutputLayer outputLine) {
         super();
         this.outputLine = outputLine;
             this.outputLine.setRootNode(this);
     }
 
-    public SoundPlayer () {
+    public SoundPlayer() {
         super();
         try {
             this.outputLine = new AudioOutputLayer();
@@ -32,7 +32,7 @@ public class SoundPlayer extends SoundSource {
         }
     }
 
-    public SoundPlayer (File file) {
+    public SoundPlayer(File file) {
         this();
         try {
             this.open(file);
@@ -41,7 +41,7 @@ public class SoundPlayer extends SoundSource {
         }
     }
 
-    public SoundPlayer (String file) {
+    public SoundPlayer(String file) {
         this();
         try {
             this.open(new File(file));
@@ -50,45 +50,63 @@ public class SoundPlayer extends SoundSource {
         }
     }
 
-    public void open (File file, AudioPort port, int bufferSize) throws FileNotFoundException, AudioCodecNotFoundException {
+    public void open(File file, AudioPort port, int bufferSize) throws FileNotFoundException, AudioCodecNotFoundException {
         super.open(file);
         try {
-            this.outputLine.open(port, AudioFormat.NORMAL_QUALITY_FORMAT, bufferSize);
+            this.outputLine.open(port, getAudioFormat(), bufferSize);
         } catch (AudioBackendException e) {
             throw new AudioBackendException("Audio backend creation failed.", e);
         }
     }
 
-    public void open (File file, AudioPort port) throws FileNotFoundException, AudioCodecNotFoundException {
+    public void open(File file, AudioPort port) throws FileNotFoundException, AudioCodecNotFoundException {
         super.open(file);
         try {
-            this.outputLine.open(port, AudioFormat.NORMAL_QUALITY_FORMAT);
+            this.outputLine.open(port, getAudioFormat());
         } catch (AudioBackendException e) {
             throw new AudioBackendException("Audio backend creation failed.", e);
         }
     }
 
-    @Override public void open (File file) throws FileNotFoundException, AudioCodecNotFoundException {
+    /**
+     * Opens an audio file and decodes it into samples data.
+     * Opens the audio output line with the specified format.
+     * 
+     * @param file The audio file to open.
+     * @throws FileNotFoundException If the audio file is not found.
+     * @throws AudioCodecNotFoundException If the audio codec is not found.
+     */
+    @Override public void open(File file) throws FileNotFoundException, AudioCodecNotFoundException {
         super.open(file);
         try {
-            this.outputLine.open(null, AudioFormat.NORMAL_QUALITY_FORMAT);
+            this.outputLine.open(null, getAudioFormat());
         } catch (AudioBackendException e) {
             throw new AudioBackendException("Audio backend creation failed.", e);
         }
     }
-
+    /**
+     * Opens an audio file and decodes it into samples data.
+     * Opens the audio output line with the specified format.
+     * 
+     * @param file The audio file path to open.
+     * @throws FileNotFoundException If the audio file is not found.
+     * @throws AudioCodecNotFoundException If the audio codec is not found.
+     */
     @Override
-    public void open (String file) throws FileNotFoundException, AudioCodecNotFoundException {
+    public void open(String file) throws FileNotFoundException, AudioCodecNotFoundException {
         this.open(new File(file));
     }
 
     @Override
-    public void start () {
+    public void start() {
         outputLine.start();
         super.start();
     }
 
-    public void startAndWait () throws InterruptedException {
+    /**
+     * Starts the playback of the sound source and waits for it to finish.
+     */
+    public void startAndWait() throws InterruptedException {
         start();
         while (super.isPlaying()) {
             Thread.sleep(100);
@@ -97,13 +115,13 @@ public class SoundPlayer extends SoundSource {
     }
 
     @Override
-    public void stop () {
+    public void stop() {
         outputLine.stop();
         super.stop();
     }
     
     @Override
-    public void close () {
+    public void close() {
         super.close();
         outputLine.close();
         logger.info("SoundPlayer closed.");

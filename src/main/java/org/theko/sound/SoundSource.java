@@ -73,9 +73,13 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
     protected boolean isPlaying = false;
     protected boolean loop = false;
 
+    /**
+     * The {@code Playback} class represents the inner class responsible for rendering audio samples.
+     * It implements the {@link AudioNode} interface and overrides the {@link AudioNode#render(float[][], int)} method.
+     */
     public class Playback implements AudioNode {
         @Override
-        public void render (float[][] samples, int sampleRate) {
+        public void render(float[][] samples, int sampleRate) {
             if (!isPlaying) {
                 ArrayUtilities.fillZeros(samples);
                 return;
@@ -113,18 +117,43 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
         }
     }
 
-    public SoundSource (File file) throws FileNotFoundException, AudioCodecNotFoundException {
+    /**
+     * Constructs a new {@code SoundSource} object.
+     * 
+     * @param file The audio file to open.
+     * @throws FileNotFoundException If the audio file is not found.
+     * @throws AudioCodecNotFoundException If the audio codec is not found.
+     */
+    public SoundSource(File file) throws FileNotFoundException, AudioCodecNotFoundException {
         this.open(file);
     }
 
-    public SoundSource (String file) throws FileNotFoundException, AudioCodecNotFoundException {
+    /**
+     * Constructs a new {@code SoundSource} object.
+     * 
+     * @param file The audio file path to open.
+     * @throws FileNotFoundException If the audio file is not found.
+     * @throws AudioCodecNotFoundException If the audio codec is not found.
+     */
+    public SoundSource(String file) throws FileNotFoundException, AudioCodecNotFoundException {
         this.open(file);
     }
 
-    public SoundSource () {
+    /**
+     * Constructs a new {@code SoundSource} object,
+     * which is not associated with any audio file.
+     */
+    public SoundSource() {
     }
 
-    public void open (File file) throws FileNotFoundException, AudioCodecNotFoundException {
+    /**
+     * Opens an audio file and decodes it into samples data.
+     * 
+     * @param file The audio file to open.
+     * @throws FileNotFoundException If the audio file is not found.
+     * @throws AudioCodecNotFoundException If the audio codec is not found.
+     */
+    public void open(File file) throws FileNotFoundException, AudioCodecNotFoundException {
         if (file == null || !file.exists()) {
             logger.error("File not found: {}", file);
             throw new FileNotFoundException("File not found.");
@@ -149,18 +178,31 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
         }
     }
 
-    public void open (String file) throws FileNotFoundException, AudioCodecNotFoundException {
+    /**
+     * Opens an audio file and decodes it into samples data.
+     * 
+     * @param file The audio file path to open.
+     * @throws FileNotFoundException If the audio file is not found.
+     * @throws AudioCodecNotFoundException If the audio codec is not found.
+     */
+    public void open(String file) throws FileNotFoundException, AudioCodecNotFoundException {
         this.open(new File(file));
     }
 
-    public void start () {
+    /**
+     * Starts the playback of the sound source.
+     */
+    public void start() {
         if (isPlaying) return;
         isPlaying = true;
         playedSamples = 0;
         logger.debug("Playback started.");
     }
 
-    public void stop () {
+    /**
+     * Stops the playback of the sound source.
+     */
+    public void stop() {
         if (!isPlaying) return;
         isPlaying = false;
         playedSamples = 0;
@@ -168,11 +210,12 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
     }
 
     @Override
-    public void render (float[][] samples, int sampleRate) {
+    public void render(float[][] samples, int sampleRate) {
         innerMixer.render(samples, sampleRate);
     }
 
-    public void close () {
+    @Override
+    public void close() {
         logger.debug("Closing sound source...");
         stop();
         samplesData = null;
@@ -181,43 +224,82 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
         logger.debug("Sound source closed.");
     }
 
-    public void reset () {
+    /**
+     * Resets the playback state of the sound source.
+     */
+    public void reset() {
         playedSamples = 0;
     }
 
-    public boolean isPlaying () {
+    /**
+     * Checks if the sound source is currently playing.
+     * @return {@code true} if the sound source is playing, {@code false} otherwise.
+     */
+    public boolean isPlaying() {
         return isPlaying;
     }
 
-    public FloatControl getGainControl () {
+    /**
+     * Returns the gain control of the sound source.
+     * @return The gain control of the sound source.
+     */
+    public FloatControl getGainControl() {
         return innerMixer.getPostGainControl();
     }
 
-    public AudioMixer getInnerMixer () {
+    /** 
+     * Returns the inner mixer of the sound source.
+     * @return The inner mixer of the sound source.
+     */
+    public AudioMixer getInnerMixer() {
         return innerMixer;
     }
 
-    public ResamplerEffect getResamplerEffect () {
+    /**
+     * Returns the resampler effect of the sound source.
+     * @return The resampler effect of the sound source.
+     */
+    public ResamplerEffect getResamplerEffect() {
         return resamplerEffect;
     }
 
-    public void setLoop (boolean loop) {
+    /**
+     * Sets the loop state of the sound source.
+     * @param loop {@code true} to loop the sound source, {@code false} otherwise.
+     */
+    public void setLoop(boolean loop) {
         this.loop = loop;
     }
 
-    public boolean isLoop () {
+    /**
+     * Checks if the sound source is in loop mode.
+     * @return {@code true} if the sound source is in loop mode, {@code false} otherwise.
+     */
+    public boolean isLoop() {
         return loop;
     }
     
-    public FloatControl getPanControl () {
+    /**
+     * Returns the pan control of the sound source.
+     * @return The pan control of the sound source.
+     */
+    public FloatControl getPanControl() {
         return innerMixer.getPanControl();
     }
 
-    public FloatControl getSpeedControl () {
+    /**
+     * Returns the speed control of the sound source.
+     * @return The speed control of the sound source.
+     */
+    public FloatControl getSpeedControl() {
         return resamplerEffect.getSpeedControl();
     }
 
-    public void setSamplePosition (int position) {
+    /**
+     * Sets the sample position of the sound source.
+     * @param position The sample position to set.
+     */
+    public void setSamplePosition(int position) {
         if (position < 0 || position > samplesData[0].length) {
             logger.error("Position must be between 0 and {}", samplesData[0].length);
             throw new IllegalArgumentException("Position must be between 0 and " + samplesData[0].length);
@@ -225,35 +307,63 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
         playedSamples = position;
     }
 
-    public int getSamplePosition () {
+    /**
+     * Returns the sample position of the sound source.
+     * @return The sample position.
+     */
+    public int getSamplePosition() {
         return playedSamples;
     }
 
-    public void setSecondsPosition (double seconds) {
+    /**
+     * Sets the seconds position of the sound source.
+     * @param seconds The seconds position to set.
+     */
+    public void setSecondsPosition(double seconds) {
         int samples = (int)AudioConverter.microsecondsToSamples((long)(seconds * 1_000_000), audioFormat.getSampleRate());
         setSamplePosition(samples);
     }
 
-    public double getSecondsPosition () {
+    /**
+     * Returns the seconds position of the sound source.
+     * @return The seconds position.
+     */
+    public double getSecondsPosition() {
         return AudioConverter.samplesToMicrosecond(playedSamples, audioFormat.getSampleRate()) / 1_000_000.0;
     }
 
-    public double getDuration () {
+    /**
+     * Returns the duration of the sound source in seconds.
+     * @return The duration of the sound source in seconds.
+     */
+    public double getDuration() {
         if (samplesData == null || audioFormat == null) {
             return 0.0;
         }
         return samplesData[0].length / (double)audioFormat.getSampleRate();
     }
 
-    public AudioFormat getAudioFormat () {
+    /**
+     * Returns the audio format of the sound source.
+     * @return The audio format of the sound source.
+     */
+    public AudioFormat getAudioFormat() {
         return audioFormat;
     }
 
-    public List<AudioTag> getTags () {
+    /**
+     * Returns the metadata tags of the sound source.
+     * @return The metadata tags of the sound source.
+     */
+    public List<AudioTag> getTags() {
         return tags;
     }
 
-    private void decodeAudioFile (File file) {
+    /**
+     * Decodes an audio file into samples data.
+     * @param file The audio file to decode.
+     */
+    private void decodeAudioFile(File file) {
         try {
             String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1);
             if (fileExtension == null || fileExtension.isEmpty()) {
