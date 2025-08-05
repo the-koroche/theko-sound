@@ -99,23 +99,19 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M7</version>
                 <configuration>
-                    <mainClass>com.example.Main</mainClass>
-                    <arguments></arguments>
-                    <systemProperties>
-                        <property>
-                            <key>some.key</key>
-                            <value>someValue</value>
-                        </property>
-                    </systemProperties>
-                    <environmentVariables>
-                        <JAVA_TOOL_OPTIONS>-XX:ErrorFile=logs/hs_err_pid%p.log</JAVA_TOOL_OPTIONS>
-                    </environmentVariables>
-                    </configuration>
-                </plugin>
+                    <argLine>
+                        -XX:ErrorFile=${project.basedir}/logs/err/hs_err_pid%p.log
+                        -Xcheck:jni
+                        -Xmx2g
+                        -XX:+HeapDumpOnOutOfMemoryError
+                        -XX:HeapDumpPath=${project.basedir}/logs/hdump/heapdump.hprof
+                    </argLine>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
