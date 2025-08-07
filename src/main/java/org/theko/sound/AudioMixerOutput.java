@@ -22,20 +22,20 @@ public class AudioMixerOutput implements AutoCloseable {
 
     public void open (AudioFormat audioFormat) throws AudioPortsNotFoundException, UnsupportedAudioFormatException {
         layer.open(audioFormat);
-        startWhenReady();
+        startOnce();
     }
 
     public void open (AudioPort port, AudioFormat format) throws AudioBackendException {
         layer.open(port, format);
-        startWhenReady();
+        startOnce();
     }
 
     public void open (AudioPort port, AudioFormat format, int bufferSize) throws AudioBackendException {
         layer.open(port, format, bufferSize);
-        startWhenReady();
+        startOnce();
     }
 
-    private void startWhenReady () throws AudioBackendException {
+    private void startOnce () throws AudioBackendException {
         if (!isStarted && layer.isOpen() && mixer != null) {
             start();
             isStarted = true;
@@ -61,7 +61,7 @@ public class AudioMixerOutput implements AutoCloseable {
         }
         this.mixer = mixer;
         layer.setRootNode(mixer);
-        startWhenReady();
+        startOnce();
     }
 
     public AudioMixer getMixer () {
