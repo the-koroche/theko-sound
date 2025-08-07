@@ -57,7 +57,7 @@ public class AudioBackends {
 
     private static final Logger logger = LoggerFactory.getLogger(AudioBackends.class);
 
-    private AudioBackends () {
+    private AudioBackends() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
@@ -71,7 +71,7 @@ public class AudioBackends {
     /**
      * Scans and registers all available audio backends that are annotated with {@link AudioBackendType}.
      */
-    private static void registerBackends () {
+    private static void registerBackends() {
         // Attempt to scan all available packages for audio backends.
         audioBackends.clear();
         Set<Class<? extends AudioBackend>> allAudioBackends = AudioClassScanner.getBackendClasses();
@@ -95,7 +95,7 @@ public class AudioBackends {
      * @return The corresponding {@link AudioBackendInfo}.
      * @throws AudioBackendNotFoundException If no backend is found with the given name.
      */
-    public static AudioBackendInfo fromName (String name) throws AudioBackendNotFoundException {
+    public static AudioBackendInfo fromName(String name) throws AudioBackendNotFoundException {
         for (AudioBackendInfo audioBackend : audioBackends) {
             if (audioBackend.getName().equalsIgnoreCase(name)) {
                 return audioBackend;
@@ -106,6 +106,45 @@ public class AudioBackends {
     }
 
     /**
+     * Retrieves an {@link AudioBackend} by its class type.
+     *
+     * @param audioBackendClass The class type of the audio backend.
+     * @return The corresponding {@link AudioBackend}.
+     * @throws AudioBackendNotFoundException If no backend is found with the given class type.
+     * @throws AudioBackendCreationException If the backend cannot be instantiated.
+     */
+    public static AudioBackend getBackend(Class<? extends AudioBackend> audioBackendClass) throws AudioBackendNotFoundException, AudioBackendCreationException {
+        for (AudioBackendInfo backendInfo : audioBackends) {
+            if (backendInfo.getBackendClass().equals(audioBackendClass)) {
+                try {
+                    Constructor<? extends AudioBackend> constructor = audioBackendClass.getDeclaredConstructor();
+                    if (!Modifier.isAbstract(audioBackendClass.getModifiers()) && Modifier.isPublic(constructor.getModifiers())) {
+                        return constructor.newInstance();
+                    }
+                } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                        | NoSuchMethodException | SecurityException ex) {
+                    logger.error("Failed to instantiate backend: " + audioBackendClass.getSimpleName() + ".", ex);
+                    throw new AudioBackendCreationException("Failed to instantiate backend: " + audioBackendClass.getSimpleName(), ex);
+                }
+            }
+        }
+        logger.error("No audio backends found by class: '" + audioBackendClass.getSimpleName() + "'.");
+        throw new AudioBackendNotFoundException("No audio backends found by class: '" + audioBackendClass.getSimpleName() + "'.");
+    }
+
+    /**
+     * Retrieves an {@link AudioBackend} by its {@link AudioBackendInfo}.
+     *
+     * @param audioBackendInfo The {@link AudioBackendInfo} of the audio backend.
+     * @return The corresponding {@link AudioBackend}.
+     * @throws AudioBackendNotFoundException If no backend is found with the given {@link AudioBackendInfo}.
+     * @throws AudioBackendCreationException If the backend cannot be instantiated.
+     */
+    public static AudioBackend getBackend(AudioBackendInfo audioBackendInfo) throws AudioBackendNotFoundException, AudioBackendCreationException {
+        return getBackend(audioBackendInfo.getBackendClass());
+    }
+
+    /**
      * Retrieves an {@link AudioInputBackend} instance by its class type.
      *
      * @param audioBackendClass The class of the desired input backend.
@@ -113,7 +152,7 @@ public class AudioBackends {
      * @throws AudioBackendNotFoundException If the backend is not registered.
      * @throws AudioBackendCreationException If an error occurs during instantiation.
      */
-    public static AudioInputBackend getInputBackend (Class<? extends AudioBackend> audioBackendClass) throws AudioBackendNotFoundException, AudioBackendCreationException {
+    public static AudioInputBackend getInputBackend(Class<? extends AudioBackend> audioBackendClass) throws AudioBackendNotFoundException, AudioBackendCreationException {
         for (AudioBackendInfo backendInfo : audioBackends) {
             if (backendInfo.getBackendClass().equals(audioBackendClass)) {
                 try {
@@ -132,7 +171,7 @@ public class AudioBackends {
         throw new AudioBackendNotFoundException("No input backend found for class: " + audioBackendClass.getSimpleName());
     }
 
-    public static AudioInputBackend getInputBackend (AudioBackendInfo audioBackendInfo) throws AudioBackendCreationException {
+    public static AudioInputBackend getInputBackend(AudioBackendInfo audioBackendInfo) throws AudioBackendCreationException {
         try {
             return getInputBackend(audioBackendInfo.getBackendClass());
         } catch (AudioBackendNotFoundException ex) {
@@ -149,7 +188,7 @@ public class AudioBackends {
      * @throws AudioBackendNotFoundException If the backend is not registered.
      * @throws AudioBackendCreationException If an error occurs during instantiation.
      */
-    public static AudioOutputBackend getOutputBackend (Class<? extends AudioBackend> audioBackendClass) throws AudioBackendNotFoundException, AudioBackendCreationException {
+    public static AudioOutputBackend getOutputBackend(Class<? extends AudioBackend> audioBackendClass) throws AudioBackendNotFoundException, AudioBackendCreationException {
         for (AudioBackendInfo backendInfo : audioBackends) {
             if (backendInfo.getBackendClass().equals(audioBackendClass)) {
                 try {
@@ -168,7 +207,7 @@ public class AudioBackends {
         throw new AudioBackendNotFoundException("No output backend found for class: " + audioBackendClass.getSimpleName());
     }
 
-    public static AudioOutputBackend getOutputBackend (AudioBackendInfo audioBackendInfo) throws AudioBackendCreationException {
+    public static AudioOutputBackend getOutputBackend(AudioBackendInfo audioBackendInfo) throws AudioBackendCreationException {
         try {
             return getOutputBackend(audioBackendInfo.getBackendClass());
         } catch (AudioBackendNotFoundException ex) {
@@ -182,7 +221,7 @@ public class AudioBackends {
      *
      * @return A collection of all registered {@link AudioBackendInfo} instances.
      */
-    public static Collection<AudioBackendInfo> getAllBackends () {
+    public static Collection<AudioBackendInfo> getAllBackends() {
         return audioBackends;
     }
 
@@ -192,7 +231,7 @@ public class AudioBackends {
      * @return The best matching platform-specific audio backend.
      * @throws AudioBackendNotFoundException If no suitable backend is found.
      */
-    public static AudioBackendInfo getPlatformBackend () throws AudioBackendNotFoundException {
+    public static AudioBackendInfo getPlatformBackend() throws AudioBackendNotFoundException {
         String name = System.getProperty("os.name").toLowerCase();
     
         Map<String, List<String>> platformBackends = Map.of(
