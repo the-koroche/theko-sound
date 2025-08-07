@@ -2,266 +2,461 @@
 
 #include <jni.h>
 
-static jclass audioPortClazz;
-static jclass audioFlowClazz;
-static jclass audioFormatClazz;
-static jclass audioFormatEncodingClazz;
-static jclass wasapiNativeHandleClazz;
-
-static jmethodID audioPortCtor;
-static jmethodID audioFormatCtor;
-static jmethodID wasapiNativeHandleCtor;
-
-static jfieldID audioFlowOut;
-static jfieldID audioFlowIn;
-static jobject audioFlowOutObj;
-static jobject audioFlowInObj;
-
-static jfieldID audioFormatEncodingPcmUnsigned;
-static jfieldID audioFormatEncodingPcmSigned;
-static jfieldID audioFormatEncodingFloat;
-static jobject audioFormatEncodingPcmUnsignedObj;
-static jobject audioFormatEncodingPcmSignedObj;
-static jobject audioFormatEncodingFloatObj;
-
-static jmethodID audioFormatGetSampleRate;
-static jmethodID audioFormatGetSampleSizeInBits;
-static jmethodID audioFormatGetChannels;
-static jmethodID audioFormatGetByteRate;
-static jmethodID audioFormatGetFrameSize;
-static jmethodID audioFormatGetEncoding;
-static jmethodID audioFormatIsBigEndian;
-
-static jmethodID wasapiNativeHandleGetHandle;
-
-static jmethodID audioPortGetLink;
-static jmethodID audioPortGetFlow;
-static jmethodID audioPortGetName;
-static jmethodID audioPortGetVendor;
-static jmethodID audioPortGetVersion;
-static jmethodID audioPortGetDescription;
-
-static jclass javaLangOutOfMemoryException;
-static jclass javaLangIllegalArgumentException;
-static jclass javaLangUnsupportedOperationException;
-static jclass javaLangRuntimeException;
-static jclass orgThekoSoundBackendAudioBackendException;
-static jclass orgThekoSoundUnsupportedAudioFormatException;
-static jclass orgThekoSoundUnsupportedAudioEncodingException;
-
-static jclass orgThekoSoundBackendWasapiWASAPISharedBackendClazz;
-static jfieldID WASAPISharedBackendHandle;
-
-static bool checkJavaException(JNIEnv *env) {
+static bool checkJavaEnvException(JNIEnv* env) {
     if (env->ExceptionCheck()) {
-        env->ExceptionDescribe(); 
+        env->ExceptionDescribe();
         env->ExceptionClear();
         return true;
     }
     return false;
 }
 
-static bool createCache(JNIEnv *env) {
-    audioPortClazz = env->FindClass("org/theko/sound/AudioPort");
-    audioFlowClazz = env->FindClass("org/theko/sound/AudioFlow");
-    audioFormatClazz = env->FindClass("org/theko/sound/AudioFormat");
-    audioFormatEncodingClazz = env->FindClass("org/theko/sound/AudioFormat$Encoding");
-    wasapiNativeHandleClazz = env->FindClass("org/theko/sound/backend/wasapi/WASAPINativeAudioPortHandle");
-    orgThekoSoundBackendWasapiWASAPISharedBackendClazz = env->FindClass("org/theko/sound/backend/wasapi/WASAPISharedBackend");
+#define JCHECK_RET(expr) ([&]() { \
+    auto _res = (expr); \
+    if (checkJavaEnvException(env)) return decltype(_res)(); \
+    return _res; \
+}())
 
-    if (
-        !audioPortClazz ||
-        !audioFlowClazz || 
-        !audioFormatClazz || 
-        !audioFormatEncodingClazz || 
-        !wasapiNativeHandleClazz || 
-        !orgThekoSoundBackendWasapiWASAPISharedBackendClazz
-    ) return false;
+#define JCHECK(expr) do { \
+    (expr); \
+    checkJavaEnvException(env); \
+} while (0)
 
-    audioPortCtor = env->GetMethodID(
-        audioPortClazz,
-        "<init>",
-        "(Ljava/lang/Object;Lorg/theko/sound/AudioFlow;ZLorg/theko/sound/AudioFormat;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"
-    );
-    audioFormatCtor = env->GetMethodID(
-        audioFormatClazz,
-        "<init>",
-        "(IIILorg/theko/sound/AudioFormat$Encoding;Z)V"
-    );
-    wasapiNativeHandleCtor = env->GetMethodID(
-        wasapiNativeHandleClazz,
-        "<init>",
-        "(Ljava/lang/String;)V"
-    );
+class AudioFlowCache {
+public:
+    jclass clazz;
+    jfieldID out;
+    jfieldID in;
+    jobject outObj;
+    jobject inObj;
 
-    if (
-        !audioPortCtor ||
-        !audioFormatCtor ||
-        !wasapiNativeHandleCtor
-    ) return false;
+    AudioFlowCache(JNIEnv* env) {
+        clazz = JCHECK_RET(env->FindClass("org/theko/sound/AudioFlow"));
+        out = JCHECK_RET(env->GetStaticFieldID(clazz, "OUT", "Lorg/theko/sound/AudioFlow;"));
+        outObj = JCHECK_RET(env->GetStaticObjectField(clazz, out));
+        in = JCHECK_RET(env->GetStaticFieldID(clazz, "IN", "Lorg/theko/sound/AudioFlow;"));
+        inObj = JCHECK_RET(env->GetStaticObjectField(clazz, in));
 
-    audioFlowOut = env->GetStaticFieldID(audioFlowClazz, "OUT", "Lorg/theko/sound/AudioFlow;");
-    audioFlowIn = env->GetStaticFieldID(audioFlowClazz, "IN", "Lorg/theko/sound/AudioFlow;");
+        if (!isValid()) {
+            env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "AudioFlow failed to initialize");
+            return;
+        }
 
-    if (!audioFlowOut || !audioFlowIn) return false;
+        clazz = (jclass) JCHECK_RET(env->NewGlobalRef(clazz));
+        outObj = (jobject) JCHECK_RET(env->NewGlobalRef(outObj));
+        inObj = (jobject) JCHECK_RET(env->NewGlobalRef(inObj));
+    }
 
-    audioFlowOutObj = env->GetStaticObjectField(audioFlowClazz, audioFlowOut);
-    audioFlowInObj = env->GetStaticObjectField(audioFlowClazz, audioFlowIn);
+    bool isValid() {
+        return clazz && out && outObj && in && inObj;
+    }
 
-    if (!audioFlowOutObj || !audioFlowInObj) return false;
+    void release(JNIEnv* env) {
+        if (clazz) {
+            JCHECK(env->DeleteGlobalRef(clazz));
+            clazz = nullptr;
+        }
+        if (outObj) {
+            JCHECK(env->DeleteGlobalRef(outObj));
+            outObj = nullptr;
+        }
+        if (inObj) {
+            JCHECK(env->DeleteGlobalRef(inObj));
+            inObj = nullptr;
+        }
+    }
+};
 
-    audioFormatEncodingPcmUnsigned = env->GetStaticFieldID(
-        audioFormatEncodingClazz,
-        "PCM_UNSIGNED",
-        "Lorg/theko/sound/AudioFormat$Encoding;"
-    );
-    audioFormatEncodingPcmSigned = env->GetStaticFieldID(
-        audioFormatEncodingClazz,
-        "PCM_SIGNED",
-        "Lorg/theko/sound/AudioFormat$Encoding;"
-    );
-    audioFormatEncodingFloat = env->GetStaticFieldID(
-        audioFormatEncodingClazz,
-        "PCM_FLOAT",
-        "Lorg/theko/sound/AudioFormat$Encoding;");
+class AudioFormatEncodingCache {
+public:
+    jclass clazz;
+    jfieldID pcmUnsigned;
+    jfieldID pcmSigned;
+    jfieldID pcmFloat;
+    jfieldID ulaw;
+    jfieldID alaw;
+    jobject pcmUnsignedObj;
+    jobject pcmSignedObj;
+    jobject pcmFloatObj;
+    jobject ulawObj;
+    jobject alawObj;
 
-    if (!audioFlowOut || !audioFlowIn || !audioFormatEncodingPcmUnsigned || !audioFormatEncodingPcmSigned || !audioFormatEncodingFloat) return false;
+    AudioFormatEncodingCache(JNIEnv* env) {
+        clazz = JCHECK_RET(env->FindClass("org/theko/sound/AudioFormat$Encoding"));
+        pcmUnsigned = JCHECK_RET(env->GetStaticFieldID(clazz, "PCM_UNSIGNED", "Lorg/theko/sound/AudioFormat$Encoding;"));
+        pcmUnsignedObj = JCHECK_RET(env->GetStaticObjectField(clazz, pcmUnsigned));
+        pcmSigned = JCHECK_RET(env->GetStaticFieldID(clazz, "PCM_SIGNED", "Lorg/theko/sound/AudioFormat$Encoding;"));
+        pcmSignedObj = JCHECK_RET(env->GetStaticObjectField(clazz, pcmSigned));
+        pcmFloat = JCHECK_RET(env->GetStaticFieldID(clazz, "PCM_FLOAT", "Lorg/theko/sound/AudioFormat$Encoding;"));
+        pcmFloatObj = JCHECK_RET(env->GetStaticObjectField(clazz, pcmFloat));
+        ulaw = JCHECK_RET(env->GetStaticFieldID(clazz, "ULAW", "Lorg/theko/sound/AudioFormat$Encoding;"));
+        ulawObj = JCHECK_RET(env->GetStaticObjectField(clazz, ulaw));
+        alaw = JCHECK_RET(env->GetStaticFieldID(clazz, "ALAW", "Lorg/theko/sound/AudioFormat$Encoding;"));
+        alawObj = JCHECK_RET(env->GetStaticObjectField(clazz, alaw));
 
-    audioFormatEncodingPcmUnsignedObj = env->GetStaticObjectField(audioFormatEncodingClazz, audioFormatEncodingPcmUnsigned);
-    audioFormatEncodingPcmSignedObj = env->GetStaticObjectField(audioFormatEncodingClazz, audioFormatEncodingPcmSigned);
-    audioFormatEncodingFloatObj = env->GetStaticObjectField(audioFormatEncodingClazz, audioFormatEncodingFloat);
+        if (!isValid()) {
+            env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "AudioFormat$Encoding failed to initialize");
+            return;
+        }
 
-    audioFormatGetSampleRate = env->GetMethodID(audioFormatClazz, "getSampleRate", "()I");
-    audioFormatGetSampleSizeInBits = env->GetMethodID(audioFormatClazz, "getSampleSizeInBits", "()I");
-    audioFormatGetChannels = env->GetMethodID(audioFormatClazz, "getChannels", "()I");
-    audioFormatGetByteRate = env->GetMethodID(audioFormatClazz, "getByteRate", "()I");
-    audioFormatGetFrameSize = env->GetMethodID(audioFormatClazz, "getFrameSize", "()I");
-    audioFormatGetEncoding = env->GetMethodID(audioFormatClazz, "getEncoding", "()Lorg/theko/sound/AudioFormat$Encoding;");
-    audioFormatIsBigEndian = env->GetMethodID(audioFormatClazz, "isBigEndian", "()Z");
+        clazz = (jclass) JCHECK_RET(env->NewGlobalRef(clazz));
+        pcmUnsignedObj = (jobject) JCHECK_RET(env->NewGlobalRef(pcmUnsignedObj));
+        pcmSignedObj = (jobject) JCHECK_RET(env->NewGlobalRef(pcmSignedObj));
+        pcmFloatObj = (jobject) JCHECK_RET(env->NewGlobalRef(pcmFloatObj));
+        ulawObj = (jobject) JCHECK_RET(env->NewGlobalRef(ulawObj));
+        alawObj = (jobject) JCHECK_RET(env->NewGlobalRef(alawObj));
+    }
 
-    wasapiNativeHandleGetHandle = env->GetMethodID(wasapiNativeHandleClazz, "getHandle", "()Ljava/lang/String;");
+    bool isValid() {
+        return clazz && pcmUnsigned && pcmUnsignedObj && 
+        pcmSigned && pcmSignedObj && 
+        pcmFloat && pcmFloatObj && ulaw && ulawObj &&
+        alaw && alawObj;
+    }
 
-    audioPortGetLink = env->GetMethodID(audioPortClazz, "getLink", "()Ljava/lang/Object;");
-    audioPortGetFlow = env->GetMethodID(audioPortClazz, "getFlow", "()Lorg/theko/sound/AudioFlow;");
-    audioPortGetName = env->GetMethodID(audioPortClazz, "getName", "()Ljava/lang/String;");
-    audioPortGetVendor = env->GetMethodID(audioPortClazz, "getVendor", "()Ljava/lang/String;");
-    audioPortGetVersion = env->GetMethodID(audioPortClazz, "getVersion", "()Ljava/lang/String;");
-    audioPortGetDescription = env->GetMethodID(audioPortClazz, "getDescription", "()Ljava/lang/String;");
+    void release(JNIEnv* env) {
+        if (clazz) {
+            JCHECK(env->DeleteGlobalRef(clazz));
+            clazz = nullptr;
+        }
+        if (pcmUnsignedObj) {
+            JCHECK(env->DeleteGlobalRef(pcmUnsignedObj));
+            pcmUnsignedObj = nullptr;
+        }
+        if (pcmSignedObj) {
+            JCHECK(env->DeleteGlobalRef(pcmSignedObj));
+            pcmSignedObj = nullptr;
+        }
+        if (pcmFloatObj) {
+            JCHECK(env->DeleteGlobalRef(pcmFloatObj));
+            pcmFloatObj = nullptr;
+        }
+        if (ulawObj) {
+            JCHECK(env->DeleteGlobalRef(ulawObj));
+            ulawObj = nullptr;
+        }
+        if (alawObj) {
+            JCHECK(env->DeleteGlobalRef(alawObj));
+            alawObj = nullptr;
+        }
+    }
+};
 
-    if (
-        !audioPortGetLink ||
-        !audioPortGetFlow || 
-        !audioPortGetName || 
-        !audioPortGetVendor || 
-        !audioPortGetVersion || 
-        !audioPortGetDescription
-    ) return false;
-
-    WASAPISharedBackendHandle = env->GetFieldID(
-        orgThekoSoundBackendWasapiWASAPISharedBackendClazz,
-        "handle", "J"
-    );
-
-    if (!WASAPISharedBackendHandle) return false;
-
-    // Exceptions
-    javaLangRuntimeException = env->FindClass(
-        "java/lang/RuntimeException");
-
-    javaLangOutOfMemoryException = env->FindClass(
-        "java/lang/OutOfMemoryError");
-
-    javaLangIllegalArgumentException = env->FindClass(
-        "java/lang/IllegalArgumentException");
-
-    javaLangUnsupportedOperationException = env->FindClass(
-        "java/lang/UnsupportedOperationException");
-
-    orgThekoSoundBackendAudioBackendException = 
-        env->FindClass("org/theko/sound/backend/AudioBackendException");
-
-    orgThekoSoundUnsupportedAudioFormatException = 
-        env->FindClass("org/theko/sound/UnsupportedAudioFormatException");
-
-    orgThekoSoundUnsupportedAudioEncodingException = 
-        env->FindClass("org/theko/sound/UnsupportedAudioEncodingException");
-
-    if (
-        !javaLangRuntimeException ||
-        !javaLangOutOfMemoryException ||
-        !javaLangIllegalArgumentException ||
-        !javaLangUnsupportedOperationException ||
-        !orgThekoSoundBackendAudioBackendException ||
-        !orgThekoSoundUnsupportedAudioFormatException ||
-        !orgThekoSoundUnsupportedAudioEncodingException
-    ) return false;
-
-    // Add GlobalRef
-    audioPortClazz = (jclass) env->NewGlobalRef(audioPortClazz);
-    audioFlowClazz = (jclass) env->NewGlobalRef(audioFlowClazz);
-    audioFormatClazz = (jclass) env->NewGlobalRef(audioFormatClazz);
-    audioFormatEncodingClazz = (jclass) env->NewGlobalRef(
-        audioFormatEncodingClazz);
-
-    wasapiNativeHandleClazz = (jclass) env->NewGlobalRef(
-        wasapiNativeHandleClazz);
-
-    audioFlowOutObj = (jobject) env->NewGlobalRef(audioFlowOutObj);
-    audioFlowInObj = (jobject) env->NewGlobalRef(audioFlowInObj);
-
-    audioFormatEncodingPcmUnsignedObj = (jobject) env->NewGlobalRef(audioFormatEncodingPcmUnsignedObj);
-    audioFormatEncodingPcmSignedObj = (jobject) env->NewGlobalRef(audioFormatEncodingPcmSignedObj);
-    audioFormatEncodingFloatObj = (jobject) env->NewGlobalRef(audioFormatEncodingFloatObj);
+class AudioFormatCache {
+public:
+    jclass clazz;
+    jmethodID ctor;
+    jmethodID getSampleRate;
+    jmethodID getSampleSizeInBits;
+    jmethodID getSampleSizeInBytes;
+    jmethodID getChannels;
+    jmethodID getEncoding;
+    jmethodID isBigEndian;
+    jmethodID getFrameSize;
+    jmethodID getByteRate;
     
-    // Exceptions
+    AudioFormatCache (JNIEnv* env) {
+        clazz = JCHECK_RET(env->FindClass("org/theko/sound/AudioFormat"));
+        ctor = JCHECK_RET(env->GetMethodID(clazz, "<init>", "(IIILorg/theko/sound/AudioFormat$Encoding;Z)V"));
+        getSampleRate = JCHECK_RET(env->GetMethodID(clazz, "getSampleRate", "()I"));
+        getSampleSizeInBits = JCHECK_RET(env->GetMethodID(clazz, "getSampleSizeInBits", "()I"));
+        getSampleSizeInBytes = JCHECK_RET(env->GetMethodID(clazz, "getSampleSizeInBytes", "()I"));
+        getChannels = JCHECK_RET(env->GetMethodID(clazz, "getChannels", "()I"));
+        getEncoding = JCHECK_RET(env->GetMethodID(clazz, "getEncoding", "()Lorg/theko/sound/AudioFormat$Encoding;"));
+        isBigEndian = JCHECK_RET(env->GetMethodID(clazz, "isBigEndian", "()Z"));
+        getFrameSize = JCHECK_RET(env->GetMethodID(clazz, "getFrameSize", "()I"));
+        getByteRate = JCHECK_RET(env->GetMethodID(clazz, "getByteRate", "()I"));
 
-    orgThekoSoundBackendWasapiWASAPISharedBackendClazz =
-        (jclass) env->NewGlobalRef(
-            orgThekoSoundBackendWasapiWASAPISharedBackendClazz
-        );
+        if (!isValid()) {
+            env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "AudioFormat failed to initialize");
+            return;
+        }
 
-    javaLangRuntimeException = (jclass) env->NewGlobalRef(
-        javaLangRuntimeException);
+        clazz = (jclass) JCHECK_RET(env->NewGlobalRef(clazz));
+    }
 
-    javaLangOutOfMemoryException = (jclass) env->NewGlobalRef(
-        javaLangOutOfMemoryException);
+    bool isValid() {
+        return clazz && ctor && getSampleRate && getSampleSizeInBits &&
+        getSampleSizeInBytes && getChannels && getEncoding && isBigEndian &&
+        getFrameSize && getByteRate;
+    }
 
-    javaLangIllegalArgumentException = (jclass) env->NewGlobalRef(
-        javaLangIllegalArgumentException);
-    
-    javaLangUnsupportedOperationException = (jclass) env->NewGlobalRef(
-        javaLangUnsupportedOperationException);
+    void release(JNIEnv* env) {
+        if (clazz) {
+            JCHECK(env->DeleteGlobalRef(clazz));
+            clazz = nullptr;
+        }
+    }
+};
 
-    orgThekoSoundBackendAudioBackendException = 
-        (jclass) env->NewGlobalRef(
-            orgThekoSoundBackendAudioBackendException
-        );
+class AudioPortCache {
+public:
+    jclass clazz;
+    jmethodID ctor;
+    jmethodID getLink;
+    jmethodID getFlow;
+    jmethodID isActive;
+    jmethodID getMixFormat;
+    jmethodID getName;
+    jmethodID getVendor;
+    jmethodID getVersion;
+    jmethodID getDescription;
 
-    orgThekoSoundUnsupportedAudioFormatException = 
-        (jclass) env->NewGlobalRef(
-            orgThekoSoundUnsupportedAudioFormatException
-        );
+    AudioPortCache(JNIEnv* env) {
+        clazz = JCHECK_RET(env->FindClass("org/theko/sound/AudioPort"));
+        ctor = JCHECK_RET(env->GetMethodID(clazz, "<init>", "(Ljava/lang/Object;Lorg/theko/sound/AudioFlow;ZLorg/theko/sound/AudioFormat;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"));
+        getLink = JCHECK_RET(env->GetMethodID(clazz, "getLink", "()Ljava/lang/Object;"));
+        getFlow = JCHECK_RET(env->GetMethodID(clazz, "getFlow", "()Lorg/theko/sound/AudioFlow;"));
+        isActive = JCHECK_RET(env->GetMethodID(clazz, "isActive", "()Z"));
+        getMixFormat = JCHECK_RET(env->GetMethodID(clazz, "getMixFormat", "()Lorg/theko/sound/AudioFormat;"));
+        getName = JCHECK_RET(env->GetMethodID(clazz, "getName", "()Ljava/lang/String;"));
+        getVendor = JCHECK_RET(env->GetMethodID(clazz, "getVendor", "()Ljava/lang/String;"));
+        getVersion = JCHECK_RET(env->GetMethodID(clazz, "getVersion", "()Ljava/lang/String;"));
+        getDescription = JCHECK_RET(env->GetMethodID(clazz, "getDescription", "()Ljava/lang/String;"));
 
-    orgThekoSoundUnsupportedAudioEncodingException = 
-        (jclass) env->NewGlobalRef(
-            orgThekoSoundUnsupportedAudioEncodingException
-        );
+        if (!isValid()) {
+            env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "AudioPort failed to initialize");
+            return;
+        }
 
-    return true;
-}
+        clazz = (jclass) JCHECK_RET(env->NewGlobalRef(clazz));
+    }
 
-static bool releaseCache(JNIEnv *env) {
-    env->DeleteGlobalRef(audioPortClazz);
-    env->DeleteGlobalRef(audioFlowClazz);
-    env->DeleteGlobalRef(audioFormatClazz);
-    env->DeleteGlobalRef(audioFormatEncodingClazz);
-    env->DeleteGlobalRef(wasapiNativeHandleClazz);
+    bool isValid() {
+        return clazz && ctor && 
+            getLink && getFlow && isActive &&
+            getMixFormat && getName && getVendor &&
+            getVersion && getDescription;
+    }
 
-    env->DeleteGlobalRef(audioFlowOutObj);
-    env->DeleteGlobalRef(audioFlowInObj);
+    void release(JNIEnv* env) {
+        if (clazz) {
+            JCHECK(env->DeleteGlobalRef(clazz));
+            clazz = nullptr;
+        }
+    }
+};
 
-    env->DeleteGlobalRef(audioFormatEncodingPcmUnsignedObj);
-    env->DeleteGlobalRef(audioFormatEncodingPcmSignedObj);
-    env->DeleteGlobalRef(audioFormatEncodingFloatObj);
-    return true;
+class WASAPIBackendCache {
+public:
+    jclass clazz;
+    jfieldID backendContextPtr;
+
+    WASAPIBackendCache(JNIEnv* env) {
+        clazz = JCHECK_RET(env->FindClass("org/theko/sound/backend/wasapi/WASAPISharedBackend"));
+        backendContextPtr = JCHECK_RET(env->GetFieldID(clazz, "backendContextPtr", "J"));
+
+        if (!isValid()) {
+            env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "WASAPIBackend failed to initialize");
+            return;
+        }
+
+        clazz = (jclass) JCHECK_RET(env->NewGlobalRef(clazz));
+    }
+
+    bool isValid() {
+        return clazz && backendContextPtr;
+    }
+
+    void release(JNIEnv* env) {
+        if (clazz) {
+            JCHECK(env->DeleteGlobalRef(clazz));
+            clazz = nullptr;
+        }
+    }
+};
+
+class WASAPIOutputCache {
+public:
+    jclass clazz;
+    jfieldID outputContextPtr;
+
+    WASAPIOutputCache(JNIEnv* env) {
+        clazz = JCHECK_RET(env->FindClass("org/theko/sound/backend/wasapi/WASAPISharedOutput"));
+        outputContextPtr = JCHECK_RET(env->GetFieldID(clazz, "outputContextPtr", "J"));
+
+        if (!isValid()) {
+            env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "WASAPIOutput failed to initialize");
+            return;
+        }
+
+        clazz = (jclass) JCHECK_RET(env->NewGlobalRef(clazz));
+    }
+
+    bool isValid() {
+        return clazz && outputContextPtr;
+    }
+
+    void release(JNIEnv* env) {
+        if (clazz) {
+            JCHECK(env->DeleteGlobalRef(clazz));
+            clazz = nullptr;
+        }
+    }
+};
+
+class WASAPINativeAudioPortHandleCache {
+public:
+    jclass clazz;
+    jmethodID ctor;
+    jmethodID getHandle;
+
+    WASAPINativeAudioPortHandleCache(JNIEnv* env) {
+        clazz = JCHECK_RET(env->FindClass("org/theko/sound/backend/wasapi/WASAPINativeAudioPortHandle"));
+        ctor = JCHECK_RET(env->GetMethodID(clazz, "<init>", "(Ljava/lang/String;)V"));
+        getHandle = JCHECK_RET(env->GetMethodID(clazz, "getHandle", "()Ljava/lang/String;"));
+
+        if (!isValid()) {
+            env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "WASAPINativeAudioPortHandle failed to initialize");
+            return;
+        }
+
+        clazz = (jclass) JCHECK_RET(env->NewGlobalRef(clazz));
+    }
+
+    bool isValid() {
+        return clazz && ctor && getHandle;
+    }
+
+    void release(JNIEnv* env) {
+        if (clazz) {
+            JCHECK(env->DeleteGlobalRef(clazz));
+            clazz = nullptr;
+        }
+    }
+};
+
+class JavaExceptions {
+public:
+    jclass runtimeException;
+    jclass outOfMemoryException;
+    jclass illegalArgumentException;
+    jclass unsupportedOperationException;
+
+    JavaExceptions(JNIEnv* env) {
+        runtimeException = JCHECK_RET(env->FindClass("java/lang/RuntimeException"));
+        outOfMemoryException = JCHECK_RET(env->FindClass("java/lang/OutOfMemoryError"));
+        illegalArgumentException = JCHECK_RET(env->FindClass("java/lang/IllegalArgumentException"));
+        unsupportedOperationException = JCHECK_RET(env->FindClass("java/lang/UnsupportedOperationException"));
+
+        if (!isValid()) {
+            env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "JavaExceptions failed to initialize");
+            return;
+        }
+
+        runtimeException = (jclass) JCHECK_RET(env->NewGlobalRef(runtimeException));
+        outOfMemoryException = (jclass) JCHECK_RET(env->NewGlobalRef(outOfMemoryException));
+        illegalArgumentException = (jclass) JCHECK_RET(env->NewGlobalRef(illegalArgumentException));
+        unsupportedOperationException = (jclass) JCHECK_RET(env->NewGlobalRef(unsupportedOperationException));
+    }
+
+    bool isValid() {
+        return runtimeException && outOfMemoryException && illegalArgumentException && unsupportedOperationException;
+    }
+
+    void release(JNIEnv* env) {
+        if (runtimeException) {
+            JCHECK(env->DeleteGlobalRef(runtimeException));
+            runtimeException = nullptr;
+        }
+        if (outOfMemoryException) {
+            JCHECK(env->DeleteGlobalRef(outOfMemoryException));
+            outOfMemoryException = nullptr;
+        }
+        if (illegalArgumentException) {
+            JCHECK(env->DeleteGlobalRef(illegalArgumentException));
+            illegalArgumentException = nullptr;
+        }
+        if (unsupportedOperationException) {
+            JCHECK(env->DeleteGlobalRef(unsupportedOperationException));
+            unsupportedOperationException = nullptr;
+        }
+    }
+};
+
+class ThekoSoundExceptions {
+public:
+    jclass audioBackendException;
+    jclass unsupportedAudioFormatException;
+    jclass unsupportedAudioEncodingException;
+
+    ThekoSoundExceptions(JNIEnv* env) {
+        audioBackendException = JCHECK_RET(env->FindClass("org/theko/sound/backend/AudioBackendException"));
+        unsupportedAudioFormatException = JCHECK_RET(env->FindClass("org/theko/sound/UnsupportedAudioFormatException"));
+        unsupportedAudioEncodingException = JCHECK_RET(env->FindClass("org/theko/sound/UnsupportedAudioEncodingException"));
+
+        if (!isValid()) {
+            env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "ThekoSoundExceptions failed to initialize");
+            return;
+        }
+
+        audioBackendException = (jclass) JCHECK_RET(env->NewGlobalRef(audioBackendException));
+        unsupportedAudioFormatException = (jclass) JCHECK_RET(env->NewGlobalRef(unsupportedAudioFormatException));
+        unsupportedAudioEncodingException = (jclass) JCHECK_RET(env->NewGlobalRef(unsupportedAudioEncodingException));
+    }
+
+    bool isValid() {
+        return audioBackendException && unsupportedAudioFormatException && unsupportedAudioEncodingException;
+    }
+
+    void release(JNIEnv* env) {
+        if (audioBackendException) {
+            JCHECK(env->DeleteGlobalRef(audioBackendException));
+            audioBackendException = nullptr;
+        }
+        if (unsupportedAudioFormatException) {
+            JCHECK(env->DeleteGlobalRef(unsupportedAudioFormatException));
+            unsupportedAudioFormatException = nullptr;
+        }
+        if (unsupportedAudioEncodingException) {
+            JCHECK(env->DeleteGlobalRef(unsupportedAudioEncodingException));
+            unsupportedAudioEncodingException = nullptr;
+        }
+    }
+};
+
+class ClassesCache {
+public:
+    AudioFlowCache* audioFlow;
+    AudioPortCache* audioPort;
+    AudioFormatEncodingCache* audioFormatEncoding;
+    AudioFormatCache* audioFormat;
+    WASAPIBackendCache* wasapiBackend;
+    WASAPIOutputCache* wasapiOutput;
+    WASAPINativeAudioPortHandleCache* wasapiNativeAudioPortHandle;
+    JavaExceptions* javaExceptions;
+    ThekoSoundExceptions* thekoSoundExceptions;
+
+    ClassesCache(JNIEnv* env) {
+        audioFlow = new AudioFlowCache(env);
+        audioPort = new AudioPortCache(env);
+        audioFormatEncoding = new AudioFormatEncodingCache(env);
+        audioFormat = new AudioFormatCache(env);
+        wasapiBackend = new WASAPIBackendCache(env);    
+        wasapiOutput = new WASAPIOutputCache(env);
+        wasapiNativeAudioPortHandle = new WASAPINativeAudioPortHandleCache(env);
+        javaExceptions = new JavaExceptions(env);
+        thekoSoundExceptions = new ThekoSoundExceptions(env);
+    }
+
+    void release(JNIEnv* env) {
+        audioFlow->release(env);
+        audioPort->release(env);
+        audioFormatEncoding->release(env);
+        audioFormat->release(env);
+        wasapiBackend->release(env);
+        wasapiOutput->release(env);
+        wasapiNativeAudioPortHandle->release(env);
+        javaExceptions->release(env);
+        thekoSoundExceptions->release(env);
+    }
+
+    ~ClassesCache() {
+        fprintf(stderr, "[ClassesCache] Destructor cannot release resources: no JNIEnv available in native destructor. Call release(env) manually.\n");
+    }
+};
+
+static ClassesCache* getClassesCache(JNIEnv* env) {
+    static ClassesCache* classesCache = new ClassesCache(env);
+    return classesCache;
 }
