@@ -42,7 +42,7 @@ public:
     }
 
     ~LoggerManager() {
-        fprintf(stderr, "LoggerManager::~LoggerManager has no JNIEnv; use releaseAll(env) manually.\n");
+        fprintf(stderr, "[LoggerManager] Destructor cannot release resources: no JNIEnv available in native destructor. Call releaseAll(env) manually.\n");
     }
 };
 

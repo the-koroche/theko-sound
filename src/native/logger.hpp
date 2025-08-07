@@ -107,6 +107,6 @@ public:
     }
 
     ~Logger() {
-        fprintf(stderr, "Logger::~Logger — has no JNIEnv; use release(env) manually.\n");
+        fprintf(stderr, "[Logger] Destructor cannot release resources: no JNIEnv available in native destructor. Call release(env) manually.\n");
     }
 };
