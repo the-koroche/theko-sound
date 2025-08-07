@@ -14,12 +14,13 @@ public class WASAPISharedOutput extends WASAPISharedBackend implements AudioOutp
 
     private static final Logger logger = LoggerFactory.getLogger(WASAPISharedOutput.class);
 
-    protected long nativeHandle;
+    private long outputContextPtr;
 
-    protected boolean isOpen = false;
-    protected int bufferSize = -1;
-    protected AudioFormat audioFormat = null;
-    protected AudioPort port = null;
+    private boolean isOpen = false;
+    private boolean isStarted = false;
+    private int bufferSize = -1;
+    private AudioFormat audioFormat = null;
+    private AudioPort port = null;
 
     @Override
     public synchronized void open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException {
@@ -31,7 +32,11 @@ public class WASAPISharedOutput extends WASAPISharedBackend implements AudioOutp
         if (audioFormat.isBigEndian()) throw new AudioBackendException("Big endian audio format is not supported.");
         if (bufferSize <= 0) throw new IllegalArgumentException("Buffer size is less than or equal to zero.");
 
-        if (!isInitialized()) initialize();
+        if (!isInitialized()) {
+            logger.debug("Initializing WASAPI.");
+            initialize();
+        }
+        logger.debug("Opening output port: {} with audio format: {} and buffer size: {}", port, audioFormat, bufferSize);
         openOut(port, audioFormat, bufferSize);
 
         this.bufferSize = bufferSize;
@@ -42,7 +47,7 @@ public class WASAPISharedOutput extends WASAPISharedBackend implements AudioOutp
 
     protected void openOut(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException {
         openOut0(false, port, audioFormat, bufferSize);
-        logger.debug("Native handle is {}", nativeHandle);
+        logger.debug("Output context pointer is {}", outputContextPtr);
     }
 
     @Override
@@ -52,28 +57,34 @@ public class WASAPISharedOutput extends WASAPISharedBackend implements AudioOutp
 
     @Override
     public boolean isOpen() throws AudioBackendException {
-        return isOpen;
+        return super.isInitialized() && isOpen && outputContextPtr != 0;
     }
 
     @Override
     public synchronized void close() throws AudioBackendException {
-        if (isOpen()) closeOut0();
+        if (isOpen || outputContextPtr != 0) closeOut0();
         isOpen = false;
         bufferSize = -1;
         audioFormat = null;
         port = null;
+        outputContextPtr = 0;
+        logger.debug("Closed.");
     }
 
     @Override
     public synchronized void start() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot start. Backend is not open.");
+        if (isStarted) return;
         startOut0();
+        isStarted = true;
     }
 
     @Override
     public synchronized void stop() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot stop. Backend is not open.");
+        if (!isStarted) return;
         stopOut0();
+        isStarted = false;
     }
 
     @Override
@@ -95,13 +106,13 @@ public class WASAPISharedOutput extends WASAPISharedBackend implements AudioOutp
     }
 
     @Override
-    public int available() throws AudioBackendException, BackendNotOpenException {
+    public synchronized int available() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot write. Backend is not open.");
         return availableOut0();
     }
 
     @Override
-    public int getBufferSize() throws AudioBackendException, BackendNotOpenException {
+    public synchronized int getBufferSize() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot get buffer size. Backend is not open.");
         try {
             return getBufferSizeOut0();
@@ -111,7 +122,7 @@ public class WASAPISharedOutput extends WASAPISharedBackend implements AudioOutp
     }
 
     @Override
-    public long getFramePosition() throws AudioBackendException, BackendNotOpenException {
+    public synchronized long getFramePosition() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot get frame position. Backend is not open.");
         return getFramePositionOut0();
     }
@@ -123,13 +134,17 @@ public class WASAPISharedOutput extends WASAPISharedBackend implements AudioOutp
     }
 
     @Override
-    public long getMicrosecondLatency() throws AudioBackendException, BackendNotOpenException {
+    public synchronized long getMicrosecondLatency() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot get latency. Backend is not open.");
-        return getMicrosecondLatency0();
+        try {
+            return getMicrosecondLatency0();
+        } catch (AudioBackendException e) {
+            return (long) ((bufferSize / (float) audioFormat.getSampleRate()) * 1000000);
+        }
     }
 
     @Override
-    public AudioPort getCurrentAudioPort() throws AudioBackendException, BackendNotOpenException {
+    public synchronized AudioPort getCurrentAudioPort() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot get current audio port. Backend is not open.");
         try {
             return getCurrentAudioPort0();
