@@ -9,6 +9,7 @@ import org.theko.sound.backend.AudioBackends;
 import org.theko.sound.backend.AudioOutputBackend;
 import org.theko.sound.backend.BackendNotOpenException;
 import org.theko.sound.properties.AudioSystemProperties;
+import org.theko.sound.resampling.AudioResampler;
 import org.theko.sound.samples.SampleConverter;
 import org.theko.sound.utility.ThreadUtilities;
 
@@ -61,6 +62,7 @@ public class AudioOutputLayer implements AutoCloseable {
 
     private final AudioOutputBackend aob;
     private AudioFormat audioFormat;
+    private AudioFormat openedFormat;
     private AudioNode rootNode;
 
     private Thread processingThread;
@@ -156,6 +158,11 @@ public class AudioOutputLayer implements AutoCloseable {
                 audioFormat.isBigEndian()
             );
 
+            if (!aob.isFormatSupported(targetPort, targetFormat)) {
+                // Using targetPort's mix format
+                targetFormat = targetPort.getMixFormat();
+            }
+
             if (!targetFormat.equals(audioFormat)) {
                 resamplingFactor = (float) audioFormat.getSampleRate() / (float) targetFormat.getSampleRate();
                 logger.info(
@@ -165,6 +172,8 @@ public class AudioOutputLayer implements AutoCloseable {
                     resamplingFactor
                 );
             }
+
+            openedFormat = targetFormat;
 
             aob.open(targetPort, targetFormat, bufferSizeInSamples * targetFormat.getFrameSize());
             this.audioFormat = targetFormat;
@@ -252,10 +261,10 @@ public class AudioOutputLayer implements AutoCloseable {
      */
     public void stop () throws AudioBackendException {
         if (!isPlaying) return;
-        aob.stop();
         if (processingThread != null && processingThread.isAlive()) {
             processingThread.interrupt();
         }
+        aob.stop();
         isPlaying = false;
         logger.debug("Stopped audio output line");
     }
@@ -338,6 +347,14 @@ public class AudioOutputLayer implements AutoCloseable {
     }
 
     /**
+     * Returns the audio format which is used to open the line.
+     * @return The opened audio format.
+     */
+    public AudioFormat getOpenedFormat() {
+        return openedFormat;
+    }
+
+    /**
      * Returns the current frame position of the audio output line.
      * @return The current frame position.
      */
@@ -374,10 +391,10 @@ public class AudioOutputLayer implements AutoCloseable {
      * @throws InterruptedException If the processing thread is interrupted.
      */
     private void process () throws InterruptedException {
-        float[][] sampleBuffer = new float[audioFormat.getChannels()][bufferSize];
+        float[][] sampleBuffer = new float[openedFormat.getChannels()][bufferSize];
         long bufferMs = AudioConverter.samplesToMicrosecond(
             sampleBuffer,
-            (int)(audioFormat.getSampleRate() * resamplingFactor)
+            (int)(openedFormat.getSampleRate())
         ) / 1000;
 
         while (!Thread.currentThread().isInterrupted()) {
@@ -387,14 +404,20 @@ public class AudioOutputLayer implements AutoCloseable {
                     Thread.sleep(bufferMs);
                     continue;
                 }
-                snapshot.render(sampleBuffer, (int)(audioFormat.getSampleRate() * resamplingFactor));
-                if (sampleBuffer[0].length != bufferSize) {
-                    throw new RuntimeException(new LengthMismatchException());
+                snapshot.render(sampleBuffer, (int)(audioFormat.getSampleRate()));
+                if (sampleBuffer.length == 0 || sampleBuffer[0] == null || sampleBuffer[0].length != bufferSize) {
+                    logger.error("Length mismatch in audio output line processing thread. Expected {} got {}", bufferSize, sampleBuffer[0].length);
+                    throw new LengthMismatchException("Buffer size mismatch. Expected " + bufferSize + ", got " + sampleBuffer[0].length);
                 }
-                aob.write(SampleConverter.fromSamples(sampleBuffer, audioFormat), 0, bufferSize * audioFormat.getFrameSize());
+                byte[] resampled = SampleConverter.fromSamples(
+                AudioResampler.SHARED.resample(sampleBuffer, resamplingFactor), openedFormat);
+                aob.write(resampled, 0, resampled.length);
             } catch (BackendNotOpenException ex) {
-                logger.debug("Audio output line is closed");
+                logger.info("Audio output line is closed");
                 return;
+            } catch (LengthMismatchException ex) {
+                logger.error("Length mismatch in audio output line processing thread", ex);
+                throw new RuntimeException(ex);
             } catch (Exception ex) {
                 logger.error("Error in audio output line processing thread", ex);
             }
