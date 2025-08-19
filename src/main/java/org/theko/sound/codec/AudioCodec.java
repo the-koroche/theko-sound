@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound.codec;
 
 import java.io.InputStream;
@@ -37,8 +53,8 @@ public abstract class AudioCodec {
 
     private static final Logger logger = LoggerFactory.getLogger(AudioCodec.class);
 
-    protected abstract AudioDecodeResult innerDecode (InputStream is) throws AudioCodecException;
-    protected abstract AudioEncodeResult innerEncode (byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException;
+    protected abstract AudioDecodeResult innerDecode(InputStream is) throws AudioCodecException;
+    protected abstract AudioEncodeResult innerEncode(byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException;
 
     /**
      * Calls the decode method and logs the elapsed time.
@@ -49,7 +65,7 @@ public abstract class AudioCodec {
      * @throws AudioCodecException
      *             if the input stream is not a valid audio file for this codec
      */
-    public AudioDecodeResult decode (InputStream is) throws AudioCodecException {
+    public AudioDecodeResult decode(InputStream is) throws AudioCodecException {
         long startNs = System.nanoTime();
         AudioDecodeResult adr = innerDecode(is);
         long endNs = System.nanoTime();
@@ -68,7 +84,7 @@ public abstract class AudioCodec {
      *
      * @throws AudioCodecException if there is an error encoding the data
      */
-    public AudioEncodeResult encode (byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException {
+    public AudioEncodeResult encode(byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException {
         long startNs = System.nanoTime();
         AudioEncodeResult aer = innerEncode(data, format, tags);
         long endNs = System.nanoTime();
@@ -81,5 +97,5 @@ public abstract class AudioCodec {
      *
      * @return an instance of {@link AudioCodecInfo} containing codec details
      */
-    public abstract AudioCodecInfo getInfo ();
+    public abstract AudioCodecInfo getInfo();
 }

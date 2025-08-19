@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound.codec;
 
 /**
@@ -15,10 +31,8 @@ package org.theko.sound.codec;
  * </ul>
  * </p>
  * 
- * <p>
  * If the provided codec class is not annotated with {@link AudioCodecType},
  * an {@link IllegalArgumentException} is thrown.
- * </p>
  * 
  * @since v1.3.1
  * @author Theko
@@ -30,7 +44,7 @@ public class AudioCodecInfo {
     private final String version;
     private final Class<? extends AudioCodec> codecClass;
 
-    public AudioCodecInfo (Class<? extends AudioCodec> codecClass) {
+    public AudioCodecInfo(Class<? extends AudioCodec> codecClass) {
                 if (codecClass.isAnnotationPresent(AudioCodecType.class)) {
             AudioCodecType audioCodecType = codecClass.getAnnotation(AudioCodecType.class);
             this.name = audioCodecType.name();
@@ -42,28 +56,28 @@ public class AudioCodecInfo {
         }
     }
 
-    public String getName () {
+    public String getName() {
         return name;
     }
 
-    public String[] getExtensions () {
+    public String[] getExtensions() {
         return extensions;
     }
 
-    public String getExtension () {
+    public String getExtension() {
         return extensions[0];
     }
 
-    public String getVersion () {
+    public String getVersion() {
         return version;
     }
 
-    public Class<? extends AudioCodec> getCodecClass () {
+    public Class<? extends AudioCodec> getCodecClass() {
         return codecClass;
     }
 
     @Override
-    public String toString () {
+    public String toString() {
         return "AudioCodecInfo {Class: " + codecClass.getSimpleName() + ", Name: " + name + ", Extensions: [" + String.join(", ", extensions) + "], Version: " + version + "}";
     }
 }

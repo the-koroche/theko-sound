@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound.effects;
 
 import java.util.ArrayList;
@@ -65,7 +81,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
      * 
      * @param type The type of the audio effect, must not be null.
      */
-    public AudioEffect (Type type) {
+    public AudioEffect(Type type) {
         this.type = Objects.requireNonNull(type);
     }
 
@@ -78,7 +94,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
      * @param length The length of the audio samples.
      */
     @Override
-    public final void render (float[][] samples, int sampleRate) {
+    public final void render(float[][] samples, int sampleRate) {
         if (sampleRate <= 0) {
             throw new IllegalArgumentException("Sample rate must be positive.");
         }
@@ -96,14 +112,14 @@ public abstract class AudioEffect implements AudioNode, Controllable {
         effectRender(samples, sampleRate);
     }
 
-    protected abstract void effectRender (float[][] samples, int sampleRate);
+    protected abstract void effectRender(float[][] samples, int sampleRate);
 
     /**
      * Returns the type of the audio effect.
      * 
      * @return The type of the audio effect, either REALTIME or OFFLINE_PROCESSING.
      */
-    public Type getType () {
+    public Type getType() {
         return type;
     }
 
@@ -113,7 +129,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
      * 
      * @return The FloatControl representing the mix level.
      */
-    public FloatControl getMixLevelControl () {
+    public FloatControl getMixLevelControl() {
         return mixLevel;
     }
 
@@ -123,7 +139,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
      * 
      * @return The BooleanControl representing the enable state of the effect.
      */
-    public BooleanControl getEnableControl () {
+    public BooleanControl getEnableControl() {
         return enable;
     }
 
@@ -133,7 +149,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
      * @return A list of AudioControl objects representing all controls for this effect.
      */
     @Override
-    public List<AudioControl> getAllControls () {
+    public List<AudioControl> getAllControls() {
         return Collections.unmodifiableList(allControls);
     }
 
@@ -142,7 +158,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
      * 
      * @param controls The list of controls to add.
      */
-    protected void addControls (List<AudioControl> controls) {
+    protected void addControls(List<AudioControl> controls) {
         for (AudioControl control : controls) {
             if (!allControls.contains(control)) {
                 allControls.add(control);

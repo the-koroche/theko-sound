@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound.codec;
 
 import java.lang.reflect.InvocationTargetException;
@@ -60,7 +76,7 @@ public class AudioCodecs {
     /**
      * Register all audio codecs that are annotated with AudioCodecType
      */
-    private static void registerCodecs () {
+    private static void registerCodecs() {
         logger.debug("Registering audio codecs...");
         // Use Reflections to find all classes implementing AudioCodec
         audioCodecs.clear();
@@ -80,7 +96,7 @@ public class AudioCodecs {
     /**
      * Get an AudioCodecInfo by its name
      */
-    public static AudioCodecInfo fromName (String name) throws AudioCodecNotFoundException {
+    public static AudioCodecInfo fromName(String name) throws AudioCodecNotFoundException {
         for (AudioCodecInfo audioCodec : audioCodecs) {
             if (audioCodec.getName().equalsIgnoreCase(name)) {
                 return audioCodec;
@@ -94,7 +110,7 @@ public class AudioCodecs {
      * Get an AudioCodecInfo by its exception
      * @param name File extension without a dot or an asterisk.
      */
-    public static AudioCodecInfo fromExtension (String extension) throws AudioCodecNotFoundException {
+    public static AudioCodecInfo fromExtension(String extension) throws AudioCodecNotFoundException {
         if (extension.startsWith(".")) {
             extension = extension.substring(1);
         }
@@ -110,7 +126,7 @@ public class AudioCodecs {
         throw new AudioCodecNotFoundException("No audio codecs found by extension: '" + extension + "'.");
     }
 
-    public static AudioCodec getCodec (AudioCodecInfo codecInfo) throws AudioCodecCreationException {
+    public static AudioCodec getCodec(AudioCodecInfo codecInfo) throws AudioCodecCreationException {
         try {
             return codecInfo.getCodecClass().getConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
@@ -123,7 +139,7 @@ public class AudioCodecs {
     /**
      * Get all registered audio codecs
      */
-    public static Collection<AudioCodecInfo> getAllCodecs () {
+    public static Collection<AudioCodecInfo> getAllCodecs() {
         return audioCodecs;
     }
 }

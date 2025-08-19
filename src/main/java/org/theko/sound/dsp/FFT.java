@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound.dsp;
 
 /**
@@ -16,16 +32,14 @@ package org.theko.sound.dsp;
  * FFT.ifft(real, imag); // Computes the inverse FFT
  * </pre>
  * </p>
- * <p>
  * This class cannot be instantiated.
- * </p>
  * 
  * @since v1.3.0
  * @author Theko
  */
 public class FFT {
 
-    private FFT () {
+    private FFT() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
@@ -38,7 +52,7 @@ public class FFT {
      * @throws IllegalArgumentException if the length of the two arrays is not
      *         equal
      */
-    public static void fft (float[] real, float[] imag) {
+    public static void fft(float[] real, float[] imag) {
         int n = real.length;
         int logN = Integer.numberOfTrailingZeros(n); // log2(n)
 
@@ -91,7 +105,7 @@ public class FFT {
      * imaginary components of a complex sequence. This method modifies the input 
      * arrays in place to perform the transformation.
      *
-     * <p>The method first negates the imaginary parts, calls the FFT method, 
+     * <p>The method first negates the imaginary parts, calls the FFT method,
      * and then scales down the real and imaginary components by dividing them 
      * by the length of the input arrays. Finally, it negates the imaginary 
      * parts again to complete the inverse transformation.</p>
@@ -101,7 +115,7 @@ public class FFT {
      * @param imag the array containing the imaginary parts of the complex input 
      *             and output.
      */
-    public static void ifft (float[] real, float[] imag) {
+    public static void ifft(float[] real, float[] imag) {
         // Negate the imaginary parts
         int n = real.length;
         for (int i = 0; i < n; i++) {
@@ -129,7 +143,7 @@ public class FFT {
      * @param i the first index
      * @param j the second index
      */
-    private static void swap (float[] arr, int i, int j) {
+    private static void swap(float[] arr, int i, int j) {
         float temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;

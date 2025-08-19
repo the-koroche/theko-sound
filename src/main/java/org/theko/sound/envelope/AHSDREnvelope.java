@@ -1,10 +1,26 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound.envelope;
 
 import org.theko.sound.control.FloatControl;
 
 /**
  * The AHSDREnvelope class represents an Attack-Hold-Sustain-Decay-Release envelope.
- * It allows control over the attack, hold, 
+ * It allows control over the attack, hold,
  * sustain, decay, and release phases of a sound envelope.
  * 
  * <p>This class implements the {@link Controllable} interface, enabling 
@@ -35,12 +51,12 @@ public class AHSDREnvelope extends ASDREnvelope {
 
     protected final FloatControl hold;
 
-    public AHSDREnvelope (float attack, float hold, float sustain, float decay, float release) {
+    public AHSDREnvelope(float attack, float hold, float sustain, float decay, float release) {
         super(attack, sustain, decay, release);
         this.hold = new FloatControl("Hold", -1, 10, hold); // -1 endless hold
     }
 
-    public FloatControl getHold () {
+    public FloatControl getHold() {
         return hold;
     }
 }

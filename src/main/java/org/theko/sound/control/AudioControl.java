@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound.control;
 
 import java.util.ArrayList;
@@ -37,24 +53,24 @@ public abstract class AudioControl {
         VALUE_CHANGE
     }
 
-    public AudioControl (String name) {
+    public AudioControl(String name) {
         this.name = name;
         this.listeners = new ArrayList<>();
     }
 
-    public void addListener (AudioControlListener listener) {
+    public void addListener(AudioControlListener listener) {
         listeners.add(listener);
     }
 
-    public void removeListener (AudioControlListener listener) {
+    public void removeListener(AudioControlListener listener) {
         listeners.remove(listener);
     }
 
-    public List<AudioControlListener> getListeners () {
+    public List<AudioControlListener> getListeners() {
         return Collections.unmodifiableList(listeners);
     }
 
-    protected void notifyListeners (NotifyType type, AudioControlEvent event) {
+    protected void notifyListeners(NotifyType type, AudioControlEvent event) {
         for (AudioControlListener listener : listeners) {
             if (listener == null) continue;
             switch (type) {
@@ -68,18 +84,18 @@ public abstract class AudioControl {
      *
      * @return The name of the audio control.
      */
-    public String getName () {
+    public String getName() {
         return name;
     }
 
     /**
-     * Returns a string representation of the AudioControl object, 
+     * Returns a string representation of the AudioControl object,
      * displaying the name of the control.
      *
      * @return A string that represents the audio control.
      */
     @Override
-    public String toString () {
+    public String toString() {
         return String.format("AudioControl {Name: %s}", name);
     }
 }

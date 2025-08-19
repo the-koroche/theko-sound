@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound.control;
 
 import java.lang.reflect.Field;
@@ -46,7 +62,7 @@ public interface Controllable {
      *
      * @return An unmodifiable list of AudioControl objects found in the implementing class.
      */
-    default List<AudioControl> getAllControls () {
+    default List<AudioControl> getAllControls() {
         List<AudioControl> controls = new ArrayList<>();
         Field[] fields = this.getClass().getDeclaredFields();
         for (Field field : fields) {
@@ -71,14 +87,14 @@ public interface Controllable {
      * This method iterates over all available audio controls obtained from 
      * {@link #getAllControls()} and checks if any control's name matches 
      * the specified name. If a match is found, the corresponding 
-     * AudioControl is returned. If no matching control is found, 
+     * AudioControl is returned. If no matching control is found,
      * the method returns null.
      *
      * @param name The name of the AudioControl to be retrieved.
      * @return The AudioControl with the specified name, or null if no 
      *         such control exists.
      */
-    default AudioControl getControl (String name) {
+    default AudioControl getControl(String name) {
         for (AudioControl control : getAllControls()) {
             if (control.getName().equals(name)) {
                 return control;
@@ -93,14 +109,14 @@ public interface Controllable {
      * This method iterates over all available audio controls obtained from 
      * {@link #getAllControls()} and checks if any control is both a FloatControl 
      * and its name matches the specified name. If a match is found, the 
-     * corresponding FloatControl is returned. If no matching control is found, 
+     * corresponding FloatControl is returned. If no matching control is found,
      * the method returns null.
      *
      * @param name The name of the FloatControl to be retrieved.
      * @return The FloatControl with the specified name, or null if no 
      *         such control exists.
      */
-    default FloatControl getFloatControl (String name) {
+    default FloatControl getFloatControl(String name) {
         for (AudioControl control : getAllControls()) {
             if (control.getName().equals(name) && control instanceof FloatControl) {
                 return (FloatControl) control;
@@ -122,7 +138,7 @@ public interface Controllable {
      * @return The BooleanControl with the specified name, or null if no
      *         such control exists.
      */
-    default BooleanControl getBooleanControl (String name) {
+    default BooleanControl getBooleanControl(String name) {
         for (AudioControl control : getAllControls()) {
             if (control.getName().equals(name) && control instanceof BooleanControl) {
                 return (BooleanControl) control;

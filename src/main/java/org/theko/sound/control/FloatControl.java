@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound.control;
 
 import org.theko.sound.event.AudioControlEvent;
@@ -36,7 +52,7 @@ public class FloatControl extends AudioControl {
     protected final float min, max;
 
     
-    public FloatControl (String name, float min, float max, float value) {
+    public FloatControl(String name, float min, float max, float value) {
         super(name);
         this.min = min;
         this.max = max;
@@ -49,7 +65,7 @@ public class FloatControl extends AudioControl {
      * 
      * @param value The new value for this control.
      */
-    public void setValue (float value) {
+    public void setValue(float value) {
         this.value = MathUtilities.clamp(value, min, max);
         notifyListeners(NotifyType.VALUE_CHANGE, new AudioControlEvent(this));
     }
@@ -59,7 +75,7 @@ public class FloatControl extends AudioControl {
      * 
      * @return The current value of this control.
      */
-    public float getValue () {
+    public float getValue() {
         return value;
     }
 
@@ -68,7 +84,7 @@ public class FloatControl extends AudioControl {
      * 
      * @return The minimum value that this control can have.
      */
-    public float getMin () {
+    public float getMin() {
         return min;
     }
 
@@ -78,28 +94,28 @@ public class FloatControl extends AudioControl {
      * 
      * @return The maximum value that this control can have.
      */
-    public float getMax () {
+    public float getMax() {
         return max;
     }
 
     /**
-     * Retrieves the normalized value of this control within the range [0, 1], 
+     * Retrieves the normalized value of this control within the range [0, 1],
      * where 0 represents the minimum value and 1 represents the maximum value.
      * 
      * @return The normalized value of this control.
      */
-    public float getNormalized () {
+    public float getNormalized() {
         return (float)MathUtilities.remapClamped(value, min, max, 0f, 1f);
     }
 
     /**
-     * Returns a string representation of the FloatControl object, displaying the name of the control, 
+     * Returns a string representation of the FloatControl object, displaying the name of the control,
      * its current value, and its minimum and maximum bounds.
      * 
      * @return A string that represents the float control.
      */
     @Override
-    public String toString () {
+    public String toString() {
         return String.format("FloatControl {Name: %s, Value: %.2f, Min: %.2f, Max: %.2f}", name, value, min, max);
     }
 }
