@@ -1,4 +1,22 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,26 +38,6 @@ import org.theko.sound.utility.ThreadUtilities;
  * <p>
  * This class supports both direct audio data writing and audio processing via a root {@link AudioNode}.
  * When a root node is set, audio data is rendered through the node graph before being sent to the backend.
- * </p>
- *
- * <h2>Usage Example:</h2>
- * <pre>
- *     AudioOutputLayer line = new AudioOutputLayer();
- *     line.open(audioFormat);
- *     line.start();
- *     // Write audio data or set a root node for processing
- *     line.stop();
- *     line.close();
- * </pre>
- *
- * <h2>Threading:</h2>
- * <p>
- * Audio processing is performed in a dedicated thread when a root node is set.
- * </p>
- *
- * <h2>Buffer Management:</h2>
- * <p>
- * The buffer size can be specified when opening the line. The buffer size affects latency and throughput.
  * </p>
  *
  * <h2>Exceptions:</h2>
@@ -158,9 +156,30 @@ public class AudioOutputLayer implements AutoCloseable {
                 audioFormat.isBigEndian()
             );
 
-            if (!aob.isFormatSupported(targetPort, targetFormat)) {
-                // Using targetPort's mix format
-                targetFormat = targetPort.getMixFormat();
+            AtomicReference<AudioFormat> closestFormat = new AtomicReference<>();
+            closestFormat.set(null);
+            if (!aob.isFormatSupported(targetPort, targetFormat, closestFormat)) {
+                logger.debug("Audio format is not supported. Using closest supported format: {}", closestFormat.get());
+                if (closestFormat.get() != null) {
+                    targetFormat = closestFormat.get();
+                    logger.debug("Using closest supported format: {}", targetFormat);
+                } else {
+                    // Using targetPort's mix format
+                    targetFormat = targetPort.getMixFormat();
+                    logger.debug("Audio format is not supported. Using target port's mix format: {}", targetFormat);
+                    closestFormat.set(null);
+
+                    if (!aob.isFormatSupported(targetPort, targetFormat, closestFormat)) {
+                        logger.debug("Mix format is not supported. Using closest supported format: {}", closestFormat.get());
+                        if (closestFormat.get() != null) {
+                            targetFormat = closestFormat.get();
+                            logger.debug("Using closest supported format: {}", targetFormat);
+                        } else {
+                            logger.error("Failed to open audio output line. Unsupported audio format: {}", targetFormat);
+                            throw new RuntimeException(new UnsupportedAudioFormatException("Unsupported audio format. Source format: %s. Used format: %s".formatted(audioFormat, targetFormat)));
+                        }
+                    }
+                }
             }
 
             if (!targetFormat.equals(audioFormat)) {
@@ -404,13 +423,16 @@ public class AudioOutputLayer implements AutoCloseable {
                     Thread.sleep(bufferMs);
                     continue;
                 }
+
                 snapshot.render(sampleBuffer, (int)(audioFormat.getSampleRate()));
                 if (sampleBuffer.length == 0 || sampleBuffer[0] == null || sampleBuffer[0].length != bufferSize) {
                     logger.error("Length mismatch in audio output line processing thread. Expected {} got {}", bufferSize, sampleBuffer[0].length);
                     throw new LengthMismatchException("Buffer size mismatch. Expected " + bufferSize + ", got " + sampleBuffer[0].length);
                 }
+
                 byte[] resampled = SampleConverter.fromSamples(
                 AudioResampler.SHARED.resample(sampleBuffer, resamplingFactor), openedFormat);
+
                 aob.write(resampled, 0, resampled.length);
             } catch (BackendNotOpenException ex) {
                 logger.info("Audio output line is closed");
