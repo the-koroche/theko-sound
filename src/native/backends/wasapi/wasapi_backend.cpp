@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <jni.h>
 
 #include "helper_utilities.hpp"
@@ -23,231 +39,254 @@ typedef struct {
     IMMDeviceEnumerator* deviceEnumerator;
 } BackendContext;
 
-JNIEXPORT void JNICALL 
-Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_initialize0
-(JNIEnv* env, jobject obj) {
-    Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBackend.initialize0");
+extern "C" {
+    JNIEXPORT void JNICALL 
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_initialize0
+    (JNIEnv* env, jobject obj) {
+        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBackend.initialize0");
 
-    HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
-    logger->debug(env, "Initialized COM. (HRESULT: 0x%08x)", hr);
-    if (FAILED(hr)) {
-        char* msg = format("Failed to initialize COM. (HRESULT: 0x%08x)", hr);
-        logger->error(env, msg);
-        env->ThrowNew(getClassesCache(env)->thekoSoundExceptions->audioBackendException, msg);
-        free(msg);
-        return;
+        HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+        if (FAILED(hr)) {
+            char* hr_msg = format_hr_msg(hr);
+            char* msg = format("Failed to initialize COM. (%s)", hr_msg);
+            free(hr_msg);
+            logger->error(env, msg);
+            env->ThrowNew(getClassesCache(env)->thekoSoundExceptions->audioBackendException, msg);
+            free(msg);
+            return;
+        }
+
+        auto* ctx = new BackendContext{ nullptr };
+        ctx->deviceEnumerator = nullptr;
+        logger->debug(env, "BackendContext allocated. Address: %p", ctx);
+
+        hr = CoCreateInstance(
+            CLSID_MMDeviceEnumerator, NULL,
+            CLSCTX_ALL, IID_IMMDeviceEnumerator,
+            (void**)&ctx->deviceEnumerator
+        );
+        if (FAILED(hr)) {
+            char* hr_msg = format_hr_msg(hr);
+            char* msg = format("Failed to create IMMDeviceEnumerator. (%s)", hr_msg);
+            free(hr_msg);
+            logger->error(env, msg);
+            env->ThrowNew(getClassesCache(env)->thekoSoundExceptions->audioBackendException, msg);
+            free(msg);
+            CoUninitialize();
+            return;
+        }
+        env->SetLongField(obj, getClassesCache(env)->wasapiBackend->backendContextPtr, (jlong)ctx);
+
+        logger->debug(env, "Initialized WASAPI backend. Context: %p", ctx);
     }
 
-    auto* ctx = new BackendContext{ nullptr };
-    ctx->deviceEnumerator = nullptr;
-    logger->debug(env, "BackendContext allocated. Address: %p", ctx);
+    JNIEXPORT void JNICALL 
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_shutdown0
+    (JNIEnv* env, jobject obj) {
+        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBackend.shutdown0");
 
-    hr = CoCreateInstance(
-        CLSID_MMDeviceEnumerator, NULL,
-        CLSCTX_ALL, IID_IMMDeviceEnumerator,
-        (void**)&ctx->deviceEnumerator
-    );
-    if (FAILED(hr)) {
-        char* msg = format("Failed to create IMMDeviceEnumerator. (HRESULT: 0x%08x)", hr);
-        logger->error(env, msg);
-        env->ThrowNew(getClassesCache(env)->thekoSoundExceptions->audioBackendException, msg);
-        free(msg);
+        auto* ctx = (BackendContext*)env->GetLongField(obj, getClassesCache(env)->wasapiBackend->backendContextPtr);
+        IMMDeviceEnumerator* deviceEnumerator = ctx->deviceEnumerator;
+
+        if (deviceEnumerator) {
+            deviceEnumerator->Release();
+            deviceEnumerator = nullptr;
+        }
         CoUninitialize();
-        return;
-    }
-    env->SetLongField(obj, getClassesCache(env)->wasapiBackend->backendContextPtr, (jlong)ctx);
 
-    logger->debug(env, "Initialized WASAPI backend. Context: %p", ctx);
-}
-
-JNIEXPORT void JNICALL 
-Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_shutdown0
-(JNIEnv* env, jobject obj) {
-    Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBackend.shutdown0");
-
-    auto* ctx = (BackendContext*)env->GetLongField(obj, getClassesCache(env)->wasapiBackend->backendContextPtr);
-    IMMDeviceEnumerator* deviceEnumerator = ctx->deviceEnumerator;
-
-    if (deviceEnumerator) {
-        deviceEnumerator->Release();
-        deviceEnumerator = nullptr;
-    }
-    CoUninitialize();
-
-    logger->debug(env, "Shutdown WASAPI backend.");
-}
-
-JNIEXPORT jobjectArray JNICALL 
-Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_getAllPorts0
-(JNIEnv* env, jobject obj) {
-    Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBackend.getAllPorts0");
-
-    auto* ctx = (BackendContext*)env->GetLongField(obj, getClassesCache(env)->wasapiBackend->backendContextPtr);
-    IMMDeviceEnumerator* deviceEnumerator = ctx->deviceEnumerator;
-
-    if (!deviceEnumerator) {
-        logger->warn(env, "No device enumerator.");
-        return nullptr;
+        logger->debug(env, "Shutdown WASAPI backend.");
     }
 
-    IMMDeviceCollection* renderDevices = getDevicesList(deviceEnumerator, eRender);
-    if (!renderDevices) return nullptr;
+    JNIEXPORT jobjectArray JNICALL 
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_getAllPorts0
+    (JNIEnv* env, jobject obj, jboolean exclusiveMixFormat) {
+        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBackend.getAllPorts0");
 
-    IMMDeviceCollection* captureDevices = getDevicesList(deviceEnumerator, eCapture);
-    if (!captureDevices) return nullptr;
+        auto* ctx = (BackendContext*)env->GetLongField(obj, getClassesCache(env)->wasapiBackend->backendContextPtr);
+        IMMDeviceEnumerator* deviceEnumerator = ctx->deviceEnumerator;
 
-    UINT renderCount = 0, captureCount = 0;
-    renderDevices->GetCount(&renderCount);
-    captureDevices->GetCount(&captureCount);
-    UINT totalCount = renderCount + captureCount;
+        if (!deviceEnumerator) {
+            logger->warn(env, "No device enumerator.");
+            return nullptr;
+        }
 
-    logger->debug(env, "Found %d render ports and %d capture ports.", renderCount, captureCount);
-    logger->debug(env, "Total %d ports.", totalCount);
+        IMMDeviceCollection* renderDevices = getDevicesList(deviceEnumerator, eRender);
+        if (!renderDevices) return nullptr;
 
-    jobjectArray result = env->NewObjectArray(totalCount, getClassesCache(env)->audioPort->clazz, nullptr);
-    if (!result) {
-        logger->warn(env, "Failed to create AudioPort array.");
-        return nullptr;
+        IMMDeviceCollection* captureDevices = getDevicesList(deviceEnumerator, eCapture);
+        if (!captureDevices) return nullptr;
+
+        UINT renderCount = 0, captureCount = 0;
+        renderDevices->GetCount(&renderCount);
+        captureDevices->GetCount(&captureCount);
+        UINT totalCount = renderCount + captureCount;
+
+        logger->debug(env, "Found %d render ports and %d capture ports.", renderCount, captureCount);
+        logger->debug(env, "Total %d ports.", totalCount);
+
+        jobjectArray result = env->NewObjectArray(totalCount, getClassesCache(env)->audioPort->clazz, nullptr);
+        if (!result) {
+            logger->warn(env, "Failed to create AudioPort array.");
+            return nullptr;
+        }
+
+        UINT index = 0;
+        for (UINT i = 0; i < renderCount; i++) {
+            IMMDevice* pDevice = nullptr;
+            renderDevices->Item(i, &pDevice);
+            jobject audioPortObj = IMMDevice_to_AudioPort(env, pDevice);
+            env->SetObjectArrayElement(result, index++, audioPortObj);
+            logger->debug(env, "Render port #%d: %ls", i, pDevice);
+            pDevice->Release();
+        }
+        for (UINT i = 0; i < captureCount; i++) {
+            IMMDevice* pDevice = nullptr;
+            captureDevices->Item(i, &pDevice);
+            jobject audioPortObj = IMMDevice_to_AudioPort(env, pDevice);
+            env->SetObjectArrayElement(result, index++, audioPortObj);
+            logger->debug(env, "Capture port #%d: %ls", i, pDevice);
+            pDevice->Release();
+        }
+
+        renderDevices->Release();
+        captureDevices->Release();
+
+        return result;
     }
 
-    UINT index = 0;
-    for (UINT i = 0; i < renderCount; i++) {
+    JNIEXPORT jobject JNICALL 
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_getDefaultPort0
+    (JNIEnv* env, jobject obj, jobject flowObj) {
+        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBackend.getDefaultPort0");
+        
+        if (!flowObj) return nullptr;
+
+        auto* ctx = (BackendContext*)env->GetLongField(obj, getClassesCache(env)->wasapiBackend->backendContextPtr);
+        IMMDeviceEnumerator* deviceEnumerator = ctx->deviceEnumerator;
+
+        if (!deviceEnumerator) {
+            logger->warn(env, "No device enumerator.");
+            return nullptr;
+        }
+
+        EDataFlow flow = eRender;
+        if (env->IsSameObject(flowObj, getClassesCache(env)->audioFlow->outObj)) {
+            flow = eRender;
+        } else if (env->IsSameObject(flowObj, getClassesCache(env)->audioFlow->inObj)) {
+            flow = eCapture;
+        } else {
+            return nullptr;
+        }
+
         IMMDevice* pDevice = nullptr;
-        renderDevices->Item(i, &pDevice);
-        jobject audioPortObj = IMMDevice_to_AudioPort(env, pDevice);
-        env->SetObjectArrayElement(result, index++, audioPortObj);
-        logger->debug(env, "Render port #%d: %ls", i, pDevice);
+        HRESULT hr = deviceEnumerator->GetDefaultAudioEndpoint(flow, eConsole, &pDevice);
+        if (FAILED(hr)) {
+            logger->warn(env, "Failed to get default audio endpoint.");
+            return nullptr;
+        }
+
+        if (!pDevice) {
+            logger->warn(env, "No default audio endpoint.");
+            return nullptr;
+        }
+
+        logger->debug(env, "Default audio endpoint: %p. Flow: %d", pDevice, flow);
+
+        jobject jAudioPort = IMMDevice_to_AudioPort(env, pDevice);
         pDevice->Release();
-    }
-    for (UINT i = 0; i < captureCount; i++) {
-        IMMDevice* pDevice = nullptr;
-        captureDevices->Item(i, &pDevice);
-        jobject audioPortObj = IMMDevice_to_AudioPort(env, pDevice);
-        env->SetObjectArrayElement(result, index++, audioPortObj);
-        logger->debug(env, "Capture port #%d: %ls", i, pDevice);
-        pDevice->Release();
+
+        return jAudioPort;
     }
 
-    renderDevices->Release();
-    captureDevices->Release();
+    JNIEXPORT jboolean JNICALL
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_isFormatSupported0
+    (JNIEnv* env, jobject obj, jobject jport, jobject jformat, jobject atomicClosestFormat, jboolean exclusive) {
+        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBackend.isFormatSupported0");
+        ClassesCache* classesCache = getClassesCache(env);
 
-    return result;
-}
+        if (!jport || !jformat) {
+            logger->warn(env, "AudioPort or AudioFormat is null.");
+            return JNI_FALSE;
+        }
 
-JNIEXPORT jobject JNICALL 
-Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_getDefaultPort0
-(JNIEnv* env, jobject obj, jobject flowObj) {
-    Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBackend.getDefaultPort0");
-    
-    if (!flowObj) return nullptr;
+        IMMDevice* device = AudioPort_to_IMMDevice(env, jport);
+        if (!device) {
+            logger->warn(env, "Failed to get IMMDevice.");
+            return JNI_FALSE;
+        }
 
-    auto* ctx = (BackendContext*)env->GetLongField(obj, getClassesCache(env)->wasapiBackend->backendContextPtr);
-    IMMDeviceEnumerator* deviceEnumerator = ctx->deviceEnumerator;
+        WAVEFORMATEX* format = AudioFormat_to_WAVEFORMATEX(env, jformat);
+        if (!format) {
+            logger->warn(env, "Failed to get WAVEFORMATEX.");
+            return JNI_FALSE;
+        }
 
-    if (!deviceEnumerator) {
-        logger->warn(env, "No device enumerator.");
-        //logger->info(env, "Try to initialize the backend.");
-        return nullptr;
+        IAudioClient* audioClient = nullptr;
+        HRESULT hr = device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, NULL, (void**)&audioClient);
+        device->Release();
+        if (FAILED(hr) || audioClient == nullptr) {
+            CoTaskMemFree(format);
+            char* hr_msg = format_hr_msg(hr);
+            logger->warn(env, "Failed to get or activate IAudioClient. (%s)", hr_msg);
+            free(hr_msg);
+            return JNI_FALSE;
+        }
+
+        WAVEFORMATEX* closest = nullptr;
+        hr = audioClient->IsFormatSupported(exclusive == JNI_TRUE ? AUDCLNT_SHAREMODE_EXCLUSIVE : AUDCLNT_SHAREMODE_SHARED, format, &closest);
+        audioClient->Release();
+        CoTaskMemFree(format);
+
+        if (hr == S_OK) {
+            return JNI_TRUE;
+        } else if (hr == S_FALSE && exclusive == JNI_FALSE) {
+            if (closest) {
+                if (atomicClosestFormat) {
+                    jobject jAudioFormat = WAVEFORMATEX_to_AudioFormat(env, closest);
+                    env->CallVoidMethod(atomicClosestFormat, classesCache->atomicReference->set, jAudioFormat);
+                }
+                CoTaskMemFree(closest);
+            }
+            return JNI_FALSE;
+        } else {
+            if (closest) CoTaskMemFree(closest);
+            return JNI_FALSE;
+        }
     }
-
-    EDataFlow flow = eRender;
-    if (env->IsSameObject(flowObj, getClassesCache(env)->audioFlow->outObj)) {
-        flow = eRender;
-    } else if (env->IsSameObject(flowObj, getClassesCache(env)->audioFlow->inObj)) {
-        flow = eCapture;
-    } else {
-        return nullptr;
-    }
-
-    IMMDevice* pDevice = nullptr;
-    HRESULT hr = deviceEnumerator->GetDefaultAudioEndpoint(flow, eConsole, &pDevice);
-    if (FAILED(hr)) {
-        logger->warn(env, "Failed to get default audio endpoint.");
-        return nullptr;
-    }
-
-    if (!pDevice) {
-        logger->warn(env, "No default audio endpoint.");
-        return nullptr;
-    }
-
-    logger->debug(env, "Default audio endpoint: %p. Flow: %d", pDevice, flow);
-
-    jobject jAudioPort = IMMDevice_to_AudioPort(env, pDevice);
-    pDevice->Release();
-
-    return jAudioPort;
-}
-
-JNIEXPORT jboolean JNICALL
-Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_isFormatSupported0
-(JNIEnv* env, jobject obj, jobject jport, jobject jformat) {
-    Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBackend.isFormatSupported0");
-
-    if (!jport || !jformat) {
-        logger->warn(env, "AudioPort or AudioFormat is null.");
-        return JNI_FALSE;
-    }
-
-    IMMDevice* device = AudioPort_to_IMMDevice(env, jport);
-    if (!device) {
-        logger->warn(env, "Failed to get IMMDevice.");
-        return JNI_FALSE;
-    }
-
-    WAVEFORMATEX* format = AudioFormat_to_WAVEFORMATEX(env, jformat);
-    if (!format) {
-        logger->warn(env, "Failed to get WAVEFORMATEX.");
-        return JNI_FALSE;
-    }
-
-    IAudioClient* audioClient = nullptr;
-    HRESULT hr = device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, NULL, (void**)&audioClient);
-    device->Release();
-    if (FAILED(hr) || audioClient == nullptr) {
-        logger->warn(env, "Failed to get or activate IAudioClient. (HRESULT: 0x%08x)", hr);
-        return JNI_FALSE;
-    }
-
-    hr = audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, format, NULL);
-    audioClient->Release();
-
-    CoTaskMemFree(format);
-
-    if (FAILED(hr)) return JNI_FALSE;
-    return JNI_TRUE;
 }
 #else // end of _WIN32
-JNIEXPORT void JNICALL 
-Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_initialize0
-(JNIEnv* env, jobject obj) {
-    env->ThrowNew(getClassesCache(env)->javaExceptions->unsupportedOperationException, "Not supported on this platform.");
-}
+extern "C" {
+    JNIEXPORT void JNICALL 
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_initialize0
+    (JNIEnv* env, jobject obj) {
+        env->ThrowNew(getClassesCache(env)->javaExceptions->unsupportedOperationException, "Not supported on this platform.");
+    }
 
-JNIEXPORT void JNICALL 
-Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_shutdown0
-(JNIEnv* env, jobject obj) {
-    env->ThrowNew(getClassesCache(env)->javaExceptions->unsupportedOperationException, "Not supported on this platform.");
-}
+    JNIEXPORT void JNICALL 
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_shutdown0
+    (JNIEnv* env, jobject obj) {
+        env->ThrowNew(getClassesCache(env)->javaExceptions->unsupportedOperationException, "Not supported on this platform.");
+    }
 
-JNIEXPORT jobjectArray JNICALL 
-Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_getAllPorts0
-(JNIEnv* env, jobject obj) {
-    env->ThrowNew(getClassesCache(env)->javaExceptions->unsupportedOperationException, "Not supported on this platform.");
-    return nullptr;
-}
+    JNIEXPORT jobjectArray JNICALL 
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_getAllPorts0
+    (JNIEnv* env, jobject obj) {
+        env->ThrowNew(getClassesCache(env)->javaExceptions->unsupportedOperationException, "Not supported on this platform.");
+        return nullptr;
+    }
 
-JNIEXPORT jobject JNICALL 
-Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_getDefaultPort0
-(JNIEnv* env, jobject obj, jobject flowObj) {
-    env->ThrowNew(getClassesCache(env)->javaExceptions->unsupportedOperationException, "Not supported on this platform.");
-    return nullptr;
-}
+    JNIEXPORT jobject JNICALL 
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_getDefaultPort0
+    (JNIEnv* env, jobject obj, jobject flowObj) {
+        env->ThrowNew(getClassesCache(env)->javaExceptions->unsupportedOperationException, "Not supported on this platform.");
+        return nullptr;
+    }
 
-JNIEXPORT jboolean JNICALL
-Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_isFormatSupported0
-(JNIEnv* env, jobject obj, jobject jport, jobject jformat) {
-    env->ThrowNew(getClassesCache(env)->javaExceptions->unsupportedOperationException, "Not supported on this platform.");
-    return JNI_FALSE;
+    JNIEXPORT jboolean JNICALL
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_isFormatSupported0
+    (JNIEnv* env, jobject obj, jobject jport, jobject jformat) {
+        env->ThrowNew(getClassesCache(env)->javaExceptions->unsupportedOperationException, "Not supported on this platform.");
+        return JNI_FALSE;
+    }
 }
 #endif // end of !_WIN32
