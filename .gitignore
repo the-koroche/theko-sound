@@ -1,4 +1,5 @@
-.fake
-.class
+*.class
+*.dll
+*.so
+*.dylib
 \target
-\src_old_DEPRECATED
