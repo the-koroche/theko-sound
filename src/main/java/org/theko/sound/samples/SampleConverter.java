@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound.samples;
 
 import java.nio.ByteBuffer;
@@ -54,6 +70,10 @@ import org.theko.sound.AudioFormat;
  */
 public class SampleConverter {
 
+    private SampleConverter() {
+        throw new UnsupportedOperationException("This class cannot be instantiated.");
+    }
+
     /**
      * Converts raw audio byte data to normalized floating-point samples.
      * 
@@ -86,7 +106,6 @@ public class SampleConverter {
         float[][] samples = new float[channels][sampleCount];
         ByteBuffer buffer = ByteBuffer.wrap(data).order(isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
 
-        // Выносим проверку кодировки из внутреннего цикла
         switch (audioFormat.getEncoding()) {
             case PCM_UNSIGNED:
                 for (int i = 0; i < sampleCount; i++) {
@@ -97,7 +116,6 @@ public class SampleConverter {
                 break;
                 
             case PCM_SIGNED:
-                // Оптимизация для распространенных размеров
                 if (bytesPerSample == 2) {
                     ShortBuffer shortBuffer = buffer.asShortBuffer();
                     for (int i = 0; i < sampleCount; i++) {
@@ -172,7 +190,6 @@ public class SampleConverter {
         boolean isBigEndian = targetFormat.isBigEndian();
         int channels = targetFormat.getChannels();
 
-        // Проверка согласованности каналов
         for (int i = 1; i < channels; i++) {
             if (samples[i].length != samplesLength) {
                 throw new IllegalArgumentException("All channels must have the same length");
@@ -197,7 +214,6 @@ public class SampleConverter {
         byte[] data = new byte[samplesLength * bytesPerSample * channels];
         ByteBuffer buffer = ByteBuffer.wrap(data).order(isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
 
-        // Выносим проверку кодировки из внутреннего цикла
         switch (targetFormat.getEncoding()) {
             case PCM_UNSIGNED:
                 for (int i = 0; i < samplesLength; i++) {
@@ -209,7 +225,6 @@ public class SampleConverter {
                 break;
                 
             case PCM_SIGNED:
-                // Оптимизация для распространенных размеров
                 if (bytesPerSample == 2) {
                     ShortBuffer shortBuffer = buffer.asShortBuffer();
                     for (int i = 0; i < samplesLength; i++) {
