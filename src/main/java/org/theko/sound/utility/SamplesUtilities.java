@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound.utility;
 
 import org.theko.sound.LengthMismatchException;
@@ -17,6 +33,26 @@ public class SamplesUtilities {
     
     private SamplesUtilities() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
+    }
+
+    /**
+     * Reverses the polarity of the audio samples.
+     * This method negates each sample in the provided 1D float array.
+     *
+     * @param samples The audio samples to reverse polarity.
+     * @return A new 1D float array with reversed polarity.
+     * @throws IllegalArgumentException if the samples array is null or empty.
+     */
+    public static float[] reversePolarity(float[] samples) {
+        if (samples == null || samples.length == 0) {
+            throw new IllegalArgumentException("Samples array cannot be null or empty.");
+        }
+        
+        float[] reversed = new float[samples.length];
+        for (int i = 0; i < samples.length; i++) {
+            reversed[i] = -samples[i];
+        }
+        return reversed;
     }
 
     /**
@@ -60,6 +96,26 @@ public class SamplesUtilities {
             swapped[i] = samples[samples.length - 1 - i].clone();
         }
         return swapped;
+    }
+
+    /**
+     * Reverses the order of samples in the audio samples.
+     * This method reverses the samples in the provided 1D float array.
+     *
+     * @param samples The audio samples to reverse.
+     * @return A new 1D float array with reversed samples.
+     * @throws IllegalArgumentException if the samples array is null or empty.
+     */
+    public static float[] reverse(float[] samples) {
+        if (samples == null || samples.length == 0) {
+            throw new IllegalArgumentException("Samples array cannot be null or empty.");
+        }
+        
+        float[] reversed = new float[samples.length];
+        for (int i = 0; i < samples.length; i++) {
+            reversed[i] = samples[samples.length - 1 - i];
+        }
+        return reversed;
     }
 
     /**
@@ -129,6 +185,32 @@ public class SamplesUtilities {
 
     /**
      * Normalizes the audio samples to a maximum absolute volume of 1.0.
+     * This method scales each sample in the provided 1D float array by the maximum absolute volume.
+     *
+     * @param samples The audio samples to normalize, represented as a 1D float array.
+     * @return A new 1D float array with normalized samples.
+     * @throws IllegalArgumentException if the samples array is null or empty.
+     */
+    public static float[] normalize(float[] samples) {
+        if (samples == null || samples.length == 0) {
+            throw new IllegalArgumentException("Samples array cannot be null or empty.");
+        }
+
+        float max = getAbsMaxVolume(samples);
+
+        if (max < 1e-6f) {
+            return samples; // Avoid division by zero
+        }
+
+        float[] normalized = new float[samples.length];
+        for (int i = 0; i < samples.length; i++) {
+            normalized[i] = samples[i] / max;
+        }
+        return normalized;
+    }
+
+    /**
+     * Normalizes the audio samples to a maximum absolute volume of 1.0.
      * This method scales each sample in the provided 2D float array by the maximum absolute volume.
      *
      * @param samples The audio samples to normalize, represented as a 2D float array.
@@ -158,6 +240,27 @@ public class SamplesUtilities {
 
     /**
      * Calculates the maximum absolute volume of the audio samples.
+     * This method iterates through all samples in the provided 1D float array
+     * and returns the maximum absolute value found.
+     *
+     * @param samples The audio samples to analyze, represented as a 1D float array.
+     * @return The maximum absolute volume as a float.
+     * @throws IllegalArgumentException if the samples array is null or empty.
+     */
+    public static float getAbsMaxVolume(float[] samples) {
+        if (samples == null || samples.length == 0) {
+            throw new IllegalArgumentException("Samples array cannot be null or empty.");
+        }
+
+        float max = 0.0f;
+        for (float sample : samples) {
+            max = Math.max(max, Math.abs(sample));
+        }
+        return max;
+    }
+
+    /**
+     * Calculates the maximum absolute volume of the audio samples.
      * This method iterates through all samples in the provided 2D float array
      * and returns the maximum absolute value found.
      *
@@ -177,6 +280,29 @@ public class SamplesUtilities {
             }
         }
         return max;
+    }
+
+    /**
+     * Calculates the average absolute volume of the audio samples.
+     * This method iterates through all samples in the provided 1D float array
+     * and returns the average absolute value found.
+     *
+     * @param samples The audio samples to analyze, represented as a 1D float array.
+     * @return The average absolute volume as a float.
+     * @throws IllegalArgumentException if the samples array is null or empty.
+     */
+    public static float getAbsAvgVolume(float[] samples) {
+        if (samples == null || samples.length == 0) {
+            throw new IllegalArgumentException("Samples array cannot be null or empty.");
+        }
+
+        float sum = 0.0f;
+        int count = 0;
+        for (float sample : samples) {
+            sum += Math.abs(sample);
+            count++;
+        }
+        return sum / count;
     }
 
     /**
@@ -202,6 +328,10 @@ public class SamplesUtilities {
             }
         }
         return sum / count;
+    }
+
+    public static float[] adjustGainAndPan (float[] samples, float gain, float pan) {
+        return adjustGainAndPan(new float[][] { samples }, gain, pan)[0];
     }
 
     /**
