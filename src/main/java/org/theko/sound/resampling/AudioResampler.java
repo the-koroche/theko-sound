@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound.resampling;
 
 import org.slf4j.Logger;
@@ -43,7 +59,7 @@ public class AudioResampler {
      * @param resamplerMethod The resample method to use for audio resampling.
      * @param quality The quality of the resampling process, must be greater than or equal to 1.
      */
-    public AudioResampler (ResampleMethod resamplerMethod, int quality) {
+    public AudioResampler(ResampleMethod resamplerMethod, int quality) {
         this.resampleMethod = resamplerMethod;
         this.quality = quality;
     }
@@ -53,7 +69,7 @@ public class AudioResampler {
      * The default method is set to the shared resample method defined in AudioSystemProperties.
      * The default quality is set to the shared quality defined in AudioSystemProperties.
      */
-    public AudioResampler () {
+    public AudioResampler() {
         this(AudioSystemProperties.RESAMPLER_SHARED_METHOD, AudioSystemProperties.RESAMPLER_SHARED_QUALITY);
     }
 
@@ -62,7 +78,7 @@ public class AudioResampler {
      * 
      * @return The quality of the resampling process.
      */
-    public int getQuality () {
+    public int getQuality() {
         return quality;
     }
 
@@ -72,7 +88,7 @@ public class AudioResampler {
      * @param quality The new quality value, must be greater than or equal to 1.
      * @throws IllegalArgumentException if the quality is less than 1.
      */
-    public void setQuality (int quality) {
+    public void setQuality(int quality) {
         if (quality < 1) {
             logger.error("Quality argument is less than 1.");
             throw new IllegalArgumentException("Quality must be greater than or equal to 1.");
@@ -90,16 +106,13 @@ public class AudioResampler {
      * @return A 2D float array containing the resampled audio samples.
      * @throws IllegalArgumentException if the speed multiplier is zero.
      */
-    public float[][] resample (float[][] samples, float speedMultiplier) {
+    public float[][] resample(float[][] samples, float speedMultiplier) {
         if (speedMultiplier == 0) {
             throw new IllegalArgumentException("Speed multiplier cannot be zero.");
         }
+
         int newLength = (int) (samples[0].length / speedMultiplier);
-        float[][] output = new float[samples.length][newLength];
-        for (int ch = 0; ch < samples.length; ch++) {
-            output[ch] = timeScale(samples[ch], newLength);
-        }
-        return output;
+        return resample(samples, newLength);
     }
     
     /**
@@ -110,7 +123,7 @@ public class AudioResampler {
      * @return A 2D float array containing the resampled audio samples.
      * @throws IllegalArgumentException if the new length is less than or equal to zero.
      */
-    public float[][] resample (float[][] samples, int newLength) {
+    public float[][] resample(float[][] samples, int newLength) {
         float[][] output = new float[samples.length][newLength];
         for (int ch = 0; ch < samples.length; ch++) {
             output[ch] = timeScale(samples[ch], newLength);
@@ -118,7 +131,7 @@ public class AudioResampler {
         return output;
     }
 
-    private float[] timeScale (float[] input, int newLength) {
+    private float[] timeScale(float[] input, int newLength) {
         if (input.length == newLength) 
             return input;
 
