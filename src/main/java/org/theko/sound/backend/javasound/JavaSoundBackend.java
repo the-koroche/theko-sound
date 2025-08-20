@@ -1,5 +1,22 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound.backend.javasound;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.*;
 
 import javax.sound.sampled.AudioSystem;
@@ -44,7 +61,7 @@ import org.theko.sound.backend.UnsupportedPortLinkException;
  * @author Theko
  */
 @AudioBackendType (name = "JavaSound", version = "1.1")
-public class JavaSoundBackend implements AudioBackend {
+public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundInput, JavaSoundOutput {
 
     private static final Logger logger = LoggerFactory.getLogger(JavaSoundBackend.class);
 
@@ -134,6 +151,12 @@ public class JavaSoundBackend implements AudioBackend {
         }
 
         return Collections.unmodifiableList(availablePorts);
+    }
+
+    @Override
+    public boolean isFormatSupported(AudioPort port, AudioFormat audioFormat, AtomicReference<AudioFormat> closestFormat) {
+        // TODO: Implement closest format
+        return isFormatSupported(port, audioFormat);
     }
 
     @Override
@@ -237,7 +260,7 @@ public class JavaSoundBackend implements AudioBackend {
 
         // No compatible format found
         return null;
-    }    
+    }
 
     protected static boolean isMixerSupporting(Mixer mixer, AudioFlow flow, AudioFormat audioFormat) throws UnsupportedAudioFormatException {
         Line.Info lineInfo = (flow == AudioFlow.OUT) ?
