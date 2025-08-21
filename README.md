@@ -1,65 +1,179 @@
 # Theko-Sound
 
-🎧 *High-performance and extensible audio library for Java*
+High-performance modular audio library for Java (17+). Provides tools for working with audio devices, playback, routing, effects, visualization, encoding/decoding, and DSP utilities.
 
 ---
 
-## 📌 What is Theko-Sound?
+## 📖 Table of Contents
 
-**Theko-Sound** is a high-performance, modular audio library for Java that enables developers to easily implement advanced audio features such as playback, processing, visualization, and real-time effects. Built with extensibility in mind, it offers fine-grained control over audio pipelines and supports both static and dynamic loading of backends and codecs.
+* [Features](#-features)
+* [Installation](#-installation)
+* [Quick Start](#-quick-start)
 
-Designed for use in games, DAWs, media players, and audio visualization tools.
-
----
-
-## 🚀 Features
-
-* 🖥 **Native audio output** via **JavaSound** *(more backends in development)*
-* 🔌 **Dynamic loading of codecs and backends**
-* 📁 **Audio decoding/encoding** for **WAV** (FLAC and OGG Vorbis planned)
-* 🎚️ **Flexible mixing system** to combine and route audio streams
-* 🎛️ **Real-time audio effects**: echo, equalizers, filters *(work in progress)*
-* 🔁 **Format conversion**: sample rate, bit depth, channels
-* 📊 **FFT with windowing support** for spectrum analysis and visualizers
-* 🎨 **Real-time audio visualizers**
-* 🧠 **Preset system** *(planned)*
-* 🪵 **SLF4J-based logging**
+  * [Minimal WAV Playback](#minimal-wav-playback)
+  * [Routing and Effects](#routing-and-effects)
+  * [Spectrum Visualization](#spectrum-visualization)
+* [Architecture](#-architecture)
+* [Roadmap](#-roadmap)
+* [Known Limitations](#-known-limitations)
+* [Dependencies](#-dependencies)
+* [License](#-license)
 
 ---
 
-## 🛠 Backend Roadmap
+## ✨ Features
 
-| Backend     | Status        |
-| ----------- | ------------- |
-| JavaSound   | ✅ Implemented |
-| WASAPI      | 🔧 In progress |
-| DirectSound | 🔜 Planned    |
-| PulseAudio  | 🔜 Planned    |
-| ALSA        | 🔜 Planned    |
-
-Backends are dynamically loaded and modularized for minimal footprint and easy platform-specific integration.
-
----
-
-## 📦 How to Use
-
-1. Go to the [Releases](#) section.
-2. Download the latest `.jar` file.
-3. Add it to your project's classpath or dependencies.
-
-> *Maven/Gradle support is not available yet, but planned.*
+* Multiple **audio backends** (JavaSound, WASAPI, ALSA, etc.)
+* **Fallback** to JavaSound if no native backend is available
+* **Routing through mixers** with effect support
+* **Effects** (e.g., Bitcrusher) with dynamic parameter control
+* **Visualization** (spectrum, waveform, etc.)
+* **Codecs**: WAV (read/write), AIFF and AU planned
+* **DSP Utilities**: FFT, window functions, filters
+* **Audio metadata** (tags in supported formats)
+* Extendable with custom backends/codecs/effects
 
 ---
 
-## ⚠ Notes
+## ⚡ Installation
 
-* The library is in **active development**.
-* Some effects may still produce artifacts (e.g., clicking) — these issues are being addressed.
-* Contributions and feedback are welcome!
+The library is available through **Maven Central**:
+
+```xml
+<dependency>
+    <groupId>org.theko.sound</groupId>
+    <artifactId>theko-sound</artifactId>
+    <version>2.4.0</version>
+</dependency>
+```
 
 ---
 
-## ⚖ License
+## 🚀 Quick Start
 
-See [LICENSE](LICENSE) for licensing details.
-For details about third-party libraries and licenses, see [NOTICE](NOTICE).
+### Minimal WAV Playback
+
+```java
+try (SoundPlayer player = new SoundPlayer()) {
+    player.open("song.wav");
+    player.startAndWait();
+} catch (Exception e) {
+    e.printStackTrace();
+}
+```
+
+### Routing and Effects
+
+```java
+AudioMixerOutput out = new AudioMixerOutput();
+AudioMixer mixer = new AudioMixer();
+out.setMixer(mixer);
+
+SoundSource sound = new SoundSource();
+sound.open("song.wav");
+
+BitcrusherEffect bitcrusher = new BitcrusherEffect();
+bitcrusher.getBitdepth().setValue(6);
+bitcrusher.getSampleRateReduction().setValue(4000);
+
+mixer.addEffect(bitcrusher);
+out.open(sound.getAudioFormat());
+mixer.addInput(sound);
+
+sound.start();
+```
+
+### Spectrum Visualization
+
+```java
+SoundPlayer player = new SoundPlayer();
+player.open("song.wav");
+
+AudioMixer mixer = player.getInnerMixer();
+SpectrumVisualizer spectrum = new SpectrumVisualizer(60.0f);
+mixer.addEffect(spectrum);
+
+JFrame frame = new JFrame("Spectrum");
+frame.add(spectrum.getPanel());
+frame.setSize(600, 400);
+frame.setVisible(true);
+
+player.startAndWait();
+spectrum.close();
+frame.dispose();
+```
+
+---
+
+## 🏗 Architecture
+
+Main modules of the library:
+
+* `backend` — audio backends (JavaSound, WASAPI, etc.)
+* `codec` — codecs (WAV, AIFF, AU)
+* `controls` — controls for dynamic parameter changes
+* `event` — event model
+* `utils` — utilities (DSP, filters, windows, etc.)
+* `visualizers` — spectrum and waveform visualization
+
+---
+
+## 🛣 Roadmap
+
+**Backends:**
+
+* [x] JavaSound — Backend, Input, Output
+* [ ] WASAPI — In progress (Backend, Output)
+* [ ] ALSA — Planned
+* [ ] CoreAudio — Planned
+* [ ] DirectSound — If possible
+* [ ] PulseAudio — If possible
+
+**Codecs:**
+
+* [x] WAVE — Encoding, Decoding
+* [ ] AIFF — Planned
+* [ ] AU — Planned
+* [ ] FLAC — Unlikely
+
+---
+
+## ⚠️ Known Limitations
+
+* Many parts are in **active development** and may be unstable
+* Not all backends are implemented
+* Codec support is limited (WAV only)
+* No CI/CD — builds are currently done manually
+
+---
+
+## 📦 Dependencies
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.reflections</groupId>
+        <artifactId>reflections</artifactId>
+        <version>0.10.2</version>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>2.0.13</version>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>2.0.13</version>
+    </dependency>
+</dependencies>
+```
+
+---
+
+## 📜 License
+
+This project is licensed under the **Apache License 2.0**.
+
+* [LICENSE](LICENSE)
+* [NOTICE](NOTICE)
