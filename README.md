@@ -152,11 +152,6 @@ Main modules of the library:
 ```xml
 <dependencies>
     <dependency>
-        <groupId>org.reflections</groupId>
-        <artifactId>reflections</artifactId>
-        <version>0.10.2</version>
-    </dependency>
-    <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>2.0.13</version>

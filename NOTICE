@@ -2,10 +2,6 @@
 
 This project includes the following third-party libraries:
 
-- **Reflections** (`org.reflections`)
-  Licensed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
-  Copyright © 2010–2025 Reflections Authors.
-
-- **SLF4J** (`org.slf4j`)
+- **SLF4J** (`org.slf4j:slf4j-api`, `org.slf4j:slf4j-simple`)
   Licensed under the [MIT License](https://mit-license.org/)
   Copyright © 2004–2022 SLF4J Authors.

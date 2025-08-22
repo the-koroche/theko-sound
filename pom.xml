@@ -6,7 +6,7 @@
 
     <groupId>theko.sound</groupId>
     <artifactId>theko-sound</artifactId>
-    <version>v2.4.0</version>
+    <version>2.4.0</version>
 
     <name>Theko-Sound</name>
     <description>A high-performance audio library for sound processing, supporting popular platforms. Includes support for audio backends, format conversion, mixing, effects application, and codec management. Provides a flexible interface for audio playback, recording, and processing with high performance and extensibility.</description>
@@ -44,11 +44,6 @@
     </issueManagement>
 
     <dependencies>
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>0.10.2</version>
-        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
