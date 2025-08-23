@@ -22,7 +22,7 @@ import org.theko.sound.properties.AudioSystemProperties.ThreadType;
  * Utility class for formatting data in a human-readable way.
  * It includes methods for formatting bytes, thread information, and other.
  * 
- * @since v2.3.2
+ * @since 2.3.2
  * @author Theko
  */
 public class FormatUtilities {
@@ -115,6 +115,6 @@ public class FormatUtilities {
      * @return The formatted string.
      */ 
     public static String formatThreadInfo (ThreadType type, int priority) {
-        return String.format("Type: %s, Priority: %d", (type == ThreadType.PLATFORM ? "Platform" : "Virtual"), priority);
+        return String.format("(%s, %d)", (type == ThreadType.PLATFORM ? "Platform" : "Virtual"), priority);
     }
 }
