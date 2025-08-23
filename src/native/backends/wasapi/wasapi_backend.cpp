@@ -58,7 +58,6 @@ extern "C" {
 
         auto* ctx = new BackendContext{ nullptr };
         ctx->deviceEnumerator = nullptr;
-        logger->debug(env, "BackendContext allocated. Address: %p", ctx);
 
         hr = CoCreateInstance(
             CLSID_MMDeviceEnumerator, NULL,
@@ -77,7 +76,7 @@ extern "C" {
         }
         env->SetLongField(obj, getClassesCache(env)->wasapiBackend->backendContextPtr, (jlong)ctx);
 
-        logger->debug(env, "Initialized WASAPI backend. Context: %p", ctx);
+        logger->debug(env, "Initialized WASAPI backend. ContextPtr: %p", ctx);
     }
 
     JNIEXPORT void JNICALL 
@@ -89,6 +88,7 @@ extern "C" {
         IMMDeviceEnumerator* deviceEnumerator = ctx->deviceEnumerator;
 
         if (deviceEnumerator) {
+            logger->trace(env, "Releasing IMMDeviceEnumerator.");
             deviceEnumerator->Release();
             deviceEnumerator = nullptr;
         }
@@ -121,8 +121,7 @@ extern "C" {
         captureDevices->GetCount(&captureCount);
         UINT totalCount = renderCount + captureCount;
 
-        logger->debug(env, "Found %d render ports and %d capture ports.", renderCount, captureCount);
-        logger->debug(env, "Total %d ports.", totalCount);
+        logger->debug(env, "Found %d render ports and %d capture ports. Total %d ports.", renderCount, captureCount, totalCount);
 
         jobjectArray result = env->NewObjectArray(totalCount, getClassesCache(env)->audioPort->clazz, nullptr);
         if (!result) {
@@ -136,7 +135,7 @@ extern "C" {
             renderDevices->Item(i, &pDevice);
             jobject audioPortObj = IMMDevice_to_AudioPort(env, pDevice);
             env->SetObjectArrayElement(result, index++, audioPortObj);
-            logger->debug(env, "Render port #%d: %ls", i, pDevice);
+            logger->trace(env, "Render port #%d: %ls", i, pDevice);
             pDevice->Release();
         }
         for (UINT i = 0; i < captureCount; i++) {
@@ -144,7 +143,7 @@ extern "C" {
             captureDevices->Item(i, &pDevice);
             jobject audioPortObj = IMMDevice_to_AudioPort(env, pDevice);
             env->SetObjectArrayElement(result, index++, audioPortObj);
-            logger->debug(env, "Capture port #%d: %ls", i, pDevice);
+            logger->trace(env, "Capture port #%d: %ls", i, pDevice);
             pDevice->Release();
         }
 
@@ -177,6 +176,7 @@ extern "C" {
         } else {
             return nullptr;
         }
+        logger->trace(env, "Flow: %d", flow == eRender ? "Render" : "Capture");
 
         IMMDevice* pDevice = nullptr;
         HRESULT hr = deviceEnumerator->GetDefaultAudioEndpoint(flow, eConsole, &pDevice);
@@ -186,15 +186,32 @@ extern "C" {
         }
 
         if (!pDevice) {
-            logger->warn(env, "No default audio endpoint.");
+            logger->info(env, "No default audio endpoint.");
             return nullptr;
         }
 
-        logger->debug(env, "Default audio endpoint: %p. Flow: %d", pDevice, flow);
+        logger->trace(env, "Default audio endpoint ptr: %p", pDevice);
+
+        wchar_t* idName = nullptr;
+        hr = pDevice->GetId(&idName);
+        if (FAILED(hr)) {
+            char* hr_msg = format_hr_msg(hr);
+            logger->debug(env, "Failed to get default audio endpoint ID. %s", hr_msg);
+            free(hr_msg);
+            logger->debug(env, "Default audio endpoint flow: %s", flow == eRender ? "Render" : "Capture");
+        } else {
+            char* utf8_idName = utf16_to_utf8(idName);
+            logger->debug(env, "Default audio endpoint: %s. Flow: %s", utf8_idName, flow == eRender ? "Render" : "Capture");
+            free(utf8_idName);
+        }
+
+        if (idName) {
+            CoTaskMemFree(idName);
+        }
 
         jobject jAudioPort = IMMDevice_to_AudioPort(env, pDevice);
         pDevice->Release();
-
+        
         return jAudioPort;
     }
 
@@ -215,11 +232,15 @@ extern "C" {
             return JNI_FALSE;
         }
 
+        logger->trace(env, "IMMDevice ptr: %p", device);
+
         WAVEFORMATEX* format = AudioFormat_to_WAVEFORMATEX(env, jformat);
         if (!format) {
             logger->warn(env, "Failed to get WAVEFORMATEX.");
             return JNI_FALSE;
         }
+
+        logger->trace(env, "WAVEFORMATEX ptr: %p", format);
 
         IAudioClient* audioClient = nullptr;
         HRESULT hr = device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, NULL, (void**)&audioClient);
@@ -232,16 +253,22 @@ extern "C" {
             return JNI_FALSE;
         }
 
+        logger->trace(env, "IAudioClient ptr: %p", audioClient);
+
         WAVEFORMATEX* closest = nullptr;
         hr = audioClient->IsFormatSupported(exclusive == JNI_TRUE ? AUDCLNT_SHAREMODE_EXCLUSIVE : AUDCLNT_SHAREMODE_SHARED, format, &closest);
         audioClient->Release();
         CoTaskMemFree(format);
 
         if (hr == S_OK) {
+            logger->trace(env, "Format is supported.");
             return JNI_TRUE;
         } else if (hr == S_FALSE && exclusive == JNI_FALSE) {
+            logger->trace(env, "Format is not supported.");
             if (closest) {
+                logger->trace(env, "Closest format ptr: %p", closest);
                 if (atomicClosestFormat) {
+                    logger->trace(env, "AtomicClosestFormat ptr: %p", atomicClosestFormat);
                     jobject jAudioFormat = WAVEFORMATEX_to_AudioFormat(env, closest);
                     env->CallVoidMethod(atomicClosestFormat, classesCache->atomicReference->set, jAudioFormat);
                 }
@@ -250,6 +277,7 @@ extern "C" {
             return JNI_FALSE;
         } else {
             if (closest) CoTaskMemFree(closest);
+            logger->trace(env, "Format is not supported.");
             return JNI_FALSE;
         }
     }
