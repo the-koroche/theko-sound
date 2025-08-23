@@ -1,9 +1,24 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-import org.theko.sound.codec.AudioEncoding;
 import org.theko.sound.utility.FormatUtilities;
 
 /**
@@ -33,7 +48,7 @@ import org.theko.sound.utility.FormatUtilities;
  * 
  * @see Encoding
  * 
- * @since v1.0.0
+ * @since 1.0.0
  * @author Theko
  */
 public class AudioFormat implements Serializable {
@@ -99,13 +114,12 @@ public class AudioFormat implements Serializable {
      * @throws IllegalArgumentException if any parameter is invalid.
      */
     public AudioFormat (int sampleRate, int bitsPerSample, int channels, Encoding encoding, boolean bigEndian, int frameSize, int byteRate) {
-        if (sampleRate <= 0 || bitsPerSample <= 0 || channels <= 0 || frameSize <= 0 || byteRate <= 0) {
-            throw new IllegalArgumentException("Invalid audio format parameters");
-        }
-        if (encoding == null) {
-            throw new IllegalArgumentException("Encoding cannot be null");
-        }
-
+        if (sampleRate <= 0) throw new IllegalArgumentException("Sample rate must be positive.");
+        if (bitsPerSample <= 0) throw new IllegalArgumentException("Bits per sample must be positive.");
+        if (channels <= 0) throw new IllegalArgumentException("Number of channels must be positive.");
+        if (frameSize <= 0) throw new IllegalArgumentException("Frame size must be positive.");
+        if (byteRate <= 0) throw new IllegalArgumentException("Byte rate must be positive.");
+        
         this.sampleRate = sampleRate;
         this.bitsPerSample = bitsPerSample;
         this.channels = channels;
@@ -179,23 +193,6 @@ public class AudioFormat implements Serializable {
      */
     public AudioFormat convertTo (Encoding newEncoding) {
         return new AudioFormat(sampleRate, bitsPerSample, channels, newEncoding, bigEndian, frameSize, byteRate);
-    }
-
-    public AudioFormat convertTo(AudioEncoding newEncoding) {
-        switch (newEncoding) {
-            case PCM_UNSIGNED:
-                return convertTo(Encoding.PCM_UNSIGNED);
-            case PCM_SIGNED:
-                return convertTo(Encoding.PCM_SIGNED);
-            case PCM_FLOAT:
-                return convertTo(Encoding.PCM_FLOAT);
-            case ULAW:
-                return convertTo(Encoding.ULAW);
-            case ALAW:
-                return convertTo(Encoding.ALAW);
-            default:
-                throw new IllegalArgumentException("Unsupported encoding: " + newEncoding);
-        }
     }
 
     /**
