@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package org.theko.sound;
+package org.theko.sound.utility;
 
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.concurrent.ThreadLocalRandom;
+
+import org.theko.sound.AudioClassRegister;
 
 /**
  * Utility class for loading resources from the classpath.
@@ -29,9 +31,9 @@ import java.util.concurrent.ThreadLocalRandom;
  * It ensures that the resource name is valid and exists in the classpath.
  * </p>
  * 
- * @see AudioClassScanner
+ * @see AudioClassRegister
  *
- * @since v2.0.0
+ * @since 2.0.0
  * @author Theko
  */
 public class ResourceLoader {
@@ -44,8 +46,10 @@ public class ResourceLoader {
      * Loads a resource as a stream from the classpath.
      * @param resourceName The name of the resource to load.
      * @return The resource as a stream.
+     * @throws ResourceNotFoundException If the resource is not found.
+     * @throws IllegalArgumentException If the resource name is null or empty.
      */
-    public static InputStream getResourceStream(String resourceName) {
+    public static InputStream getResourceStream(String resourceName) throws ResourceNotFoundException {
         if (resourceName == null || resourceName.isEmpty()) {
             throw new IllegalArgumentException("Resource name cannot be null or empty.");
         }
@@ -54,7 +58,7 @@ public class ResourceLoader {
         }
         InputStream stream = ResourceLoader.class.getResourceAsStream(resourceName);
         if (stream == null) {
-            throw new IllegalArgumentException("Resource not found: " + resourceName);
+            throw new ResourceNotFoundException("Resource not found: " + resourceName);
         }
         return stream;
     }
@@ -64,8 +68,11 @@ public class ResourceLoader {
      * It creates a temporary file and copies the resource to it.
      * @param resourceName The name of the resource to load.
      * @return The resource as a file.
+     * @throws RuntimeException If an error occurs while creating the temporary file.
+     * @throws ResourceNotFoundException If the resource is not found.
+     * @throws IllegalArgumentException If the resource name is null or empty.
      */
-    public static File getResourceFile(String resourceName) {
+    public static File getResourceFile(String resourceName) throws ResourceNotFoundException {
         try (InputStream resourceStream = getResourceStream(resourceName)) {
             String name = getTempFileName(resourceName);
 
