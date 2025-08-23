@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound;
 
 /**
@@ -9,7 +25,7 @@ package org.theko.sound;
  * 
  * <p>This class is immutable, meaning its state cannot be changed after it is created.</p>
  * 
- * @since v1.0.0
+ * @since 1.0.0
  * @author Theko
  */
 public class AudioPort {
@@ -37,7 +53,7 @@ public class AudioPort {
      * @param version The version of the port.
      * @param description A description providing details about the port.
      */
-    public AudioPort (
+    public AudioPort(
             Object link,
             AudioFlow flow,
             boolean isActive,
@@ -66,7 +82,7 @@ public class AudioPort {
      * @param vendor The vendor name of the port.
      * @param version The version of the port.
      */
-    public AudioPort (
+    public AudioPort(
             Object link,
             AudioFlow flow,
             AudioFormat mixFormat,
@@ -86,7 +102,7 @@ public class AudioPort {
      * @param name The name of the port.
      * @param vendor The vendor name of the port.
      */
-    public AudioPort (
+    public AudioPort(
             Object link,
             AudioFlow flow,
             boolean isActive,
@@ -101,7 +117,7 @@ public class AudioPort {
      * 
      * @return The link object.
      */
-    public Object getLink () {
+    public Object getLink() {
         return link;
     }
 
@@ -110,7 +126,7 @@ public class AudioPort {
      * 
      * @return The flow type of the port (AudioFlow).
      */
-    public AudioFlow getFlow () {
+    public AudioFlow getFlow() {
         return flow;
     }
 
@@ -119,7 +135,7 @@ public class AudioPort {
      * 
      * @return True if the port is active, false otherwise.
      */
-    public boolean isActive () {
+    public boolean isActive() {
         return isActive;
     }
 
@@ -128,7 +144,7 @@ public class AudioPort {
      * 
      * @return The audio format.
      */
-    public AudioFormat getMixFormat () {
+    public AudioFormat getMixFormat() {
         return mixFormat;
     }
 
@@ -137,7 +153,7 @@ public class AudioPort {
      * 
      * @return The name of the port.
      */
-    public String getName () {
+    public String getName() {
         return name;
     }
 
@@ -146,7 +162,7 @@ public class AudioPort {
      * 
      * @return The vendor of the port.
      */
-    public String getVendor () {
+    public String getVendor() {
         return vendor;
     }
 
@@ -155,7 +171,7 @@ public class AudioPort {
      * 
      * @return The version of the port.
      */
-    public String getVersion () {
+    public String getVersion() {
         return version;
     }
 
@@ -164,7 +180,7 @@ public class AudioPort {
      * 
      * @return The description of the port.
      */
-    public String getDescription () {
+    public String getDescription() {
         return description;
     }
 
@@ -175,11 +191,20 @@ public class AudioPort {
      * @return True if the objects are equal, false otherwise.
      */
     @Override
-    public boolean equals (Object obj) {
+    public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         AudioPort other = (AudioPort) obj;
         return link.equals(other.link);
+    }
+
+    /**
+     * Returns a string representation of the link object associated with the audio port.
+     * 
+     * @return A string that represents the link object.
+     */
+    public String getLinkAsString() {
+        return link.getClass().getSimpleName() + "@" + link.hashCode();
     }
 
     /**
@@ -188,11 +213,10 @@ public class AudioPort {
      * @return A string that represents the audio port.
      */
     @Override
-    public String toString () {
+    public String toString() {
         return String.format(
-            "AudioPort {Name: %s, Vendor: %s, Flow: %s, Is Active: %b, Mix Format: %s, Link: %s@%s}",
-            name, vendor, flow, isActive, mixFormat,
-            link.getClass().getSimpleName(), link.hashCode()
+            "AudioPort {Name: %s, Vendor: %s, Flow: %s, Active: %s}",
+            name, vendor, flow, isActive
         );
     }
 }
