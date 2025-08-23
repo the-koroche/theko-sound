@@ -32,7 +32,7 @@ import org.theko.sound.utility.ArrayUtilities;
  * This effect can be applied to audio samples to change their playback speed without altering
  * the pitch, making it useful for various audio processing tasks.
  * 
- * @since v2.0.0
+ * @since 2.0.0
  * @author Theko
  */
 public class ResamplerEffect extends AudioEffect implements VaryingSizeEffect{

@@ -30,7 +30,7 @@ package org.theko.sound.backend;
  * }
  * </pre>
  * 
- * @since v1.0.0
+ * @since 1.0.0
  * @author Theko
  */
 public class AudioBackendInfo {

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound.utility;
 
 /**
@@ -5,12 +21,12 @@ package org.theko.sound.utility;
  * <p>This class provides methods for remapping values between ranges, linear interpolation,
  * and quantization of floating-point values.
  * 
- * @since v2.0.0
+ * @since 2.0.0
  * @author Theko
  */
 public class MathUtilities {
 
-    private MathUtilities () {
+    private MathUtilities() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
@@ -24,7 +40,7 @@ public class MathUtilities {
      * @param outMax The maximum of the output range.
      * @return The remapped value.
      */
-    public static float remapUnclamped (float x, float inMin, float inMax, float outMin, float outMax) {
+    public static float remapUnclamped(float x, float inMin, float inMax, float outMin, float outMax) {
         return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     }
 
@@ -38,7 +54,7 @@ public class MathUtilities {
      * @param outMax The maximum of the output range.
      * @return The remapped value.
      */
-    public static double remapUnclamped (double x, double inMin, double inMax, double outMin, double outMax) {
+    public static double remapUnclamped(double x, double inMin, double inMax, double outMin, double outMax) {
         return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     }
 
@@ -52,7 +68,7 @@ public class MathUtilities {
      * @param outMax The maximum of the output range.
      * @return The remapped value, clamped to the output range.
      */
-    public static float remapClamped (float x, float inMin, float inMax, float outMin, float outMax) {
+    public static float remapClamped(float x, float inMin, float inMax, float outMin, float outMax) {
         return Math.min(outMax, Math.max(outMin, remapUnclamped(x, inMin, inMax, outMin, outMax)));
     }
 
@@ -66,7 +82,7 @@ public class MathUtilities {
      * @param outMax The maximum of the output range.
      * @return The remapped value, clamped to the output range.
      */
-    public static double remapClamped (double x, double inMin, double inMax, double outMin, double outMax) {
+    public static double remapClamped(double x, double inMin, double inMax, double outMin, double outMax) {
         return Math.min(outMax, Math.max(outMin, remapUnclamped(x, inMin, inMax, outMin, outMax)));
     }
 
@@ -78,7 +94,7 @@ public class MathUtilities {
      * @param t The interpolation parameter, typically in the range [0, 1].
      * @return The interpolated value.
      */
-    public static float lerp (float a, float b, float t) {
+    public static float lerp(float a, float b, float t) {
         return a + (b - a) * t;
     }
 
@@ -90,7 +106,7 @@ public class MathUtilities {
      * @param t The interpolation parameter, typically in the range [0, 1].
      * @return The interpolated value.
      */
-    public static double lerp (double a, double b, double t) {
+    public static double lerp(double a, double b, double t) {
         return a + (b - a) * t;
     }
 
@@ -101,7 +117,7 @@ public class MathUtilities {
      * @param step The step size for quantization.
      * @return The quantized value.
      */
-    public static float quantize (float x, float step) {
+    public static float quantize(float x, float step) {
         return Math.round(x / step) * step;
     }
 
@@ -112,7 +128,7 @@ public class MathUtilities {
      * @param step The step size for quantization.
      * @return The quantized value.
      */
-    public static double quantize (double x, double step) {
+    public static double quantize(double x, double step) {
         return Math.round(x / step) * step;
     }
 
@@ -123,7 +139,7 @@ public class MathUtilities {
      * @param max The maximum value of the range.
      * @return The clamped value.
      */
-    public static float clamp (float x, float min, float max) {
+    public static float clamp(float x, float min, float max) {
         return Math.min(max, Math.max(min, x));
     }
 
@@ -134,7 +150,7 @@ public class MathUtilities {
      * @param max The maximum value of the range.
      * @return The clamped value.
      */
-    public static double clamp (double x, double min, double max) {
+    public static double clamp(double x, double min, double max) {
         return Math.min(max, Math.max(min, x));
     }
 
@@ -145,7 +161,7 @@ public class MathUtilities {
      * @param max The maximum value of the range.
      * @return The clamped value.
      */
-    public static int clamp (int x, int min, int max) {
+    public static int clamp(int x, int min, int max) {
         return Math.min(max, Math.max(min, x));
     }
 }

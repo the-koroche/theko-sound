@@ -23,7 +23,7 @@ package org.theko.sound;
  * 
  * @see ChannelsCountMismatchException
  * 
- * @since v2.0.0
+ * @since 2.0.0
  * @author Theko
  */
 public class LengthMismatchException extends Exception {

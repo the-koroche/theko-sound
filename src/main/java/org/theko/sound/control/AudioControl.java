@@ -41,7 +41,7 @@ import org.theko.sound.event.AudioControlListener;
  * @see FloatControl
  * @see Controllable
  * 
- * @since v1.2.0
+ * @since 1.2.0
  * @author Theko
  */
 public abstract class AudioControl {

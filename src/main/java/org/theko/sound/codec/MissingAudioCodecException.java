@@ -23,7 +23,7 @@ package org.theko.sound.codec;
  * <p>Possible use cases include scenarios where an application attempts to process
  * audio data but the necessary codec for decoding or encoding is unavailable.</p>
  * 
- * @since v1.3.0
+ * @since 1.3.0
  * @author Theko
  */
 public class MissingAudioCodecException extends RuntimeException {

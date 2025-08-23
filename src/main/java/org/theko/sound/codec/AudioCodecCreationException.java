@@ -20,7 +20,7 @@ package org.theko.sound.codec;
  * This exception is thrown to indicate an error during the creation of an audio codec.
  * It extends {@link AudioCodecException} to provide more specific context for codec creation failures.
  * 
- * @since v1.3.1
+ * @since 1.3.1
  * @author Theko
  */
 public class AudioCodecCreationException extends AudioCodecException {

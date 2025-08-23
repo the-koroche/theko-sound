@@ -55,7 +55,7 @@ import org.theko.sound.envelope.ASREnvelope;
  * @see FloatControl
  * @see ASREnvelope
  * 
- * @since v1.4.1
+ * @since 1.4.1
  * @author Theko
  */
 public class AudioLimiter extends AudioEffect {

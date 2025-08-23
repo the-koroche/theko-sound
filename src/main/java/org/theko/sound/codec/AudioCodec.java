@@ -46,7 +46,7 @@ import org.theko.sound.AudioFormat;
  * }
  * }</pre>
  *
- * @since v1.3.0
+ * @since 1.3.0
  * @author Theko
  */
 public abstract class AudioCodec {

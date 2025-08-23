@@ -33,7 +33,7 @@ import org.theko.sound.utility.SamplesUtilities;
  * This effect can be applied to audio samples in real-time, making it useful for creative sound design
  * and spatial audio applications.
  * 
- * @since v2.1.0
+ * @since 2.1.0
  * @author Theko
  */
 public class StereoWidthEffect extends AudioEffect {

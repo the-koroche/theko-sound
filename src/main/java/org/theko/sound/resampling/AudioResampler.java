@@ -27,7 +27,7 @@ import org.theko.sound.utility.ArrayUtilities;
  * The class includes methods for converting audio data between byte arrays
  * and float samples, applying time scaling.
  * 
- * @since v1.1.0
+ * @since 1.1.0
  * @author Theko
  */
 public class AudioResampler {

@@ -34,7 +34,7 @@ package org.theko.sound.dsp;
  * </p>
  * This class cannot be instantiated.
  * 
- * @since v1.3.0
+ * @since 1.3.0
  * @author Theko
  */
 public class FFT {

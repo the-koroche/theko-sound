@@ -41,7 +41,7 @@ import org.theko.sound.AudioPort;
  * @see AudioFormat
  * @see AudioOutputBackend
  * 
- * @since v1.0.0
+ * @since 1.0.0
  * @author Theko
  */
 public interface AudioInputBackend extends AudioBackend, AutoCloseable {

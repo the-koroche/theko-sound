@@ -21,7 +21,7 @@ package org.theko.sound.codec;
  * This exception can be used to indicate various issues related to
  * encoding, decoding, or processing audio data.
  * 
- * @since v1.3.0
+ * @since 1.3.0
  * @author Theko
  */
 public class AudioCodecException extends Exception {

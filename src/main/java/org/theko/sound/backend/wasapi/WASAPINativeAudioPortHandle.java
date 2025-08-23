@@ -20,7 +20,7 @@ package org.theko.sound.backend.wasapi;
  * String identifier representation of a native audio port handle.
  * Used to identify audio ports link type in the WASAPI backend.
  * 
- * @since v2.3.2
+ * @since 2.3.2
  * @author Theko
  */
 public class WASAPINativeAudioPortHandle {

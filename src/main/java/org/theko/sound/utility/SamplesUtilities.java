@@ -24,7 +24,7 @@ import org.theko.sound.LengthMismatchException;
  * apply stereo separation, normalize samples, and adjust gain and pan.
  * 
  * @author Theko
- * @since v2.0.0
+ * @since 2.0.0
  */
 public class SamplesUtilities {
 

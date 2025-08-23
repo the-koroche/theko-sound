@@ -32,7 +32,7 @@ package org.theko.sound.dsp;
  * </pre>
  * </p>
  * 
- * @since v1.4.1
+ * @since 1.4.1
  * @author Theko
  */
 public class WindowFunction {

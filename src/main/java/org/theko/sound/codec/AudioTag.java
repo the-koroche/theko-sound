@@ -50,7 +50,7 @@ import java.util.List;
  *     System.out.println(tag); // Output: Title: My Song
  * </pre>
  * 
- * @since v1.3.1
+ * @since 1.3.1
  * @author Theko
  */
 public class AudioTag {

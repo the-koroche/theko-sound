@@ -49,7 +49,7 @@ import java.lang.annotation.RetentionPolicy;
  * 
  * @see AudioCodec
  * 
- * @since v1.3.1
+ * @since 1.3.1
  * @author Theko
  */
 @Target(ElementType.TYPE)

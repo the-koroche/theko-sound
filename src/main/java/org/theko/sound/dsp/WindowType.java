@@ -24,7 +24,7 @@ package org.theko.sound.dsp;
  * trade-off between main lobe width and side lobe attenuation.
  * </p>
  *
- * @since v1.4.1
+ * @since 1.4.1
  * @author Theko
  */
 public enum WindowType {

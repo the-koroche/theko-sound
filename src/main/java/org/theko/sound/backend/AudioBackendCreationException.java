@@ -32,7 +32,7 @@ package org.theko.sound.backend;
  * backends in an application.
  * </p>
  *
- * @since v1.0.0
+ * @since 1.0.0
  * @author Theko
  */
 public class AudioBackendCreationException extends Exception {

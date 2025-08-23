@@ -47,7 +47,7 @@ import java.util.List;
  * @see FloatControl
  * @see BooleanControl
  * 
- * @since v1.4.1
+ * @since 1.4.1
  * @author Theko
  */
 public interface Controllable {

@@ -43,7 +43,7 @@ import org.theko.sound.control.FloatControl;
  * @see org.theko.sound.envelope.ASREnvelope
  * @see org.theko.sound.envelope.AHSDREnvelope
  * 
- * @since v1.4.1
+ * @since 1.4.1
  * @author Theko
  */
 public class ASDREnvelope extends ASREnvelope {

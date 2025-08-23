@@ -20,7 +20,7 @@ package org.theko.sound;
  * This exception is thrown when there is an error during the mixing of audio samples.
  * It extends RuntimeException to indicate that it is an unchecked exception.
  * 
- * @since v2.0.0
+ * @since 2.0.0
  * @author Theko
  */
 public class MixingException extends RuntimeException {

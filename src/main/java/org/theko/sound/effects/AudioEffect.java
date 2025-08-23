@@ -33,7 +33,7 @@ import org.theko.sound.utility.SamplesUtilities;
  * AudioEffect is an abstract class representing an audio effect that can be applied to audio samples.
  * It implements the AudioNode interface and provides controls for mixing level and enabling/disabling the effect.
  * 
- * @since v1.3.0
+ * @since 1.3.0
  * @author Theko
  */
 public abstract class AudioEffect implements AudioNode, Controllable {

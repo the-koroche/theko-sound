@@ -26,7 +26,7 @@ import org.theko.sound.event.AudioControlEvent;
  * <p>This class is typically used to manage audio-related boolean settings,
  * such as enabling or disabling a feature.
  * 
- * @since v1.2.0
+ * @since 1.2.0
  * @author Theko
  */
 public class BooleanControl extends AudioControl {
