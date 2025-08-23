@@ -32,27 +32,42 @@ import org.theko.sound.samples.SampleConverter;
 import org.theko.sound.utility.ThreadUtilities;
 
 /**
- * The {@code AudioOutputLayer} class provides a high-level interface for playing audio.
- * It acts as a wrapper around an {@link AudioOutputBackend}, handling the opening, starting, stopping,
- * and closing of audio output, as well as buffer management and audio data writing.
+ * The {@code AudioOutputLayer} class is responsible for managing an audio output line.
+ * It encapsulates an {@link AudioOutputBackend} and provides a unified interface for
+ * audio output operations. It is possible to add {@link AudioNode} to this
+ * class as a root node, which can be used to process audio data in real-time.
  * <p>
- * This class supports both direct audio data writing and audio processing via a root {@link AudioNode}.
- * When a root node is set, audio data is rendered through the node graph before being sent to the backend.
- * </p>
- *
- * <h2>Exceptions:</h2>
- * <ul>
- *     <li>{@link AudioBackendCreationException} - Thrown if the backend cannot be created or opened.</li>
- *     <li>{@link AudioBackendNotFoundException} - Thrown if no suitable backend is found.</li>
- *     <li>{@link AudioBackendException} - Thrown for backend-specific errors during operation.</li>
- *     <li>{@link UnsupportedAudioFormatException} - Thrown if the audio format is not supported.</li>
- * </ul>
+ * This class is {@link AutoCloseable}, so it can be used in a try-with-resources
+ * statement. It is also thread-safe.
+ * <p>
+ * The class provides methods to open and close the audio output line, start and stop
+ * audio playback, and retrieve information about the audio line, such as buffer size,
+ * frame position, and latency.
+ * <p>
+ * <p>
+ * Also, this class adds a shutdown hook to close the audio output line when the
+ * JVM is shut down, ensuring proper cleanup.
+ * <p>
+ * Usage example:
+ * <pre>{@code
+ * try (AudioOutputLayer aol = new AudioOutputLayer()) {
+ *     aol.open(audioPort, audioFormat);
+ *     aol.setRootNode(audioNode); // Mixers, Sources, Generators
+ *     aol.start();
+ *     // ...
+ * }
+ * }</pre>
+ * <p>
+ * Note: This class throws {@link AudioBackendCreationException},
+ * {@link AudioBackendException}, and {@link BackendNotOpenException} for various error
+ * conditions, such as unsupported audio formats or attempting to operate on a closed
+ * backend.
  * 
- * @see AudioNode
  * @see AudioOutputBackend
- *
+ * @see AudioNode
+ * 
+ * @since 2.0.0
  * @author Theko
- * @since v2.0.0
  */
 public class AudioOutputLayer implements AutoCloseable {
     
@@ -69,6 +84,9 @@ public class AudioOutputLayer implements AutoCloseable {
 
     private float resamplingFactor = 1.0f;
 
+    private final Runnable shutdownHook;
+    private final Thread shutdownHookThread;
+
     /**
      * Constructs an {@code AudioOutputLayer} with the specified {@link AudioOutputBackend} backend.
      * 
@@ -78,7 +96,18 @@ public class AudioOutputLayer implements AutoCloseable {
         if (aob == null) throw new IllegalArgumentException("AudioOutputBackend cannot be null");
         this.aob = aob;
         logger.debug("Created audio output line with backend: " + aob.getClass().getSimpleName());
+
+        shutdownHook = () -> {
+            stop();
+            if (aob != null) {
+                aob.close();
+                aob.shutdown();
+            }
+            logger.debug("Shutting down audio output line");
+        };
+        shutdownHookThread = new Thread(shutdownHook, "AudioOutputLayer-ShutdownHook");
         aob.initialize();
+        Runtime.getRuntime().addShutdownHook(shutdownHookThread);
     }
 
     /**
@@ -101,7 +130,8 @@ public class AudioOutputLayer implements AutoCloseable {
     @SuppressWarnings("incomplete-switch")
     public void open (AudioPort port, AudioFormat audioFormat, int bufferSizeInSamples) throws AudioBackendException {
         try {
-            logger.debug("Trying to open with port: {}, format: {}, buffer size: {}.", port, audioFormat, bufferSizeInSamples);
+            logger.debug("Trying to open with port: {}, format: {}, buffer size: {}.",
+                    port != null ? port.toString() : "Default", audioFormat, bufferSizeInSamples);
             AudioPort targetPort = (port == null ? aob.getDefaultPort(AudioFlow.OUT).get() : port);
 
             AudioFormat highestSupportableFormat = targetPort.getMixFormat();
@@ -190,6 +220,8 @@ public class AudioOutputLayer implements AutoCloseable {
                     targetFormat,
                     resamplingFactor
                 );
+            } else {
+                resamplingFactor = 1.0f;
             }
 
             openedFormat = targetFormat;
@@ -354,6 +386,7 @@ public class AudioOutputLayer implements AutoCloseable {
         stop();
         aob.close();
         aob.shutdown();
+        Runtime.getRuntime().removeShutdownHook(shutdownHookThread);
         logger.debug("Closed audio output line");
     }
 
