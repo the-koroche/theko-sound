@@ -19,7 +19,7 @@ package org.theko.sound;
 import java.util.Arrays;
 
 import org.theko.sound.resampling.AudioResampler;
-import org.theko.sound.samples.SampleConverter;
+import org.theko.sound.samples.SamplesConverter;
 
 /**
  * The AudioConverter class provides utility methods for converting audio data
@@ -85,7 +85,7 @@ public class AudioConverter {
         }
 
         // Convert raw byte data to floating-point samples
-        float[][] samples = SampleConverter.toSamples(data, source);
+        float[][] samples = SamplesConverter.toSamples(data, source);
 
         // Convert the number of audio channels if needed
         samples = convertChannels(samples, source.getChannels(), target.getChannels());
@@ -96,7 +96,7 @@ public class AudioConverter {
         }
 
         // Convert samples back to raw byte data in the target format
-        return SampleConverter.fromSamples(samples, target);
+        return SamplesConverter.fromSamples(samples, target);
     }
 
     /**
