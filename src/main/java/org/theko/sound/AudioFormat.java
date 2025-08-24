@@ -134,10 +134,10 @@ public class AudioFormat implements Serializable {
     public int getSampleRate () { return sampleRate; }
 
     /** @return Bits per sample. */
-    public int getSampleSizeInBits () { return bitsPerSample; }
+    public int getBitsPerSample () { return bitsPerSample; }
 
     /** @return Bytes per sample. */
-    public int getSampleSizeInBytes () { return bitsPerSample / 8; }
+    public int getBytesPerSample () { return bitsPerSample / 8; }
 
     /** @return The number of audio channels. */
     public int getChannels () { return channels; }
@@ -209,7 +209,11 @@ public class AudioFormat implements Serializable {
     @Override
     public String toString () {
         return String.format("AudioFormat{%d Hz, %d-bit, %d channels, %s, %s-endian, %s/s}",
-                sampleRate, bitsPerSample, channels, encoding, bigEndian ? "big" : "little", FormatUtilities.formatBytes(byteRate, true));
+                sampleRate, bitsPerSample, channels,
+                (encoding != null ? encoding.name() : "N/A"),
+                bigEndian ? "big" : "little",
+                FormatUtilities.formatBytes(byteRate, true /* binary */, 2 /* precision */)
+            );
     }
 
     @Override
