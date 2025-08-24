@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound;
 
 import java.io.BufferedInputStream;
@@ -54,7 +70,7 @@ import org.theko.sound.utility.ArrayUtilities;
  * @see AudioMixer
  * @see ResamplerEffect
  * 
- * @since v2.0.0
+ * @since 2.0.0
  * @author Theko
  */
 public class SoundSource implements AudioNode, Controllable, AutoCloseable {
@@ -158,10 +174,16 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
             logger.error("File not found: {}", file);
             throw new FileNotFoundException("File not found.");
         }
-        decodeAudioFile(file);
+        try {
+            decodeAudioFile(file);
+        } catch (AudioCodecNotFoundException ex) {
+            throw ex; // Already logged
+        } catch (AudioCodecException ex) {
+            throw new RuntimeException("Failed to decode audio file.", ex);
+        }
         if (samplesData == null) {
-            logger.error("Failed to decode audio file: {}. Audio codec not found.", file);
-            throw new AudioCodecNotFoundException("Audio codec not found.");
+            logger.error("Failed to decode audio file: {}.", file);
+            throw new RuntimeException("Failed to decode audio file.");
         }
 
         playback = new Playback();
@@ -216,12 +238,11 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
 
     @Override
     public void close() {
-        logger.debug("Closing sound source...");
         stop();
         samplesData = null;
         audioFormat = null;
 
-        logger.debug("Sound source closed.");
+        logger.debug("Closed.");
     }
 
     /**
@@ -363,7 +384,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
      * Decodes an audio file into samples data.
      * @param file The audio file to decode.
      */
-    private void decodeAudioFile(File file) {
+    private void decodeAudioFile(File file) throws AudioCodecNotFoundException, AudioCodecException {
         try {
             String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1);
             if (fileExtension == null || fileExtension.isEmpty()) {
@@ -373,10 +394,9 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
             logger.debug("Decoding audio file: {} with extension: {}", file.getName(), fileExtension);
             AudioCodecInfo codec = AudioCodecs.fromExtension(fileExtension);
 
-            logger.debug("Using codec: {}", codec);
+            logger.debug("Using codec: {}", codec.getName());
             AudioCodec audioCodec = AudioCodecs.getCodec(codec);
 
-            logger.debug("Audio codec: {}", audioCodec.getClass().getSimpleName());
             AudioDecodeResult decodeResult = audioCodec.decode(
                 new BufferedInputStream(new FileInputStream(file), 1024 * 256)
             );
@@ -389,13 +409,15 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
             this.samplesData = decodeResult.getSamples();
             this.audioFormat = decodeResult.getAudioFormat();
             this.tags = decodeResult.getTags();
-            logger.debug("Decoded audio file: {} with format: {}", file.getName(), audioFormat);
-        } catch (AudioCodecException ex) {
+            logger.debug("Decoded audio file: {}", file.getName());
+        } catch (AudioCodecNotFoundException ex) {
+            logger.error("Audio codec not found: {}", file.getName(), ex);
+            throw ex;
+         }catch (AudioCodecException ex) {
             logger.error("Failed to decode audio file: {}", file.getName(), ex);
-            ex.printStackTrace();
+            throw ex;
         } catch (FileNotFoundException ex) {
             logger.error("Failed to open audio file: {}", file.getName(), ex);
-            ex.printStackTrace();
         }
     }
 }
