@@ -17,6 +17,7 @@
 package org.theko.sound;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -85,6 +86,12 @@ public class AudioMixer implements AudioNode {
 
     private static final float STEREO_SEP_EPSILON = 0.000001f;
 
+    private float[][][] inputBuffers = null;
+    private boolean[] validInputs = null;
+    
+    private float[][] mixed = null;
+    private float[][] effectBuffer = null;
+
     public void addInput(AudioNode input) {
         if (input == null) {
             logger.error("Attempted to add null input to AudioMixer");
@@ -112,7 +119,7 @@ public class AudioMixer implements AudioNode {
         inputs.add(input);
     }
 
-    private boolean hasMixer (AudioMixer mixer) {
+    private boolean hasMixer(AudioMixer mixer) {
         for (AudioNode input : inputs) {
             if (input.equals(mixer)) {
                 return true;
@@ -127,7 +134,7 @@ public class AudioMixer implements AudioNode {
         return false;
     }
 
-    public void addEffect (AudioEffect effect) throws IncompatibleEffectTypeException, MultipleVaryingSizeEffectsException {
+    public void addEffect(AudioEffect effect) throws IncompatibleEffectTypeException, MultipleVaryingSizeEffectsException {
         if (effect == null) {
             logger.error("Attempted to add null effect to AudioMixer");
             throw new IllegalArgumentException("Effect cannot be null");
@@ -143,11 +150,11 @@ public class AudioMixer implements AudioNode {
         effects.add(effect);
     }
 
-    protected boolean hasVaryingSizeEffect () {
+    protected boolean hasVaryingSizeEffect() {
         return getVaryingSizeEffectIndex() != -1;
     }
 
-    protected int getVaryingSizeEffectIndex () {
+    protected int getVaryingSizeEffectIndex() {
         for (int i = 0; i < effects.size(); i++) {
             if (effects.get(i) instanceof VaryingSizeEffect) {
                 return i;
@@ -156,7 +163,7 @@ public class AudioMixer implements AudioNode {
         return -1;
     }
 
-    public void removeInput (AudioNode input) {
+    public void removeInput(AudioNode input) {
         if (input == null) {
             logger.error("Attempted to remove null input from AudioMixer");
             throw new IllegalArgumentException("Input cannot be null");
@@ -164,7 +171,7 @@ public class AudioMixer implements AudioNode {
         inputs.remove(input);
     }
 
-    public void removeEffect (AudioEffect effect) {
+    public void removeEffect(AudioEffect effect) {
         if (effect == null) {
             logger.error("Attempted to remove null effect from AudioMixer");
             throw new IllegalArgumentException("Effect cannot be null");
@@ -172,44 +179,44 @@ public class AudioMixer implements AudioNode {
         effects.remove(effect);
     }
 
-    public List<AudioNode> getInputs () {
+    public List<AudioNode> getInputs() {
         return Collections.unmodifiableList(inputs);
     }
 
-    public List<AudioEffect> getEffects () {
+    public List<AudioEffect> getEffects() {
         return Collections.unmodifiableList(effects);
     }
 
-    public FloatControl getPreGainControl () {
+    public FloatControl getPreGainControl() {
         return preGainControl;
     }
 
-    public FloatControl getPostGainControl () {
+    public FloatControl getPostGainControl() {
         return postGainControl;
     }
 
-    public FloatControl getPanControl () {
+    public FloatControl getPanControl() {
         return panControl;
     }
 
-    public FloatControl getStereoSeparationControl () {
+    public FloatControl getStereoSeparationControl() {
         return stereoSeparationControl;
     }
 
-    public BooleanControl getEnableEffectsControl () {
+    public BooleanControl getEnableEffectsControl() {
         return enableEffectsControl;
     }
 
-    public BooleanControl getSwapChannelsControl () {
+    public BooleanControl getSwapChannelsControl() {
         return swapChannelsControl;
     }
 
-    public BooleanControl getReversePolarityControl () {
+    public BooleanControl getReversePolarityControl() {
         return reversePolarityControl;
     }
 
     @Override
-    public void render (float[][] samples, int sampleRate) {
+    public void render(float[][] samples, int sampleRate) {
         if (samples == null || samples.length == 0) {
             throw new IllegalArgumentException("Samples array cannot be null or empty.");
         }
@@ -283,7 +290,7 @@ public class AudioMixer implements AudioNode {
         
     }
 
-    private int getTargetInputLength (int length) throws LengthMismatchException {
+    private int getTargetInputLength(int length) throws LengthMismatchException {
         if (!enableEffectsControl.isEnabled()) {
             return length;
         }
@@ -306,9 +313,23 @@ public class AudioMixer implements AudioNode {
         return length;
     }
 
-    private CollectedInputs collectInputs (int sampleRate, int frameCount, int channels) {
-        float[][][] inputBuffers = new float[inputs.size()][channels][frameCount];
-        boolean[] valid = new boolean[inputs.size()];
+    private CollectedInputs collectInputs(int sampleRate, int frameCount, int channels) {
+        if (inputBuffers == null 
+            || inputBuffers.length != inputs.size()
+            || (inputs.size() > 0 && 
+                (inputBuffers[0].length != channels || inputBuffers[0][0].length != frameCount))) {
+            
+            inputBuffers = new float[inputs.size()][channels][frameCount];
+        } else {
+            for (int i = 0; i < inputs.size(); i++) {
+                ArrayUtilities.fillZeros(inputBuffers[i]);
+            }
+        }
+        if (validInputs == null || validInputs.length != inputs.size()) {
+            validInputs = new boolean[inputs.size()];
+        } else {
+            Arrays.fill(validInputs, false);
+        }
 
         for (int i = 0; i < inputs.size(); i++) {
             try {
@@ -317,16 +338,16 @@ public class AudioMixer implements AudioNode {
                     continue;
                 }
                 inputs.get(i).render(inputBuffers[i], sampleRate);
-                valid[i] = true;
+                validInputs[i] = true;
             } catch (Exception ex) {
-                logger.warn("Render failed for input[{}]: {}", i, ex.toString());
+                logger.warn("Render failed for input[{}]", i, ex);
             }
         }
 
-        return new CollectedInputs(inputBuffers, valid);
+        return new CollectedInputs(inputBuffers, validInputs);
     }
 
-    private void checkInputs (CollectedInputs collectedInputs, int frameCount, int channels) throws ChannelsCountMismatchException, LengthMismatchException {
+    private void checkInputs(CollectedInputs collectedInputs, int frameCount, int channels) throws ChannelsCountMismatchException, LengthMismatchException {
         if (collectedInputs == null) {
             throw new NullPointerException("Collected inputs cannot be null.");
         }
@@ -350,8 +371,12 @@ public class AudioMixer implements AudioNode {
         }
     }
     
-    private float[][] mixInputs (CollectedInputs collectedInputs, int frameCount, int channels) {
-        float[][] mixed = new float[channels][frameCount];
+    private float[][] mixInputs(CollectedInputs collectedInputs, int frameCount, int channels) {
+        if (mixed == null || mixed.length != channels || mixed[0].length != frameCount) {
+            mixed = new float[channels][frameCount];
+        } else {
+            ArrayUtilities.fillZeros(mixed);
+        }
 
         for (int i = 0; i < collectedInputs.inputs.length; i++) {
             if (!collectedInputs.valid[i]) continue;
@@ -383,14 +408,15 @@ public class AudioMixer implements AudioNode {
                 continue;
             }
 
-            // Optimization: if mix level is 1.0, skip the mix
             if (mixLevel >= 1.0f) {
                 effect.render(samples, sampleRate);
                 continue;
             }
 
             // Clone the input buffer
-            float[][] effectBuffer = new float[numChannels][numFrames];
+            if (effectBuffer == null || effectBuffer.length != numChannels || effectBuffer[0].length != numFrames) {
+                effectBuffer = new float[numChannels][numFrames];
+            }
             for (int ch = 0; ch < numChannels; ch++) {
                 System.arraycopy(samples[ch], 0, effectBuffer[ch], 0, numFrames);
             }
@@ -412,7 +438,7 @@ public class AudioMixer implements AudioNode {
         float[][][] inputs;
         boolean[] valid;
 
-        CollectedInputs (float[][][] inputs, boolean[] valid) {
+        CollectedInputs(float[][][] inputs, boolean[] valid) {
             this.inputs = inputs;
             this.valid = valid;
         }
