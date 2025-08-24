@@ -18,6 +18,7 @@ package org.theko.sound.samples;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.Arrays;
@@ -26,7 +27,7 @@ import org.theko.sound.AudioConverter;
 import org.theko.sound.AudioFormat;
 
 /**
- * The SampleConverter class provides utility methods for converting raw audio byte data
+ * The SamplesConverter class provides utility methods for converting raw audio byte data
  * to normalized floating-point samples and vice versa. It supports various audio encodings
  * such as PCM (signed and unsigned), PCM_FLOAT, ULAW, and ALAW. The class also allows for
  * optional per-channel volume adjustments during the conversion process.
@@ -51,10 +52,10 @@ import org.theko.sound.AudioFormat;
  * <p>Usage:</p>
  * <pre>
  * // Convert raw byte data to float samples
- * float[][] samples = SampleConverter.toSamples(byteData, audioFormat, 1.0f);
+ * float[][] samples = SamplesConverter.toSamples(byteData, audioFormat, 1.0f);
  *
  * // Convert float samples back to raw byte data
- * byte[] byteData = SampleConverter.fromSamples(samples, targetFormat, 0.8f);
+ * byte[] byteData = SamplesConverter.fromSamples(samples, targetFormat, 0.8f);
  * </pre>
  *
  * <p>Note:</p>
@@ -65,12 +66,12 @@ import org.theko.sound.AudioFormat;
  * 
  * @see AudioConverter
  * 
- * @since v1.2.0
+ * @since 1.2.0
  * @author Theko
  */
-public class SampleConverter {
+public class SamplesConverter {
 
-    private SampleConverter() {
+    private SamplesConverter() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
@@ -83,7 +84,7 @@ public class SampleConverter {
      * @return A 2D array of floating-point samples, where each row represents a channel and each column represents a sample.
      */
     public static float[][] toSamples(byte[] data, AudioFormat audioFormat, float... volumes) {
-        int bytesPerSample = audioFormat.getSampleSizeInBytes();
+        int bytesPerSample = audioFormat.getBytesPerSample();
         boolean isBigEndian = audioFormat.isBigEndian();
         int channels = audioFormat.getChannels();
 
@@ -144,14 +145,25 @@ public class SampleConverter {
                 break;
                 
             case PCM_FLOAT:
-                FloatBuffer floatBuffer = buffer.asFloatBuffer();
-                for (int i = 0; i < sampleCount; i++) {
-                    for (int ch = 0; ch < channels; ch++) {
-                        float value = floatBuffer.get();
-                        samples[ch][i] = value * appliedVolumes[ch];
+                if (bytesPerSample == 4) {
+                    FloatBuffer floatBuffer = buffer.asFloatBuffer();
+                    for (int i = 0; i < sampleCount; i++) {
+                        for (int ch = 0; ch < channels; ch++) {
+                            float value = floatBuffer.get();
+                            samples[ch][i] = value * appliedVolumes[ch];
+                        }
                     }
+                    buffer.position(buffer.position() + sampleCount * channels * 4);
+                } else if (bytesPerSample == 8) {
+                    DoubleBuffer doubleBuffer = buffer.asDoubleBuffer();
+                    for (int i = 0; i < sampleCount; i++) {
+                        for (int ch = 0; ch < channels; ch++) {
+                            double value = doubleBuffer.get();
+                            samples[ch][i] = (float) value * appliedVolumes[ch];
+                        }
+                    }
+                    buffer.position(buffer.position() + sampleCount * channels * 8);
                 }
-                buffer.position(buffer.position() + sampleCount * channels * 4);
                 break;
                 
             case ULAW:
@@ -186,7 +198,7 @@ public class SampleConverter {
      */
     public static byte[] fromSamples(float[][] samples, AudioFormat targetFormat, float... volumes) {
         int samplesLength = samples[0].length;
-        int bytesPerSample = targetFormat.getSampleSizeInBytes();
+        int bytesPerSample = targetFormat.getBytesPerSample();
         boolean isBigEndian = targetFormat.isBigEndian();
         int channels = targetFormat.getChannels();
 
@@ -256,14 +268,25 @@ public class SampleConverter {
                 break;
                 
             case PCM_FLOAT:
-                FloatBuffer floatBuffer = buffer.asFloatBuffer();
-                for (int i = 0; i < samplesLength; i++) {
-                    for (int ch = 0; ch < channels; ch++) {
-                        float sample = samples[ch][i] * appliedVolumes[ch];
-                        floatBuffer.put(sample);
+                if (bytesPerSample == 4) {
+                    FloatBuffer floatBuffer = buffer.asFloatBuffer();
+                    for (int i = 0; i < samplesLength; i++) {
+                        for (int ch = 0; ch < channels; ch++) {
+                            float sample = samples[ch][i] * appliedVolumes[ch];
+                            floatBuffer.put(sample);
+                        }
                     }
+                    buffer.position(buffer.position() + samplesLength * channels * 4);
+                } else if (bytesPerSample == 8) {
+                    DoubleBuffer doubleBuffer = buffer.asDoubleBuffer();
+                    for (int i = 0; i < samplesLength; i++) {
+                        for (int ch = 0; ch < channels; ch++) {
+                            float sample = samples[ch][i] * appliedVolumes[ch];
+                            doubleBuffer.put(sample);
+                        }
+                    }
+                    buffer.position(buffer.position() + samplesLength * channels * 8);
                 }
-                buffer.position(buffer.position() + samplesLength * channels * 4);
                 break;
                 
             case ULAW:
