@@ -28,7 +28,9 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.theko.sound.AudioClassScanner;
+import org.theko.sound.AudioClassRegister;
+import org.theko.sound.utility.PlatformUtilities;
+import org.theko.sound.utility.PlatformUtilities.Platform;
 
 /**
  * The {@code AudioBackends} class provides a centralized management system for audio backends.
@@ -66,12 +68,14 @@ import org.theko.sound.AudioClassScanner;
  * @see AudioInputBackend
  * @see AudioOutputBackend
  * 
- * @since v1.0.0
+ * @since 1.0.0
  * @author Theko
  */
 public class AudioBackends {
 
     private static final Logger logger = LoggerFactory.getLogger(AudioBackends.class);
+
+    private static AudioBackendInfo platformBackendInfo;
 
     private AudioBackends() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
@@ -87,10 +91,10 @@ public class AudioBackends {
     /**
      * Scans and registers all available audio backends that are annotated with {@link AudioBackendType}.
      */
-    private static void registerBackends() {
+    public static void registerBackends() {
         // Attempt to scan all available packages for audio backends.
         audioBackends.clear();
-        Set<Class<? extends AudioBackend>> allAudioBackends = AudioClassScanner.getBackendClasses();
+        Set<Class<? extends AudioBackend>> allAudioBackends = AudioClassRegister.getBackendClasses();
 
         // Register all found audio backends.
         for (Class<? extends AudioBackend> audioBackendClass : allAudioBackends) {
@@ -102,16 +106,29 @@ public class AudioBackends {
                 logger.info("Found audio backend without information: " + audioBackendClass.getSimpleName());
             }
         }
+        
+        try {
+            platformBackendInfo = detectPlatformBackend();
+        } catch (AudioBackendNotFoundException e) {
+            logger.error("Failed to detect platform-specific audio backend.", e);
+        } catch (AudioBackendCreationException e) {
+            logger.error("Failed to create platform-specific audio backend.", e);
+        }
     }
 
     /**
      * Retrieves an {@link AudioBackendInfo} by its name.
+     * The name is case-insensitive.
      *
      * @param name The name of the audio backend.
      * @return The corresponding {@link AudioBackendInfo}.
+     * @throws IllegalArgumentException If the audio backend name is null or empty.
      * @throws AudioBackendNotFoundException If no backend is found with the given name.
      */
     public static AudioBackendInfo fromName(String name) throws AudioBackendNotFoundException {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Audio backend name cannot be null or empty.");
+        }
         for (AudioBackendInfo audioBackend : audioBackends) {
             if (audioBackend.getName().equalsIgnoreCase(name)) {
                 return audioBackend;
@@ -126,10 +143,14 @@ public class AudioBackends {
      *
      * @param audioBackendClass The class type of the audio backend.
      * @return The corresponding {@link AudioBackend}.
+     * @throws IllegalArgumentException If the audio backend class is null.
      * @throws AudioBackendNotFoundException If no backend is found with the given class type.
      * @throws AudioBackendCreationException If the backend cannot be instantiated.
      */
     public static AudioBackend getBackend(Class<? extends AudioBackend> audioBackendClass) throws AudioBackendNotFoundException, AudioBackendCreationException {
+        if (audioBackendClass == null) {
+            throw new IllegalArgumentException("Audio backend class cannot be null.");
+        }
         for (AudioBackendInfo backendInfo : audioBackends) {
             if (backendInfo.getBackendClass().equals(audioBackendClass)) {
                 try {
@@ -144,7 +165,7 @@ public class AudioBackends {
                 }
             }
         }
-        logger.error("No audio backends found by class: '" + audioBackendClass.getSimpleName() + "'.");
+        logger.error("No audio backends found by class: '{}'. (not registered?).", audioBackendClass.getSimpleName());
         throw new AudioBackendNotFoundException("No audio backends found by class: '" + audioBackendClass.getSimpleName() + "'.");
     }
 
@@ -153,10 +174,14 @@ public class AudioBackends {
      *
      * @param audioBackendInfo The {@link AudioBackendInfo} of the audio backend.
      * @return The corresponding {@link AudioBackend}.
+     * @throws IllegalArgumentException If the audio backend info is null.
      * @throws AudioBackendNotFoundException If no backend is found with the given {@link AudioBackendInfo}.
      * @throws AudioBackendCreationException If the backend cannot be instantiated.
      */
     public static AudioBackend getBackend(AudioBackendInfo audioBackendInfo) throws AudioBackendNotFoundException, AudioBackendCreationException {
+        if (audioBackendInfo == null) {
+            throw new IllegalArgumentException("Audio backend info cannot be null.");
+        }
         return getBackend(audioBackendInfo.getBackendClass());
     }
 
@@ -165,10 +190,14 @@ public class AudioBackends {
      *
      * @param audioBackendClass The class of the desired input backend.
      * @return The instantiated {@link AudioInputBackend}.
+     * @throws IllegalArgumentException If the audio backend class is null.
      * @throws AudioBackendNotFoundException If the backend is not registered.
      * @throws AudioBackendCreationException If an error occurs during instantiation.
      */
     public static AudioInputBackend getInputBackend(Class<? extends AudioBackend> audioBackendClass) throws AudioBackendNotFoundException, AudioBackendCreationException {
+        if (audioBackendClass == null) {
+            throw new IllegalArgumentException("Audio backend class cannot be null.");
+        }
         for (AudioBackendInfo backendInfo : audioBackends) {
             if (backendInfo.getBackendClass().equals(audioBackendClass)) {
                 try {
@@ -183,17 +212,24 @@ public class AudioBackends {
                 }
             }
         }
-        logger.error("No input backend found for class: " + audioBackendClass.getSimpleName());
+        logger.error("No input backend found for class: '{}'. (not registered?).", audioBackendClass.getSimpleName());
         throw new AudioBackendNotFoundException("No input backend found for class: " + audioBackendClass.getSimpleName());
     }
 
-    public static AudioInputBackend getInputBackend(AudioBackendInfo audioBackendInfo) throws AudioBackendCreationException {
-        try {
-            return getInputBackend(audioBackendInfo.getBackendClass());
-        } catch (AudioBackendNotFoundException ex) {
-            logger.error("No input backend found for class: " + audioBackendInfo.getBackendClass().getSimpleName(), ex);
-            return null;
+    /**
+     * Retrieves an {@link AudioInputBackend} instance by its {@link AudioBackendInfo}.
+     *
+     * @param audioBackendInfo The {@link AudioBackendInfo} of the audio backend.
+     * @return The instantiated {@link AudioInputBackend}.
+     * @throws IllegalArgumentException If the audio backend info is null.
+     * @throws AudioBackendNotFoundException If no backend is found with the given {@link AudioBackendInfo}.
+     * @throws AudioBackendCreationException If the backend cannot be instantiated.
+     */
+    public static AudioInputBackend getInputBackend(AudioBackendInfo audioBackendInfo) throws AudioBackendCreationException, AudioBackendNotFoundException {
+        if (audioBackendInfo == null) {
+            throw new IllegalArgumentException("Audio backend info cannot be null.");
         }
+        return getInputBackend(audioBackendInfo.getBackendClass());
     }
 
     /**
@@ -222,14 +258,20 @@ public class AudioBackends {
         logger.error("No output backend found for class: " + audioBackendClass.getSimpleName());
         throw new AudioBackendNotFoundException("No output backend found for class: " + audioBackendClass.getSimpleName());
     }
-
-    public static AudioOutputBackend getOutputBackend(AudioBackendInfo audioBackendInfo) throws AudioBackendCreationException {
-        try {
-            return getOutputBackend(audioBackendInfo.getBackendClass());
-        } catch (AudioBackendNotFoundException ex) {
-            logger.error("No output backend found for class: " + audioBackendInfo.getBackendClass().getSimpleName(), ex);
-            return null;
+/**
+     * Retrieves an {@link AudioOutputBackend} instance by its {@link AudioBackendInfo}.
+     *
+     * @param audioBackendInfo The {@link AudioBackendInfo} of the audio backend.
+     * @return The instantiated {@link AudioOutputBackend}.
+     * @throws IllegalArgumentException If the audio backend info is null.
+     * @throws AudioBackendNotFoundException If no backend is found with the given {@link AudioBackendInfo}.
+     * @throws AudioBackendCreationException If the backend cannot be instantiated.
+     */
+    public static AudioOutputBackend getOutputBackend(AudioBackendInfo audioBackendInfo) throws AudioBackendCreationException, AudioBackendNotFoundException {
+        if (audioBackendInfo == null) {
+            throw new IllegalArgumentException("Audio backend info cannot be null.");
         }
+        return getOutputBackend(audioBackendInfo.getBackendClass());
     }
 
     /**
@@ -246,37 +288,51 @@ public class AudioBackends {
      *
      * @return The best matching platform-specific audio backend.
      * @throws AudioBackendNotFoundException If no suitable backend is found.
+     * @throws AudioBackendCreationException 
      */
-    public static AudioBackendInfo getPlatformBackend() throws AudioBackendNotFoundException {
-        String name = System.getProperty("os.name").toLowerCase();
-    
-        Map<String, List<String>> platformBackends = Map.of(
-            "win", List.of("WASAPI", "DirectSound"),
-            "linux", List.of("ALSA", "PulseAudio"),
-            "mac", List.of("CoreAudio")
+    private static AudioBackendInfo detectPlatformBackend() throws AudioBackendNotFoundException, AudioBackendCreationException {
+        Platform platform = PlatformUtilities.getPlatform();
+        if (platform == null) {
+            platform = Platform.UNKNOWN;
+        }
+
+        Map<Platform, List<String>> platformBackends = Map.of(
+                Platform.WINDOWS, List.of("WASAPI", "DirectSound"),
+                Platform.LINUX, List.of("ALSA", "PulseAudio"),
+                Platform.MAC, List.of("CoreAudio"),
+                Platform.OTHER_UNIX, List.of("ALSA", "PulseAudio", "CoreAudio", "JavaSound"),
+                Platform.UNKNOWN, List.of("JavaSound")
         );
     
-        for (Map.Entry<String, List<String>> entry : platformBackends.entrySet()) {
-            if (name.contains(entry.getKey())) {
-                for (String backend : entry.getValue()) {
-                    try {
-                        AudioBackendInfo backendInfo = fromName(backend);
-                        logger.debug("Found platform backend: " + backend + ", Class: " + backendInfo.getBackendClass().getSimpleName());
-                        return backendInfo;
-                    } catch (AudioBackendNotFoundException ignored) { }
+        for (Map.Entry<Platform, List<String>> entry : platformBackends.entrySet()) {
+            if (entry.getKey().equals(platform)) {
+                for (String backendName : entry.getValue()) {
+                    AudioBackendInfo backendInfo = fromName(backendName);
+                    logger.info("Found compatible audio backend for this platform '{}': {}", System.getProperty("os.name"), backendName);
+                    AudioBackend backend = getBackend(backendInfo);
+                    if (!backend.isAvailableOnThisPlatform()) {
+                        logger.info("Audio backend '{}' is not available on this platform '{}'.", backendInfo.getName(), System.getProperty("os.name"));
+                        continue;
+                    }
+                    return backendInfo;
                 }
             }
         }
     
         // Fallback to JavaSound if no platform-specific backend is found.
         String fallbackBackendName = "JavaSound";
-        logger.info("No compatible audio backends for this platform founded. Using fallback: " + fallbackBackendName);
-        try {
-            return fromName(fallbackBackendName);
-        } catch (AudioBackendNotFoundException ex) {
-            // Already logged in 'fromName' method.
-            // logger.error("No fallback backend found by name: '" + fallbackBackendName + "'.", ex);
-            throw new AudioBackendNotFoundException("No fallback backend found by name: '" + fallbackBackendName + "'.", ex);
-        }
+        AudioBackendInfo fallbackBackendInfo = fromName(fallbackBackendName);
+        logger.info("No compatible audio backends for this platform '{}'' founded. Using fallback: {}",
+                System.getProperty("os.name"), fallbackBackendInfo.getName());
+        return fallbackBackendInfo;
+    }
+    
+    /**
+     * Retrieves the default platform-specific audio backend.
+     *
+     * @return The platform-specific audio backend.
+     */
+    public static AudioBackendInfo getPlatformBackend() {
+        return platformBackendInfo;
     }
 }
