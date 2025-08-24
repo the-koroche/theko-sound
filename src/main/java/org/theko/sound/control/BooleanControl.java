@@ -74,6 +74,6 @@ public class BooleanControl extends AudioControl {
      */
     @Override
     public String toString() {
-        return String.format("AudioControl {Name: %s, Value: %b}", name, value);
+        return String.format("AudioControl{Name: %s, Value: %b}", name, value);
     }
 }

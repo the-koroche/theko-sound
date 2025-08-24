@@ -116,6 +116,6 @@ public class FloatControl extends AudioControl {
      */
     @Override
     public String toString() {
-        return String.format("FloatControl {Name: %s, Value: %.2f, Min: %.2f, Max: %.2f}", name, value, min, max);
+        return String.format("FloatControl{Name: %s, Value: %.2f, Min: %.2f, Max: %.2f}", name, value, min, max);
     }
 }

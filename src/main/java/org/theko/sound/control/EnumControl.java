@@ -128,6 +128,6 @@ public class EnumControl extends AudioControl {
      */
     @Override
     public String toString() {
-        return String.format("EnumControl {Name: %s, Value: %s, Options: %d}", name, value.name(), enumValues.length);
+        return String.format("EnumControl{Name: %s, Value: %s, Options: %d}", name, value.name(), enumValues.length);
     }
 }

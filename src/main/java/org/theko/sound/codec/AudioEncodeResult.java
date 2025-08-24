@@ -72,6 +72,6 @@ public class AudioEncodeResult {
 
     @Override
     public String toString() {
-        return "AudioEncodeResult {Encoder: " + codecInfo.getName() + ", " + format.toString() + ", Tags: " + tags.toString() + "}";
+        return "AudioEncodeResult{Encoder: " + codecInfo.getName() + ", " + format.toString() + ", Tags: " + tags.toString() + "}";
     }
 }

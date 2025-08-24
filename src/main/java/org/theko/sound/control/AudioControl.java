@@ -96,6 +96,6 @@ public abstract class AudioControl {
      */
     @Override
     public String toString() {
-        return String.format("AudioControl {Name: %s}", name);
+        return String.format("AudioControl{Name: %s}", name);
     }
 }

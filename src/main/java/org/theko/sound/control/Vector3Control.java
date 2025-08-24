@@ -81,6 +81,6 @@ public class Vector3Control extends AudioControl {
 
     @Override
     public String toString() {
-        return String.format("Vector3Control {Name: %s, X: %s, Y: %s, Z: %s}", name, xControl, yControl, zControl);
+        return String.format("Vector3Control{Name: %s, X: %s, Y: %s, Z: %s}", name, xControl, yControl, zControl);
     }
 }

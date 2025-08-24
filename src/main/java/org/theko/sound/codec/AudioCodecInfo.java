@@ -78,6 +78,6 @@ public class AudioCodecInfo {
 
     @Override
     public String toString() {
-        return "AudioCodecInfo {Class: " + codecClass.getSimpleName() + ", Name: " + name + ", Extensions: [" + String.join(", ", extensions) + "], Version: " + version + "}";
+        return "AudioCodecInfo{Class: " + codecClass.getSimpleName() + ", Name: " + name + ", Extensions: [" + String.join(", ", extensions) + "], Version: " + version + "}";
     }
 }
