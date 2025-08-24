@@ -26,6 +26,16 @@ import org.theko.sound.backend.AudioBackendException;
 import org.theko.sound.backend.AudioOutputBackend;
 import org.theko.sound.backend.BackendNotOpenException;
 
+/**
+ * {@code WASAPISharedOutput} is an implementation of the {@link AudioOutputBackend} interface
+ * that provides audio output backend functionality using the Windows Audio Session API (WASAPI) in shared mode.
+ * 
+ * @see WASAPISharedBackend
+ * @see WASAPIExclusiveOutput
+ *
+ * @author Theko
+ * @since 2.3.2
+ */
 public sealed class WASAPISharedOutput extends WASAPISharedBackend implements AudioOutputBackend permits WASAPIExclusiveOutput {
 
     private static final Logger logger = LoggerFactory.getLogger(WASAPISharedOutput.class);
@@ -61,9 +71,17 @@ public sealed class WASAPISharedOutput extends WASAPISharedBackend implements Au
         isOpen = true;
     }
 
+    /**
+     * Opens the output port with the specified audio format and buffer size.
+     * Overriden by {@link WASAPIExclusiveOutput}, which uses exclusive mode.
+     * 
+     * @param port The output port to open.
+     * @param audioFormat The audio format to use for the output.
+     * @param bufferSize The buffer size to use for the output.
+     * @throws AudioBackendException If an error occurs while opening the output port.
+     */
     protected void openOut(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException {
         openOut0(false, port, audioFormat, bufferSize);
-        logger.debug("Output context pointer is {}", outputContextPtr);
     }
 
     @Override
@@ -77,7 +95,7 @@ public sealed class WASAPISharedOutput extends WASAPISharedBackend implements Au
     }
 
     @Override
-    public synchronized void close() throws AudioBackendException {
+    public void close() throws AudioBackendException {
         if (isOpen || outputContextPtr != 0) closeOut0();
         isOpen = false;
         bufferSize = -1;
@@ -88,7 +106,7 @@ public sealed class WASAPISharedOutput extends WASAPISharedBackend implements Au
     }
 
     @Override
-    public synchronized void start() throws AudioBackendException, BackendNotOpenException {
+    public void start() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot start. Backend is not open.");
         if (isStarted) return;
         startOut0();
@@ -96,7 +114,7 @@ public sealed class WASAPISharedOutput extends WASAPISharedBackend implements Au
     }
 
     @Override
-    public synchronized void stop() throws AudioBackendException, BackendNotOpenException {
+    public void stop() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot stop. Backend is not open.");
         if (!isStarted) return;
         stopOut0();
@@ -104,41 +122,47 @@ public sealed class WASAPISharedOutput extends WASAPISharedBackend implements Au
     }
 
     @Override
-    public synchronized void flush() throws AudioBackendException, BackendNotOpenException {
+    public void flush() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot flush. Backend is not open.");
         flushOut0();
     }
 
     @Override
-    public synchronized void drain() throws AudioBackendException, BackendNotOpenException {
+    public void drain() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot drain. Backend is not open.");
         drainOut0();
     }
 
     @Override
-    public synchronized int write(byte[] data, int offset, int length) throws AudioBackendException, BackendNotOpenException {
+    public int write(byte[] data, int offset, int length) throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot write. Backend is not open.");
         return writeOut0(data, offset, length);
     }
 
     @Override
-    public synchronized int available() throws AudioBackendException, BackendNotOpenException {
+    public int available() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot write. Backend is not open.");
         return availableOut0();
     }
 
     @Override
-    public synchronized int getBufferSize() throws AudioBackendException, BackendNotOpenException {
+    public int getBufferSize() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot get buffer size. Backend is not open.");
+        int bufferSize = this.bufferSize;
         try {
-            return getBufferSizeOut0();
+            int nativeBufferSize = getBufferSizeOut0();
+            if (nativeBufferSize == -1) {
+                return bufferSize;
+            }
+            return nativeBufferSize;
         } catch (AudioBackendException e) {
+            logger.error("Failed to get native buffer size.", e);
             return bufferSize;
         }
     }
 
     @Override
-    public synchronized long getFramePosition() throws AudioBackendException, BackendNotOpenException {
+    public long getFramePosition() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot get frame position. Backend is not open.");
         return getFramePositionOut0();
     }
@@ -150,35 +174,47 @@ public sealed class WASAPISharedOutput extends WASAPISharedBackend implements Au
     }
 
     @Override
-    public synchronized long getMicrosecondLatency() throws AudioBackendException, BackendNotOpenException {
+    public long getMicrosecondLatency() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot get latency. Backend is not open.");
+        long latency = (long) ((bufferSize / (float) audioFormat.getSampleRate()) * 1000000);
         try {
-            return getMicrosecondLatency0();
-        } catch (AudioBackendException e) {
-            return (long) ((bufferSize / (float) audioFormat.getSampleRate()) * 1000000);
+            long nativeLatency = getMicrosecondLatency0();
+            if (nativeLatency == -1) {
+                return latency;
+            }
+            return nativeLatency;
+        } catch (AudioBackendException ex) {
+            logger.error("Error getting latency", ex);
+            return latency;
         }
     }
 
     @Override
-    public synchronized AudioPort getCurrentAudioPort() throws AudioBackendException, BackendNotOpenException {
+    public AudioPort getCurrentAudioPort() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot get current audio port. Backend is not open.");
+        AudioPort port = this.port;
         try {
-            return getCurrentAudioPort0();
-        } catch (AudioBackendException e) {
+            AudioPort nativePort = getCurrentAudioPort0();
+            if (nativePort == null) {
+                return port;
+            }
+            return nativePort;
+        } catch (AudioBackendException ex) {
+            logger.error("Error getting current audio port", ex);
             return port;
         }
     }
     
-    protected native void openOut0(boolean isExclusive, AudioPort port, AudioFormat audioFormat, int bufferSize);
-    private native void closeOut0();
-    private native void startOut0();
-    private native void stopOut0();
-    private native void flushOut0();
-    private native void drainOut0();
-    private native int writeOut0(byte[] data, int offset, int length);
-    private native int availableOut0();
-    private native int getBufferSizeOut0();
-    private native long getFramePositionOut0();
-    private native long getMicrosecondLatency0();
-    private native AudioPort getCurrentAudioPort0();
+    protected synchronized native void openOut0(boolean isExclusive, AudioPort port, AudioFormat audioFormat, int bufferSize);
+    private synchronized native void closeOut0();
+    private synchronized native void startOut0();
+    private synchronized native void stopOut0();
+    private synchronized native void flushOut0();
+    private synchronized native void drainOut0();
+    private synchronized native int writeOut0(byte[] data, int offset, int length);
+    private synchronized native int availableOut0();
+    private synchronized native int getBufferSizeOut0();
+    private synchronized native long getFramePositionOut0();
+    private synchronized native long getMicrosecondLatency0();
+    private synchronized native AudioPort getCurrentAudioPort0();
 }
