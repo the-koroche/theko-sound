@@ -28,7 +28,7 @@ import org.theko.sound.backend.AudioOutputBackend;
 import org.theko.sound.backend.BackendNotOpenException;
 import org.theko.sound.properties.AudioSystemProperties;
 import org.theko.sound.resampling.AudioResampler;
-import org.theko.sound.samples.SampleConverter;
+import org.theko.sound.samples.SamplesConverter;
 import org.theko.sound.utility.ThreadUtilities;
 
 /**
@@ -134,10 +134,29 @@ public class AudioOutputLayer implements AutoCloseable {
                     port != null ? port.toString() : "Default", audioFormat, bufferSizeInSamples);
             AudioPort targetPort = (port == null ? aob.getDefaultPort(AudioFlow.OUT).get() : port);
 
+            if (audioFormat.getEncoding() == null) {
+                logger.warn("Audio format encoding is null. Selecting encoding based on sample size...");
+                switch (audioFormat.getBytesPerSample()) {
+                    case 1:
+                        audioFormat = audioFormat.convertTo(AudioFormat.Encoding.PCM_UNSIGNED);
+                        break;
+                    case 2: case 3:
+                        audioFormat = audioFormat.convertTo(AudioFormat.Encoding.PCM_SIGNED);
+                        break;
+                    case 4: case 8:
+                        audioFormat = audioFormat.convertTo(AudioFormat.Encoding.PCM_FLOAT);
+                        break;
+                    default:
+                        logger.error("Unsupported sample size: {}", audioFormat.getBitsPerSample());
+                        throw new IllegalArgumentException("Unsupported sample size: " + audioFormat.getBitsPerSample());
+                }
+                logger.info("Selected encoding: {}", audioFormat.getEncoding());
+            }
+
             AudioFormat highestSupportableFormat = targetPort.getMixFormat();
             int targetSampleSize = Math.min(
-                highestSupportableFormat.getSampleSizeInBits(),
-                audioFormat.getSampleSizeInBits()
+                highestSupportableFormat.getBitsPerSample(),
+                audioFormat.getBitsPerSample()
             );
             int targetSampleRate = Math.min(
                 highestSupportableFormat.getSampleRate(),
@@ -463,10 +482,10 @@ public class AudioOutputLayer implements AutoCloseable {
                     throw new LengthMismatchException("Buffer size mismatch. Expected " + bufferSize + ", got " + sampleBuffer[0].length);
                 }
 
-                byte[] resampled = SampleConverter.fromSamples(
+                byte[] rawBytes = SamplesConverter.fromSamples(
                 AudioResampler.SHARED.resample(sampleBuffer, resamplingFactor), openedFormat);
 
-                aob.write(resampled, 0, resampled.length);
+                aob.write(rawBytes, 0, rawBytes.length);
             } catch (BackendNotOpenException ex) {
                 logger.info("Audio output line is closed");
                 return;
