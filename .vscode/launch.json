@@ -1,7 +1,4 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
 
@@ -10,57 +7,39 @@
             "name": "Current File",
             "request": "launch",
             "mainClass": "${file}",
-            "vmArgs": "-Dorg.slf4j.simpleLogger.defaultLogLevel=debug -Dorg.theko.sound.AudioClassScanner.exclude_custom=false"
-        },
-        {
-            "type": "java",
-            "name": "SoundWithEffectTest",
-            "request": "launch",
-            "mainClass": "test.SoundWithEffectTest",
-            "projectName": "theko-sound",
-            "vmArgs": "-Dorg.slf4j.simpleLogger.defaultLogLevel=debug -Dorg.theko.sound.AudioClassScanner.exclude_custom=true"
-        },
-        {
-            "type": "java",
-            "name": "AudioBufferizerTest",
-            "request": "launch",
-            "mainClass": "test.org.theko.sound.AudioBufferizerTest",
-            "projectName": "theko-sound"
-        },
-        {
-            "type": "java",
-            "name": "AudioClassLoaderTest1",
-            "request": "launch",
-            "mainClass": "test.org.theko.sound.AudioClassLoaderTest1",
-            "projectName": "theko-sound"
-        },
-        {
-            "type": "java",
-            "name": "AudioClassLoaderTest2",
-            "request": "launch",
-            "mainClass": "test.org.theko.sound.AudioClassLoaderTest2",
-            "projectName": "theko-sound"
-        },
-        {
-            "type": "java",
-            "name": "AudioClassLoaderTest3",
-            "request": "launch",
-            "mainClass": "test.org.theko.sound.AudioClassLoaderTest3",
-            "projectName": "theko-sound"
-        },
-        {
-            "type": "java",
-            "name": "AudioConverterTest1",
-            "request": "launch",
-            "mainClass": "test.org.theko.sound.AudioConverterTest1",
-            "projectName": "theko-sound"
-        },
-        {
-            "type": "java",
-            "name": "MidiTest",
-            "request": "launch",
-            "mainClass": "test.org.theko.sound.MidiTest",
-            "projectName": "theko-sound"
+            "vmArgs": [
+                // Error-reporing options
+                "-XX:ErrorFile=${workspaceFolder}/logs/err/hs_err_pid%p%t.log",
+                "-XX:+HeapDumpOnOutOfMemoryError",
+                "-XX:HeapDumpPath=${workspaceFolder}/logs/heapdump.hprof",
+                "-XX:+ShowMessageBoxOnError",
+                "-XX:+UseOSErrorReporting",
+
+                // Compilation options
+                "-XX:+TieredCompilation",
+                "-XX:+OptimizeStringConcat",
+                
+                // GC options
+                "-XX:+UseG1GC",
+                "-XX:MaxGCPauseMillis=500",
+
+                // Memory options
+                "-Xmx2g",
+                "-Xms1g",
+
+                // Profiling
+                "-Xlog:gc*:file=${workspaceFolder}/logs/gc.log:time,tags,level,stdout",
+                "-Xlog:safepoint=info:file=${workspaceFolder}/logs/safepoints.log:time,uptime,level,tags",
+                // "-Xlog:jit+compilation=debug:file=${workspaceFolder}/logs/jit.log:time,uptime,level,tags",
+                // "-Xlog:class+load=info:file=${workspaceFolder}/logs/classload.log:time,uptime,level",
+                
+                // Logging (slf4j)
+                "-Dorg.slf4j.simpleLogger.defaultLogLevel=trace",
+                "-Dorg.slf4j.simpleLogger.showLogName=true",
+                "-Dorg.slf4j.simpleLogger.showThreadName=true",
+                "-Dorg.slf4j.simpleLogger.showDateTime=true",
+                "-Dorg.slf4j.simpleLogger.dateTimeFormat=yyyy-MM-dd HH:mm:ss.SSS"
+            ]
         }
     ]
 }
