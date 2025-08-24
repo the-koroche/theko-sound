@@ -1,9 +1,27 @@
+/*
+ * Copyright 2025 Alex Soloviov (aka Theko)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.theko.sound.properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.resampling.*;
 import org.theko.sound.utility.FormatUtilities;
+import org.theko.sound.utility.PlatformUtilities;
+import org.theko.sound.utility.PlatformUtilities.Platform;
 
 /**
  * AudioSystemProperties holds the configuration properties for the audio system.
@@ -11,7 +29,7 @@ import org.theko.sound.utility.FormatUtilities;
  * 
  * This class is immutable and provides static access to the properties.
  * 
- * @since v2.0.0
+ * @since 2.0.0
  */
 public final class AudioSystemProperties {
 
@@ -25,12 +43,16 @@ public final class AudioSystemProperties {
         }
     }
 
+    public static final Platform PLATFORM = PlatformUtilities.getPlatform();
+
     public static final boolean IS_SUPPORTING_JAVA_21 = Runtime.version().feature() >= 21;
+    public static final boolean IS_SUPPORTING_VIRTUAL_THREADS = IS_SUPPORTING_JAVA_21;
+
+    public static final int CPU_AVAILABLE_CORES = Runtime.getRuntime().availableProcessors();
+    public static final long TOTAL_MEMORY = Runtime.getRuntime().totalMemory();
+    public static final long MAX_MEMORY = Runtime.getRuntime().maxMemory();
 
     private static final int DEFAULT_AUDIO_OUTPUT_LINE_THREAD_PRIORITY = (Thread.NORM_PRIORITY + Thread.MAX_PRIORITY) / 2;
-
-    public static final boolean SCAN_CLASSES =
-            Boolean.parseBoolean(System.getProperty("org.theko.sound.classLoader.scanAll", "false"));
 
     public static final ThreadType AUDIO_OUTPUT_LINE_THREAD_TYPE =
             ThreadType.from(System.getProperty("org.theko.sound.threadType.audioOutputLine", "platform"));
@@ -50,11 +72,9 @@ public final class AudioSystemProperties {
             Integer.parseInt(System.getProperty("org.theko.sound.audioOutputLayer.defaultBufferSize", "2048"));
 
     public static final int RESAMPLER_SHARED_QUALITY =
-            Integer.parseInt(System.getProperty("org.theko.sound.shared.resampler.quality", "3"));
+            Integer.parseInt(System.getProperty("org.theko.sound.shared.resampler.quality", "2"));
     public static final ResampleMethod RESAMPLER_SHARED_METHOD =
-            parseResampleMethod(System.getProperty("org.theko.sound.shared.resampler.method", "lanczos"));
-    public static final boolean RESAMPLER_LOG_HIGH_QUALITY =
-            Boolean.parseBoolean(System.getProperty("org.theko.sound.resampler.logHighQuality", "true"));
+            parseResampleMethod(System.getProperty("org.theko.sound.shared.resampler.method", "cubic"));
             
     public static final boolean ENABLE_EFFECTS_IN_MIXER =
             Boolean.parseBoolean(System.getProperty("org.theko.sound.mixer.enableEffects", "true"));
@@ -82,48 +102,45 @@ public final class AudioSystemProperties {
     }
 
     private static void logProperties() {
-        logger.debug("--- Class Scanner Properties ---");
-        logger.debug("Scan classes: {}", SCAN_CLASSES);
-        
-        boolean hasAnyVirtual = 
-                AUDIO_OUTPUT_LINE_THREAD_TYPE == ThreadType.VIRTUAL ||
-                AUTOMATION_THREAD_TYPE == ThreadType.VIRTUAL ||
-                CLEANER_THREAD_TYPE == ThreadType.VIRTUAL;
-        
-        if (!IS_SUPPORTING_JAVA_21 && hasAnyVirtual) {
-            logger.warn("Java version does not support virtual threads. Virtual threads will be ignored.");
-        }
+        StringBuilder builder = new StringBuilder();
+        builder.append("Info:\nCurrent environment:\n");
+        builder.append("  JVM: ").append(System.getProperty("java.vm.name"))
+            .append(" ").append(System.getProperty("java.vm.version"))
+            .append(" (").append(System.getProperty("java.vendor")).append(")\n");
+        builder.append("  Runtime: ").append(System.getProperty("java.runtime.name"))
+            .append(" ").append(System.getProperty("java.runtime.version")).append("\n");
+        builder.append("  Memory: total=").append(FormatUtilities.formatBytesBinary(TOTAL_MEMORY, 3))
+            .append(", max=").append(FormatUtilities.formatBytesBinary(MAX_MEMORY, 3)).append("\n");
 
-        logger.debug("--- Thread Properties ---");
-        logger.debug("Audio output line thread: {}", 
-                FormatUtilities.formatThreadInfo(AUDIO_OUTPUT_LINE_THREAD_TYPE, AUDIO_OUTPUT_LINE_THREAD_PRIORITY));
-        logger.debug("Automation thread: {}", 
-                FormatUtilities.formatThreadInfo(AUTOMATION_THREAD_TYPE, AUTOMATION_THREAD_PRIORITY));
-        logger.debug("Cleaner thread: {}", 
-                FormatUtilities.formatThreadInfo(CLEANER_THREAD_TYPE, CLEANER_THREAD_PRIORITY));
+        // OS info
+        builder.append("  OS: ").append(System.getProperty("os.name"))
+            .append(" ").append(System.getProperty("os.version"))
+            .append(" (").append(System.getProperty("os.arch")).append(")").append("\n");
+        builder.append("  Runtime detected platform: ").append(PLATFORM.name()).append("\n");
 
-        logger.debug("--- Audio Output Layer Properties ---");
-        logger.debug("Default buffer size for audio output layer: {}", AUDIO_OUTPUT_LAYER_BUFFER_SIZE);
+        // CPU info
+        builder.append("  CPU Cores (logical): ").append(CPU_AVAILABLE_CORES).append("\n");
 
-        logger.debug("--- Resampler Properties ---");
-        logger.debug("Resampler shared quality: {}", RESAMPLER_SHARED_QUALITY);
-        logger.debug("Resampler shared method: {}", RESAMPLER_SHARED_METHOD.getClass().getSimpleName());
-        logger.debug("Resampler log high quality: {}", RESAMPLER_LOG_HIGH_QUALITY);
-
-        logger.debug("--- Mixer Properties ---");
-        logger.debug("Check length mismatch in mixer: {}", CHECK_LENGTH_MISMATCH_IN_MIXER);
-        logger.debug("Enable effects in mixer: {}", ENABLE_EFFECTS_IN_MIXER);
-        logger.debug("Swap channels in mixer: {}", SWAP_CHANNELS_IN_MIXER);
-        logger.debug("Reverse polarity in mixer: {}", REVERSE_POLARITY_IN_MIXER);
-
-        logger.debug("--- Resampler Effect Properties ---");
-        logger.debug("Resampler effect quality: {}", RESAMPLER_EFFECT_QUALITY);
-        logger.debug("Resampler effect method: {}", RESAMPLER_EFFECT_METHOD.getClass().getSimpleName());
-
-        logger.debug("--- Wave Codec Properties ---");
-        logger.debug("Wave codec clean text: {}", WAVE_CODEC_INFO_CLEAN_TEXT);
-
-        logger.debug("Audio system properties initialized.");
+        builder.append("Audio system properties:\n");
+        builder.append("  Threads:")
+            .append(" Output").append(FormatUtilities.formatThreadInfo(AUDIO_OUTPUT_LINE_THREAD_TYPE, AUDIO_OUTPUT_LINE_THREAD_PRIORITY))
+            .append(", Automation").append(FormatUtilities.formatThreadInfo(AUTOMATION_THREAD_TYPE, AUTOMATION_THREAD_PRIORITY))
+            .append(", Cleaner").append(FormatUtilities.formatThreadInfo(CLEANER_THREAD_TYPE, CLEANER_THREAD_PRIORITY))
+            .append("\n");
+        builder.append("  Default Output Buffer Size=").append(AUDIO_OUTPUT_LAYER_BUFFER_SIZE).append("\n");
+        builder.append("  Resampler (Shared): ")
+            .append(RESAMPLER_SHARED_METHOD.getClass().getSimpleName()).append("(quality=").append(RESAMPLER_SHARED_QUALITY).append(")\n");
+        builder.append("  Mixer (default):")
+            .append(" Enable effects=").append(ENABLE_EFFECTS_IN_MIXER)
+            .append(", Swap channels=").append(SWAP_CHANNELS_IN_MIXER)
+            .append(", Reverse polarity=").append(REVERSE_POLARITY_IN_MIXER)
+            .append(", Check length mismatch=").append(CHECK_LENGTH_MISMATCH_IN_MIXER)
+            .append("\n");
+        builder.append("  Effect resampler: ")
+            .append(RESAMPLER_EFFECT_METHOD.getClass().getSimpleName()).append("(quality=").append(RESAMPLER_EFFECT_QUALITY).append(")\n");
+        builder.append("  Wave Codec:")
+            .append(" Clean Tag Text=").append(WAVE_CODEC_INFO_CLEAN_TEXT);
+        logger.debug(builder.toString());
     }
 
     private static int parsePriority(String key, int defaultValue) {
@@ -142,12 +159,14 @@ public final class AudioSystemProperties {
 
     private static ResampleMethod parseResampleMethod(String method) {
         switch (method.toLowerCase()) {
+            case "nearest": case "nearest-neighbor": return new NearestResampleMethod();
             case "linear": return new LinearResampleMethod();
             case "cubic": return new CubicResampleMethod();
             case "lanczos": return new LanczosResampleMethod();
             default:
-                logger.warn("Resample method '{}' not recognized. Falling back to CubicResampleMethod.", method);
-                return new LinearResampleMethod();
+                ResampleMethod fallbackResample = new LinearResampleMethod();
+                logger.warn("Resample method '{}' not recognized. Falling back to {}.", method, fallbackResample.getClass().getSimpleName());
+                return fallbackResample;
         }
     }
 }
