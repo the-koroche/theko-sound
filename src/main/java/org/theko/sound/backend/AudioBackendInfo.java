@@ -78,6 +78,6 @@ public class AudioBackendInfo {
 
     @Override
     public String toString() {
-        return "AudioBackendInfo {Class: " + audioBackend.getSimpleName() + ", Name: " + name + ", Version: " + version + "}";
+        return "AudioBackendInfo{Class: " + audioBackend.getSimpleName() + ", Name: " + name + ", Version: " + version + "}";
     }
 }
