@@ -57,7 +57,7 @@ import org.theko.sound.backend.UnsupportedPortLinkException;
  * @see AudioFlow
  * @see AudioFormat
  * 
- * @since v1.0.0
+ * @since 1.0.0
  * @author Theko
  */
 @AudioBackendType (name = "JavaSound", version = "1.1")
@@ -66,6 +66,22 @@ public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundIn
     private static final Logger logger = LoggerFactory.getLogger(JavaSoundBackend.class);
 
     protected static final Map<Mixer.Info, AudioPort> cachedPorts = new HashMap<>();
+    private static boolean isAvailableInThisScope = false;
+
+    static {
+        try {
+            Class.forName("javax.sound.sampled.AudioSystem");
+            isAvailableInThisScope = true;
+        } catch (ClassNotFoundException e) {
+            logger.info("Java Sound API is not available.");
+            isAvailableInThisScope = false;
+        }
+    }
+
+    @Override
+    public boolean isAvailableOnThisPlatform() {
+        return isAvailableInThisScope;
+    }
     
     @Override
     public Collection<AudioPort> getAllPorts() {
@@ -274,7 +290,7 @@ public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundIn
         return new javax.sound.sampled.AudioFormat(
                 getJavaSoundAudioEncoding(audioFormat.getEncoding()),
                 audioFormat.getSampleRate(),
-                audioFormat.getSampleSizeInBits(),
+                audioFormat.getBitsPerSample(),
                 audioFormat.getChannels(),
                 audioFormat.getFrameSize(),
                 audioFormat.getByteRate() / audioFormat.getFrameSize(),

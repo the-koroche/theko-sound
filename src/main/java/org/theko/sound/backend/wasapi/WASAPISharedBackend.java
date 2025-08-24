@@ -17,6 +17,7 @@
 package org.theko.sound.backend.wasapi;
 
 import java.util.concurrent.atomic.AtomicReference;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -29,14 +30,16 @@ import org.theko.sound.AudioFlow;
 import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioFormat.Encoding;
 import org.theko.sound.AudioPort;
-import org.theko.sound.ResourceLoader;
 import org.theko.sound.backend.AudioBackend;
 import org.theko.sound.backend.AudioBackendException;
 import org.theko.sound.backend.AudioBackendType;
 import org.theko.sound.backend.AudioInputBackend;
 import org.theko.sound.backend.AudioOutputBackend;
 import org.theko.sound.backend.BackendNotOpenException;
+import org.theko.sound.utility.FileUtilities;
 import org.theko.sound.utility.PlatformUtilities;
+import org.theko.sound.utility.ResourceLoader;
+import org.theko.sound.utility.ResourceNotFoundException;
 import org.theko.sound.utility.PlatformUtilities.Platform;
 
 /**
@@ -55,7 +58,7 @@ import org.theko.sound.utility.PlatformUtilities.Platform;
  * </p>
  *
  * @author Theko
- * @since v2.3.2
+ * @since 2.3.2
  * 
  * @see AudioBackend
  * @see AudioPort
@@ -67,20 +70,61 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPIEx
 
     private static final Logger logger = LoggerFactory.getLogger(WASAPISharedBackend.class);
 
+    private static final File wasapiBackendNativeLib;
     private long backendContextPtr = 0;
     private boolean isOpen = false;
 
+    private static final boolean isSupported;
+
     static {
-        if (PlatformUtilities.getPlatform() != Platform.WINDOWS) {
+        File wasapiBackendNativeFile = null;
+        try {
+            wasapiBackendNativeFile = ResourceLoader.getResourceFile("native/wasapi_backend.dll");
+        } catch (ResourceNotFoundException e) {
+            logger.error("WASAPI backend native library not found", e);
+        }
+        wasapiBackendNativeLib = wasapiBackendNativeFile;
+
+        isSupported = isAvailableOnThisPlatformStatic();
+
+        if (!isSupported) {
             logger.warn("WASAPI backend is not supported on this platform.");
         } else {
             try {
-                String dllPath = ResourceLoader.getResourceFile("native/wasapi_backend.dll").getAbsolutePath();
-                System.load(dllPath);
+                System.load(wasapiBackendNativeLib.getAbsolutePath());
             } catch (UnsatisfiedLinkError e) {
                 logger.error("Failed to load WASAPI DLL", e);
             }
         }
+    }
+
+    @Override
+    public boolean isAvailableOnThisPlatform() {
+        return isSupported;
+    }
+
+    protected static boolean isAvailableOnThisPlatformStatic() {
+        boolean isWindows = PlatformUtilities.getPlatform() == Platform.WINDOWS;
+        boolean hasLibRes = wasapiBackendNativeLib != null;
+        boolean hasSysLib = hasWASAPISystemLib();
+
+        logger.trace("isWindows: {}, hasLibRes: {}, hasSysLib: {}", isWindows, hasLibRes, hasSysLib);
+
+        return isWindows && hasLibRes && hasSysLib;
+    }
+
+    private static boolean hasWASAPISystemLib() {
+        // Check for mmdevapi.dll and avrt.dll
+        String systemRoot = System.getenv("SystemRoot");
+        logger.trace("System root: {}", systemRoot);
+        if (systemRoot == null) return false;
+
+        File sys32 = new File(systemRoot, "System32");
+        File wow64 = new File(systemRoot, "SysWOW64");
+        logger.trace("System32: {}, SysWOW64: {}", sys32, wow64);
+
+        return FileUtilities.existsAny(sys32, "mmdevapi.dll", "avrt.dll")
+            || FileUtilities.existsAny(wow64, "mmdevapi.dll", "avrt.dll");
     }
 
     @Override

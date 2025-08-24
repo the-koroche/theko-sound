@@ -46,10 +46,17 @@ import org.theko.sound.UnsupportedAudioFormatException;
  * @see AudioPortsNotFoundException
  * @see UnsupportedAudioFormatException
  * 
- * @since v1.0.0
+ * @since 1.0.0
  * @author Theko
  */
 public interface AudioBackend {
+
+    /**
+     * Checks if the audio backend is available on the current platform.
+     *
+     * @return {@code true} if the audio backend is available; {@code false} otherwise.
+     */
+    boolean isAvailableOnThisPlatform();
 
     /**
      * Initializes the audio backend. This default implementation does nothing,
