@@ -45,8 +45,6 @@ public class WASAPINativeAudioPortHandle {
 
     @Override
     public String toString() {
-        return "WASAPINativeAudioPortHandle{" +
-                "handle='" + handle + '\'' +
-                '}';
+        return String.format("WASAPINativeAudioPortHandle{handle='%s'}", handle);
     }
 }
