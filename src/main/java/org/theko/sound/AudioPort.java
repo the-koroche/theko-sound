@@ -215,7 +215,7 @@ public class AudioPort {
     @Override
     public String toString() {
         return String.format(
-            "AudioPort {Name: %s, Vendor: %s, Flow: %s, Active: %s}",
+            "AudioPort{Name: %s, Vendor: %s, Flow: %s, Active: %s}",
             name, vendor, flow, isActive
         );
     }
