@@ -58,6 +58,20 @@ public class WindowFunction {
     }
 
     /**
+     * Modifies the given array of samples by applying a window function.
+     * 
+     * @param data the input array of samples to be windowed, in float[channel][sample] format
+     * @param type the type of window function to apply
+     * @return the modified array of samples
+     */
+    public static float[] applyInPlace(float[] data, WindowType type) {
+        for (int i = 0; i < data.length; i++) {
+            data[i] *= generateOne(type, i, data.length);
+        }
+        return data;
+    }
+
+    /**
      * Applies a window function to the given data.
      * 
      * @param data the input array of samples to be windowed, in float[channel][sample] format
@@ -67,6 +81,13 @@ public class WindowFunction {
     public static float[][] apply(float[][] data, WindowType type) {
         for (int i = 0; i < data.length; i++) {
             data[i] = apply(data[i], type);
+        }
+        return data;
+    }
+
+    public static float[][] applyInPlace(float[][] data, WindowType type) {
+        for (int i = 0; i < data.length; i++) {
+            applyInPlace(data[i], type);
         }
         return data;
     }
@@ -83,96 +104,92 @@ public class WindowFunction {
     }
 
     /**
-     * Generates a window function of the specified type and size with the given parameter.
+     * Generates a window function of the specified type and size.
      * 
      * @param type the type of window function to generate
      * @param size the size of the window to generate
-     * @param param the parameter for the window function
+     * @param param the parameter value for the window function
      * @return a new array containing the generated window function coefficients
      */
     public static float[] generate(WindowType type, int size, float param) {
-        float[] w = new float[size];
+        float[] window = new float[size];
+        for (int i = 0; i < size; i++) {
+            window[i] = generateOne(type, i, size, param);
+        }
+        return window;
+    }
+
+    /**
+     * Generates a window function of the specified type and size.
+     * 
+     * @param type the type of window function to generate
+     * @param size the size of the window to generate
+     * @return a single float window value
+     */
+    public static float generateOne(WindowType type, int i, int size) {
+        return generateOne(type, i, size, getDefaultParam(type));
+    }
+
+    /**
+     * Generates a window function of the specified type and size.
+     * 
+     * @param type the type of window function to generate
+     * @param size the size of the window to generate
+     * @param param the parameter value for the window function
+     * @return a single float window value
+     */
+    public static float generateOne(WindowType type, int i, int size, float param) {
         switch (type) {
             case RECTANGULAR:
-                for (int i = 0; i < size; i++) w[i] = 1.0f;
-                break;
+                return 1.0f;
             case HANN:
-                for (int i = 0; i < size; i++)
-                    w[i] = (float)(0.5 * (1 - Math.cos(2 * Math.PI * i / (size - 1))));
-                break;
+                return (float)(0.5 * (1 - Math.cos(2 * Math.PI * i / (size - 1))));
             case HAMMING:
-                for (int i = 0; i < size; i++)
-                    w[i] = (float)(0.54 - 0.46 * Math.cos(2 * Math.PI * i / (size - 1)));
-                break;
+                return (float)(0.54 - 0.46 * Math.cos(2 * Math.PI * i / (size - 1)));
             case BLACKMAN:
-                for (int i = 0; i < size; i++)
-                    w[i] = (float)(0.42 - 0.5 * Math.cos(2 * Math.PI * i / (size - 1))
+                return (float)(0.42 - 0.5 * Math.cos(2 * Math.PI * i / (size - 1))
                                    + 0.08 * Math.cos(4 * Math.PI * i / (size - 1)));
-                break;
             case BLACKMAN_HARRIS:
-                for (int i = 0; i < size; i++)
-                    w[i] = (float)(0.35875 - 0.48829 * Math.cos(2 * Math.PI * i / (size - 1))
+                return (float)(0.35875 - 0.48829 * Math.cos(2 * Math.PI * i / (size - 1))
                                    + 0.14128 * Math.cos(4 * Math.PI * i / (size - 1))
                                    - 0.01168 * Math.cos(6 * Math.PI * i / (size - 1)));
-                break;
             case FLAT_TOP:
-                for (int i = 0; i < size; i++)
-                    w[i] = (float)(1 - 1.93 * Math.cos(2 * Math.PI * i / (size - 1))
+                return (float)(1 - 1.93 * Math.cos(2 * Math.PI * i / (size - 1))
                                    + 1.29 * Math.cos(4 * Math.PI * i / (size - 1))
                                    - 0.388 * Math.cos(6 * Math.PI * i / (size - 1))
                                    + 0.032 * Math.cos(8 * Math.PI * i / (size - 1)));
-                break;
             case TRIANGULAR:
-                for (int i = 0; i < size; i++)
-                    w[i] = (float)(1 - Math.abs((i - (size - 1) / 2.0) / ((size - 1) / 2.0)));
-                break;
+                return (float)(1 - Math.abs((i - (size - 1) / 2.0) / ((size - 1) / 2.0)));
             case WELCH:
-                for (int i = 0; i < size; i++)
-                    w[i] = (float)(1 - Math.pow((i - (size - 1) / 2.0) / ((size - 1) / 2.0), 2));
-                break;
+                return (float)(1 - Math.pow((i - (size - 1) / 2.0) / ((size - 1) / 2.0), 2));
             case COSINE:
-                for (int i = 0; i < size; i++)
-                    w[i] = (float)(Math.sin(Math.PI * i / (size - 1)));
-                break;
+                return (float)(Math.sin(Math.PI * i / (size - 1)));
             case KAISER:
                 double beta = param;
                 double denom = besselI0(beta);
-                for (int i = 0; i < size; i++) {
-                    double ratio = (2.0 * i) / (size - 1) - 1.0;
-                    w[i] = (float)(besselI0(beta * Math.sqrt(1 - ratio * ratio)) / denom);
-                }
-                break;
+                double ratio = (2.0 * i) / (size - 1) - 1.0;
+                return (float)(besselI0(beta * Math.sqrt(1 - ratio * ratio)) / denom);
             case GAUSSIAN:
                 double sigma = param;
                 double m = (size - 1) / 2.0;
-                for (int i = 0; i < size; i++) {
-                    double n = (i - m) / (sigma * m);
-                    w[i] = (float)Math.exp(-0.5 * n * n);
-                }
-                break;
+                double n = (i - m) / (sigma * m);
+                return (float)Math.exp(-0.5 * n * n);
             case TUKEY:
                 double alpha = param;
-                for (int i = 0; i < size; i++) {
-                    if (i < alpha * (size - 1) / 2)
-                        w[i] = (float)(0.5 * (1 + Math.cos(Math.PI * ((2.0 * i) / (alpha * (size - 1)) - 1))));
-                    else if (i > (size - 1) * (1 - alpha / 2))
-                        w[i] = (float)(0.5 * (1 + Math.cos(Math.PI * ((2.0 * i) / (alpha * (size - 1)) - 2 / alpha + 1))));
-                    else
-                        w[i] = 1.0f;
-                }
-                break;
+                if (i < alpha * (size - 1) / 2)
+                    return (float)(0.5 * (1 + Math.cos(Math.PI * ((2.0 * i) / (alpha * (size - 1)) - 1))));
+                else if (i > (size - 1) * (1 - alpha / 2))
+                    return (float)(0.5 * (1 + Math.cos(Math.PI * ((2.0 * i) / (alpha * (size - 1)) - 2 / alpha + 1))));
+                else
+                    return 1.0f;
             case NUTTALL:
-                for (int i = 0; i < size; i++) {
-                    double a = 2 * Math.PI * i / (size - 1);
-                    w[i] = (float)(0.355768 - 0.487396 * Math.cos(a)
-                                   + 0.144232 * Math.cos(2 * a)
-                                   - 0.012604 * Math.cos(3 * a));
-                }
-                break;
+                double a = 2 * Math.PI * i / (size - 1);
+                return (float)(0.355768 - 0.487396 * Math.cos(a)
+                                + 0.144232 * Math.cos(2 * a)
+                                - 0.012604 * Math.cos(3 * a));
             default:
                 throw new IllegalArgumentException("Unsupported window type: " + type);
         }
-        return w;
     }
 
     /** Bessel function of the first kind of order zero. */
