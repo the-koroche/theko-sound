@@ -63,7 +63,7 @@ extern "C" {
             nullptr, nullptr, nullptr, nullptr, nullptr,
             0, 0, FALSE, 0, nullptr, 0
         };
-        logger->debug(env, "OutputContext allocated. Address: %p", context);
+        logger->trace(env, "OutputContext allocated. Address: %p", context);
         context->isExclusive = isExclusive;
 
         logger->debug(env, "isExclusive: %s", (isExclusive ? "true" : "false"));
@@ -74,7 +74,7 @@ extern "C" {
             logger->error(env, "Failed to get IMMDevice.");
             return;
         }
-        logger->debug(env, "IMMDevice pointer: %p", device);
+        logger->trace(env, "IMMDevice pointer: %p", device);
 
         WAVEFORMATEX* format = AudioFormat_to_WAVEFORMATEX(env, jformat);
         if (!format) {
@@ -83,7 +83,7 @@ extern "C" {
             logger->error(env, "Failed to get WAVEFORMATEX.");
             return;
         }
-        logger->debug(env, "WAVEFORMATEX (Source) pointer: %p", format);
+        logger->trace(env, "WAVEFORMATEX (Source) pointer: %p", format);
 
         context->outputDevice = device;
 
@@ -99,7 +99,7 @@ extern "C" {
 
             return;
         }
-        logger->debug(env, "IAudioClient pointer: %p", context->audioClient);
+        logger->trace(env, "IAudioClient pointer: %p", context->audioClient);
 
         if (!isExclusive) {
             logger->debug(env, "Check format support for non-exclusive WASAPI output.");
@@ -118,12 +118,12 @@ extern "C" {
             }
 
             if (hr == S_OK) {
-                logger->debug(env, "Format is supported.");
+                logger->trace(env, "Format is supported.");
             } else if (hr == S_FALSE && closestFormat) {
                 logger->info(env, "Format is not supported, using closest match: WAVEFORMATEX[%d Hz, %d bits, %d channels, isFloat: %d, isPcm: %d]",
                     closestFormat->nSamplesPerSec, closestFormat->wBitsPerSample, closestFormat->nChannels, 
                     closestFormat->wFormatTag == WAVE_FORMAT_IEEE_FLOAT, closestFormat->wFormatTag == WAVE_FORMAT_PCM);
-                logger->debug(env, "Closest format pointer: %p", closestFormat);
+                logger->trace(env, "Closest format pointer: %p", closestFormat);
                 
                 CoTaskMemFree(format);
                 format = (WAVEFORMATEX*)closestFormat;
@@ -172,7 +172,7 @@ extern "C" {
 
             return;
         }
-        logger->debug(env, "IAudioClient initialized.");
+        logger->trace(env, "IAudioClient initialized.");
 
         context->renderClient = nullptr;
         hr = context->audioClient->GetService(__uuidof(IAudioRenderClient), (void**)&context->renderClient);
@@ -187,7 +187,7 @@ extern "C" {
 
             return;
         }
-        logger->debug(env, "IAudioRenderClient: %p", context->renderClient);
+        logger->trace(env, "IAudioRenderClient: %p", context->renderClient);
 
         context->audioClock = nullptr;
         hr = context->audioClient->GetService(__uuidof(IAudioClock), (void**)&context->audioClock);
@@ -203,7 +203,7 @@ extern "C" {
 
             return;
         }
-        logger->debug(env, "IAudioClock: %p", context->audioClock);
+        logger->trace(env, "IAudioClock: %p", context->audioClock);
 
         REFERENCE_TIME defaultPeriod, minPeriod;
         context->audioClient->GetDevicePeriod(&defaultPeriod, &minPeriod);
@@ -213,7 +213,7 @@ extern "C" {
 
         context->hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
         context->audioClient->SetEventHandle(context->hEvent);
-        logger->debug(env, "Event handle: %p", context->hEvent);
+        logger->trace(env, "Event handle: %p", context->hEvent);
 
         context->audioClient->GetBufferSize(&context->bufferFrameCount);
         context->bytesPerFrame = format->nBlockAlign;
@@ -221,7 +221,7 @@ extern "C" {
         context->format = format;
 
         env->SetLongField(obj, classesCache->wasapiOutput->outputContextPtr, (jlong)context);
-        logger->debug(env, "Opened WASAPI output. Handle: %ls", context);
+        logger->debug(env, "Opened WASAPI output. ContextPtr: %ls", context);
     }
 
     JNIEXPORT void JNICALL 
@@ -295,6 +295,8 @@ extern "C" {
             context->renderClient->ReleaseBuffer(0, AUDCLNT_BUFFERFLAGS_SILENT);
             context->pendingFrames = 0;
             logger->debug(env, "Flushed WASAPI buffer.");
+        } else {
+            logger->trace(env, "WASAPI output not opened.");
         }
     }
 
@@ -315,7 +317,7 @@ extern "C" {
             classesCache->wasapiOutput->outputContextPtr);
         
         if (!context) {
-            logger->warn(env, "WASAPI output not opened.");
+            logger->error(env, "WASAPI output not opened.");
             return;
         }
 
@@ -343,13 +345,15 @@ extern "C" {
             getClassesCache(env)->wasapiOutput->outputContextPtr);
         
         if (!context) {
-            logger->warn(env, "WASAPI output not opened.");
+            logger->error(env, "WASAPI output not opened.");
             return -1;
         }
 
         jbyte* src = env->GetByteArrayElements(buffer, NULL);
         UINT32 totalFrames = length / context->bytesPerFrame;
         UINT32 framesWritten = 0;
+
+        // logger->trace(env, "Writing %d frames.", totalFrames);
 
         while (framesWritten < totalFrames) {
             UINT32 availableFrames;
@@ -365,19 +369,29 @@ extern "C" {
                     continue;
                 }
             }
+            // logger->trace(env, "Available frames: %d", availableFrames);
 
             UINT32 framesToWrite = std::min(availableFrames, totalFrames - framesWritten);
+            // logger->trace(env, "Writing %d frames.", framesToWrite);
             BYTE* dest;
             HRESULT hr = context->renderClient->GetBuffer(framesToWrite, &dest);
             if (FAILED(hr)) { 
-                logger->error(env, "Failed to get WASAPI output buffer. (HRESULT: 0x%08x)", hr);
+                char* hr_msg = format_hr_msg(hr);
+                logger->error(env, "Failed to get WASAPI output buffer. (%s)", hr_msg);
+                free(hr_msg);
                 return -1;
             }
 
             memcpy(dest, src + offset + framesWritten * context->bytesPerFrame, 
                 framesToWrite * context->bytesPerFrame);
             
-            context->renderClient->ReleaseBuffer(framesToWrite, 0);
+            hr = context->renderClient->ReleaseBuffer(framesToWrite, 0);
+            if (FAILED(hr)) {
+                char* hr_msg = format_hr_msg(hr);
+                logger->error(env, "Failed to release WASAPI output buffer. (%s)", hr_msg);
+                free(hr_msg);
+                return -1;
+            }
             framesWritten += framesToWrite;
             context->pendingFrames += framesToWrite;
         }
@@ -394,6 +408,11 @@ extern "C" {
 
         OutputContext* context = (OutputContext*)env->GetLongField(obj, 
             classesCache->wasapiOutput->outputContextPtr);
+
+        if (!context) {
+            logger->error(env, "WASAPI output not opened.");
+            return -1;
+        }
 
         UINT32 padding = 0;
         HRESULT hr = context->audioClient->GetCurrentPadding(&padding);
@@ -414,10 +433,17 @@ extern "C" {
     JNIEXPORT jint JNICALL 
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_getBufferSizeOut0
     (JNIEnv* env, jobject obj) {
+        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIOutput.getBufferSizeOut0");
         ClassesCache* classesCache = getClassesCache(env);
 
         OutputContext* context = (OutputContext*)env->GetLongField(obj, 
             classesCache->wasapiOutput->outputContextPtr);
+
+        if (!context) {
+            logger->error(env, "WASAPI output not opened.");
+            return -1;
+        }
+
         return (jint)context->bufferFrameCount;
     }
 
@@ -429,6 +455,11 @@ extern "C" {
 
         OutputContext* context = (OutputContext*)env->GetLongField(obj, 
             classesCache->wasapiOutput->outputContextPtr);
+
+        if (!context) {
+            logger->error(env, "WASAPI output not opened.");
+            return -1;
+        }
 
         UINT64 position = 0;
         UINT64 qpc = 0;
@@ -450,6 +481,11 @@ extern "C" {
         OutputContext* context = (OutputContext*)env->GetLongField(obj,
             classesCache->wasapiOutput->outputContextPtr);
 
+        if (!context) {
+            logger->error(env, "WASAPI output not opened.");
+            return -1;
+        }
+
         REFERENCE_TIME latency = 0;
         HRESULT hr = context->audioClient->GetStreamLatency(&latency);
         if (FAILED(hr)) {
@@ -462,7 +498,7 @@ extern "C" {
             return -1;
         }
 
-        // latency in 100-ns (1e-7 sec), convert to microseconds (1e-6 sec)
+        // latency in 100-ns (1e-7 sec), converted to microseconds (1e-6 sec)
         jlong latencyMicroseconds = latency / 10;
         return latencyMicroseconds;
     }
@@ -476,10 +512,16 @@ extern "C" {
         OutputContext* context = (OutputContext*)env->GetLongField(obj,
             classesCache->wasapiOutput->outputContextPtr);
 
+        if (!context) {
+            logger->error(env, "WASAPI output not opened.");
+            return nullptr;
+        }
+
         IMMDevice* device = context->outputDevice;
 
         if (!device) {
             logger->error(env, "Failed to get IMMDevice.");
+            env->ThrowNew(classesCache->thekoSoundExceptions->audioBackendException, "Failed to get IMMDevice.");
             return nullptr;
         }
 
@@ -487,6 +529,7 @@ extern "C" {
 
         if (!jAudioPort) {
             logger->error(env, "Failed to convert IMMDevice to AudioPort.");
+            env->ThrowNew(classesCache->thekoSoundExceptions->audioBackendException, "Failed to convert IMMDevice to AudioPort.");
             return nullptr;
         }
         
