@@ -92,8 +92,6 @@ public class AudioResampler {
         if (quality < 1) {
             logger.error("Quality argument is less than 1.");
             throw new IllegalArgumentException("Quality must be greater than or equal to 1.");
-        } else if (quality > 8 && AudioSystemProperties.RESAMPLER_LOG_HIGH_QUALITY) {
-            logger.warn("High quality can cause performance issues.");
         }
         this.quality = quality;
     }
