@@ -163,8 +163,8 @@ public:
     jclass clazz;
     jmethodID ctor;
     jmethodID getSampleRate;
-    jmethodID getSampleSizeInBits;
-    jmethodID getSampleSizeInBytes;
+    jmethodID getBitsPerSample;
+    jmethodID getBytesPerSample;
     jmethodID getChannels;
     jmethodID getEncoding;
     jmethodID isBigEndian;
@@ -175,8 +175,8 @@ public:
         clazz = JCHECK_RET(env->FindClass("org/theko/sound/AudioFormat"));
         ctor = JCHECK_RET(env->GetMethodID(clazz, "<init>", "(IIILorg/theko/sound/AudioFormat$Encoding;Z)V"));
         getSampleRate = JCHECK_RET(env->GetMethodID(clazz, "getSampleRate", "()I"));
-        getSampleSizeInBits = JCHECK_RET(env->GetMethodID(clazz, "getSampleSizeInBits", "()I"));
-        getSampleSizeInBytes = JCHECK_RET(env->GetMethodID(clazz, "getSampleSizeInBytes", "()I"));
+        getBitsPerSample = JCHECK_RET(env->GetMethodID(clazz, "getBitsPerSample", "()I"));
+        getBytesPerSample = JCHECK_RET(env->GetMethodID(clazz, "getBytesPerSample", "()I"));
         getChannels = JCHECK_RET(env->GetMethodID(clazz, "getChannels", "()I"));
         getEncoding = JCHECK_RET(env->GetMethodID(clazz, "getEncoding", "()Lorg/theko/sound/AudioFormat$Encoding;"));
         isBigEndian = JCHECK_RET(env->GetMethodID(clazz, "isBigEndian", "()Z"));
@@ -192,8 +192,8 @@ public:
     }
 
     bool isValid() {
-        return clazz && ctor && getSampleRate && getSampleSizeInBits &&
-        getSampleSizeInBytes && getChannels && getEncoding && isBigEndian &&
+        return clazz && ctor && getSampleRate && getBitsPerSample &&
+        getBytesPerSample && getChannels && getEncoding && isBigEndian &&
         getFrameSize && getByteRate;
     }
 
