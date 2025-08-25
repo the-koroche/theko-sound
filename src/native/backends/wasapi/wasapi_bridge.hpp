@@ -64,21 +64,21 @@ static jobject WAVEFORMATEX_to_AudioFormat(JNIEnv* env, const WAVEFORMATEX* wave
 
     bool isFloat = formatTag == WAVE_FORMAT_IEEE_FLOAT;
     bool isPcm = formatTag == WAVE_FORMAT_PCM;
-    
-    logger->debug(env, "Audio format: [Sample Rate=%d, Channels=%d, SampleSizeInBits=%d, BigEndian=%d, IsFloat=%d, IsPcm=%d]",
-        sampleRate, channels, bits, bigEndian, isFloat, isPcm);
+
+    logger->trace(env, "Audio Format info: formatTag=%d, sampleRate=%d, bits=%d, channels=%d, isFloat=%d, isPcm=%d",
+            formatTag, sampleRate, bits, channels, isFloat, isPcm);
 
     jobject jAudioEncoding = nullptr;
     if (isFloat) {
         jAudioEncoding = classesCache->audioFormatEncoding->pcmFloatObj;
-        logger->debug(env, "Audio encoding: FLOAT");
+        logger->trace(env, "Audio Format encoding: PCM_FLOAT");
     } else if (isPcm) {
         if (bits == 8) {
             jAudioEncoding = classesCache->audioFormatEncoding->pcmUnsignedObj;
-            logger->debug(env, "Audio encoding: PCM_UNSIGNED");
+            logger->trace(env, "Audio Format encoding: PCM_UNSIGNED");
         } else {
             jAudioEncoding = classesCache->audioFormatEncoding->pcmSignedObj;
-            logger->debug(env, "Audio encoding: PCM_SIGNED");
+            logger->trace(env, "Audio Format encoding: PCM_SIGNED");
         }
     } else {
         logger->error(env, "Unsupported audio format tag.");
@@ -91,7 +91,7 @@ static jobject WAVEFORMATEX_to_AudioFormat(JNIEnv* env, const WAVEFORMATEX* wave
         classesCache->audioFormat->ctor,
         sampleRate, bits, channels, jAudioEncoding, bigEndian);
 
-    logger->debug(env, "Created jAudioFormat: %p", jAudioFormat);
+    logger->trace(env, "Created jAudioFormat. Pointer: %p", jAudioFormat);
 
     return jAudioFormat;
 }
@@ -103,9 +103,11 @@ static WAVEFORMATEX* AudioFormat_to_WAVEFORMATEX(JNIEnv* env, jobject audioForma
     if (!audioFormat) return nullptr;
 
     int sampleRate = JCHECK_RET(env->CallIntMethod(audioFormat, classesCache->audioFormat->getSampleRate));
-    int bits = JCHECK_RET(env->CallIntMethod(audioFormat, classesCache->audioFormat->getSampleSizeInBits));
+    int bits = JCHECK_RET(env->CallIntMethod(audioFormat, classesCache->audioFormat->getBitsPerSample));
     int channels = JCHECK_RET(env->CallIntMethod(audioFormat, classesCache->audioFormat->getChannels));
     jobject audioEncoding = JCHECK_RET(env->CallObjectMethod(audioFormat, classesCache->audioFormat->getEncoding));
+
+    logger->trace(env, "SampleRate=%d, Bits=%d, Channels=%d, AudioEncoding=%p", sampleRate, bits, channels, audioEncoding);
 
     if (!audioEncoding) {
         logger->error(env, "Unsupported audio format encoding.");
@@ -116,6 +118,8 @@ static WAVEFORMATEX* AudioFormat_to_WAVEFORMATEX(JNIEnv* env, jobject audioForma
     bool isFloat = env->IsSameObject(audioEncoding, classesCache->audioFormatEncoding->pcmFloatObj);
     bool isPcm = env->IsSameObject(audioEncoding, classesCache->audioFormatEncoding->pcmUnsignedObj) ||
             env->IsSameObject(audioEncoding, classesCache->audioFormatEncoding->pcmSignedObj);
+
+    logger->trace(env, "Audio Encoding: isFloat=%d, isPcm=%d", isFloat, isPcm);
 
     if (!isFloat && !isPcm) {
         logger->error(env, "Unsupported audio format encoding.");
@@ -130,6 +134,8 @@ static WAVEFORMATEX* AudioFormat_to_WAVEFORMATEX(JNIEnv* env, jobject audioForma
         return nullptr;
     }
     memset(format, 0, sizeof(WAVEFORMATEX));
+
+    logger->trace(env, "Created WAVEFORMATEX. Pointer: %p", format);
 
     format->wFormatTag = isFloat ? WAVE_FORMAT_IEEE_FLOAT : WAVE_FORMAT_PCM;
     format->nChannels = channels;
@@ -156,8 +162,12 @@ static wchar_t* getAudioDeviceProperty(JNIEnv* env, IMMDevice* device, const PRO
         return nullptr;
     }
 
+    logger->trace(env, "Opened audio device property store. Pointer: %p", pProps);
+ 
     PROPVARIANT var;
     PropVariantInit(&var);
+
+    logger->trace(env, "Trying to get audio device property.");
 
     hr = pProps->GetValue(key, &var);
     if (SUCCEEDED(hr)) {
@@ -167,9 +177,9 @@ static wchar_t* getAudioDeviceProperty(JNIEnv* env, IMMDevice* device, const PRO
             result = (wchar_t*)CoTaskMemAlloc(sizeof(wchar_t) * len);
             wcscpy_s(result, len, var.pwszVal);
 
-            logger->debug(env, "Obtained audio device property (VT_LPWSTR): %ls", (result ? result : L"N\\A"));
+            logger->trace(env, "Obtained audio device property (VT_LPWSTR): %ls", (result ? result : L"N\\A"));
         } else {
-            logger->debug(env, "Obtained audio device property: %ls", (result ? result : L"N\\A"));
+            logger->trace(env, "Obtained audio device property: %ls", (result ? result : L"N\\A"));
         }
         PropVariantClear(&var);
 
@@ -212,18 +222,20 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     wchar_t* version = nullptr;
     wchar_t* description = getAudioDeviceProperty(env, pDevice, PKEY_Device_DeviceDesc);
 
+    logger->trace(env, "Obtained audio device info. Name: %ls, Manufacturer: %ls, Version: %ls, Description: %ls",
+            name, manufacturer, version, description);
+
     if (!name) name = com_memalloc_literal_utf16(L"Unknown");
     if (!manufacturer) manufacturer = com_memalloc_literal_utf16(L"Unknown");
     if (!version) version = com_memalloc_literal_utf16(L"Unknown");
     if (!description) description = com_memalloc_literal_utf16(L"Unknown");
 
-    logger->debug(env, "Obtained device info. Name: %ls, Manufacturer: %ls, Version: %ls, Description: %ls",
-        name, manufacturer, version, description);
-
     jstring jName = env->NewString((const jchar*)name, wcslen(name));
     jstring jManufacturer = env->NewString((const jchar*)manufacturer, wcslen(manufacturer));
     jstring jVersion = env->NewString((const jchar*)version, wcslen(version));
     jstring jDescription = env->NewString((const jchar*)description, wcslen(description));
+
+    logger->trace(env, "Created java strings. Name: %p, Manufacturer: %p, Version: %p, Description: %p", jName, jManufacturer, jVersion, jDescription);
 
     // Obtain WASAPI device ID
     jstring jHandle = nullptr;
@@ -232,7 +244,7 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     if (SUCCEEDED(hr) && deviceId) {
         char* utf8_deviceId = utf16_to_utf8(deviceId);
         jHandle = env->NewStringUTF(utf8_deviceId);
-        logger->debug(env, "Obtained WASAPI device ID: %s", utf8_deviceId);
+        logger->trace(env, "Obtained WASAPI device ID: %s", utf8_deviceId);
         free(utf8_deviceId);
         CoTaskMemFree(deviceId);
     }
@@ -251,6 +263,8 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
         jHandle
     ));
 
+    logger->trace(env, "Created WASAPI native handle: %p", jNativeHandleObj);
+
     // Get flow
     jobject jFlowObj = nullptr;
 
@@ -266,7 +280,7 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
         } else if (flow == eCapture) {
             jFlowObj = classesCache->audioFlow->inObj;
         }
-        logger->debug(env, "Obtained flow: %s", flow == eRender ? "Render" : "Capture");
+        logger->trace(env, "Obtained audio flow: %p", jFlowObj);
     } else {
         char* hr_msg = format_hr_msg(hr);
         char* msg = format("Failed to get flow. (%s)", hr_msg);
@@ -292,7 +306,7 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
 
     bool isActive = (state & DEVICE_STATE_ACTIVE) != 0;
     jboolean jIsActive = isActive ? JNI_TRUE : JNI_FALSE;
-    logger->debug(env, "Obtained is active flag: %s", isActive ? "true" : "false");
+    logger->trace(env, "Obtained is active flag: %d", isActive);
 
     // Get mix format
     WAVEFORMATEX* mixFormat = getMixFormat(pDevice);
@@ -304,7 +318,10 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     } else if (!mixFormat && !isActive) {
         logger->info(env, "Device is not active, and mix format is not available.");
     }
+    logger->trace(env, "Obtained WAVEFORMATEX: %p", mixFormat);
+
     jobject jAudioMixFormat = (mixFormat ?WAVEFORMATEX_to_AudioFormat(env, mixFormat) : nullptr);
+    logger->trace(env, "Created AudioFormat: %p", jAudioMixFormat);
 
     // Create AudioPort
     jobject audioPort = env->NewObject(
@@ -313,6 +330,8 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
         jNativeHandleObj,
         jFlowObj, jIsActive, jAudioMixFormat, 
         jName, jManufacturer, jVersion, jDescription);
+
+    logger->trace(env, "Created AudioPort: %p", audioPort);
 
     // Cleanup
     CoTaskMemFree(name);
@@ -371,7 +390,7 @@ static IMMDevice* AudioPort_to_IMMDevice(JNIEnv* env, jobject jAudioPort) {
             free(msg);
             pDevice = nullptr;
         } else {
-            logger->debug(env, "Obtained IMMDevice. Handle: %ls. Pointer: %p", wHandle, pDevice);
+            logger->debug(env, "Obtained IMMDevice. Handle: %ls", wHandle);
         }
 
         free((void*)wHandle);
