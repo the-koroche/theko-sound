@@ -24,7 +24,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.theko.sound.AudioClassScanner;
+import org.theko.sound.AudioClassRegister;
 
 /**
  * The {@code AudioCodecs} class is responsible for managing and providing access to audio codec information.
@@ -55,10 +55,10 @@ import org.theko.sound.AudioClassScanner;
  * 
  * <p><strong>Thread Safety:</strong> The collection of codecs is synchronized to ensure thread-safe access.</p>
  * 
- * @since v1.3.1
+ * @since 1.3.1
  * @author Theko
  */
-public class AudioCodecs {
+public final class AudioCodecs {
 
     private static final Logger logger = LoggerFactory.getLogger(AudioCodecs.class);
 
@@ -76,11 +76,11 @@ public class AudioCodecs {
     /**
      * Register all audio codecs that are annotated with AudioCodecType
      */
-    private static void registerCodecs() {
+    public static void registerCodecs() {
         logger.debug("Registering audio codecs...");
         // Use Reflections to find all classes implementing AudioCodec
         audioCodecs.clear();
-        Set<Class<? extends AudioCodec>> allAudioCodecs = AudioClassScanner.getCodecClasses();
+        Set<Class<? extends AudioCodec>> allAudioCodecs = AudioClassRegister.getCodecClasses();
 
         for (Class<? extends AudioCodec> audioCodecClass : allAudioCodecs) {
             if (audioCodecClass.isAnnotationPresent(AudioCodecType.class)) {
