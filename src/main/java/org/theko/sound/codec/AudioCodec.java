@@ -22,6 +22,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.AudioFormat;
+import org.theko.sound.utility.FormatUtilities;
 
 /**
  * The {@code AudioCodec} class serves as an abstract base for audio codec implementations.
@@ -59,17 +60,17 @@ public abstract class AudioCodec {
     /**
      * Calls the decode method and logs the elapsed time.
      * 
-     * @param is
-     *            the input stream containing the audio data to decode
+     * @param is the input stream containing the audio data to decode
      * @return the decoded audio data, format, and metadata
-     * @throws AudioCodecException
-     *             if the input stream is not a valid audio file for this codec
+     * @throws AudioCodecException if the input stream is not a valid audio file for this codec
      */
     public AudioDecodeResult decode(InputStream is) throws AudioCodecException {
         long startNs = System.nanoTime();
         AudioDecodeResult adr = innerDecode(is);
         long endNs = System.nanoTime();
-        logger.debug("Elapsed decoding time: " + (endNs - startNs) + " ns.");
+        long elapsedNs = endNs - startNs;
+        String elapsedFormatted = FormatUtilities.formatTime(elapsedNs, 3);
+        logger.debug("Elapsed decoding time: {}", elapsedFormatted);
         return adr;
     }
 
@@ -79,16 +80,16 @@ public abstract class AudioCodec {
      * @param data the audio data to encode
      * @param format the format of the data
      * @param tags the tags to add to the encoded file
-     *
      * @return the encoded audio data
-     *
      * @throws AudioCodecException if there is an error encoding the data
      */
     public AudioEncodeResult encode(byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException {
         long startNs = System.nanoTime();
         AudioEncodeResult aer = innerEncode(data, format, tags);
         long endNs = System.nanoTime();
-        logger.debug("Elapsed encoding time: " + (endNs - startNs) + " ns.");
+        long elapsedNs = endNs - startNs;
+        String elapsedFormatted = FormatUtilities.formatTime(elapsedNs, 3);
+        logger.debug("Elapsed encoding time: {}", elapsedFormatted);
         return aer;
     }
 
