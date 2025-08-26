@@ -16,6 +16,8 @@
 
 package org.theko.sound.utility;
 
+import java.util.Locale;
+
 import org.theko.sound.properties.AudioSystemProperties.ThreadType;
 
 /**
@@ -26,6 +28,24 @@ import org.theko.sound.properties.AudioSystemProperties.ThreadType;
  * @author Theko
  */
 public final class FormatUtilities {
+
+    public static final long KiB = 1024L;
+    public static final long MiB = 1_048_576L;
+    public static final long GiB = 1_073_741_824L;
+    public static final long TiB = 1_099_511_627_776L;
+    public static final long PiB = 1_125_899_906_842_624L;
+
+    public static final long KB = 1000L;
+    public static final long MB = 1_000_000L;
+    public static final long GB = 1_000_000_000L;
+    public static final long TB = 1_000_000_000_000L;
+    public static final long PB = 1_000_000_000_000_000L;
+
+    public static final long MICROS = 1000;
+    public static final long MILLIS = 1_000_000;
+    public static final long SECONDS = 1_000_000_000L;
+    public static final long MINUTES = 60 * SECONDS;
+    public static final long HOURS = 60 * MINUTES;
     
     private FormatUtilities() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
@@ -62,11 +82,12 @@ public final class FormatUtilities {
      * @return The formatted string.
      */
     public static String formatBytesBinary(long bytes, int precision) {
-        if (bytes < 1024) return bytes + " B";
-        else if (bytes < 1_048_576L) return formatAdaptive(bytes / 1024.0, precision) + " KiB";
-        else if (bytes < 1_073_741_824L) return formatAdaptive(bytes / 1_048_576.0, precision) + " MiB";
-        else if (bytes < 1_099_511_627_776L) return formatAdaptive(bytes / 1_073_741_824.0, precision) + " GiB";
-        else return formatAdaptive(bytes / 1_099_511_627_776.0, precision) + " TiB";
+        if (bytes < KiB) return bytes + " B";
+        else if (bytes < MiB) return formatAdaptive(bytes / (double) KiB, precision) + " KiB";
+        else if (bytes < GiB) return formatAdaptive(bytes / (double) MiB, precision) + " MiB";
+        else if (bytes < TiB) return formatAdaptive(bytes / (double) GiB, precision) + " GiB";
+        else if (bytes < PiB) return formatAdaptive(bytes / (double) TiB, precision) + " TiB";
+        else return formatAdaptive(bytes / (double) PiB, precision) + " PiB";
     }
 
     /**
@@ -77,11 +98,28 @@ public final class FormatUtilities {
      * @return The formatted string.
      */
     public static String formatBytesDecimal(long bytes, int precision) {
-        if (bytes < 1000) return bytes + " B";
-        else if (bytes < 1_000_000) return formatAdaptive(bytes / 1000.0, precision) + " KB";
-        else if (bytes < 1_000_000_000L) return formatAdaptive(bytes / 1_000_000.0, precision) + " MB";
-        else if (bytes < 1_000_000_000_000L) return formatAdaptive(bytes / 1_000_000_000.0, precision) + " GB";
-        else return formatAdaptive(bytes / 1_000_000_000_000.0, precision) + " TB";
+        if (bytes < KB) return bytes + " B";
+        else if (bytes < MB) return formatAdaptive(bytes / (double) KB, precision) + " KB";
+        else if (bytes < GB) return formatAdaptive(bytes / (double) MB, precision) + " MB";
+        else if (bytes < TB) return formatAdaptive(bytes / (double) GB, precision) + " GB";
+        else if (bytes < PB) return formatAdaptive(bytes / (double) TB, precision) + " TB";
+        else return formatAdaptive(bytes / (double) PB, precision) + " PB";
+    }
+
+    /**
+     * Formats time in a human-readable way.
+     * 
+     * @param ns The number of nanoseconds to format.
+     * @param precision The number of decimal places to use.
+     * @return The formatted string.
+     */
+    public static String formatTime(long ns, int precision) {
+        if (ns < MICROS) return ns + " ns";
+        else if (ns < MILLIS) return formatAdaptive(ns / (double) MICROS, precision) + " us";
+        else if (ns < SECONDS) return formatAdaptive(ns / (double) MILLIS, precision) + " ms";
+        else if (ns < MINUTES) return formatAdaptive(ns / (double) SECONDS, precision) + " s";
+        else if (ns < HOURS) return formatAdaptive(ns / (double) MINUTES, precision) + " min";
+        else return formatAdaptive(ns / (double) HOURS, precision) + " h";
     }
 
     /**
@@ -115,7 +153,7 @@ public final class FormatUtilities {
             return String.format("%d", (long) rounded);
         }
         String format = "%." + precision + "f";
-        String s = String.format(format, rounded);
+        String s = String.format(Locale.US, format, rounded);
         while (s.contains(".") && s.endsWith("0")) {
             s = s.substring(0, s.length() - 1);
         }
