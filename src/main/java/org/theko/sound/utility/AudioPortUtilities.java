@@ -31,7 +31,7 @@ import org.theko.sound.backend.wasapi.WASAPISharedBackend;
  * @since 2.3.2
  * @author Theko
  */
-public class AudioPortUtility {
+public final class AudioPortUtilities {
 
     private static final HashMap<Class<?>, Class<? extends AudioBackend>> backends = new HashMap<>();
 
@@ -40,7 +40,7 @@ public class AudioPortUtility {
         backends.put(WASAPINativeAudioPortHandle.class, WASAPISharedBackend.class);
     }
     
-    private AudioPortUtility() {
+    private AudioPortUtilities() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
