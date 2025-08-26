@@ -86,6 +86,7 @@ public class AudioMixer implements AudioNode {
 
     private static final float STEREO_SEP_EPSILON = 0.000001f;
 
+    private CollectedInputs collectedInputs = null;
     private float[][][] inputBuffers = null;
     private boolean[] validInputs = null;
     
@@ -344,7 +345,13 @@ public class AudioMixer implements AudioNode {
             }
         }
 
-        return new CollectedInputs(inputBuffers, validInputs);
+        if (collectedInputs == null) {
+            collectedInputs = new CollectedInputs();
+        }
+        
+        collectedInputs.inputs = inputBuffers;
+        collectedInputs.validInputs = validInputs;
+        return collectedInputs;
     }
 
     private void checkInputs(CollectedInputs collectedInputs, int frameCount, int channels) throws ChannelsCountMismatchException, LengthMismatchException {
@@ -356,7 +363,7 @@ public class AudioMixer implements AudioNode {
         }
 
         for (int i = 0; i < collectedInputs.inputs.length; i++) {
-            if (!collectedInputs.valid[i]) continue; // Not an error
+            if (!collectedInputs.validInputs[i]) continue; // Not an error
             float[][] input = collectedInputs.inputs[i];
 
             if (channels != input.length) {
@@ -379,7 +386,7 @@ public class AudioMixer implements AudioNode {
         }
 
         for (int i = 0; i < collectedInputs.inputs.length; i++) {
-            if (!collectedInputs.valid[i]) continue;
+            if (!collectedInputs.validInputs[i]) continue;
             for (int ch = 0; ch < channels; ch++) {
                 for (int frame = 0; frame < collectedInputs.inputs[i][ch].length; frame++) {
                     // Allow out of range (-1, +1) values
@@ -435,12 +442,7 @@ public class AudioMixer implements AudioNode {
     }
 
     private static class CollectedInputs {
-        float[][][] inputs;
-        boolean[] valid;
-
-        CollectedInputs(float[][][] inputs, boolean[] valid) {
-            this.inputs = inputs;
-            this.valid = valid;
-        }
+        public float[][][] inputs;
+        public boolean[] validInputs;
     }
 }
