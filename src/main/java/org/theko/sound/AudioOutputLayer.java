@@ -508,12 +508,4 @@ public class AudioOutputLayer implements AutoCloseable {
             }
         }
     }
-
-    /**
-     * Returns the audio output backend used by the audio output line.
-     * @return The audio output backend.
-     */
-    public AudioOutputBackend getAudioOutputBackend () {
-        return aob;
-    }
 }
