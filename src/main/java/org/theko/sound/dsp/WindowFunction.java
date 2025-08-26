@@ -32,10 +32,12 @@ package org.theko.sound.dsp;
  * </pre>
  * </p>
  * 
+ * @see WindowType
+ * 
  * @since 1.4.1
  * @author Theko
  */
-public class WindowFunction {
+public final class WindowFunction {
 
     private WindowFunction() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
