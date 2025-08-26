@@ -23,7 +23,6 @@ import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.Arrays;
 
-import org.theko.sound.AudioConverter;
 import org.theko.sound.AudioFormat;
 
 /**
