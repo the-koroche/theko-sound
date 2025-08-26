@@ -130,7 +130,7 @@ public class AudioResampler {
      * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels.
      */
     public void resample(float[][] samples, float[][] output, float speedMultiplier) {
-        resample(samples, output, (int) (samples[0].length * speedMultiplier));
+        resample(samples, output, (int) (samples[0].length / speedMultiplier));
     }
     
     /**
