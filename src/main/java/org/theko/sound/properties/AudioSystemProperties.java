@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.theko.sound.resampling.*;
 import org.theko.sound.utility.FormatUtilities;
 import org.theko.sound.utility.PlatformUtilities;
+import org.theko.sound.utility.PlatformUtilities.Architecture;
 import org.theko.sound.utility.PlatformUtilities.Platform;
 
 /**
@@ -44,6 +45,7 @@ public final class AudioSystemProperties {
     }
 
     public static final Platform PLATFORM = PlatformUtilities.getPlatform();
+    public static final Architecture ARCHITECTURE = PlatformUtilities.getArchitecture();
 
     public static final boolean IS_SUPPORTING_JAVA_21 = Runtime.version().feature() >= 21;
     public static final boolean IS_SUPPORTING_VIRTUAL_THREADS = IS_SUPPORTING_JAVA_21;
@@ -52,46 +54,93 @@ public final class AudioSystemProperties {
     public static final long TOTAL_MEMORY = Runtime.getRuntime().totalMemory();
     public static final long MAX_MEMORY = Runtime.getRuntime().maxMemory();
 
-    private static final int DEFAULT_AUDIO_OUTPUT_LINE_THREAD_PRIORITY = (Thread.NORM_PRIORITY + Thread.MAX_PRIORITY) / 2;
+    /*
+    * --- THREADS ---
+    * org.theko.sound.thread.type.outputLayer       - (String) Type of thread for the output layer (platform, virtual)
+    * org.theko.sound.thread.priority.outputLayer   - (int) Priority of the output layer thread (0-10)
+    * org.theko.sound.thread.type.automation        - (String) Type of thread for automation (platform, virtual)
+    * org.theko.sound.thread.priority.automation    - (int) Priority of the automation thread (0-10)
+    * org.theko.sound.thread.type.cleaner           - (String) Type of thread for cleaner (platform, virtual)
+    * org.theko.sound.thread.priority.cleaner       - (int) Priority of the cleaner thread (0-10)
+    * 
+    * --- AUDIO OUTPUT LAYER ---
+    * org.theko.sound.outputLayer.defaultBufferSize - (int) Default buffer size for the output layer (>0)
+    * 
+    * --- AUDIO RESAMPLER ---
+    * org.theko.sound.resampler.shared.quality      - (int) Quality of the shared resampler (>0)
+    * org.theko.sound.resampler.shared.method       - (String) Resampling method of the shared resampler
+    * 
+    * --- AUDIO MIXER ---
+    * org.theko.sound.mixer.default.enableEffects   - (boolean) Enable effects by default in every mixer
+    * org.theko.sound.mixer.default.swapChannels    - (boolean) Enable channel swapping by default in every mixer
+    * org.theko.sound.mixer.default.reversePolarity - (boolean) Enable reverse polarity by default in every mixer
+    * org.theko.sound.mixer.checkLengthMismatch     - (boolean) Check length mismatch in every mixer
+    * 
+    * --- EFFECTS ---
+    * ResamplerEffect:
+    * org.theko.sound.effects.resampler.quality     - (int) Quality of the resampler (>0)
+    * org.theko.sound.effects.resampler.method      - (String) Resampling method of the resampler
+    * 
+    * --- CODECS ---
+    * WAVECodec:
+    * org.theko.sound.codec.wave.cleanText          - (boolean) Enable text cleaning in WAVE codec tags
+    */
 
-    public static final ThreadType AUDIO_OUTPUT_LINE_THREAD_TYPE =
-            ThreadType.from(System.getProperty("org.theko.sound.threadType.audioOutputLine", "platform"));
+    public static final ThreadType OUTPUT_LAYER_THREAD_TYPE =
+            ThreadType.from(System.getProperty(
+                "org.theko.sound.thread.type.outputLayer", "platform"));
     public static final ThreadType AUTOMATION_THREAD_TYPE =
-            ThreadType.from(System.getProperty("org.theko.sound.threadType.automation", "virtual"));
+            ThreadType.from(System.getProperty(
+                "org.theko.sound.thread.type.automation", "virtual"));
     public static final ThreadType CLEANER_THREAD_TYPE =
-            ThreadType.from(System.getProperty("org.theko.sound.threadType.cleaner", "virtual"));
+            ThreadType.from(System.getProperty(
+                "org.theko.sound.thread.type.cleaner", "virtual"));
 
-    public static final int AUDIO_OUTPUT_LINE_THREAD_PRIORITY =
-            parsePriority("org.theko.sound.threadPriority.audioOutputLine", DEFAULT_AUDIO_OUTPUT_LINE_THREAD_PRIORITY);
+    private static final int DEFAULT_OUTPUT_LAYER_THREAD_PRIORITY = (Thread.NORM_PRIORITY + Thread.MAX_PRIORITY) / 2;
+    public static final int OUTPUT_LAYER_THREAD_PRIORITY =
+            parsePriority(
+                "org.theko.sound.thread.priority.outputLayer", DEFAULT_OUTPUT_LAYER_THREAD_PRIORITY);
     public static final int AUTOMATION_THREAD_PRIORITY =
-            parsePriority("org.theko.sound.threadPriority.automation", Thread.NORM_PRIORITY);
+            parsePriority(
+                "org.theko.sound.thread.priority.automation", Thread.NORM_PRIORITY);
     public static final int CLEANER_THREAD_PRIORITY =
-            parsePriority("org.theko.sound.threadPriority.cleaner", Thread.MIN_PRIORITY);
+            parsePriority(
+                "org.theko.sound.thread.priority.cleaner", Thread.MIN_PRIORITY);
 
     public static final int AUDIO_OUTPUT_LAYER_BUFFER_SIZE =
-            Integer.parseInt(System.getProperty("org.theko.sound.audioOutputLayer.defaultBufferSize", "2048"));
+            Integer.parseInt(System.getProperty(
+                "org.theko.sound.outputLayer.defaultBufferSize", "2048"));
 
     public static final int RESAMPLER_SHARED_QUALITY =
-            Integer.parseInt(System.getProperty("org.theko.sound.shared.resampler.quality", "2"));
+            Integer.parseInt(System.getProperty(
+                "org.theko.sound.resampler.shared.quality", "2"));
     public static final ResampleMethod RESAMPLER_SHARED_METHOD =
-            parseResampleMethod(System.getProperty("org.theko.sound.shared.resampler.method", "cubic"));
+            parseResampleMethod(System.getProperty(
+                "org.theko.sound.resampler.shared.method", "cubic"));
             
     public static final boolean ENABLE_EFFECTS_IN_MIXER =
-            Boolean.parseBoolean(System.getProperty("org.theko.sound.mixer.enableEffects", "true"));
+            Boolean.parseBoolean(System.getProperty(
+                "org.theko.sound.mixer.default.enableEffects", "true"));
     public static final boolean SWAP_CHANNELS_IN_MIXER =
-            Boolean.parseBoolean(System.getProperty("org.theko.sound.mixer.swapChannels", "false"));
+            Boolean.parseBoolean(System.getProperty(
+                "org.theko.sound.mixer.default.swapChannels", "false"));
     public static final boolean REVERSE_POLARITY_IN_MIXER =
-            Boolean.parseBoolean(System.getProperty("org.theko.sound.mixer.reversePolarity", "false"));
+            Boolean.parseBoolean(System.getProperty(
+                "org.theko.sound.mixer.default.reversePolarity", "false"));
     public static final boolean CHECK_LENGTH_MISMATCH_IN_MIXER =
-            Boolean.parseBoolean(System.getProperty("org.theko.sound.mixer.checkLengthMismatch", "true"));
+            Boolean.parseBoolean(System.getProperty(
+                "org.theko.sound.mixer.checkLengthMismatch", "true"));
 
     public static final int RESAMPLER_EFFECT_QUALITY =
-            Integer.parseInt(System.getProperty("org.theko.sound.effects.resampler.quality", "2"));
+            Integer.parseInt(System.getProperty(
+                "org.theko.sound.effects.resampler.quality", "2"));
     public static final ResampleMethod RESAMPLER_EFFECT_METHOD =
-            parseResampleMethod(System.getProperty("org.theko.sound.effects.resampler.method", "lanczos"));
+            parseResampleMethod(System.getProperty(
+                "org.theko.sound.effects.resampler.method", "lanczos"));
 
     public static final boolean WAVE_CODEC_INFO_CLEAN_TEXT =
-            Boolean.parseBoolean(System.getProperty("org.theko.sound.codec.wave.cleanText", "true"));
+            Boolean.parseBoolean(System.getProperty(
+                "org.theko.sound.codec.wave.cleanText", "true"));
 
     static {
         logProperties();
@@ -123,7 +172,7 @@ public final class AudioSystemProperties {
 
         builder.append("Audio system properties:\n");
         builder.append("  Threads:")
-            .append(" Output").append(FormatUtilities.formatThreadInfo(AUDIO_OUTPUT_LINE_THREAD_TYPE, AUDIO_OUTPUT_LINE_THREAD_PRIORITY))
+            .append(" Output").append(FormatUtilities.formatThreadInfo(OUTPUT_LAYER_THREAD_TYPE, OUTPUT_LAYER_THREAD_PRIORITY))
             .append(", Automation").append(FormatUtilities.formatThreadInfo(AUTOMATION_THREAD_TYPE, AUTOMATION_THREAD_PRIORITY))
             .append(", Cleaner").append(FormatUtilities.formatThreadInfo(CLEANER_THREAD_TYPE, CLEANER_THREAD_PRIORITY))
             .append("\n");
@@ -139,7 +188,7 @@ public final class AudioSystemProperties {
         builder.append("  Effect resampler: ")
             .append(RESAMPLER_EFFECT_METHOD.getClass().getSimpleName()).append("(quality=").append(RESAMPLER_EFFECT_QUALITY).append(")\n");
         builder.append("  Wave Codec:")
-            .append(" Clean Tag Text=").append(WAVE_CODEC_INFO_CLEAN_TEXT);
+            .append(" Clean Tags Text=").append(WAVE_CODEC_INFO_CLEAN_TEXT);
         logger.debug(builder.toString());
     }
 
