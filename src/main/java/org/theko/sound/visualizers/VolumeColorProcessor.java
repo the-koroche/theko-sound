@@ -16,8 +16,6 @@
 
 package org.theko.sound.visualizers;
 
-import java.awt.Color;
-
 /**
  * A functional interface that returns a color based on a volume.
  * 
@@ -31,7 +29,7 @@ public interface VolumeColorProcessor {
      * Returns a color based on a volume.
      * 
      * @param volume The volume to process.
-     * @return A color based on the volume.
+     * @return A color based on the volume, in 0xAARRGGBB format.
      */
-    public Color getColor (float volume);
+    public int getColor(float volume);
 }
