@@ -1,8 +1,7 @@
 import java.io.FileNotFoundException;
 
 import org.theko.sound.AudioMixer;
-import org.theko.sound.AudioMixerOutput;
-import org.theko.sound.AudioPortsNotFoundException;
+import org.theko.sound.AudioOutputLayer;
 import org.theko.sound.SoundSource;
 import org.theko.sound.UnsupportedAudioFormatException;
 import org.theko.sound.backend.AudioBackendCreationException;
@@ -13,20 +12,20 @@ import org.theko.sound.effects.BitcrusherEffect;
 
 public class SimpleUsageExample {
     public static void main(String[] args) {
-        AudioMixerOutput out = null;
+        AudioOutputLayer out = null;
 
         try {
             // Try to initialize the audio output backend
             try {
-                out = new AudioMixerOutput();
+                out = new AudioOutputLayer();
             } catch (AudioBackendCreationException | AudioBackendNotFoundException e) {
-                System.out.println("Audio backend creation failed.");
+                System.err.println("Audio backend creation failed.");
                 return;
             }
 
             // Create an audio mixer and assign it to output
             AudioMixer outMixer = new AudioMixer();
-            out.setMixer(outMixer);
+            out.setRootNode(outMixer);
 
             // Create a sound source (will be opened later)
             SoundSource sound = new SoundSource();
@@ -35,12 +34,12 @@ public class SimpleUsageExample {
             try {
                 sound.open(SharedFunctions.chooseAudioFile());
             } catch (FileNotFoundException | AudioCodecNotFoundException e) {
-                System.out.println("File or Audio codec not found.");
+                System.err.println("File or Audio codec not found.");
                 return;
             }
 
             // Set playback speed (can be done only after opening the file)
-            sound.getSpeedControl().setValue(1.1f);
+            sound.getSpeedControl().setValue(0.9f);
 
             // Create and configure a bitcrusher effect
             BitcrusherEffect bitcrusher = new BitcrusherEffect();
@@ -53,8 +52,8 @@ public class SimpleUsageExample {
             // Open the audio output with the same format as the source
             try {
                 out.open(sound.getAudioFormat());
-            } catch (AudioPortsNotFoundException | UnsupportedAudioFormatException e) {
-                System.out.println("Audio ports not found or unsupported audio format.");
+            } catch (UnsupportedAudioFormatException e) {
+                System.err.println("Unsupported audio format.");
                 return;
             }
 
@@ -112,7 +111,7 @@ public class SimpleUsageExample {
 
         } catch (Exception e) {
             // Handle any unexpected error
-            System.out.println("Unexpected exception: " + e.getMessage());
+            System.err.println("Unexpected exception: " + e.getMessage());
             if (out != null) out.close(); // Ensure the audio system is shut down
         }
     }
