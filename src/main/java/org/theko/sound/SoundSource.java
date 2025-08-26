@@ -341,7 +341,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
      * @param seconds The seconds position to set.
      */
     public void setSecondsPosition(double seconds) {
-        int samples = (int)AudioConverter.microsecondsToSamples((long)(seconds * 1_000_000), audioFormat.getSampleRate());
+        int samples = (int)AudioUnitsConverter.microsecondsToFrames((long)(seconds * 1_000_000.0), audioFormat.getSampleRate());
         setSamplePosition(samples);
     }
 
@@ -350,7 +350,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
      * @return The seconds position.
      */
     public double getSecondsPosition() {
-        return AudioConverter.samplesToMicrosecond(playedSamples, audioFormat.getSampleRate()) / 1_000_000.0;
+        return AudioUnitsConverter.framesToMicroseconds(playedSamples, audioFormat.getSampleRate()) / 1_000_000.0;
     }
 
     /**
