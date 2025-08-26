@@ -44,6 +44,7 @@ import org.theko.sound.codec.AudioEncodeResult;
 import org.theko.sound.codec.AudioTag;
 import org.theko.sound.properties.AudioSystemProperties;
 import org.theko.sound.samples.SamplesConverter;
+import org.theko.sound.utility.FormatUtilities;
 
 /**
  * The {@code WAVECodec} class provides functionality for encoding and decoding
@@ -235,7 +236,7 @@ public class WAVECodec extends AudioCodec {
 
             float[][] pcm;
 
-            long pcmConvertStartNs = System.nanoTime();
+            long toPcmConvertStartNs = System.nanoTime();
             switch (encoding) {
                 case PCM_SIGNED_16: case PCM_SIGNED_24: case PCM_SIGNED_32:
                     format = format.convertTo(Encoding.PCM_SIGNED);
@@ -279,16 +280,24 @@ public class WAVECodec extends AudioCodec {
                     throw new AudioCodecException("Invalid Audio Encoding");
             }
 
-            long pcmConvertNs = System.nanoTime() - pcmConvertStartNs;
+            long toPcmConvertNs = System.nanoTime() - toPcmConvertStartNs;
+
+            String signatureCheckFormatted = FormatUtilities.formatTime(signatureCheckNs, 3);
+            Map<String, String> chunkDecodingTimesFormatted = new HashMap<>();
+            for (Map.Entry<String, Long> entry : chunkDecodingTimes.entrySet()) {
+                chunkDecodingTimesFormatted.put(entry.getKey(), FormatUtilities.formatTime(entry.getValue(), 3));
+            }
+            String totalDecodingFormatted = FormatUtilities.formatTime(totalDecodingNs, 3);
+            String toPcmConvertFormatted = FormatUtilities.formatTime(toPcmConvertNs, 3);
 
             StringBuilder elapsedTime = new StringBuilder();
-            elapsedTime.append("Elapsed time:").append(" signatures=").append(signatureCheckNs / 1000000f).append("ms, ");
-            for (Map.Entry<String, Long> entry : chunkDecodingTimes.entrySet()) {
+            elapsedTime.append("Elapsed time:").append(" signatures=").append(signatureCheckFormatted).append(", ");
+            for (Map.Entry<String, String> entry : chunkDecodingTimesFormatted.entrySet()) {
                 elapsedTime.append("chunk '").append(entry.getKey()).append("'")
-                           .append("=").append(String.format("%.2f", entry.getValue() / 1000000f)).append("ms, ");
+                           .append("=").append(entry.getValue()).append(", ");
             }
-            elapsedTime.append("decoding=").append(totalDecodingNs / 1000000f).append("ms, ");
-            elapsedTime.append("pcm convert=").append(pcmConvertNs / 1000000f).append("ms");
+            elapsedTime.append("WaveStructRead=").append(totalDecodingFormatted).append(", ");
+            elapsedTime.append("ToPcmConvert=").append(toPcmConvertFormatted);
             logger.debug(elapsedTime.toString());
 
             int ms = (int)((audioData.length / (float)(format.getFrameSize() * format.getSampleRate())) * 1000);
