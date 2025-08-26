@@ -18,10 +18,10 @@ package org.theko.sound.backend.wasapi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.theko.sound.AudioConverter;
 import org.theko.sound.AudioFlow;
 import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioPort;
+import org.theko.sound.AudioUnitsConverter;
 import org.theko.sound.backend.AudioBackendException;
 import org.theko.sound.backend.AudioOutputBackend;
 import org.theko.sound.backend.BackendNotOpenException;
@@ -170,7 +170,7 @@ public sealed class WASAPISharedOutput extends WASAPISharedBackend implements Au
     @Override
     public long getMicrosecondPosition() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot get microsecond position. Backend is not open.");
-        return AudioConverter.framesToMicroseconds(getFramePosition(), audioFormat.getSampleRate());
+        return AudioUnitsConverter.framesToMicroseconds(getFramePosition(), audioFormat.getSampleRate());
     }
 
     @Override
