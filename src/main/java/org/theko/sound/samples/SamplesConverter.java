@@ -27,43 +27,45 @@ import org.theko.sound.AudioConverter;
 import org.theko.sound.AudioFormat;
 
 /**
- * The SamplesConverter class provides utility methods for converting raw audio byte data
- * to normalized floating-point samples and vice versa. It supports various audio encodings
- * such as PCM (signed and unsigned), PCM_FLOAT, ULAW, and ALAW. The class also allows for
- * optional per-channel volume adjustments during the conversion process.
+ * Utility class for converting between raw PCM/encoded audio data and normalized floating-point samples.
  *
- * <p>Key Features:</p>
+ * <p>This class provides methods to:</p>
  * <ul>
- *   <li>Convert raw byte data to normalized floating-point samples.</li>
- *   <li>Convert floating-point samples back to raw byte data.</li>
- *   <li>Support for multiple audio encodings and endianness.</li>
- *   <li>Optional per-channel volume multipliers for both conversions.</li>
+ *   <li>Convert raw audio byte data into normalized {@code float} samples in the range [-1.0, 1.0].</li>
+ *   <li>Convert normalized {@code float} samples back into raw audio bytes.</li>
+ *   <li>Apply optional per-channel volume multipliers during conversion.</li>
  * </ul>
  *
- * <p>Supported Audio Encodings:</p>
+ * <p>The conversion methods support the following audio encodings:</p>
  * <ul>
- *   <li>PCM_UNSIGNED</li>
- *   <li>PCM_SIGNED</li>
- *   <li>PCM_FLOAT</li>
- *   <li>ULAW</li>
- *   <li>ALAW</li>
+ *   <li>{@link org.theko.sound.AudioFormat.Encoding#PCM_UNSIGNED}</li>
+ *   <li>{@link org.theko.sound.AudioFormat.Encoding#PCM_SIGNED}</li>
+ *   <li>{@link org.theko.sound.AudioFormat.Encoding#PCM_FLOAT}</li>
+ *   <li>{@link org.theko.sound.AudioFormat.Encoding#ULAW}</li>
+ *   <li>{@link org.theko.sound.AudioFormat.Encoding#ALAW}</li>
  * </ul>
  *
- * <p>Usage:</p>
+ * <p><b>Volume Multipliers:</b></p>
+ * <ul>
+ *   <li>The {@code volumes} array is optional.</li>
+ *   <li>If provided, it must have either 0, 1, or the same number of elements as the number of channels.</li>
+ *   <li>If fewer multipliers than channels are provided, remaining channels default to 1.0 (no scaling).</li>
+ * </ul>
+ *
+ * <p><b>Important Notes:</b></p>
+ * <ul>
+ *   <li>Unsupported audio encodings will throw {@link IllegalArgumentException}.</li>
+ *   <li>Methods that return arrays will allocate new memory for the result; 
+ *       methods with preallocated arrays reuse existing memory to reduce GC pressure.</li>
+ * </ul>
+ *
+ * <p>Example usage:</p>
  * <pre>
- * // Convert raw byte data to float samples
- * float[][] samples = SamplesConverter.toSamples(byteData, audioFormat, 1.0f);
- *
- * // Convert float samples back to raw byte data
- * byte[] byteData = SamplesConverter.fromSamples(samples, targetFormat, 0.8f);
+ * byte[] pcmData = ...;
+ * float[][] samples = SamplesConverter.toSamples(pcmData, audioFormat, 0.8f, 0.9f);
+ * byte[] outputData = SamplesConverter.fromSamples(samples, audioFormat);
  * </pre>
  *
- * <p>Note:</p>
- * <ul>
- *   <li>The volume multipliers array must have 0, 1, or the same number of elements as the number of channels.</li>
- *   <li>Unsupported audio encodings will result in an IllegalArgumentException.</li>
- * </ul>
- * 
  * @see AudioConverter
  * 
  * @since 1.2.0
@@ -76,14 +78,97 @@ public class SamplesConverter {
     }
 
     /**
-     * Converts raw audio byte data to normalized floating-point samples.
-     * 
-     * @param data The raw audio byte data.
-     * @param audioFormat The audio format associated with the byte data.
-     * @param volumes Optional volume multipliers for each channel. If not provided, the samples will be normalized to the range [-1, 1].
-     * @return A 2D array of floating-point samples, where each row represents a channel and each column represents a sample.
+     * Converts raw PCM byte data into a newly allocated 2D array of normalized floating-point samples.
+     *
+     * <p>This is a convenience wrapper around {@link #toSamples(byte[], float[][], AudioFormat, float...)},
+     * which allocates the output array automatically.</p>
+     *
+     * <p>The returned array is organized as {@code [channels][frames]}, where the first
+     * dimension is the channel index and the second is the frame index. Input data must
+     * match the specified {@link AudioFormat}.</p>
+     *
+     * <p>Optional {@code volumes} act as per-channel multipliers applied after conversion.
+     * If fewer multipliers than channels are provided, the remaining channels default to 1.0.</p>
+     *
+     * @param data the raw PCM audio data (must not be null).
+     * @param audioFormat the format of the input data (must not be null).
+     * @param volumes optional per-channel volume multipliers (defaults to 1.0).
+     * @return a newly allocated 2D array of normalized floating-point samples [channels][frames].
+     * @throws IllegalArgumentException if data or audioFormat is null, or data length is inconsistent with channels/sample size.
      */
     public static float[][] toSamples(byte[] data, AudioFormat audioFormat, float... volumes) {
+        if (data == null || audioFormat == null) {
+            throw new IllegalArgumentException("Data and audio format must not be null.");
+        }
+
+        int channels = audioFormat.getChannels();
+        int samplesLength = data.length / audioFormat.getBytesPerSample() / channels;
+        float[][] samples = new float[channels][samplesLength];
+        toSamples(data, samples, audioFormat, volumes);
+
+        return samples;
+    }
+
+    /**
+     * Converts a 2D array of normalized floating-point samples into a newly allocated PCM byte array.
+     *
+     * <p>This is a convenience wrapper around {@link #fromSamples(float[][], byte[], AudioFormat, float...)},
+     * which allocates the output array automatically.</p>
+     *
+     * <p>The input samples are expected in the range [-1.0, 1.0] and organized as [channels][frames].
+     * Optional {@code volumes} act as per-channel multipliers applied before quantization.</p>
+     *
+     * @param samples 2D array of normalized floating-point samples [channels][frames] (must not be null).
+     * @param audioFormat target PCM format (must not be null).
+     * @param volumes optional per-channel volume multipliers (defaults to 1.0).
+     * @return a newly allocated byte array containing PCM audio data.
+     * @throws IllegalArgumentException if samples or audioFormat is null, or array dimensions are inconsistent.
+     */
+    public static byte[] fromSamples(float[][] samples, AudioFormat audioFormat, float... volumes) {
+        if (samples == null || audioFormat == null) {
+            throw new IllegalArgumentException("Samples and audio format must not be null.");
+        }
+
+        int channels = audioFormat.getChannels();
+        int samplesLength = samples[0].length;
+        byte[] data = new byte[samplesLength * channels * audioFormat.getBytesPerSample()];
+        fromSamples(samples, data, audioFormat, volumes);
+
+        return data;
+    }
+
+    /**
+     * Converts raw PCM byte data into normalized floating-point audio samples.
+     *
+     * <p>Input data must contain a whole number of audio frames. Each frame
+     * consists of {@code channels * bytesPerSample} bytes.</p>
+     *
+     * <p>Output samples are written into {@code outputSamples} as a 2D array,
+     * where the first dimension is the channel index and the second dimension
+     * is the frame index.</p>
+     *
+     * <pre>
+     * outputSamples.length == channels
+     * outputSamples[ch].length == data.length / bytesPerSample / channels
+     * </pre>
+     *
+     * @param data the raw PCM audio data (not null).
+     * @param outputSamples preallocated array of shape [channels][frames],
+     *                      where frames = data.length / bytesPerSample / channels.
+     * @param audioFormat format describing the PCM data (sample size, byte order, etc.).
+     * @param volumes optional volume multipliers per channel. If not specified,
+     *                no scaling is applied and values remain in [-1.0, 1.0].
+     *
+     * @throws IllegalArgumentException if data, audio format, or output samples are null, or if array dimensions are inconsistent with the input data.
+     */
+    public static void toSamples(byte[] data, float[][] outputSamples, AudioFormat audioFormat, float... volumes) {
+        if (data == null || audioFormat == null || outputSamples == null) {
+            throw new IllegalArgumentException("Data, audio format, and output samples must not be null.");
+        }
+        if (data.length == 0) {
+            return;
+        }
+
         int bytesPerSample = audioFormat.getBytesPerSample();
         boolean isBigEndian = audioFormat.isBigEndian();
         int channels = audioFormat.getChannels();
@@ -104,14 +189,17 @@ public class SamplesConverter {
         }
 
         int sampleCount = data.length / bytesPerSample / channels;
-        float[][] samples = new float[channels][sampleCount];
+        if (outputSamples.length != channels || outputSamples[0] == null || outputSamples[0].length != sampleCount) {
+            throw new IllegalArgumentException("Output samples array must have 'channels' rows and 'sampleCount' columns.");
+        }
+        
         ByteBuffer buffer = ByteBuffer.wrap(data).order(isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
 
         switch (audioFormat.getEncoding()) {
             case PCM_UNSIGNED:
                 for (int i = 0; i < sampleCount; i++) {
                     for (int ch = 0; ch < channels; ch++) {
-                        samples[ch][i] = unsignedToFloat(buffer, bytesPerSample) * appliedVolumes[ch];
+                        outputSamples[ch][i] = unsignedToFloat(buffer, bytesPerSample) * appliedVolumes[ch];
                     }
                 }
                 break;
@@ -122,7 +210,7 @@ public class SamplesConverter {
                     for (int i = 0; i < sampleCount; i++) {
                         for (int ch = 0; ch < channels; ch++) {
                             float value = shortBuffer.get() / 32768.0f;
-                            samples[ch][i] = value * appliedVolumes[ch];
+                            outputSamples[ch][i] = value * appliedVolumes[ch];
                         }
                     }
                     buffer.position(buffer.position() + sampleCount * channels * 2);
@@ -131,14 +219,14 @@ public class SamplesConverter {
                     for (int i = 0; i < sampleCount; i++) {
                         for (int ch = 0; ch < channels; ch++) {
                             float value = floatBuffer.get();
-                            samples[ch][i] = value * appliedVolumes[ch];
+                            outputSamples[ch][i] = value * appliedVolumes[ch];
                         }
                     }
                     buffer.position(buffer.position() + sampleCount * channels * 4);
                 } else {
                     for (int i = 0; i < sampleCount; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            samples[ch][i] = signedToFloat(buffer, bytesPerSample) * appliedVolumes[ch];
+                            outputSamples[ch][i] = signedToFloat(buffer, bytesPerSample) * appliedVolumes[ch];
                         }
                     }
                 }
@@ -150,7 +238,7 @@ public class SamplesConverter {
                     for (int i = 0; i < sampleCount; i++) {
                         for (int ch = 0; ch < channels; ch++) {
                             float value = floatBuffer.get();
-                            samples[ch][i] = value * appliedVolumes[ch];
+                            outputSamples[ch][i] = value * appliedVolumes[ch];
                         }
                     }
                     buffer.position(buffer.position() + sampleCount * channels * 4);
@@ -159,7 +247,7 @@ public class SamplesConverter {
                     for (int i = 0; i < sampleCount; i++) {
                         for (int ch = 0; ch < channels; ch++) {
                             double value = doubleBuffer.get();
-                            samples[ch][i] = (float) value * appliedVolumes[ch];
+                            outputSamples[ch][i] = (float) value * appliedVolumes[ch];
                         }
                     }
                     buffer.position(buffer.position() + sampleCount * channels * 8);
@@ -169,7 +257,7 @@ public class SamplesConverter {
             case ULAW:
                 for (int i = 0; i < sampleCount; i++) {
                     for (int ch = 0; ch < channels; ch++) {
-                        samples[ch][i] = ulawToFloat(buffer) * appliedVolumes[ch];
+                        outputSamples[ch][i] = ulawToFloat(buffer) * appliedVolumes[ch];
                     }
                 }
                 break;
@@ -177,7 +265,7 @@ public class SamplesConverter {
             case ALAW:
                 for (int i = 0; i < sampleCount; i++) {
                     for (int ch = 0; ch < channels; ch++) {
-                        samples[ch][i] = alawToFloat(buffer) * appliedVolumes[ch];
+                        outputSamples[ch][i] = alawToFloat(buffer) * appliedVolumes[ch];
                     }
                 }
                 break;
@@ -185,18 +273,49 @@ public class SamplesConverter {
             default:
                 throw new IllegalArgumentException("Unsupported encoding: " + audioFormat.getEncoding());
         }
-        return samples;
     }
 
     /**
-     * Convert floating-point samples to raw byte data.
-     * 
-     * @param samples A 2D array of floating-point samples, where each row represents a channel and each column represents a sample.
-     * @param targetFormat The target audio format to convert to.
-     * @param volumes Optional volume multipliers for each channel. If not provided, the samples will be normalized to the range [-1, 1].
-     * @return A byte array containing the converted raw audio data.
+     * Converts normalized floating-point samples into raw PCM byte data.
+     *
+     * <p>The input samples are expected in the range [-1.0, 1.0]. Values outside
+     * this range may clip depending on the target encoding.</p>
+     *
+     * <p>The {@code samples} array must be organized as:</p>
+     * <pre>
+     * samples[channel][frame]
+     * </pre>
+     * where {@code channel} is the channel index (0-based) and {@code frame} is the sample index.
+     *
+     * <p>The {@code outputBytes} array must be preallocated by the caller with
+     * the following length:</p>
+     * <pre>
+     * outputBytes.length == frames * channels * bytesPerSample
+     * </pre>
+     *
+     * <p>Conversion respects the target {@link AudioFormat}'s encoding, sample
+     * size, byte order, and channel count.</p>
+     *
+     * <p>Optional {@code volumes} act as per-channel multipliers applied to the
+     * input samples before quantization. If fewer multipliers than channels are
+     * provided, the remaining channels default to 1.0 (no scaling).</p>
+     *
+     * @param samples 2D array of floating-point audio data, organized as [channels][frames].
+     * @param outputBytes preallocated byte array to store converted PCM data.
+     * @param targetFormat target PCM format (encoding, sample size, endian, channels).
+     * @param volumes optional per-channel multipliers (defaults to 1.0).
+     *
+     * @throws IllegalArgumentException if {@code outputBytes} length is inconsistent with
+     *                                  {@code samples.length}, frame count, or {@code targetFormat}.
      */
-    public static byte[] fromSamples(float[][] samples, AudioFormat targetFormat, float... volumes) {
+    public static void fromSamples(float[][] samples, byte[] outputBytes, AudioFormat targetFormat, float... volumes) {
+        if (samples == null || targetFormat == null || outputBytes == null) {
+            throw new IllegalArgumentException("Samples, target format, and output bytes must not be null.");
+        }
+        if (samples.length == 0 || samples[0] == null || samples[0].length == 0) {
+            return;
+        }
+
         int samplesLength = samples[0].length;
         int bytesPerSample = targetFormat.getBytesPerSample();
         boolean isBigEndian = targetFormat.isBigEndian();
@@ -223,8 +342,12 @@ public class SamplesConverter {
             System.arraycopy(volumes, 0, appliedVolumes, 0, channels);
         }
 
-        byte[] data = new byte[samplesLength * bytesPerSample * channels];
-        ByteBuffer buffer = ByteBuffer.wrap(data).order(isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
+        int dataLength = samplesLength * channels * bytesPerSample;
+        if (outputBytes.length != dataLength) {
+            throw new IllegalArgumentException("Output byte array cannot be null and must be of length " + dataLength);
+        }
+
+        ByteBuffer buffer = ByteBuffer.wrap(outputBytes).order(isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
 
         switch (targetFormat.getEncoding()) {
             case PCM_UNSIGNED:
@@ -310,7 +433,6 @@ public class SamplesConverter {
             default:
                 throw new IllegalArgumentException("Unsupported encoding: " + targetFormat.getEncoding());
         }
-        return data;
     }
     
     private static float ulawToFloat (ByteBuffer buffer) {
