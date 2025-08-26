@@ -8,9 +8,9 @@ public class CircularReferenceMixerTest {
         try {
             a.addInput(b);
             b.addInput(a);
-            System.out.println("TEST PASS FAILED!");
+            System.out.println("Failed");
         } catch (IllegalArgumentException e) {
-            System.out.println("TEST PASS");
+            System.out.println("Passed");
         }
     }
 }
