@@ -65,12 +65,13 @@ import org.theko.sound.AudioFormat;
  * byte[] outputData = SamplesConverter.fromSamples(samples, audioFormat);
  * </pre>
  *
- * @see AudioConverter
+ * @see AudioFormat
+ * @see ByteBuffer
  * 
  * @since 1.2.0
  * @author Theko
  */
-public class SamplesConverter {
+public final class SamplesConverter {
 
     private SamplesConverter() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");

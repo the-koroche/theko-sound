@@ -36,7 +36,7 @@ import org.theko.sound.AudioClassRegister;
  * @since 2.0.0
  * @author Theko
  */
-public class ResourceLoader {
+public final class ResourceLoader {
     
     private ResourceLoader() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");

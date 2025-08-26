@@ -24,7 +24,7 @@ package org.theko.sound.utility;
  * @since 2.0.0
  * @author Theko
  */
-public class MathUtilities {
+public final class MathUtilities {
 
     private MathUtilities() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");

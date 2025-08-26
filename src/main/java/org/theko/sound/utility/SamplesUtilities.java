@@ -26,7 +26,7 @@ import org.theko.sound.LengthMismatchException;
  * @author Theko
  * @since 2.0.0
  */
-public class SamplesUtilities {
+public final class SamplesUtilities {
 
     private static final float PAN_EPSILON = 0.000001f;
     private static final float GAIN_EPSILON = 0.000001f;

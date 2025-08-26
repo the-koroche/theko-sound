@@ -30,9 +30,8 @@ import org.theko.sound.LengthMismatchException;
  * @author Theko
  * 
  * @see SamplesUtilities
- * @see MutatesSamples
  */
-public class ArrayUtilities {
+public final class ArrayUtilities {
 
     private ArrayUtilities () {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
