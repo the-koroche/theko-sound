@@ -9,7 +9,7 @@
             "mainClass": "${file}",
             "vmArgs": [
                 // Error-reporing options
-                "-XX:ErrorFile=${workspaceFolder}/logs/err/hs_err_pid%p%t.log",
+                "-XX:ErrorFile=${workspaceFolder}/logs/err/hs_err_pid%p_%t.log",
                 "-XX:+HeapDumpOnOutOfMemoryError",
                 "-XX:HeapDumpPath=${workspaceFolder}/logs/heapdump.hprof",
                 "-XX:+ShowMessageBoxOnError",
@@ -28,7 +28,8 @@
                 "-Xms1g",
 
                 // Profiling
-                "-Xlog:gc*:file=${workspaceFolder}/logs/gc.log:time,tags,level,stdout",
+                "-Xlog:gc*:file=${workspaceFolder}/logs/gc.log:time,tags,level",
+                "-Xlog:gc*:stdout:time,tags,level",
                 "-Xlog:safepoint=info:file=${workspaceFolder}/logs/safepoints.log:time,uptime,level,tags",
                 // "-Xlog:jit+compilation=debug:file=${workspaceFolder}/logs/jit.log:time,uptime,level,tags",
                 // "-Xlog:class+load=info:file=${workspaceFolder}/logs/classload.log:time,uptime,level",
