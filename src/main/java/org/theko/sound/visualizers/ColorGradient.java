@@ -29,17 +29,30 @@ import java.util.List;
  */
 public class ColorGradient {
 
-    private List<Color> colors;
+    private List<Integer> colors;
     
+    private ColorGradient() {}
+
     /**
-     * Constructs a ColorGradient from a list of colors.
-     * @param colors A list of colors.
+     * Creates a color gradient from a list of colors in 0xAARRGGBB format.
+     * @param colors A list of colors in 0xAARRGGBB format.
+     * @return A color gradient.
      */
-    public ColorGradient (List<Color> colors) {
-        if (colors == null || colors.isEmpty()) {
-            throw new IllegalArgumentException("Color array cannot be null, or empty.");
-        }
-        this.colors = colors;
+    public static ColorGradient fromIntColors(List<Integer> colors) {
+        ColorGradient gradient = new ColorGradient();
+        gradient.colors = colors;
+        return gradient;
+    }
+
+    /**
+     * Creates a color gradient from a list of colors.
+     * @param colors A list of colors.
+     * @return A color gradient.
+     */
+    public static ColorGradient fromColors(List<Color> colors) {
+        ColorGradient gradient = new ColorGradient();
+        gradient.colors = colors.stream().map(Color::getRGB).toList();
+        return gradient;
     }
 
     /**
@@ -47,16 +60,16 @@ public class ColorGradient {
      * @param normalizedValue A value between 0 and 1.
      * @return An interpolated color.
      */
-    public Color getColorFromNormalizedValue (float normalizedValue) {
-        return getColor (normalizedValue * (colors.size() - 1));
+    public int getColorFromNormalizedValue(float normalizedValue) {
+        return getColor(normalizedValue * (colors.size() - 1));
     }
 
     /**
      * Retrieves a color from a float index.
      * @param floatIndex A float index.
-     * @return An interpolated color.
+     * @return An interpolated color, in 0xAARRGGBB format.
      */
-    public Color getColor(float floatIndex) {
+    public int getColor(float floatIndex) {
         if (colors == null || colors.isEmpty()) {
             throw new IllegalArgumentException("Color array cannot be null, or empty.");
         }
@@ -65,14 +78,24 @@ public class ColorGradient {
         int index2 = Math.min(index1 + 1, colors.size() - 1);
         float frac = floatIndex - index1;
 
-        Color c1 = colors.get(index1);
-        Color c2 = colors.get(index2);
+        int c1 = colors.get(index1);
+        int c2 = colors.get(index2);
 
-        int r = (int) (c1.getRed() + frac * (c2.getRed() - c1.getRed()));
-        int g = (int) (c1.getGreen() + frac * (c2.getGreen() - c1.getGreen()));
-        int b = (int) (c1.getBlue() + frac * (c2.getBlue() - c1.getBlue()));
-        int a = (int) (c1.getAlpha() + frac * (c2.getAlpha() - c1.getAlpha()));
+        int c1a = (c1 >> 24) & 0xFF;
+        int c1r = (c1 >> 16) & 0xFF;
+        int c1g = (c1 >> 8) & 0xFF;
+        int c1b = c1 & 0xFF;
 
-        return new Color(r, g, b, a);
+        int c2a = (c2 >> 24) & 0xFF;
+        int c2r = (c2 >> 16) & 0xFF;
+        int c2g = (c2 >> 8) & 0xFF;
+        int c2b = c2 & 0xFF;
+
+        int r = (int) (c1r + frac * (c2r - c1r));
+        int g = (int) (c1g + frac * (c2g - c1g));
+        int b = (int) (c1b + frac * (c2b - c1b));
+        int a = (int) (c1a + frac * (c2a - c1a));
+
+        return (a << 24) | (r << 16) | (g << 8) | b;
     }
 }
