@@ -65,9 +65,9 @@ try (SoundPlayer player = new SoundPlayer()) {
 ### Routing and Effects
 
 ```java
-AudioMixerOutput out = new AudioMixerOutput();
+AudioOutputLayer outputLayer = new AudioOutputLayer();
 AudioMixer mixer = new AudioMixer();
-out.setMixer(mixer);
+outputLayer.setRootNode(mixer);
 
 SoundSource sound = new SoundSource();
 sound.open("song.wav");
@@ -77,9 +77,10 @@ bitcrusher.getBitdepth().setValue(6);
 bitcrusher.getSampleRateReduction().setValue(4000);
 
 mixer.addEffect(bitcrusher);
-out.open(sound.getAudioFormat());
+outputLayer.open(sound.getAudioFormat());
 mixer.addInput(sound);
 
+outputLayer.start();
 sound.start();
 ```
 
