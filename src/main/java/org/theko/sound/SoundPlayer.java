@@ -70,8 +70,11 @@ public class SoundPlayer extends SoundSource {
         super.open(file);
         try {
             this.outputLine.open(port, getAudioFormat(), bufferSize);
-        } catch (AudioBackendException e) {
-            throw new AudioBackendException("Audio backend creation failed.", e);
+        } catch (AudioBackendException ex) {
+            throw new AudioBackendException("Audio backend creation failed.", ex);
+        } catch (UnsupportedAudioFormatException ex) {
+            logger.error("Unsupported audio format.", ex);
+            throw new RuntimeException(new UnsupportedAudioFormatException("Unsupported audio format.", ex));
         }
     }
 
@@ -81,6 +84,9 @@ public class SoundPlayer extends SoundSource {
             this.outputLine.open(port, getAudioFormat());
         } catch (AudioBackendException e) {
             throw new AudioBackendException("Audio backend creation failed.", e);
+        }  catch (UnsupportedAudioFormatException ex) {
+            logger.error("Unsupported audio format.", ex);
+            throw new RuntimeException(new UnsupportedAudioFormatException("Unsupported audio format.", ex));
         }
     }
 
@@ -98,6 +104,9 @@ public class SoundPlayer extends SoundSource {
             this.outputLine.open(null, getAudioFormat());
         } catch (AudioBackendException e) {
             throw new AudioBackendException("Audio backend creation failed.", e);
+        } catch (UnsupportedAudioFormatException ex) {
+            logger.error("Unsupported audio format.", ex);
+            throw new RuntimeException(new UnsupportedAudioFormatException("Unsupported audio format.", ex));
         }
     }
     /**
