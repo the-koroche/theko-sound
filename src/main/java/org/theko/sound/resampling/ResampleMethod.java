@@ -29,10 +29,10 @@ public interface ResampleMethod {
     /**
      * Resamples the input audio samples to a new length.
      * 
-     * @param input The input audio samples as a float array.
-     * @param targetLength The desired length of the output audio samples.
-     * @param quality The quality of the resampling process, typically an integer value.
-     * @return A float array containing the resampled audio samples.
+     * @param input The input audio samples to resample.
+     * @param output The output array to store the resampled audio samples, with target length.
+     * @param targetLength The target length of the resampled audio samples.
+     * @param quality The quality of the resampling process.
      */
-    float[] resample (float[] input, int targetLength, int quality);
+    void resample(float[] input, float[] output, int targetLength, int quality);
 }

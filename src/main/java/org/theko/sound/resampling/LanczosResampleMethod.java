@@ -27,9 +27,7 @@ package org.theko.sound.resampling;
 public class LanczosResampleMethod implements ResampleMethod {
     
     @Override
-    public float[] resample (float[] input, int targetLength, int quality) {
-        float[] output = new float[targetLength];
-
+    public void resample(float[] input, float[] output, int targetLength, int quality) {
         for (int i = 0; i < targetLength; i++) {
             // Compute the corresponding index in the original input array
             float index = (float) i * input.length / targetLength;
@@ -45,11 +43,9 @@ public class LanczosResampleMethod implements ResampleMethod {
                 }
             }
         }
-
-        return output;
     }
 
-    private float lanczosKernel (float x, int a) {
+    private float lanczosKernel(float x, int a) {
         if (x == 0) return 1; // The central sample is fully weighted
         if (Math.abs(x) >= a) return 0; // Outside the window, no contribution
         // Apply the Lanczos formula

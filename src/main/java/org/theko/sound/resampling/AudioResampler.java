@@ -19,7 +19,6 @@ package org.theko.sound.resampling;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.properties.AudioSystemProperties;
-import org.theko.sound.utility.ArrayUtilities;
 
 /**
  * The AudioResampler class provides utility methods for resampling audio data.
@@ -97,51 +96,81 @@ public class AudioResampler {
     }
 
     /**
-     * Resamples the given audio samples to a new length based on the speed multiplier.
+     * Resamples the given audio samples to a new length.
      * 
      * @param samples The audio samples to resample, represented as a 2D float array.
-     * @param speedMultiplier The factor by which to change the speed of the audio.
+     * @param speedMultiplier The speed multiplier for the resampling process.
      * @return A 2D float array containing the resampled audio samples.
-     * @throws IllegalArgumentException if the speed multiplier is zero.
+     * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels.
      */
     public float[][] resample(float[][] samples, float speedMultiplier) {
-        if (speedMultiplier == 0) {
-            throw new IllegalArgumentException("Speed multiplier cannot be zero.");
-        }
+        return resample(samples, (int) (samples[0].length * speedMultiplier));
+    }
 
-        int newLength = (int) (samples[0].length / speedMultiplier);
-        return resample(samples, newLength);
+    /**
+     * Resamples the given audio samples to a new length.
+     * 
+     * @param samples The audio samples to resample, represented as a 2D float array.
+     * @param newLength The target length of the resampled audio samples.
+     * @return A 2D float array containing the resampled audio samples.
+     * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels.
+     */
+    public float[][] resample(float[][] samples, int newLength) {
+        float[][] output = new float[samples.length][newLength];
+        resample(samples, output, newLength);
+        return output;
+    }
+
+    /**
+     * Resamples the given audio samples to a new length.
+     * 
+     * @param samples The audio samples to resample, represented as a 2D float array.
+     * @param output The output array to store the resampled audio samples, with new length.
+     * @param speedMultiplier The speed multiplier for the resampling process.
+     * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels.
+     */
+    public void resample(float[][] samples, float[][] output, float speedMultiplier) {
+        resample(samples, output, (int) (samples[0].length * speedMultiplier));
     }
     
     /**
      * Resamples the given audio samples to a new length.
      * 
      * @param samples The audio samples to resample, represented as a 2D float array.
-     * @param newLength The desired length of the resampled audio samples.
-     * @return A 2D float array containing the resampled audio samples.
-     * @throws IllegalArgumentException if the new length is less than or equal to zero.
+     * @param output The output array to store the resampled audio samples, with new length.
+     * @param newLength The target length of the resampled audio samples.
+     * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels.
      */
-    public float[][] resample(float[][] samples, int newLength) {
-        float[][] output = new float[samples.length][newLength];
-        for (int ch = 0; ch < samples.length; ch++) {
-            output[ch] = timeScale(samples[ch], newLength);
+    public void resample(float[][] samples, float[][] output, int newLength) {
+        if (newLength <= 0) {
+            throw new IllegalArgumentException("New length must be greater than zero.");
         }
-        return output;
+        if (samples == null || output == null || output.length != samples.length) {
+            throw new IllegalArgumentException("Input and output arrays must have the same number of channels.");
+        }
+        for (int ch = 0; ch < samples.length; ch++) {
+            if (!timeScale(samples[ch], output[ch], newLength)) {
+                if (samples[ch].length != newLength) {
+                    throw new RuntimeException("Error resampling audio.");
+                }
+                System.arraycopy(samples[ch], 0, output[ch], 0, samples[ch].length);
+            }
+        }
     }
 
-    private float[] timeScale(float[] input, int newLength) {
+    private boolean timeScale(float[] input, float[] output, int newLength) {
         if (input.length == newLength) 
-            return input;
+            return false;
 
         if (newLength <= 0)
             throw new IllegalArgumentException("New length must be greater than zero.");
 
         if (resampleMethod == null) {
             logger.error("Resample method is null.");
-            return input;
+            throw new IllegalArgumentException("Resample method is null.");
         }
 
-        float[] output = resampleMethod.resample(input, newLength, quality);
-        return ArrayUtilities.cutArray(output, 0, newLength);
+        resampleMethod.resample(input, output, newLength, quality);
+        return true;
     }
 }

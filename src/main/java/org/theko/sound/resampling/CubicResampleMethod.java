@@ -31,8 +31,7 @@ package org.theko.sound.resampling;
 public class CubicResampleMethod implements ResampleMethod {
 
     @Override
-    public float[] resample (float[] input, int targetLength, int quality) {
-        float[] output = new float[targetLength];
+    public void resample(float[] input, float[] output, int targetLength, int quality) {
         float scale = (float) input.length / targetLength;
 
         for (int i = 0; i < targetLength; i++) {
@@ -48,18 +47,16 @@ public class CubicResampleMethod implements ResampleMethod {
 
             output[i] = catmullRom(p0, p1, p2, p3, t);
         }
-
-        return output;
     }
 
-    private float getSample (float[] input, int index) {
+    private float getSample(float[] input, int index) {
         if (index < 0) return input[0];
         if (index >= input.length) return input[input.length - 1];
         return input[index];
     }
 
     // Catmull-Rom spline interpolation
-    private float catmullRom (float p0, float p1, float p2, float p3, float t) {
+    private float catmullRom(float p0, float p1, float p2, float p3, float t) {
         float t2 = t * t;
         float t3 = t2 * t;
 
