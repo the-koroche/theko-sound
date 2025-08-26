@@ -16,13 +16,11 @@
 
 package org.theko.sound.utility;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.theko.sound.properties.AudioSystemProperties;
 import org.theko.sound.properties.AudioSystemProperties.ThreadType;
 
 /**
@@ -31,7 +29,7 @@ import org.theko.sound.properties.AudioSystemProperties.ThreadType;
  * @author Theko
  * @since 2.0.0
  */
-public class ThreadUtilities {
+public final class ThreadUtilities {
 
     private static final Logger logger = LoggerFactory.getLogger(ThreadUtilities.class);
 
@@ -85,35 +83,30 @@ public class ThreadUtilities {
                 thread.setPriority(priority);
                 thread.setDaemon(daemon);
                 thread.start();
-                logger.debug("Created platform thread: {} [{}]", name, FormatUtilities.formatThreadInfo(type, priority));
+                logger.debug("Created platform thread: {} {}", name, FormatUtilities.formatThreadInfo(type, priority));
                 return thread;
             case VIRTUAL:
-                if (Runtime.version().feature() >= 21) {
+                if (AudioSystemProperties.IS_SUPPORTING_VIRTUAL_THREADS) {
                     try {
-                        // Use reflection
-                        MethodHandle virtualThread = MethodHandles.lookup()
-                        .findStatic(
-                            Thread.class, "startVirtualThread",
-                            MethodType.methodType(Thread.class, Runnable.class));
-                        Object virtualThreadObject = virtualThread.invoke(task);
-                        if (virtualThreadObject == null) {
-                            logger.error("Failed to create virtual thread: {}", name);
-                            return null;
-                        }
-                        if (virtualThreadObject instanceof Thread) {
-                            logger.debug("Created virtual thread: {} [{}]", name, FormatUtilities.formatThreadInfo(type, priority));
-                            return (Thread) virtualThreadObject;
-                        } else {
-                            logger.error("Returned thread is not a Thread instance: {}", virtualThreadObject);
-                            return null;
-                        }
-                    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
-                        logger.error("Error creating virtual thread", ex);
+                        Class<?> threadClass = Thread.class;
+                        Method ofVirtual = threadClass.getMethod("ofVirtual");
+                        Object threadBuilder = ofVirtual.invoke(null);
+
+                        Method nameMethod = threadBuilder.getClass().getMethod("name", String.class);
+                        nameMethod.invoke(threadBuilder, name);
+                        
+                        Method startMethod = threadBuilder.getClass().getMethod("start", Runnable.class);
+                        Thread virtualThread = (Thread) startMethod.invoke(threadBuilder, task);
+                        
+                        logger.debug("Created virtual thread: {} {}", name, FormatUtilities.formatThreadInfo(type, priority));
+                        return virtualThread;
                     } catch (Throwable ex) {
                         logger.error("Error creating virtual thread", ex);
+                        return null;
                     }
                 } else {
                     logger.error("Virtual threads are not supported in Java {}", Runtime.version().feature());
+                    return null;
                 }
             default:
                 throw new IllegalArgumentException("Unsupported thread type: " + type);
