@@ -51,11 +51,11 @@ public class SpectrogramVisualizer extends AudioVisualizer {
         float norm = MathUtilities.clamp(v, 0.0f, 1.0f);
         int intensity = (int) (norm * 255.0f);
 
-        return new Color(intensity, intensity, intensity);
+        return (intensity << 16) | (intensity << 8) | intensity;
     };
 
-    public static final VolumeColorProcessor INFERNO_COLOR_MAP = v -> {
-        final Color[] colors = {
+    private static final ColorGradient INFERNO_COLOR_GRADIENT = ColorGradient.fromColors(
+        List.of(
             new Color(250, 253, 161), // Light yellow
             new Color(251, 182, 26),  // Orange
             new Color(237, 105, 37),  // Red
@@ -63,11 +63,12 @@ public class SpectrogramVisualizer extends AudioVisualizer {
             new Color(120, 28, 109),  // Purple
             new Color(50, 10, 94),    // Dark purple
             new Color(0, 0, 0)        // Black
-        };
-        final ColorGradient gradient = new ColorGradient(Arrays.asList(colors));
+        )
+    );
 
+    public static final VolumeColorProcessor INFERNO_COLOR_MAP = v -> {
         float norm = MathUtilities.clamp(v, 0.0f, 1.0f);
-        return gradient.getColorFromNormalizedValue(1.0f - norm);
+        return INFERNO_COLOR_GRADIENT.getColorFromNormalizedValue(1.0f - norm);
     };
 
     protected float frequencyScale = 1.0f;
@@ -104,16 +105,50 @@ public class SpectrogramVisualizer extends AudioVisualizer {
 
     protected final List<float[]> audioBuffers = new ArrayList<>(10);
     protected float[] recentAudioWindow = new float[channelToShow];
+    private float[] window = null;
     
+    protected SpectrumPanel spectrumPanel;
     protected BufferedImage spectrumImage;
 
     protected class SpectrumPanel extends JPanel {
 
+        private float[] fftInputBuffer;
+        private float[] fftSpectrum;
+        private float[] mappingPositions;
+        private float[] interpolatedSpectrum;
+        private float[] real, imag;
+        private BufferedImage line;
+        private Graphics2D lineGraphics;
+
         private float timeSinceLastShift = 0f;
         private long lastRenderTime = System.nanoTime();
+
+        @Override
+        public void invalidate() {
+            super.invalidate();
+            // Recreate on paintComponent
+            fftInputBuffer = null;
+            fftSpectrum = null;
+            mappingPositions = null;
+            interpolatedSpectrum = null;
+            real = null;
+            imag = null;
+            line = null;
+        }
+
+        @Override
+        public void removeNotify() {
+            super.removeNotify();
+            if (lineGraphics != null) {
+                lineGraphics.dispose();
+                lineGraphics = null;
+            }
+            
+            line = null;
+        }
         
         @Override
-        protected void paintComponent (Graphics g) {
+        protected void paintComponent(Graphics g) {
             super.paintComponent(g);
 
             long now = System.nanoTime();
@@ -122,39 +157,68 @@ public class SpectrogramVisualizer extends AudioVisualizer {
 
             timeSinceLastShift += deltaTime;
 
+            // Adaptive pixels shift
             int shiftPixels = 0;
             while (timeSinceLastShift >= updateTime) {
                 timeSinceLastShift -= updateTime;
                 shiftPixels++;
             }
 
-            if (shiftPixels == 0 && spectrumImage != null) {
-                g.drawImage(spectrumImage, 0, 0, null);
+            // Return if there is not enough samples
+            if (recentAudioWindow == null) {
+                if (spectrumImage != null) {
+                    g.drawImage(spectrumImage, 0, 0, null);
+                }
                 return;
             }
 
             Graphics2D g2d = (Graphics2D) g;
             setupG2D(g2d);
 
-            float[] sampleBuffer = recentAudioWindow;
             int offset = getSamplesOffset();
-            offset = Math.max(0, Math.min(offset, sampleBuffer.length - fftWindowSize));
-            float[] fftInputBuffer = Arrays.copyOfRange(sampleBuffer, offset, offset + fftWindowSize);
-            float[] spectrum = getSpectrum(fftInputBuffer);
-            float[] interpolatedSpectrum = mapSpectrum(spectrum, getHeight(), frequencyScale);
+            offset = Math.max(0, Math.min(offset, recentAudioWindow.length - fftWindowSize));
+            
+            if (fftInputBuffer == null || fftInputBuffer.length != fftWindowSize) {
+                fftInputBuffer = new float[fftWindowSize];
+            }
+            System.arraycopy(recentAudioWindow, offset, fftInputBuffer, 0, Math.min(recentAudioWindow.length - offset, fftWindowSize));
 
-            BufferedImage line = new BufferedImage(1, getHeight(), BufferedImage.TYPE_INT_ARGB);
-            int binsPerPixel = (int) (interpolatedSpectrum.length / getHeight());
+            if (fftSpectrum == null || fftSpectrum.length != fftWindowSize / 2) {
+                fftSpectrum = new float[fftWindowSize / 2];
+            }
+            getSpectrum(fftInputBuffer, fftSpectrum);
+
+            if (interpolatedSpectrum == null || interpolatedSpectrum.length != getHeight()) {
+                interpolatedSpectrum = new float[getHeight()];
+            }
+            
+            if (mappingPositions == null || mappingPositions.length != fftSpectrum.length) {
+                mappingPositions = new float[fftSpectrum.length];
+            }
+            
+            calculatePositions(mappingPositions, getHeight(), frequencyScale);
+            mapSpectrum(fftSpectrum, mappingPositions, interpolatedSpectrum);
+
+            if (line == null || line.getHeight() != getHeight()) {
+                if (lineGraphics != null) lineGraphics.dispose();
+                line = new BufferedImage(1, getHeight(), BufferedImage.TYPE_INT_ARGB);
+                lineGraphics = line.createGraphics();
+            }
+            
+            lineGraphics.setColor(Color.BLACK);
+            lineGraphics.fillRect(0, 0, 1, getHeight());
 
             for (int y = 0; y < getHeight(); y++) {
-                float currentAmplitude = MathUtilities.clamp(interpolatedSpectrum[y * binsPerPixel], 0.0f, 1.0f);
-                
-                Color color = (volumeColorProcessor == null) ? GRAYSCALE_COLOR_MAP.getColor(currentAmplitude) : volumeColorProcessor.getColor(currentAmplitude);
-
-                line.setRGB(0, getHeight() - y - 1, color.getRGB());
+                float currentAmplitude = MathUtilities.clamp(interpolatedSpectrum[y], 0.0f, 1.0f);
+                int color = (volumeColorProcessor == null) ? 
+                    GRAYSCALE_COLOR_MAP.getColor(currentAmplitude) : 
+                    volumeColorProcessor.getColor(currentAmplitude);
+                line.setRGB(0, getHeight() - y - 1, color);
             }
 
-            if (spectrumImage == null || spectrumImage.getWidth() != getWidth() || spectrumImage.getHeight() != getHeight()) {
+            if (spectrumImage == null || 
+                spectrumImage.getWidth() != getWidth() || 
+                spectrumImage.getHeight() != getHeight()) {
                 spectrumImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
             }
 
@@ -163,6 +227,8 @@ public class SpectrogramVisualizer extends AudioVisualizer {
 
             if (shiftPixels < getWidth()) {
                 g2dImage.copyArea(shiftPixels, 0, getWidth() - shiftPixels, getHeight(), -shiftPixels, 0);
+                g2dImage.setColor(Color.BLACK);
+                g2dImage.fillRect(getWidth() - shiftPixels, 0, shiftPixels, getHeight());
             } else {
                 g2dImage.clearRect(0, 0, getWidth(), getHeight());
             }
@@ -174,75 +240,51 @@ public class SpectrogramVisualizer extends AudioVisualizer {
                 }
             }
 
+            g2dImage.dispose();
             g2d.drawImage(spectrumImage, 0, 0, null);
         }
 
-        private void setupG2D (Graphics2D g2d) {
+        private void setupG2D(Graphics2D g2d) {
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
         }
 
-        private float[] mapSpectrum(float[] spectrum, int width, float scale) {
-            float[] mapped = new float[width];
-            float[] positions = new float[spectrum.length];
-
-            // Calculate positions
-            for (int i = 0; i < spectrum.length; i++) {
-                double normalized = Math.log10(1 + i) / Math.log10(1 + spectrum.length);
-                double scaled = Math.pow(normalized, scale);
-                positions[i] = (float) (scaled * (width - 1));
-            }
-
-            // Interpolate between positions
-            for (int i = 0; i < spectrum.length - 1; i++) {
-                int startX = (int) positions[i];
-                int endX = (int) positions[i + 1];
-
-                float startValue = spectrum[i];
-                float endValue = spectrum[i + 1];
-
-                for (int x = startX; x <= endX; x++) {
-                    float t = (x - positions[i]) / (positions[i + 1] - positions[i] + 1e-6f); // Add epsilon to avoid division by zero
-                    t = MathUtilities.clamp(t, 0, 1);
-
-                    float value = MathUtilities.lerp(startValue, endValue, t);
-                    mapped[x] = value;
-                }
-            }
-
-            return mapped;
-        }
-
-        private float[] getSpectrum (float[] samples) {
-            if (samples.length == 0) return new float[channelToShow];
+        private void getSpectrum(float[] inputSamples, float[] outputSpectrum) {
+            if (inputSamples.length == 0) return;
             
             int fftLength = fftWindowSize;
 
-            float[] real = new float[fftLength];
-            float[] imag = new float[fftLength];
-            System.arraycopy(samples, 0, real, 0, samples.length);
+            if (real == null || real.length != fftLength) {
+                real = new float[fftLength];
+            }
+            if (imag == null || imag.length != fftLength) {
+                imag = new float[fftLength];
+            }
+            
+            System.arraycopy(inputSamples, 0, real, 0, inputSamples.length);
+            Arrays.fill(imag, 0.0f);
 
             if (Math.abs(gainControl.getValue() - 1.0f) > 1e-6f) {
-                for (int i = 0; i < samples.length; i++) {
+                for (int i = 0; i < inputSamples.length; i++) {
                     real[i] *= gainControl.getValue();
                 }
             }
 
-            real = WindowFunction.apply(real, windowType);
+            WindowFunction.applyInPlace(real, windowType);
             
             FFT.fft(real, imag);
             
             float maxAmplitude = 0.0f;
             float minNormalizerRoot = (float) Math.pow(minAmplitudeNormalizer, 1 / amplitudeExponent);
             
-            float[] spectrum = new float[real.length / 2];
-            for (int i = 0; i < real.length / 2; i++) {
-                spectrum[i] = (float) Math.log1p(Math.pow(Math.sqrt(real[i] * real[i] + imag[i] * imag[i]), amplitudeExponent));
-                if (spectrum[i] > maxAmplitude) maxAmplitude = spectrum[i];
+            int spectrumLength = Math.min(real.length / 2, outputSpectrum.length);
+            for (int i = 0; i < spectrumLength; i++) {
+                float magnitude = (float) Math.sqrt(real[i] * real[i] + imag[i] * imag[i]);
+                outputSpectrum[i] = (float) Math.log1p(Math.pow(magnitude, amplitudeExponent));
+                if (outputSpectrum[i] > maxAmplitude) maxAmplitude = outputSpectrum[i];
             }
 
             currentAmplitudeNormalizer -= normalizerDecaySpeed;
- 
             maxAmplitude = Math.max(minNormalizerRoot, maxAmplitude) * 1.25f;
 
             if (currentAmplitudeNormalizer < maxAmplitude) {
@@ -250,10 +292,45 @@ public class SpectrogramVisualizer extends AudioVisualizer {
                 normalizerDecaySpeed = 0.0f;
             }
 
-            for (int i = 0; i < spectrum.length; i++) {
-                spectrum[i] /= currentAmplitudeNormalizer;
+            for (int i = 0; i < spectrumLength; i++) {
+                outputSpectrum[i] = MathUtilities.clamp(outputSpectrum[i] / currentAmplitudeNormalizer, 0.0f, 1.0f);
             }
-            return spectrum;
+        }
+
+        private void calculatePositions(float[] outPositions, int height, float scale) {
+            for (int i = 0; i < outPositions.length; i++) {
+                double normalized = Math.log10(1 + i) / Math.log10(1 + outPositions.length);
+                double scaled = Math.pow(normalized, scale);
+                outPositions[i] = (float) (scaled * (height - 1));
+            }
+        }
+
+        private void mapSpectrum(float[] inputSpectrum, float[] positions, float[] interpolatedSpectrumOut) {
+            Arrays.fill(interpolatedSpectrumOut, 0.0f);
+            
+            for (int i = 0; i < positions.length - 1; i++) {
+                int startX = (int) positions[i];
+                int endX = (int) positions[i + 1];
+
+                if (startX >= interpolatedSpectrumOut.length || endX >= interpolatedSpectrumOut.length) {
+                    continue;
+                }
+
+                float startValue = inputSpectrum[i];
+                float endValue = inputSpectrum[i + 1];
+
+                for (int x = startX; x <= endX; x++) {
+                    if (x >= interpolatedSpectrumOut.length) break;
+                    
+                    float t = (x - positions[i]) / (positions[i + 1] - positions[i] + 1e-6f);
+                    t = MathUtilities.clamp(t, 0, 1);
+                    float value = MathUtilities.lerp(startValue, endValue, t);
+                    
+                    if (value > interpolatedSpectrumOut[x]) {
+                        interpolatedSpectrumOut[x] = value;
+                    }
+                }
+            }
         }
     }
 
@@ -306,8 +383,11 @@ public class SpectrogramVisualizer extends AudioVisualizer {
         return normalizerDecaySpeed;
     }
 
-    public void setFftWindowSize (int size) {
+    public void setFftWindowSize(int size) {
         this.fftWindowSize = MathUtilities.clamp(size, MIN_FFT_SIZE, MAX_FFT_SIZE);
+        if (getPanel() != null) {
+            getPanel().invalidate();
+        }
     }
 
     public int getFftWindowSize () {
@@ -332,7 +412,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
     }
 
     @Override
-    protected void initialize () {
+    protected void initialize() {
         SpectrumPanel panel = new SpectrumPanel();
         panel.setOpaque(false);
         panel.setBackground(new Color(0, 0, 0, 0));
@@ -359,10 +439,16 @@ public class SpectrogramVisualizer extends AudioVisualizer {
             totalSamples -= audioBuffers.remove(0).length;
         }
 
-        float[] window = new float[Math.min(totalSamples, requiredSamples)];
+        if (window == null || window.length != requiredSamples) {
+            window = new float[requiredSamples];
+        }
+        if (window.length > totalSamples) {
+            Arrays.fill(window, 0.0f);
+        }
         int pos = 0;
+        int minLength = Math.min(requiredSamples, totalSamples);
         for (float[] buf : audioBuffers) {
-            int copyLen = Math.min(buf.length, window.length - pos);
+            int copyLen = Math.min(buf.length, minLength - pos);
             System.arraycopy(buf, buf.length - copyLen, window, pos, copyLen);
             pos += copyLen;
             if (pos >= window.length) break;
