@@ -24,7 +24,7 @@ import org.theko.sound.backend.AudioBackend;
 import org.theko.sound.backend.AudioBackendCreationException;
 import org.theko.sound.backend.AudioBackendNotFoundException;
 import org.theko.sound.backend.AudioBackends;
-import org.theko.sound.utility.AudioPortUtility;
+import org.theko.sound.utility.AudioPortUtilities;
 
 /**
  * Represents a collection of audio ports.
@@ -49,7 +49,7 @@ public class AudioPorts extends ArrayList<AudioPort> {
         return new AudioPorts(super.stream()
             .filter( p -> {
                 Class<? extends AudioBackend> backendClass = 
-                    AudioPortUtility.getBackendByLinkType(p.getLink().getClass());
+                    AudioPortUtilities.getBackendByLinkType(p.getLink().getClass());
                 if (backendClass == null) return false;
                 try {
                     AudioBackend backend = AudioBackends.getBackend(backendClass);
