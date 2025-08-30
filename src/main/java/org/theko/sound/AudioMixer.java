@@ -229,12 +229,12 @@ public class AudioMixer implements AudioNode {
             throw new MixingException(e);
         }
 
-        int length = samples[0].length;
+        int outputLength = samples[0].length;
 
         boolean enableEffects = enableEffectsControl.isEnabled();
-        int inputLength = length;
+        int inputLength = outputLength;
         try {
-            inputLength = getTargetInputLength(length);
+            inputLength = getTargetInputLength(outputLength);
         } catch (LengthMismatchException ex) {
             logger.error("Input length is not valid.", ex);
             throw new MixingException(ex);
@@ -251,19 +251,19 @@ public class AudioMixer implements AudioNode {
         }
 
         float[][] mixed = mixInputs(collectedInputs, inputLength, channels);
-        mixed = SamplesUtilities.adjustGainAndPan(mixed, preGainControl.getValue(), 0.0f);
+        SamplesUtilities.adjustGainAndPan(mixed, mixed, preGainControl.getValue(), 0.0f);
 
         if (enableEffects) {
             int preVaryingEffectEnd = varyingSizeEffectIndex == -1 ? effects.size() : varyingSizeEffectIndex;
             processEffectChain(mixed, sampleRate, 0, preVaryingEffectEnd);
 
-            if (varyingSizeEffectIndex != -1) {
-                if (inputLength < length) {
-                    mixed = ArrayUtilities.padArray(mixed, channels, length);
+            if (varyingSizeEffectIndex != -1 || inputLength != outputLength) {
+                if (inputLength < outputLength) {
+                    mixed = ArrayUtilities.padArray(mixed, channels, outputLength);
                 }
                 effects.get(varyingSizeEffectIndex).render(mixed, sampleRate);
-                if (inputLength > length) {
-                    mixed = ArrayUtilities.cutArray(mixed, 0, channels, 0, length);
+                if (inputLength > outputLength) {
+                    mixed = ArrayUtilities.cutArray(mixed, 0, channels, 0, outputLength);
                 }
                 processEffectChain(mixed, sampleRate, varyingSizeEffectIndex + 1, effects.size());
             }
@@ -281,14 +281,13 @@ public class AudioMixer implements AudioNode {
             mixed = SamplesUtilities.reversePolarity(mixed);
         }
 
-        mixed = SamplesUtilities.adjustGainAndPan(mixed, postGainControl.getValue(), panControl.getValue());
+        SamplesUtilities.adjustGainAndPan(mixed, mixed, postGainControl.getValue(), panControl.getValue());
         try {
             ArrayUtilities.copyArray(mixed, samples);
         } catch (ChannelsCountMismatchException | LengthMismatchException ex) {
             logger.error("Failed to copy mixed samples to output.", ex);
             throw new MixingException(ex);
         }
-        
     }
 
     private int getTargetInputLength(int length) throws LengthMismatchException {
