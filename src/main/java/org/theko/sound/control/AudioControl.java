@@ -16,12 +16,16 @@
 
 package org.theko.sound.control;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 import org.theko.sound.event.AudioControlEvent;
 import org.theko.sound.event.AudioControlListener;
+import org.theko.sound.event.EventDispatcher;
+import org.theko.sound.event.EventHandler;
+import org.theko.sound.event.EventType;
 
 /**
  * The {@code AudioControl} class serves as an abstract base class for audio control components.
@@ -47,36 +51,61 @@ import org.theko.sound.event.AudioControlListener;
 public abstract class AudioControl {
 
     protected final String name;
-    protected final List<AudioControlListener> listeners;
+    protected final EventDispatcher<AudioControlEvent, AudioControlListener, AudioControlNotifyType> eventDispatcher = new EventDispatcher<>();
 
-    protected enum NotifyType {
+    protected enum AudioControlNotifyType implements EventType<AudioControlEvent> {
         VALUE_CHANGE
     }
 
+    /**
+     * Constructs a new AudioControl with the specified name.
+     *
+     * @param name The name of the audio control.
+     */
     public AudioControl(String name) {
         this.name = name;
-        this.listeners = new ArrayList<>();
+        Map<AudioControlNotifyType, EventHandler<AudioControlListener, AudioControlEvent>> eventMap = new HashMap<>();
+        eventMap.put(AudioControlNotifyType.VALUE_CHANGE, AudioControlListener::onValueChanged);
+        eventDispatcher.setEventMap(eventMap);
     }
 
+
+    /**
+     * Registers a new listener for audio control events.
+     * @param listener The listener to register.
+     */
     public void addListener(AudioControlListener listener) {
-        listeners.add(listener);
+        eventDispatcher.addListener(listener);
     }
 
-    public void removeListener(AudioControlListener listener) {
-        listeners.remove(listener);
-    }
-
-    public List<AudioControlListener> getListeners() {
-        return Collections.unmodifiableList(listeners);
-    }
-
-    protected void notifyListeners(NotifyType type, AudioControlEvent event) {
-        for (AudioControlListener listener : listeners) {
-            if (listener == null) continue;
-            switch (type) {
-                case VALUE_CHANGE -> listener.onValueChanged(event);
+    /**
+     * Registers a new consumer when an audio control value changes.
+     * @param consumer The consumer to register.
+     */
+    public void addChangeListener(Consumer<AudioControlEvent> consumer) {
+        eventDispatcher.addListener(new AudioControlListener() {
+            @Override
+            public void onValueChanged(AudioControlEvent event) {
+                consumer.accept(event);
             }
-        }
+        });
+    }
+
+    /**
+     * Removes a previously registered listener for audio control events.
+     * @param listener The listener to remove.
+     */
+    public void removeListener(AudioControlListener listener) {
+        eventDispatcher.removeListener(listener);
+    }
+
+    /**
+     * Retrieves a list of registered audio control listeners.
+     *
+     * @return An unmodifiable list of audio control listeners.
+     */
+    public List<AudioControlListener> getListeners() {
+        return eventDispatcher.getListeners();
     }
 
     /**

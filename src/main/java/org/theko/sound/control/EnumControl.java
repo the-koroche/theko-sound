@@ -68,7 +68,7 @@ public class EnumControl extends AudioControl {
         int clampedIndex = Math.max(0, Math.min(index, enumValues.length - 1));
         if (value != enumValues[clampedIndex]) {
             this.value = enumValues[clampedIndex];
-            notifyListeners(NotifyType.VALUE_CHANGE, new AudioControlEvent(this));
+            eventDispatcher.dispatch(AudioControlNotifyType.VALUE_CHANGE, new AudioControlEvent(this));
         }
     }
 
@@ -90,7 +90,7 @@ public class EnumControl extends AudioControl {
     public void setEnumValue(Enum<?> newValue) {
         if (newValue != null && !newValue.equals(value)) {
             this.value = newValue;
-            notifyListeners(NotifyType.VALUE_CHANGE, new AudioControlEvent(this));
+            eventDispatcher.dispatch(AudioControlNotifyType.VALUE_CHANGE, new AudioControlEvent(this));
         }
     }
 

@@ -67,7 +67,7 @@ public class FloatControl extends AudioControl {
      */
     public void setValue(float value) {
         this.value = MathUtilities.clamp(value, min, max);
-        notifyListeners(NotifyType.VALUE_CHANGE, new AudioControlEvent(this));
+        eventDispatcher.dispatch(AudioControlNotifyType.VALUE_CHANGE, new AudioControlEvent(this));
     }
     
     /**

@@ -16,31 +16,38 @@
 
 package org.theko.sound.control;
 
+import org.theko.sound.event.AudioControlEvent;
+import org.theko.sound.event.AudioControlListener;
+
 public class Vector3Control extends AudioControl {
 
     private final FloatControl xControl;
     private final FloatControl yControl;
     private final FloatControl zControl;
 
+    private final AudioControlListener valueChangeListener = new AudioControlListener() {
+        @Override
+        public void onValueChanged(AudioControlEvent event) {
+            eventDispatcher.dispatch(AudioControlNotifyType.VALUE_CHANGE, new AudioControlEvent(Vector3Control.this));
+        }
+    };
+
     public Vector3Control(String name, float xMin, float xMax, float yMin, float yMax, float zMin, float zMax) {
         super(name);
         xControl = new FloatControl(name + " X", xMin, xMax, 0.0f);
         yControl = new FloatControl(name + " Y", yMin, yMax, 0.0f);
         zControl = new FloatControl(name + " Z", zMin, zMax, 0.0f);
+        xControl.addListener(valueChangeListener);
+        yControl.addListener(valueChangeListener);
+        zControl.addListener(valueChangeListener);
     }
 
     public Vector3Control(String name, float min, float max) {
-        super(name);
-        xControl = new FloatControl(name + " X", min, max, 0.0f);
-        yControl = new FloatControl(name + " Y", min, max, 0.0f);
-        zControl = new FloatControl(name + " Z", min, max, 0.0f);
+        this(name, min, max, min, max, min, max);
     }
 
     public Vector3Control(String name) {
-        super(name);
-        xControl = new FloatControl(name + " X", -1.0f, 1.0f, 0.0f);
-        yControl = new FloatControl(name + " Y", -1.0f, 1.0f, 0.0f);
-        zControl = new FloatControl(name + " Z", -1.0f, 1.0f, 0.0f);
+        this(name, -1.0f, 1.0f);
     }
     
     public FloatControl getXControl() {
