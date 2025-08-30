@@ -330,10 +330,6 @@ public final class SamplesUtilities {
         return sum / count;
     }
 
-    public static float[] adjustGainAndPan (float[] samples, float gain, float pan) {
-        return adjustGainAndPan(new float[][] { samples }, gain, pan)[0];
-    }
-
     /**
      * Adjusts the gain and pan of the audio samples.
      * This method scales each sample in the provided 2D float array by the specified gain and pan values.
@@ -344,17 +340,53 @@ public final class SamplesUtilities {
      * @return A new 2D float array with adjusted samples.
      * @throws IllegalArgumentException if the samples array is null or empty.
      */
-    public static float[][] adjustGainAndPan (float[][] samples, float gain, float pan) {
+    public static float[][] adjustGainAndPan(float[][] samples, float gain, float pan) {
+        float[][] output = new float[samples.length][];
+        for (int i = 0; i < samples.length; i++) {
+            output[i] = new float[samples[i].length];
+        }
+        boolean changed = adjustGainAndPan(samples, output, gain, pan);
+        if (changed) {
+            return output;
+        } else {
+            return samples;
+        }
+    }
+    
+    /**
+     * Adjusts the gain and pan of the audio samples.
+     * This method scales each sample in the provided 2D float array by the specified gain and pan values.
+     *
+     * @param samples The audio samples to adjust, represented as a 2D float array.
+     * @param output The output array to store the adjusted samples.
+     * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged.
+     * @param pan The pan value to apply. A value of 0.0f is center, -1.0f is left, and 1.0f is right.
+     * @return true if the samples were changed, false otherwise
+     * @throws IllegalArgumentException if the samples array is null or empty,
+     *                                  or if the output array is null or empty,
+     *                                  or if the output array does not have the same number of channels as the input array,
+     *                                  or if the input and output arrays do not have the same number of samples.
+     */
+    public static boolean adjustGainAndPan(float[][] samples, float[][] output, float gain, float pan) {
         if (samples == null || samples.length == 0) {
             throw new IllegalArgumentException("Samples array cannot be null or empty.");
         }
+        if (output == null || output.length == 0) {
+            throw new IllegalArgumentException("Output array cannot be null or empty.");
+        }
+        if (output.length != samples.length) {
+            throw new IllegalArgumentException("Output array must have the same number of channels as the input array.");
+        }
 
-        if (pan * pan <= PAN_EPSILON && gain * gain <= GAIN_EPSILON) return samples;
+        if (pan * pan <= PAN_EPSILON && gain * gain <= GAIN_EPSILON) {
+            return false;
+        }
 
-        float[][] adjusted = new float[samples.length][];
         for (int ch = 0; ch < samples.length; ch++) {
-            adjusted[ch] = new float[samples[ch].length];
-            System.arraycopy(samples[ch], 0, adjusted[ch], 0, samples[ch].length);
+            if (output[ch] == null || samples[ch] == null || output[ch].length != samples[ch].length) {
+                throw new IllegalArgumentException("Input and output arrays must have the same number of samples.");
+            }
+            System.arraycopy(samples[ch], 0, output[ch], 0, samples[ch].length);
         }
 
         float leftVol = 1.0f;
@@ -367,16 +399,16 @@ public final class SamplesUtilities {
 
         for (int ch = 0; ch < samples.length; ch++) {
             float channelVol = getVolumeForChannel(ch, gain, leftVol, rightVol);
-            float[] channelSamples = adjusted[ch];
+            float[] channelSamples = output[ch];
             for (int frame = 0; frame < channelSamples.length; frame++) {
                 channelSamples[frame] *= channelVol;
             }
         }
 
-        return adjusted;
+        return true;
     }
 
-    private static float getVolumeForChannel (int ch, float gain, float leftVol, float rightVol) {
+    private static float getVolumeForChannel(int ch, float gain, float leftVol, float rightVol) {
         if (ch == 0) return gain * leftVol;
         if (ch == 1) return gain * rightVol;
         return gain;
