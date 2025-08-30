@@ -70,11 +70,14 @@ public class SoundPlayer extends SoundSource {
         super.open(file);
         try {
             this.outputLine.open(port, getAudioFormat(), bufferSize);
-        } catch (AudioBackendException ex) {
-            throw new AudioBackendException("Audio backend creation failed.", ex);
+        } catch (AudioBackendException e) {
+            throw new RuntimeException("Audio backend creation failed.", e);
         } catch (UnsupportedAudioFormatException ex) {
             logger.error("Unsupported audio format.", ex);
-            throw new RuntimeException(new UnsupportedAudioFormatException("Unsupported audio format.", ex));
+            throw new RuntimeException(ex);
+        } catch (AudioPortsNotFoundException ex) {
+            logger.error("Default output audio port not found.", ex);
+            throw new RuntimeException(ex);
         }
     }
 
@@ -83,10 +86,13 @@ public class SoundPlayer extends SoundSource {
         try {
             this.outputLine.open(port, getAudioFormat());
         } catch (AudioBackendException e) {
-            throw new AudioBackendException("Audio backend creation failed.", e);
-        }  catch (UnsupportedAudioFormatException ex) {
+            throw new RuntimeException("Audio backend creation failed.", e);
+        } catch (UnsupportedAudioFormatException ex) {
             logger.error("Unsupported audio format.", ex);
-            throw new RuntimeException(new UnsupportedAudioFormatException("Unsupported audio format.", ex));
+            throw new RuntimeException(ex);
+        } catch (AudioPortsNotFoundException ex) {
+            logger.error("Default output audio port not found.", ex);
+            throw new RuntimeException(ex);
         }
     }
 
@@ -103,10 +109,13 @@ public class SoundPlayer extends SoundSource {
         try {
             this.outputLine.open(null, getAudioFormat());
         } catch (AudioBackendException e) {
-            throw new AudioBackendException("Audio backend creation failed.", e);
+            throw new RuntimeException("Audio backend creation failed.", e);
         } catch (UnsupportedAudioFormatException ex) {
             logger.error("Unsupported audio format.", ex);
-            throw new RuntimeException(new UnsupportedAudioFormatException("Unsupported audio format.", ex));
+            throw new RuntimeException(ex);
+        } catch (AudioPortsNotFoundException ex) {
+            logger.error("Default output audio port not found.", ex);
+            throw new RuntimeException(ex);
         }
     }
     /**
@@ -137,10 +146,16 @@ public class SoundPlayer extends SoundSource {
      */
     public void startAndWait() throws InterruptedException {
         start();
+        waitUntilEnded();
+    }
+
+    /**
+     * Waits for the playback of the sound source to finish.
+     */
+    public void waitUntilEnded() throws InterruptedException {
         while (super.isPlaying()) {
             Thread.sleep(100);
         }
-        stop();
     }
 
     @Override
