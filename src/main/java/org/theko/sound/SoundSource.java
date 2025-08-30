@@ -20,7 +20,9 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +38,11 @@ import org.theko.sound.control.FloatControl;
 import org.theko.sound.effects.IncompatibleEffectTypeException;
 import org.theko.sound.effects.MultipleVaryingSizeEffectsException;
 import org.theko.sound.effects.ResamplerEffect;
+import org.theko.sound.event.EventDispatcher;
+import org.theko.sound.event.EventHandler;
+import org.theko.sound.event.EventType;
+import org.theko.sound.event.SoundSourceEvent;
+import org.theko.sound.event.SoundSourceListener;
 import org.theko.sound.utility.ArrayUtilities;
 
 /**
@@ -76,6 +83,7 @@ import org.theko.sound.utility.ArrayUtilities;
 public class SoundSource implements AudioNode, Controllable, AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(SoundSource.class);
+    private final EventDispatcher<SoundSourceEvent, SoundSourceListener, SoundSourceEventType> eventDispatcher = new EventDispatcher<>();
 
     private float[][] samplesData;
     private AudioFormat audioFormat;
@@ -88,6 +96,12 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
     protected int playedSamples = 0;
     protected boolean isPlaying = false;
     protected boolean loop = false;
+
+    protected enum SoundSourceEventType implements EventType<SoundSourceEvent> {
+        OPENED, CLOSED, STARTED, STOPPED,
+        VOLUME_CHANGE, PAN_CHANGE, SPEED_CHANGE, POSITION_CHANGE,
+        LOOP, DATA_ENDED
+    }
 
     /**
      * The {@code Playback} class represents the inner class responsible for rendering audio samples.
@@ -110,10 +124,12 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
                 if (loop) {
                     playedSamples = 0;
                     safeLength = Math.min(length, samplesData[0].length);
+                    eventDispatcher.dispatch(SoundSourceEventType.LOOP, new SoundSourceEvent(SoundSource.this));
                 } else {
                     isPlaying = false;
                     playedSamples = 0;
                     ArrayUtilities.fillZeros(samples);
+                    eventDispatcher.dispatch(SoundSourceEventType.DATA_ENDED, new SoundSourceEvent(SoundSource.this));
                     return;
                 }
             }
@@ -141,6 +157,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
      * @throws AudioCodecNotFoundException If the audio codec is not found.
      */
     public SoundSource(File file) throws FileNotFoundException, AudioCodecNotFoundException {
+        this();
         this.open(file);
     }
 
@@ -152,6 +169,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
      * @throws AudioCodecNotFoundException If the audio codec is not found.
      */
     public SoundSource(String file) throws FileNotFoundException, AudioCodecNotFoundException {
+        this();
         this.open(file);
     }
 
@@ -160,6 +178,18 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
      * which is not associated with any audio file.
      */
     public SoundSource() {
+        Map<SoundSourceEventType, EventHandler<SoundSourceListener, SoundSourceEvent>> eventMap = new HashMap<>();
+        eventMap.put(SoundSourceEventType.OPENED, SoundSourceListener::onOpened);
+        eventMap.put(SoundSourceEventType.CLOSED, SoundSourceListener::onClosed);
+        eventMap.put(SoundSourceEventType.STARTED, SoundSourceListener::onStarted);
+        eventMap.put(SoundSourceEventType.STOPPED, SoundSourceListener::onStopped);
+        eventMap.put(SoundSourceEventType.VOLUME_CHANGE, SoundSourceListener::onVolumeChanged);
+        eventMap.put(SoundSourceEventType.PAN_CHANGE, SoundSourceListener::onPanChanged);
+        eventMap.put(SoundSourceEventType.SPEED_CHANGE, SoundSourceListener::onSpeedChanged);
+        eventMap.put(SoundSourceEventType.POSITION_CHANGE, SoundSourceListener::onPositionChanged);
+        eventMap.put(SoundSourceEventType.LOOP, SoundSourceListener::onLoop);
+        eventMap.put(SoundSourceEventType.DATA_ENDED, SoundSourceListener::onDataEnded);
+        eventDispatcher.setEventMap(eventMap);
     }
 
     /**
@@ -191,13 +221,23 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
         innerMixer = new AudioMixer();
         innerMixer.addInput(playback);
 
+        innerMixer.getPostGainControl().addChangeListener(control -> 
+                eventDispatcher.dispatch(SoundSourceEventType.VOLUME_CHANGE, new SoundSourceEvent(SoundSource.this)));
+
+        innerMixer.getPanControl().addChangeListener(control -> 
+                eventDispatcher.dispatch(SoundSourceEventType.PAN_CHANGE, new SoundSourceEvent(SoundSource.this)));
+
         resamplerEffect = new ResamplerEffect();
         try {
             innerMixer.addEffect(resamplerEffect);
+            resamplerEffect.getSpeedControl().addChangeListener(control -> 
+                    eventDispatcher.dispatch(SoundSourceEventType.SPEED_CHANGE, new SoundSourceEvent(SoundSource.this)));
         } catch (IncompatibleEffectTypeException | MultipleVaryingSizeEffectsException e) {
             logger.error("Failed to add resampler effect to inner mixer", e);
             throw new RuntimeException(e);
         }
+
+        eventDispatcher.dispatch(SoundSourceEventType.OPENED, new SoundSourceEvent(this));
     }
 
     /**
@@ -219,6 +259,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
         isPlaying = true;
         playedSamples = 0;
         logger.debug("Playback started.");
+        eventDispatcher.dispatch(SoundSourceEventType.STARTED, new SoundSourceEvent(this));
     }
 
     /**
@@ -229,6 +270,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
         isPlaying = false;
         playedSamples = 0;
         logger.debug("Playback stopped.");
+        eventDispatcher.dispatch(SoundSourceEventType.STOPPED, new SoundSourceEvent(this));
     }
 
     @Override
@@ -243,6 +285,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
         audioFormat = null;
 
         logger.debug("Closed.");
+        eventDispatcher.dispatch(SoundSourceEventType.CLOSED, new SoundSourceEvent(this));
     }
 
     /**
@@ -326,6 +369,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
             throw new IllegalArgumentException("Position must be between 0 and " + samplesData[0].length);
         }
         playedSamples = position;
+        eventDispatcher.dispatch(SoundSourceEventType.POSITION_CHANGE, new SoundSourceEvent(this));
     }
 
     /**
@@ -378,6 +422,18 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
      */
     public List<AudioTag> getTags() {
         return tags;
+    }
+
+    public void addListener(SoundSourceListener listener) {
+        eventDispatcher.addListener(listener);
+    }
+
+    public void removeListener(SoundSourceListener listener) {
+        eventDispatcher.removeListener(listener);
+    }
+
+    public List<SoundSourceListener> getListeners() {
+        return eventDispatcher.getListeners();
     }
 
     /**
