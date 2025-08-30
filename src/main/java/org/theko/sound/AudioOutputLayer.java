@@ -125,151 +125,87 @@ public class AudioOutputLayer implements AutoCloseable {
         this(AudioBackends.getPlatformBackend());
     }
 
+    
     /**
      * Opens the audio output line with the specified port, format, and buffer size.
+     * If the port is null, the default output port will be used.
+     * This method also tries to use best matching audio format, if the given format is not supported.
      * 
      * @param port The {@link AudioPort} to be used.
      * @param audioFormat The {@link AudioFormat} for audio data.
      * @param bufferSizeInSamples The size of the buffer for audio data in samples.
      * @throws UnsupportedAudioFormatException If the specified audio format is not supported.
-     * @throws IllegalArgumentException If the buffer size is less than or equal to 0, or if the audio format is null.
+     * @throws IllegalArgumentException If the audio port, audio format, or buffer size are invalid.
      * @throws AudioBackendException If an error occurs while opening the backend.
+     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output.
      */
-    @SuppressWarnings("incomplete-switch")
-    public void open(AudioPort port, AudioFormat audioFormat, int bufferSizeInSamples) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException {
+    public void open(AudioPort port, AudioFormat audioFormat, int bufferSizeInSamples) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioPortsNotFoundException, AudioBackendException {
         if (audioFormat == null) throw new IllegalArgumentException("Audio format cannot be null.");
         if (bufferSizeInSamples <= 0) throw new IllegalArgumentException("Buffer size must be greater than 0.");
-        try {
-            logger.debug("Trying to open with port: {}, format: {}, buffer size: {}.",
-                    port != null ? port.toString() : "Default", audioFormat, bufferSizeInSamples);
-            AudioPort targetPort = (port == null ? aob.getDefaultPort(AudioFlow.OUT).get() : port);
 
-            if (audioFormat.getEncoding() == null) {
-                logger.warn("Audio format encoding is null. Selecting encoding based on sample size...");
-                switch (audioFormat.getBytesPerSample()) {
-                    case 1:
-                        audioFormat = audioFormat.convertTo(AudioFormat.Encoding.PCM_UNSIGNED);
-                        break;
-                    case 2: case 3:
-                        audioFormat = audioFormat.convertTo(AudioFormat.Encoding.PCM_SIGNED);
-                        break;
-                    case 4: case 8:
-                        audioFormat = audioFormat.convertTo(AudioFormat.Encoding.PCM_FLOAT);
-                        break;
-                    default:
-                        logger.error("Unsupported sample size: {}", audioFormat.getBitsPerSample());
-                        throw new UnsupportedAudioFormatException("Unsupported sample size: " + audioFormat.getBitsPerSample());
-                }
-                logger.info("Selected encoding: {}", audioFormat.getEncoding());
-            }
-
-            AudioFormat highestSupportableFormat = targetPort.getMixFormat();
-            int targetSampleSize = Math.min(
-                highestSupportableFormat.getBitsPerSample(),
-                audioFormat.getBitsPerSample()
-            );
-            int targetSampleRate = Math.min(
-                highestSupportableFormat.getSampleRate(),
-                audioFormat.getSampleRate()
-            );
-            int targetChannels = Math.min(
-                highestSupportableFormat.getChannels(),
-                audioFormat.getChannels()
-            );
-
-            switch (highestSupportableFormat.getEncoding()) {
-                case ALAW:
-                    audioFormat = audioFormat.convertTo(AudioFormat.Encoding.ALAW);
-                    break;
-                case ULAW:
-                    switch (audioFormat.getEncoding()) {
-                        case PCM_UNSIGNED:
-                        case PCM_SIGNED:
-                        case PCM_FLOAT:
-                            audioFormat = audioFormat.convertTo(AudioFormat.Encoding.ULAW);
-                            break;
-                    }
-                    break;
-                case PCM_UNSIGNED:
-                    switch (audioFormat.getEncoding()) {
-                        case PCM_SIGNED:
-                        case PCM_FLOAT:
-                            audioFormat = audioFormat.convertTo(AudioFormat.Encoding.PCM_UNSIGNED);
-                            break;
-                    }
-                    break;
-                case PCM_SIGNED:
-                    switch (audioFormat.getEncoding()) {
-                        case PCM_FLOAT:
-                            audioFormat = audioFormat.convertTo(AudioFormat.Encoding.PCM_SIGNED);
-                            break;
-                    }
-                    break;
-            }
-
-            AudioFormat targetFormat = new AudioFormat(
-                targetSampleRate,
-                targetSampleSize,
-                targetChannels,
-                audioFormat.getEncoding(),
-                audioFormat.isBigEndian()
-            );
-
-            AtomicReference<AudioFormat> closestFormat = new AtomicReference<>();
-            closestFormat.set(null);
-            if (!aob.isFormatSupported(targetPort, targetFormat, closestFormat)) {
-                logger.debug("Audio format is not supported. Using closest supported format: {}", closestFormat.get());
-                if (closestFormat.get() != null) {
-                    targetFormat = closestFormat.get();
-                    logger.debug("Using closest supported format: {}", targetFormat);
-                } else {
-                    // Using targetPort's mix format
-                    targetFormat = targetPort.getMixFormat();
-                    logger.debug("Audio format is not supported. Using target port's mix format: {}", targetFormat);
-                    closestFormat.set(null);
-
-                    if (!aob.isFormatSupported(targetPort, targetFormat, closestFormat)) {
-                        logger.debug("Mix format is not supported. Using closest supported format: {}", closestFormat.get());
-                        if (closestFormat.get() != null) {
-                            targetFormat = closestFormat.get();
-                            logger.debug("Using closest supported format: {}", targetFormat);
-                        } else {
-                            logger.error("Failed to open audio output line. Unsupported audio format: {}", targetFormat);
-                            throw new UnsupportedAudioFormatException(
-                                "Unsupported audio format. Source format: %s. Used format: %s".formatted(audioFormat, targetFormat)
-                            );
-                        }
-                    }
-                }
-            }
-
-            if (!targetFormat.equals(audioFormat)) {
-                resamplingFactor = (float) audioFormat.getSampleRate() / (float) targetFormat.getSampleRate();
-                logger.info(
-                    "Audio format conversion: {} -> {}. Resampling factor: {}",
-                    audioFormat,
-                    targetFormat,
-                    resamplingFactor
-                );
-            } else {
-                resamplingFactor = 1.0f;
-            }
-
-
-            aob.open(targetPort, targetFormat, bufferSizeInSamples * targetFormat.getFrameSize());
-            this.sourceFormat = audioFormat;
-            this.openedFormat = targetFormat;
-            this.renderBufferSize = bufferSizeInSamples;
-
-            logger.debug(
-                "Opened with port {}, format {}, buffer size {}.",
-                targetPort,
-                targetFormat,
-                bufferSizeInSamples
-            );
-        } catch (AudioBackendException | AudioPortsNotFoundException ex) {
-            throw new AudioBackendException("Failed to open audio output line.", ex);
+        logger.debug("Trying to open with port: {}, format: {}, buffer size: {}.",
+                port != null ? port.toString() : "Default", audioFormat, bufferSizeInSamples);
+        AudioPort targetPort = (port == null ? aob.getDefaultPort(AudioFlow.OUT).get() : port);
+        if (targetPort == null) {
+            throw new AudioPortsNotFoundException("No default output port was found.");
         }
+        if (port == null) {
+            logger.debug("Using default output port: {}", targetPort);
+        }
+
+        AudioFormat targetFormat = audioFormat;
+
+        AtomicReference<AudioFormat> closestFormat = new AtomicReference<>();
+        closestFormat.set(null);
+        if (!aob.isFormatSupported(targetPort, targetFormat, closestFormat)) {
+            logger.debug("Audio format is not supported. Using closest supported format: {}", closestFormat.get());
+            if (closestFormat.get() != null) {
+                targetFormat = closestFormat.get();
+                logger.debug("Using closest supported format: {}", targetFormat);
+            } else {
+                // Using targetPort's mix format
+                targetFormat = targetPort.getMixFormat();
+                logger.debug("Audio format is not supported. Using target port's mix format: {}", targetFormat);
+                closestFormat.set(null);
+
+                if (!aob.isFormatSupported(targetPort, targetFormat, closestFormat)) {
+                    logger.debug("Mix format is not supported. Using closest supported format: {}", closestFormat.get());
+                    if (closestFormat.get() != null) {
+                        targetFormat = closestFormat.get();
+                        logger.debug("Using closest supported format: {}", targetFormat);
+                    } else {
+                        logger.error("Failed to open audio output line. Unsupported audio format: {}", targetFormat);
+                        throw new UnsupportedAudioFormatException(
+                            "Unsupported audio format. Source format: %s. Used format: %s".formatted(audioFormat, targetFormat)
+                        );
+                    }
+                }
+            }
+        }
+
+        if (!targetFormat.equals(audioFormat)) {
+            resamplingFactor = (float) audioFormat.getSampleRate() / (float) targetFormat.getSampleRate();
+            logger.info(
+                "Audio format conversion: {} -> {}. Resampling factor: {}",
+                audioFormat,
+                targetFormat,
+                resamplingFactor
+            );
+        } else {
+            resamplingFactor = 1.0f;
+        }
+
+        aob.open(targetPort, targetFormat, bufferSizeInSamples * targetFormat.getFrameSize());
+        this.sourceFormat = audioFormat;
+        this.openedFormat = targetFormat;
+        this.renderBufferSize = bufferSizeInSamples;
+
+        logger.debug(
+            "Opened with port {}, format {}, buffer size {}.",
+            targetPort,
+            targetFormat,
+            bufferSizeInSamples
+        );
     }
 
     /**
@@ -280,8 +216,9 @@ public class AudioOutputLayer implements AutoCloseable {
      * @throws UnsupportedAudioFormatException If the specified audio format is not supported.
      * @throws IllegalArgumentException If the audio format is null.
      * @throws AudioBackendException If an error occurs while opening the backend.
+     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output.
      */
-    public void open(AudioPort port, AudioFormat audioFormat) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException {
+    public void open(AudioPort port, AudioFormat audioFormat) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException, AudioPortsNotFoundException {
         this.open(port, audioFormat, AudioSystemProperties.AUDIO_OUTPUT_LAYER_BUFFER_SIZE);
     }
 
@@ -292,8 +229,9 @@ public class AudioOutputLayer implements AutoCloseable {
      * @throws UnsupportedAudioFormatException If the specified audio format is not supported.
      * @throws IllegalArgumentException If the audio format is null.
      * @throws AudioBackendException If an error occurs while opening the backend.
+     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output.
      */
-    public void open(AudioFormat audioFormat) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException {
+    public void open(AudioFormat audioFormat) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException, AudioPortsNotFoundException {
         this.open(null, audioFormat);
     }
 
@@ -465,7 +403,7 @@ public class AudioOutputLayer implements AutoCloseable {
      * Processes audio data from the root node and writes it to the audio output backend.
      * @throws InterruptedException If the processing thread is interrupted.
      */
-    private void process () throws InterruptedException {
+    private void process() throws InterruptedException {
         float[][] sampleBuffer = new float[openedFormat.getChannels()][renderBufferSize];
         long bufferMs = AudioUnitsConverter.framesToMicroseconds(
             renderBufferSize,
