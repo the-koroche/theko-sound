@@ -76,6 +76,15 @@
                     <include>NOTICE</include>
                 </includes>
                 <targetPath>.</targetPath>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>${basedir}/licenses</directory>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+                <targetPath>META-INF/licenses</targetPath>
+                <filtering>false</filtering>
             </resource>
         </resources>
 
@@ -92,6 +101,13 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <artifactSet>
+                        <excludes>
+                            <exclude>org.slf4j:slf4j-simple</exclude>
+                        </excludes>
+                    </artifactSet>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -127,6 +143,7 @@
                 <version>3.5.0</version>
                 <executions>
                     <execution>
+                        <?m2e execute onConfiguration,onIncremental?>
                         <id>run-script</id>
                         <phase>compile</phase>
                         <goals>
