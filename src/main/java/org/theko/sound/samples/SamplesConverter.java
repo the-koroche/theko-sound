@@ -21,7 +21,6 @@ import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-import java.util.Arrays;
 
 import org.theko.sound.AudioFormat;
 
@@ -73,6 +72,9 @@ import org.theko.sound.AudioFormat;
  */
 public final class SamplesConverter {
 
+    private static final double INV_32768 = 1.0 / 32768.0;
+    private static final double INV_2147483648 = 1.0 / 2147483648.0;
+
     private SamplesConverter() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
@@ -87,16 +89,13 @@ public final class SamplesConverter {
      * dimension is the channel index and the second is the frame index. Input data must
      * match the specified {@link AudioFormat}.</p>
      *
-     * <p>Optional {@code volumes} act as per-channel multipliers applied after conversion.
-     * If fewer multipliers than channels are provided, the remaining channels default to 1.0.</p>
-     *
      * @param data the raw PCM audio data (must not be null).
      * @param audioFormat the format of the input data (must not be null).
      * @param volumes optional per-channel volume multipliers (defaults to 1.0).
      * @return a newly allocated 2D array of normalized floating-point samples [channels][frames].
      * @throws IllegalArgumentException if data or audioFormat is null, or data length is inconsistent with channels/sample size.
      */
-    public static float[][] toSamples(byte[] data, AudioFormat audioFormat, float... volumes) {
+    public static float[][] toSamples(byte[] data, AudioFormat audioFormat) {
         if (data == null || audioFormat == null) {
             throw new IllegalArgumentException("Data and audio format must not be null.");
         }
@@ -104,7 +103,7 @@ public final class SamplesConverter {
         int channels = audioFormat.getChannels();
         int samplesLength = data.length / audioFormat.getBytesPerSample() / channels;
         float[][] samples = new float[channels][samplesLength];
-        toSamples(data, samples, audioFormat, volumes);
+        toSamples(data, samples, audioFormat);
 
         return samples;
     }
@@ -120,11 +119,10 @@ public final class SamplesConverter {
      *
      * @param samples 2D array of normalized floating-point samples [channels][frames] (must not be null).
      * @param audioFormat target PCM format (must not be null).
-     * @param volumes optional per-channel volume multipliers (defaults to 1.0).
      * @return a newly allocated byte array containing PCM audio data.
      * @throws IllegalArgumentException if samples or audioFormat is null, or array dimensions are inconsistent.
      */
-    public static byte[] fromSamples(float[][] samples, AudioFormat audioFormat, float... volumes) {
+    public static byte[] fromSamples(float[][] samples, AudioFormat audioFormat) {
         if (samples == null || audioFormat == null) {
             throw new IllegalArgumentException("Samples and audio format must not be null.");
         }
@@ -132,7 +130,7 @@ public final class SamplesConverter {
         int channels = audioFormat.getChannels();
         int samplesLength = samples[0].length;
         byte[] data = new byte[samplesLength * channels * audioFormat.getBytesPerSample()];
-        fromSamples(samples, data, audioFormat, volumes);
+        fromSamples(samples, data, audioFormat);
 
         return data;
     }
@@ -156,12 +154,10 @@ public final class SamplesConverter {
      * @param outputSamples preallocated array of shape [channels][frames],
      *                      where frames = data.length / bytesPerSample / channels.
      * @param audioFormat format describing the PCM data (sample size, byte order, etc.).
-     * @param volumes optional volume multipliers per channel. If not specified,
-     *                no scaling is applied and values remain in [-1.0, 1.0].
      *
      * @throws IllegalArgumentException if data, audio format, or output samples are null, or if array dimensions are inconsistent with the input data.
      */
-    public static void toSamples(byte[] data, float[][] outputSamples, AudioFormat audioFormat, float... volumes) {
+    public static void toSamples(byte[] data, float[][] outputSamples, AudioFormat audioFormat) {
         if (data == null || audioFormat == null || outputSamples == null) {
             throw new IllegalArgumentException("Data, audio format, and output samples must not be null.");
         }
@@ -173,21 +169,6 @@ public final class SamplesConverter {
         boolean isBigEndian = audioFormat.isBigEndian();
         int channels = audioFormat.getChannels();
 
-        // Validate volume multipliers
-        if (volumes.length != 0 && volumes.length != 1 && volumes.length != channels) {
-            throw new IllegalArgumentException("Volumes array must have 0, 1, or 'channels' elements.");
-        }
-
-        // Apply volume multipliers
-        float[] appliedVolumes = new float[channels];
-        if (volumes.length == 0) {
-            Arrays.fill(appliedVolumes, 1.0f);
-        } else if (volumes.length == 1) {
-            Arrays.fill(appliedVolumes, volumes[0]);
-        } else {
-            System.arraycopy(volumes, 0, appliedVolumes, 0, channels);
-        }
-
         int sampleCount = data.length / bytesPerSample / channels;
         if (outputSamples.length != channels || outputSamples[0] == null || outputSamples[0].length != sampleCount) {
             throw new IllegalArgumentException("Output samples array must have 'channels' rows and 'sampleCount' columns.");
@@ -197,9 +178,10 @@ public final class SamplesConverter {
 
         switch (audioFormat.getEncoding()) {
             case PCM_UNSIGNED:
+                double invMax = 1.0 / ((1L << (bytesPerSample * 8)) - 1);
                 for (int i = 0; i < sampleCount; i++) {
                     for (int ch = 0; ch < channels; ch++) {
-                        outputSamples[ch][i] = unsignedToFloat(buffer, bytesPerSample) * appliedVolumes[ch];
+                        outputSamples[ch][i] = unsignedToFloat(buffer, bytesPerSample, invMax);
                     }
                 }
                 break;
@@ -209,8 +191,7 @@ public final class SamplesConverter {
                     ShortBuffer shortBuffer = buffer.asShortBuffer();
                     for (int i = 0; i < sampleCount; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            float value = shortBuffer.get() / 32768.0f;
-                            outputSamples[ch][i] = value * appliedVolumes[ch];
+                            outputSamples[ch][i] = (float) (shortBuffer.get() * INV_32768);
                         }
                     }
                     buffer.position(buffer.position() + sampleCount * channels * 2);
@@ -218,15 +199,17 @@ public final class SamplesConverter {
                     FloatBuffer floatBuffer = buffer.asFloatBuffer();
                     for (int i = 0; i < sampleCount; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            float value = floatBuffer.get();
-                            outputSamples[ch][i] = value * appliedVolumes[ch];
+                            outputSamples[ch][i] = floatBuffer.get();
                         }
                     }
                     buffer.position(buffer.position() + sampleCount * channels * 4);
                 } else {
+                    int bits = bytesPerSample * 8;
+                    long fullRange = 1L << (bits - 1);
+                    double invFullRange = 1.0 / fullRange;
                     for (int i = 0; i < sampleCount; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            outputSamples[ch][i] = signedToFloat(buffer, bytesPerSample) * appliedVolumes[ch];
+                            outputSamples[ch][i] = signedToFloat(buffer, bytesPerSample, invFullRange);
                         }
                     }
                 }
@@ -237,8 +220,7 @@ public final class SamplesConverter {
                     FloatBuffer floatBuffer = buffer.asFloatBuffer();
                     for (int i = 0; i < sampleCount; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            float value = floatBuffer.get();
-                            outputSamples[ch][i] = value * appliedVolumes[ch];
+                            outputSamples[ch][i] = floatBuffer.get();
                         }
                     }
                     buffer.position(buffer.position() + sampleCount * channels * 4);
@@ -246,8 +228,7 @@ public final class SamplesConverter {
                     DoubleBuffer doubleBuffer = buffer.asDoubleBuffer();
                     for (int i = 0; i < sampleCount; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            double value = doubleBuffer.get();
-                            outputSamples[ch][i] = (float) value * appliedVolumes[ch];
+                            outputSamples[ch][i] = (float) doubleBuffer.get();
                         }
                     }
                     buffer.position(buffer.position() + sampleCount * channels * 8);
@@ -257,7 +238,7 @@ public final class SamplesConverter {
             case ULAW:
                 for (int i = 0; i < sampleCount; i++) {
                     for (int ch = 0; ch < channels; ch++) {
-                        outputSamples[ch][i] = ulawToFloat(buffer) * appliedVolumes[ch];
+                        outputSamples[ch][i] = ulawToFloat(buffer);
                     }
                 }
                 break;
@@ -265,7 +246,7 @@ public final class SamplesConverter {
             case ALAW:
                 for (int i = 0; i < sampleCount; i++) {
                     for (int ch = 0; ch < channels; ch++) {
-                        outputSamples[ch][i] = alawToFloat(buffer) * appliedVolumes[ch];
+                        outputSamples[ch][i] = alawToFloat(buffer);
                     }
                 }
                 break;
@@ -296,19 +277,14 @@ public final class SamplesConverter {
      * <p>Conversion respects the target {@link AudioFormat}'s encoding, sample
      * size, byte order, and channel count.</p>
      *
-     * <p>Optional {@code volumes} act as per-channel multipliers applied to the
-     * input samples before quantization. If fewer multipliers than channels are
-     * provided, the remaining channels default to 1.0 (no scaling).</p>
-     *
      * @param samples 2D array of floating-point audio data, organized as [channels][frames].
      * @param outputBytes preallocated byte array to store converted PCM data.
      * @param targetFormat target PCM format (encoding, sample size, endian, channels).
-     * @param volumes optional per-channel multipliers (defaults to 1.0).
      *
      * @throws IllegalArgumentException if {@code outputBytes} length is inconsistent with
      *                                  {@code samples.length}, frame count, or {@code targetFormat}.
      */
-    public static void fromSamples(float[][] samples, byte[] outputBytes, AudioFormat targetFormat, float... volumes) {
+    public static void fromSamples(float[][] samples, byte[] outputBytes, AudioFormat targetFormat) {
         if (samples == null || targetFormat == null || outputBytes == null) {
             throw new IllegalArgumentException("Samples, target format, and output bytes must not be null.");
         }
@@ -327,21 +303,6 @@ public final class SamplesConverter {
             }
         }
 
-        // Validate volume multipliers
-        if (volumes.length != 0 && volumes.length != 1 && volumes.length != channels) {
-            throw new IllegalArgumentException("Volumes array must have 0, 1, or 'channels' elements.");
-        }
-
-        // Apply volume multipliers
-        float[] appliedVolumes = new float[channels];
-        if (volumes.length == 0) {
-            Arrays.fill(appliedVolumes, 1.0f);
-        } else if (volumes.length == 1) {
-            Arrays.fill(appliedVolumes, volumes[0]);
-        } else {
-            System.arraycopy(volumes, 0, appliedVolumes, 0, channels);
-        }
-
         int dataLength = samplesLength * channels * bytesPerSample;
         if (outputBytes.length != dataLength) {
             throw new IllegalArgumentException("Output byte array cannot be null and must be of length " + dataLength);
@@ -353,8 +314,7 @@ public final class SamplesConverter {
             case PCM_UNSIGNED:
                 for (int i = 0; i < samplesLength; i++) {
                     for (int ch = 0; ch < channels; ch++) {
-                        float sample = samples[ch][i] * appliedVolumes[ch];
-                        floatToUnsigned(buffer, sample, bytesPerSample);
+                        floatToUnsigned(buffer, samples[ch][i], bytesPerSample);
                     }
                 }
                 break;
@@ -364,9 +324,8 @@ public final class SamplesConverter {
                     ShortBuffer shortBuffer = buffer.asShortBuffer();
                     for (int i = 0; i < samplesLength; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            float sample = samples[ch][i] * appliedVolumes[ch];
                             short value = (short) Math.max(Short.MIN_VALUE, 
-                                    Math.min(Short.MAX_VALUE, Math.round(sample * 32768.0f)));
+                                    Math.min(Short.MAX_VALUE, Math.round(samples[ch][i] * 32768.0f)));
                             shortBuffer.put(value);
                         }
                     }
@@ -375,16 +334,14 @@ public final class SamplesConverter {
                     FloatBuffer floatBuffer = buffer.asFloatBuffer();
                     for (int i = 0; i < samplesLength; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            float sample = samples[ch][i] * appliedVolumes[ch];
-                            floatBuffer.put(sample);
+                            floatBuffer.put(samples[ch][i]);
                         }
                     }
                     buffer.position(buffer.position() + samplesLength * channels * 4);
                 } else {
                     for (int i = 0; i < samplesLength; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            float sample = samples[ch][i] * appliedVolumes[ch];
-                            floatToSigned(buffer, sample, bytesPerSample);
+                            floatToSigned(buffer, samples[ch][i], bytesPerSample);
                         }
                     }
                 }
@@ -395,8 +352,7 @@ public final class SamplesConverter {
                     FloatBuffer floatBuffer = buffer.asFloatBuffer();
                     for (int i = 0; i < samplesLength; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            float sample = samples[ch][i] * appliedVolumes[ch];
-                            floatBuffer.put(sample);
+                            floatBuffer.put(samples[ch][i]);
                         }
                     }
                     buffer.position(buffer.position() + samplesLength * channels * 4);
@@ -404,8 +360,7 @@ public final class SamplesConverter {
                     DoubleBuffer doubleBuffer = buffer.asDoubleBuffer();
                     for (int i = 0; i < samplesLength; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            float sample = samples[ch][i] * appliedVolumes[ch];
-                            doubleBuffer.put(sample);
+                            doubleBuffer.put(samples[ch][i]);
                         }
                     }
                     buffer.position(buffer.position() + samplesLength * channels * 8);
@@ -415,8 +370,7 @@ public final class SamplesConverter {
             case ULAW:
                 for (int i = 0; i < samplesLength; i++) {
                     for (int ch = 0; ch < channels; ch++) {
-                        float sample = samples[ch][i] * appliedVolumes[ch];
-                        floatToUlaw(buffer, sample);
+                        floatToUlaw(buffer, samples[ch][i]);
                     }
                 }
                 break;
@@ -424,8 +378,7 @@ public final class SamplesConverter {
             case ALAW:
                 for (int i = 0; i < samplesLength; i++) {
                     for (int ch = 0; ch < channels; ch++) {
-                        float sample = samples[ch][i] * appliedVolumes[ch];
-                        floatToAlaw(buffer, sample);
+                        floatToAlaw(buffer, samples[ch][i]);
                     }
                 }
                 break;
@@ -435,27 +388,27 @@ public final class SamplesConverter {
         }
     }
     
-    private static float ulawToFloat (ByteBuffer buffer) {
+    private static float ulawToFloat(ByteBuffer buffer) {
         int ulawByte = buffer.get() & 0xFF;
         int sign = (ulawByte & 0x80) != 0 ? -1 : 1;
         int exponent = (ulawByte >> 4) & 0x07;
         int mantissa = ulawByte & 0x0F;
         int sample = (mantissa << (exponent + 3)) + (1 << exponent);
 
-        return Math.max(-1.0f, Math.min(1.0f, sign * sample / 2147483648.0f));  // Return normalized value
+        return Math.max(-1.0f, Math.min(1.0f, sign * (float) (sample * INV_2147483648)));  // Return normalized value
     }
 
-    private static float alawToFloat (ByteBuffer buffer) {
+    private static float alawToFloat(ByteBuffer buffer) {
         int alawByte = buffer.get() & 0xFF;
         int sign = (alawByte & 0x80) != 0 ? -1 : 1;
         int exponent = (alawByte >> 4) & 0x07;
         int mantissa = alawByte & 0x0F;
         int sample = (mantissa << (exponent + 3)) + (exponent == 0 ? 0 : 0x80 << exponent);
 
-        return Math.max(-1.0f, Math.min(1.0f, sign * sample / 32768.0f));  // Return normalized value
+        return Math.max(-1.0f, Math.min(1.0f, sign * (float) (sample * INV_32768)));  // Return normalized value
     }
 
-    private static void floatToUlaw (ByteBuffer buffer, float sample) {
+    private static void floatToUlaw(ByteBuffer buffer, float sample) {
         sample = Math.max(-1.0f, Math.min(1.0f, sample));
         sample *= 32768.0f;
 
@@ -468,11 +421,11 @@ public final class SamplesConverter {
             exponent--;
         }
 
-        int mantissa = (int) (sample / 2) & 0x0F;
+        int mantissa = (int) (sample * 0.5f) & 0x0F;
         buffer.put((byte) (sign | (exponent << 4) | mantissa));
     }
 
-    private static void floatToAlaw (ByteBuffer buffer, float sample) {
+    private static void floatToAlaw(ByteBuffer buffer, float sample) {
         sample = Math.max(-1.0f, Math.min(1.0f, sample));
         sample *= 32768.0f;
 
@@ -485,21 +438,20 @@ public final class SamplesConverter {
             exponent--;
         }
 
-        int mantissa = (int) (sample / 2) & 0x0F;
+        int mantissa = (int) (sample * 0.5f) & 0x0F;
         buffer.put((byte) (sign | (exponent << 4) | mantissa));
     }
 
-    private static float unsignedToFloat (ByteBuffer buffer, int bytesPerSample) {
+    private static float unsignedToFloat(ByteBuffer buffer, int bytesPerSample, double invMax) {
         long value = 0;
         for (int i = 0; i < bytesPerSample; i++) {
             value = (value << 8) | (buffer.get() & 0xFF);
         }
-        return (float) value / ((1L << (bytesPerSample * 8)) - 1);
+        return (float) (value * invMax);
     }
 
-    private static float signedToFloat(ByteBuffer buffer, int bytesPerSample) {
+    private static float signedToFloat(ByteBuffer buffer, int bytesPerSample, double invFullRange) {
         long value = 0;
-        int bits = bytesPerSample * 8;
         switch (bytesPerSample) {
             case 1:
                 value = buffer.get();
@@ -529,11 +481,10 @@ public final class SamplesConverter {
             default:
                 throw new IllegalArgumentException("Unsupported sample size: " + bytesPerSample);
         }
-        long fullRange = 1L << (bits - 1);
-        return (float) (value / (double) fullRange);
+        return (float) (value * invFullRange);
     }
 
-    private static void floatToUnsigned (ByteBuffer buffer, float sample, int bytesPerSample) {
+    private static void floatToUnsigned(ByteBuffer buffer, float sample, int bytesPerSample) {
         sample = Math.max(0f, Math.min(1f, sample));
         long value = (long) (sample * ((1L << (bytesPerSample * 8)) - 1));
         for (int i = bytesPerSample - 1; i >= 0; i--) {
