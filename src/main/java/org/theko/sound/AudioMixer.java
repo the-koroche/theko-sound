@@ -95,6 +95,11 @@ public class AudioMixer implements AudioNode {
     private float[][] mixed = null;
     private float[][] effectBuffer = null;
 
+    /**
+     * Adds an audio input to the mixer.
+     * 
+     * @param input The audio input to add.
+     */
     public void addInput(AudioNode input) {
         if (input == null) {
             logger.error("Attempted to add null input to AudioMixer");
@@ -137,6 +142,11 @@ public class AudioMixer implements AudioNode {
         return false;
     }
 
+    /**
+     * Adds an audio effect to the mixer.
+     * 
+     * @param effect The audio effect to add.
+     */
     public void addEffect(AudioEffect effect) throws IncompatibleEffectTypeException, MultipleVaryingSizeEffectsException {
         if (effect == null) {
             logger.error("Attempted to add null effect to AudioMixer");
@@ -153,10 +163,20 @@ public class AudioMixer implements AudioNode {
         effects.add(effect);
     }
 
+    /**
+     * Checks if the mixer has a varying size effect.
+     * 
+     * @return True if the mixer has a varying size effect, false otherwise.
+     */
     protected boolean hasVaryingSizeEffect() {
         return getVaryingSizeEffectIndex() != -1;
     }
 
+    /**
+     * Gets the index of the varying size effect in the effects list.
+     * 
+     * @return The index of the varying size effect, or -1 if not found.
+     */
     protected int getVaryingSizeEffectIndex() {
         for (int i = 0; i < effects.size(); i++) {
             if (effects.get(i) instanceof VaryingSizeEffect) {
@@ -166,6 +186,11 @@ public class AudioMixer implements AudioNode {
         return -1;
     }
 
+    /**
+     * Removes an audio input from the mixer.
+     * 
+     * @param input The audio input to remove.
+     */
     public void removeInput(AudioNode input) {
         if (input == null) {
             logger.error("Attempted to remove null input from AudioMixer");
@@ -174,6 +199,11 @@ public class AudioMixer implements AudioNode {
         inputs.remove(input);
     }
 
+    /**
+     * Removes an audio effect from the mixer.
+     * 
+     * @param effect The audio effect to remove.
+     */
     public void removeEffect(AudioEffect effect) {
         if (effect == null) {
             logger.error("Attempted to remove null effect from AudioMixer");
@@ -182,42 +212,110 @@ public class AudioMixer implements AudioNode {
         effects.remove(effect);
     }
 
+    /**
+     * Gets the audio inputs of the mixer.
+     * 
+     * @return the unmodifiable list of audio inputs.
+     */
     public List<AudioNode> getInputs() {
         return Collections.unmodifiableList(inputs);
     }
 
+    /**
+     * Gets the audio effects of the mixer.
+     * 
+     * @return the unmodifiable list of audio effects.
+     */
     public List<AudioEffect> getEffects() {
         return Collections.unmodifiableList(effects);
     }
 
+    /**
+     * Gets the pre-gain control of the mixer.
+     * Pre-gain control adjusts the gain of the input audio before it is mixed.
+     * 
+     * @return the pre-gain control.
+     */
     public FloatControl getPreGainControl() {
         return preGainControl;
     }
 
+    /**
+     * Gets the post-gain control of the mixer.
+     * Post-gain control adjusts the gain of the mixed audio after it is processed by effects.
+     * 
+     * @return the post-gain control.
+     */
     public FloatControl getPostGainControl() {
         return postGainControl;
     }
 
+    /**
+     * Gets the pan control of the mixer.
+     * Pan control adjusts the pan of the mixed audio.
+     * 
+     * @return the pan control.
+     */
     public FloatControl getPanControl() {
         return panControl;
     }
 
+    /**
+     * Gets the stereo separation control of the mixer.
+     * Stereo separation control adjusts the stereo separation of the mixed audio.
+     * 
+     * @return the stereo separation control.
+     */
     public FloatControl getStereoSeparationControl() {
         return stereoSeparationControl;
     }
 
+    /**
+     * Gets the enable effects control of the mixer.
+     * Enable effects control enables or disables effects processing.
+     * 
+     * @return the enable effects control.
+     */
     public BooleanControl getEnableEffectsControl() {
         return enableEffectsControl;
     }
 
+    /**
+     * Gets the swap channels control of the mixer.
+     * Swap channels control swaps the channels of the mixed audio.
+     * 
+     * @return the swap channels control.
+     */
     public BooleanControl getSwapChannelsControl() {
         return swapChannelsControl;
     }
 
+    /**
+     * Gets the reverse polarity control of the mixer.
+     * Reverse polarity control reverses the polarity of the mixed audio.
+     * 
+     * @return the reverse polarity control.
+     */
     public BooleanControl getReversePolarityControl() {
         return reversePolarityControl;
     }
 
+    /**
+     * A class representing collected inputs.
+     */
+    private static class CollectedInputs {
+        public float[][][] inputs;
+        public boolean[] validInputs;
+    }
+
+    /**
+     * Renders the mixed audio into the provided sample buffer.
+     * 
+     * @param samples The sample buffer to render into.
+     * @param sampleRate The sample rate of the audio.
+     * @throws MixingException If an error occurs while mixing the audio.
+     * @throws IllegalArgumentException If the sample rate is not positive.
+     */
     @Override
     public void render(float[][] samples, int sampleRate) throws MixingException, IllegalArgumentException {
         if (sampleRate <= 0) {
@@ -445,10 +543,5 @@ public class AudioMixer implements AudioNode {
                 }
             }
         }
-    }
-
-    private static class CollectedInputs {
-        public float[][][] inputs;
-        public boolean[] validInputs;
     }
 }
