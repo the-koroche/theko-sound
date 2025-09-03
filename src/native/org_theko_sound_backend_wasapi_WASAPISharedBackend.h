@@ -9,43 +9,43 @@ extern "C" {
 #endif
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedBackend
- * Method:    initialize0
+ * Method:    nInit
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_initialize0
+JNIEXPORT void JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nInit
   (JNIEnv *, jobject);
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedBackend
- * Method:    shutdown0
+ * Method:    nShutdown
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_shutdown0
+JNIEXPORT void JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nShutdown
   (JNIEnv *, jobject);
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedBackend
- * Method:    getAllPorts0
- * Signature: (Z)[Lorg/theko/sound/AudioPort;
+ * Method:    nGetAllPorts
+ * Signature: ()[Lorg/theko/sound/AudioPort;
  */
-JNIEXPORT jobjectArray JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_getAllPorts0
-  (JNIEnv *, jobject, jboolean);
+JNIEXPORT jobjectArray JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nGetAllPorts
+  (JNIEnv *, jobject);
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedBackend
- * Method:    getDefaultPort0
+ * Method:    nGetDefaultPort
  * Signature: (Lorg/theko/sound/AudioFlow;)Lorg/theko/sound/AudioPort;
  */
-JNIEXPORT jobject JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_getDefaultPort0
+JNIEXPORT jobject JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nGetDefaultPort
   (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedBackend
- * Method:    isFormatSupported0
- * Signature: (Lorg/theko/sound/AudioPort;Lorg/theko/sound/AudioFormat;Ljava/util/concurrent/atomic/AtomicReference;Z)Z
+ * Method:    nIsFormatSupported
+ * Signature: (Lorg/theko/sound/AudioPort;Lorg/theko/sound/AudioFormat;Ljava/util/concurrent/atomic/AtomicReference;)Z
  */
-JNIEXPORT jboolean JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_isFormatSupported0
-  (JNIEnv *, jobject, jobject, jobject, jobject, jboolean);
+JNIEXPORT jboolean JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nIsFormatSupported
+  (JNIEnv *, jobject, jobject, jobject, jobject);
 
 #ifdef __cplusplus
 }

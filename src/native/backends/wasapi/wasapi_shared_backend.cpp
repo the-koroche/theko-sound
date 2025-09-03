@@ -41,9 +41,9 @@ typedef struct {
 
 extern "C" {
     JNIEXPORT void JNICALL 
-    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_initialize0
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nInit
     (JNIEnv* env, jobject obj) {
-        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBackend.initialize0");
+        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIShrdBackend.nInit");
 
         HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
         if (FAILED(hr)) {
@@ -80,9 +80,9 @@ extern "C" {
     }
 
     JNIEXPORT void JNICALL 
-    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_shutdown0
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nShutdown
     (JNIEnv* env, jobject obj) {
-        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBackend.shutdown0");
+        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIShrdBackend.nShutdown");
 
         auto* ctx = (BackendContext*)env->GetLongField(obj, getClassesCache(env)->wasapiBackend->backendContextPtr);
         IMMDeviceEnumerator* deviceEnumerator = ctx->deviceEnumerator;
@@ -98,9 +98,9 @@ extern "C" {
     }
 
     JNIEXPORT jobjectArray JNICALL 
-    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_getAllPorts0
-    (JNIEnv* env, jobject obj, jboolean exclusiveMixFormat) {
-        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBackend.getAllPorts0");
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nGetAllPorts
+    (JNIEnv* env, jobject obj) {
+        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIShrdBackend.nGetAllPorts");
 
         auto* ctx = (BackendContext*)env->GetLongField(obj, getClassesCache(env)->wasapiBackend->backendContextPtr);
         IMMDeviceEnumerator* deviceEnumerator = ctx->deviceEnumerator;
@@ -154,9 +154,9 @@ extern "C" {
     }
 
     JNIEXPORT jobject JNICALL 
-    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_getDefaultPort0
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nGetDefaultPort
     (JNIEnv* env, jobject obj, jobject flowObj) {
-        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBackend.getDefaultPort0");
+        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIShrdBackend.nGetDefaultPort");
         
         if (!flowObj) return nullptr;
 
@@ -216,9 +216,9 @@ extern "C" {
     }
 
     JNIEXPORT jboolean JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_isFormatSupported0
-    (JNIEnv* env, jobject obj, jobject jport, jobject jformat, jobject atomicClosestFormat, jboolean exclusive) {
-        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBackend.isFormatSupported0");
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nIsFormatSupported
+    (JNIEnv* env, jobject obj, jobject jport, jobject jformat, jobject atomicClosestFormat) {
+        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIShrdBackend.nIsFormatSupported");
         ClassesCache* classesCache = getClassesCache(env);
 
         if (!jport || !jformat) {
@@ -256,14 +256,14 @@ extern "C" {
         logger->trace(env, "IAudioClient ptr: %p", audioClient);
 
         WAVEFORMATEX* closest = nullptr;
-        hr = audioClient->IsFormatSupported(exclusive == JNI_TRUE ? AUDCLNT_SHAREMODE_EXCLUSIVE : AUDCLNT_SHAREMODE_SHARED, format, &closest);
+        hr = audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, format, &closest);
         audioClient->Release();
         CoTaskMemFree(format);
 
         if (hr == S_OK) {
             logger->trace(env, "Format is supported.");
             return JNI_TRUE;
-        } else if (hr == S_FALSE && exclusive == JNI_FALSE) {
+        } else if (hr == S_FALSE) {
             logger->trace(env, "Format is not supported.");
             if (closest) {
                 logger->trace(env, "Closest format ptr: %p", closest);

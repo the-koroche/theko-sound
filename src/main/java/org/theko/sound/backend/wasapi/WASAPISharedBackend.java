@@ -18,7 +18,6 @@ package org.theko.sound.backend.wasapi;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.AudioFlow;
 import org.theko.sound.AudioFormat;
-import org.theko.sound.AudioFormat.Encoding;
 import org.theko.sound.AudioPort;
 import org.theko.sound.backend.AudioBackend;
 import org.theko.sound.backend.AudioBackendException;
@@ -66,7 +64,7 @@ import org.theko.sound.utility.PlatformUtilities.Platform;
  * @see AudioFormat
  */
 @AudioBackendType(name = "WASAPI", version = "1.0")
-public sealed class WASAPISharedBackend implements AudioBackend permits WASAPIExclusiveBackend, WASAPISharedOutput {
+public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISharedOutput {
 
     private static final Logger logger = LoggerFactory.getLogger(WASAPISharedBackend.class);
 
@@ -79,9 +77,9 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPIEx
     static {
         File wasapiBackendNativeFile = null;
         try {
-            wasapiBackendNativeFile = ResourceLoader.getResourceFile("native/wasapi_backend.dll");
+            wasapiBackendNativeFile = ResourceLoader.getResourceFile("native/libWasapiShared.dll");
         } catch (ResourceNotFoundException e) {
-            logger.error("WASAPI backend native library not found", e);
+            logger.error("WASAPI backend native library not found.", e);
         }
         wasapiBackendNativeLib = wasapiBackendNativeFile;
 
@@ -93,7 +91,7 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPIEx
             try {
                 System.load(wasapiBackendNativeLib.getAbsolutePath());
             } catch (UnsatisfiedLinkError e) {
-                logger.error("Failed to load WASAPI DLL", e);
+                logger.error("Failed to load WASAPISharedBackend DLL.", e);
             }
         }
     }
@@ -105,23 +103,22 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPIEx
 
     protected static boolean isAvailableOnThisPlatformStatic() {
         boolean isWindows = PlatformUtilities.getPlatform() == Platform.WINDOWS;
-        boolean hasLibRes = wasapiBackendNativeLib != null;
-        boolean hasSysLib = hasWASAPISystemLib();
+        boolean hasLibraryResource = wasapiBackendNativeLib != null;
+        boolean hasSysLibrary = hasWASAPISystemLib();
 
-        logger.trace("isWindows: {}, hasLibRes: {}, hasSysLib: {}", isWindows, hasLibRes, hasSysLib);
+        logger.trace("isWindows: {}, hasLibraryResource: {}, hasSysLibrary: {}",
+                isWindows, hasLibraryResource, hasSysLibrary);
 
-        return isWindows && hasLibRes && hasSysLib;
+        return isWindows && hasLibraryResource && hasSysLibrary;
     }
 
     private static boolean hasWASAPISystemLib() {
         // Check for mmdevapi.dll and avrt.dll
         String systemRoot = System.getenv("SystemRoot");
-        logger.trace("System root: {}", systemRoot);
         if (systemRoot == null) return false;
 
         File sys32 = new File(systemRoot, "System32");
         File wow64 = new File(systemRoot, "SysWOW64");
-        logger.trace("System32: {}, SysWOW64: {}", sys32, wow64);
 
         return FileUtilities.existsAny(sys32, "mmdevapi.dll", "avrt.dll")
             || FileUtilities.existsAny(wow64, "mmdevapi.dll", "avrt.dll");
@@ -130,28 +127,23 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPIEx
     @Override
     public void initialize() throws AudioBackendException {
         if (isOpen) return;
-        initialize0();
+        nInit();
         isOpen = true;
     }
 
     @Override
     public void shutdown() throws AudioBackendException {
         if (!isOpen) return;
-        shutdown0();
+        nShutdown();
         isOpen = false;
     }
 
     @Override
     public Collection<AudioPort> getAllPorts() throws BackendNotOpenException {
         if (!isOpen) throw new BackendNotOpenException("Backend is not initialized.");
-        AudioPort[] ports = getAllPortsInMode(false);
+        AudioPort[] ports = nGetAllPorts();
         if (ports == null) return List.of();
         return List.of(ports);
-    }
-
-    protected AudioPort[] getAllPortsInMode(boolean exclusive) throws BackendNotOpenException {
-        if (!isOpen) throw new BackendNotOpenException("Backend is not initialized.");
-        return getAllPorts0(exclusive);
     }
 
     @Override
@@ -176,7 +168,7 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPIEx
     public Optional<AudioPort> getDefaultPort(AudioFlow flow) throws BackendNotOpenException {
         if (!isOpen) throw new BackendNotOpenException("Backend is not initialized.");
         if (flow == null) return Optional.empty();
-        return Optional.ofNullable(getDefaultPort0(flow));
+        return Optional.ofNullable(nGetDefaultPort(flow));
     }
 
     @Override
@@ -188,7 +180,11 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPIEx
 
     @Override
     public boolean isFormatSupported(AudioPort port, AudioFormat audioFormat, AtomicReference<AudioFormat> closestFormat) throws BackendNotOpenException {
-        return isFormatSupportedInMode(port, audioFormat, closestFormat, false);
+        if (!isOpen) throw new BackendNotOpenException("Backend is not initialized.");
+        if (port == null || !isAudioPortSupported(port)) return false;
+        if (audioFormat == null) return false;
+        logger.debug("Checking if audio format: {} is supported for port: {}", audioFormat, port);
+        return nIsFormatSupported(port, audioFormat, closestFormat);
     }
 
     @Override
@@ -196,17 +192,9 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPIEx
         return isFormatSupported(port, audioFormat, null);
     }
 
-    protected boolean isFormatSupportedInMode(AudioPort port, AudioFormat audioFormat, AtomicReference<AudioFormat> closestFormat, boolean exclusive) throws BackendNotOpenException {
-        if (!isOpen) throw new BackendNotOpenException("Backend is not initialized.");
-        if (port == null || !isAudioPortSupported(port)) return false;
-        if (audioFormat == null) return false;
-        logger.debug("Checking if audio format: {} is supported for port: {}", audioFormat, port);
-        return isFormatSupported0(port, audioFormat, closestFormat, exclusive);
-    }
-
     @Override
     public AudioInputBackend getInputBackend() {
-        throw new UnsupportedOperationException("WASAPISharedInput is not realized.");
+        throw new UnsupportedOperationException("WASAPISharedInput is not implemented yet.");
     }
 
     @Override
@@ -219,58 +207,13 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPIEx
         return isOpen;
     }
 
-    public AudioFormat getDeviceFormat(AudioPort port) throws BackendNotOpenException {
-        if (port == null) return null;
-
-        int[] sampleRates = {192000, 96000, 48000, 44100, 22500, 16000, 11025, 8000};
-        int[] bitDepths = {32, 24, 16};
-        int[] channels = {2, 1};
-        Encoding[] encodings = {Encoding.PCM_FLOAT, Encoding.PCM_SIGNED};
-
-        List<AudioFormat> sortedFormats = new ArrayList<>();
-        
-        // Generate combinations of audio format properties
-        for (int ch : channels) {
-            for (int bits : bitDepths) {
-                for (int rate : sampleRates) {
-                    for (Encoding enc : encodings) {
-                        // Skip invalid combinations:
-                        // 1. 8-bit FLOAT or stereo SIGNED PCM is not valid
-                        // 2. FLOAT encoding must be at least 32-bit
-                        if (bits == 8 && (enc == Encoding.PCM_FLOAT || (enc == Encoding.PCM_SIGNED && ch == 2))) continue;
-                        if (enc == Encoding.PCM_FLOAT && bits < 32) continue;
-                        if (bits >= 32 && (enc == Encoding.PCM_SIGNED || enc == Encoding.PCM_UNSIGNED)) continue;
-
-                        sortedFormats.add(new AudioFormat(rate, bits, ch, enc, false));
-                    }
-                }
-            }
-        }
-        for (AudioFormat current : sortedFormats) {
-            AtomicReference<AudioFormat> closest = new AtomicReference<>();
-            closest.set(null);
-            if (isFormatSupportedInMode(port, current, closest, true)) {
-                return current;
-            }
-            if (closest.get() != null) {
-                return closest.get();
-            }
-        }
-
-        logger.info("No compatible format found.");
-
-        // No compatible format found
-        return null;
-    }
-
-    protected boolean isAudioPortSupported(AudioPort port) {
+    public boolean isAudioPortSupported(AudioPort port) {
         return port != null && port.getLink().getClass().equals(WASAPINativeAudioPortHandle.class);
     }
 
-    // Native methods
-    private synchronized native void initialize0();
-    private synchronized native void shutdown0();
-    private synchronized native AudioPort[] getAllPorts0(boolean exclusiveMixFormat);
-    private synchronized native AudioPort getDefaultPort0(AudioFlow flow);
-    private synchronized native boolean isFormatSupported0(AudioPort port, AudioFormat audioFormat, AtomicReference<AudioFormat> closestFormat, boolean exclusive);
+    private synchronized native void nInit();
+    private synchronized native void nShutdown();
+    private synchronized native AudioPort[] nGetAllPorts();
+    private synchronized native AudioPort nGetDefaultPort(AudioFlow flow);
+    private synchronized native boolean nIsFormatSupported(AudioPort port, AudioFormat audioFormat, AtomicReference<AudioFormat> closestFormat);
 } 
