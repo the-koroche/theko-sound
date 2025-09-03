@@ -42,11 +42,32 @@ public abstract class Event {
     protected final long timestamp = System.currentTimeMillis();
 
     /**
+     * Indicates whether this event has been consumed.
+     */
+    private boolean isConsumed;
+
+    /**
      * Returns the moment when this event was created.
      *
      * @return the creation timestamp in milliseconds since the UNIX epoch
      */
     public long getTimestamp() {
         return timestamp;
+    }
+
+    /**
+     * Marks this event as consumed.
+     */
+    public void consume() {
+        isConsumed = true;
+    }
+
+    /**
+     * Checks if this event has been consumed.
+     *
+     * @return {@code true} if this event has been consumed, {@code false} otherwise
+     */
+    public boolean isConsumed() {
+        return isConsumed;
     }
 }

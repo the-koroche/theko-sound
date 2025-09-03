@@ -109,7 +109,6 @@ public class EventDispatcher<E extends Event, L, T extends Enum<T> & EventType<E
      * @param listener the listener to add
      */
     public void addListener(L listener) {
-        logger.debug("Adding listener: {}", listener);
         listeners.add(listener);
     }
 
@@ -119,7 +118,6 @@ public class EventDispatcher<E extends Event, L, T extends Enum<T> & EventType<E
      * @param listener the listener to remove
      */
     public void removeListener(L listener) {
-        logger.debug("Removing listener: {}", listener);
         listeners.remove(listener);
     }
 
@@ -151,6 +149,10 @@ public class EventDispatcher<E extends Event, L, T extends Enum<T> & EventType<E
                     logger.trace("Dispatching event to listener: {}", listener);
                 }
                 consumer.handle(listener, event);
+                if (event.isConsumed()) {
+                    logger.trace("Event consumed by listener: {}", listener);
+                    break;
+                }
             }
         }
     }
