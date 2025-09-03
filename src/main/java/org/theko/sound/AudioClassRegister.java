@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.theko.sound.backend.AudioBackend;
 import org.theko.sound.backend.AudioBackends;
 import org.theko.sound.backend.javasound.JavaSoundBackend;
-import org.theko.sound.backend.wasapi.WASAPIExclusiveBackend;
 import org.theko.sound.backend.wasapi.WASAPISharedBackend;
 import org.theko.sound.codec.AudioCodec;
 import org.theko.sound.codec.AudioCodecs;
@@ -50,8 +49,7 @@ public final class AudioClassRegister {
 
     private static final Set<Class<? extends AudioBackend>> definedBackends = Set.of(
         JavaSoundBackend.class,
-        WASAPISharedBackend.class,
-        WASAPIExclusiveBackend.class
+        WASAPISharedBackend.class
     );
 
     private static final Set<Class<? extends AudioCodec>> definedCodecs = Set.of(
