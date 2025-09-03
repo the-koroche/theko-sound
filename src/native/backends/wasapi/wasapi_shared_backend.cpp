@@ -43,7 +43,7 @@ extern "C" {
     JNIEXPORT void JNICALL 
     Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nInit
     (JNIEnv* env, jobject obj) {
-        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIShrdBackend.nInit");
+        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPISharedBackend.nInit");
 
         HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
         if (FAILED(hr)) {
@@ -82,7 +82,7 @@ extern "C" {
     JNIEXPORT void JNICALL 
     Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nShutdown
     (JNIEnv* env, jobject obj) {
-        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIShrdBackend.nShutdown");
+        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPISharedBackend.nShutdown");
 
         auto* ctx = (BackendContext*)env->GetLongField(obj, getClassesCache(env)->wasapiBackend->backendContextPtr);
         IMMDeviceEnumerator* deviceEnumerator = ctx->deviceEnumerator;
@@ -100,7 +100,7 @@ extern "C" {
     JNIEXPORT jobjectArray JNICALL 
     Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nGetAllPorts
     (JNIEnv* env, jobject obj) {
-        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIShrdBackend.nGetAllPorts");
+        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPISharedBackend.nGetAllPorts");
 
         auto* ctx = (BackendContext*)env->GetLongField(obj, getClassesCache(env)->wasapiBackend->backendContextPtr);
         IMMDeviceEnumerator* deviceEnumerator = ctx->deviceEnumerator;
@@ -156,7 +156,7 @@ extern "C" {
     JNIEXPORT jobject JNICALL 
     Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nGetDefaultPort
     (JNIEnv* env, jobject obj, jobject flowObj) {
-        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIShrdBackend.nGetDefaultPort");
+        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPISharedBackend.nGetDefaultPort");
         
         if (!flowObj) return nullptr;
 
@@ -218,7 +218,7 @@ extern "C" {
     JNIEXPORT jboolean JNICALL
     Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nIsFormatSupported
     (JNIEnv* env, jobject obj, jobject jport, jobject jformat, jobject atomicClosestFormat) {
-        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIShrdBackend.nIsFormatSupported");
+        Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPISharedBackend.nIsFormatSupported");
         ClassesCache* classesCache = getClassesCache(env);
 
         if (!jport || !jformat) {
