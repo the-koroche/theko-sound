@@ -17,6 +17,7 @@
 package org.theko.sound.control;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InaccessibleObjectException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,29 +54,34 @@ import java.util.List;
 public interface Controllable {
 
     /**
-     * Retrieves all AudioControl objects declared as fields in the implementing class.
+     * Returns all {@link AudioControl} objects declared as fields in the implementing class.
      *
-     * <p>If the implementing class does not override this method, the default implementation will:
-     * use reflection to access all declared fields in the class, collect those that are instances
-     * of AudioControl or its subclasses, add them to a list, and return an unmodifiable view of this list.
-     * Fields that are inaccessible due to security restrictions are ignored.</p>
+     * @implSpec
+     * The default implementation uses reflection to:
+     * <ul>
+     *   <li>Access all declared fields of the implementing class (excluding inherited ones).</li>
+     *   <li>Collect those that are instances of {@code AudioControl} or its subclasses.</li>
+     *   <li>Ignore fields that are inaccessible due to security restrictions.</li>
+     *   <li>Return an unmodifiable list of the collected controls.</li>
+     * </ul>
      *
-     * @return An unmodifiable list of AudioControl objects found in the implementing class.
+     * <p>It is recommended to override this method in performance-critical implementations
+     * to avoid the cost of reflection.</p>
+     *
+     * @return an unmodifiable list of {@code AudioControl} objects found in the implementing class
      */
     default List<AudioControl> getAllControls() {
         List<AudioControl> controls = new ArrayList<>();
-        Field[] fields = this.getClass().getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            if (AudioControl.class.isAssignableFrom(field.getType())) {
-                try {
+        for (Field field : this.getClass().getDeclaredFields()) {
+            try {
+                field.setAccessible(true);
+                if (AudioControl.class.isAssignableFrom(field.getType())) {
                     AudioControl control = (AudioControl) field.get(this);
                     if (control != null) {
                         controls.add(control);
                     }
-                } catch (IllegalAccessException ex) {
-                    // Ignore inaccesible fields
                 }
+            } catch (IllegalAccessException | InaccessibleObjectException ignored) {
             }
         }
         return Collections.unmodifiableList(controls);
@@ -142,6 +148,72 @@ public interface Controllable {
         for (AudioControl control : getAllControls()) {
             if (control.getName().equals(name) && control instanceof BooleanControl) {
                 return (BooleanControl) control;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Retrieves an EnumControl by its name.
+     *
+     * This method iterates over all available audio controls obtained from
+     * {@link #getAllControls()} and checks if any control is both a EnumControl
+     * and its name matches the specified name. If a match is found, the
+     * corresponding EnumControl is returned. If no matching control is found,
+     * the method returns null.
+     *
+     * @param name The name of the EnumControl to be retrieved.
+     * @return The EnumControl with the specified name, or null if no
+     *         such control exists.
+     */
+    default EnumControl getEnumControl(String name) {
+        for (AudioControl control : getAllControls()) {
+            if (control.getName().equals(name) && control instanceof EnumControl) {
+                return (EnumControl) control;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Retrieves a Vector2Control by its name.
+     *
+     * This method iterates over all available audio controls obtained from
+     * {@link #getAllControls()} and checks if any control is both a Vector2Control
+     * and its name matches the specified name. If a match is found, the
+     * corresponding Vector2Control is returned. If no matching control is found,
+     * the method returns null.
+     *
+     * @param name The name of the Vector2Control to be retrieved.
+     * @return The Vector2Control with the specified name, or null if no
+     *         such control exists.
+     */
+    default Vector2Control getVector2Control(String name) {
+        for (AudioControl control : getAllControls()) {
+            if (control.getName().equals(name) && control instanceof Vector2Control) {
+                return (Vector2Control) control;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Retrieves a Vector3Control by its name.
+     *
+     * This method iterates over all available audio controls obtained from
+     * {@link #getAllControls()} and checks if any control is both a Vector3Control
+     * and its name matches the specified name. If a match is found, the
+     * corresponding Vector3Control is returned. If no matching control is found,
+     * the method returns null.
+     *
+     * @param name The name of the Vector3Control to be retrieved.
+     * @return The Vector3Control with the specified name, or null if no
+     *         such control exists.
+     */
+    default Vector3Control getVector3Control(String name) {
+        for (AudioControl control : getAllControls()) {
+            if (control.getName().equals(name) && control instanceof Vector3Control) {
+                return (Vector3Control) control;
             }
         }
         return null;
