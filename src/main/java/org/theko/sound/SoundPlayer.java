@@ -160,14 +160,22 @@ public class SoundPlayer extends SoundSource {
 
     @Override
     public void stop() {
-        outputLine.stop();
+        try {
+            outputLine.stop();
+        } catch (AudioBackendException | InterruptedException e) {
+            throw new RuntimeException("Failed to stop audio output line.", e);
+        }
         super.stop();
     }
     
     @Override
     public void close() {
         super.close();
-        outputLine.close();
+        try {
+            outputLine.close();
+        } catch (AudioBackendException | InterruptedException e) {
+            throw new RuntimeException("Failed to close audio output line.", e);
+        }
         logger.info("SoundPlayer closed.");
     }
 }
