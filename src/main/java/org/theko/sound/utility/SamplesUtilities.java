@@ -16,7 +16,7 @@
 
 package org.theko.sound.utility;
 
-import org.theko.sound.LengthMismatchException;
+import org.theko.sound.samples.SamplesValidation;
 
 /**
  * Utility class for audio sample manipulation.
@@ -44,9 +44,7 @@ public final class SamplesUtilities {
      * @throws IllegalArgumentException if the samples array is null or empty.
      */
     public static float[] reversePolarity(float[] samples) {
-        if (samples == null || samples.length == 0) {
-            throw new IllegalArgumentException("Samples array cannot be null or empty.");
-        }
+        SamplesValidation.validateSamples(samples);
         
         float[] reversed = new float[samples.length];
         for (int i = 0; i < samples.length; i++) {
@@ -64,9 +62,7 @@ public final class SamplesUtilities {
      * @throws IllegalArgumentException if the samples array is null or empty.
      */
     public static float[][] reversePolarity(float[][] samples) {
-        if (samples == null || samples.length == 0) {
-            throw new IllegalArgumentException("Samples array cannot be null or empty.");
-        }
+        SamplesValidation.validateSamples(samples);
         
         float[][] reversed = new float[samples.length][];
         for (int i = 0; i < samples.length; i++) {
@@ -87,9 +83,7 @@ public final class SamplesUtilities {
      * @throws IllegalArgumentException if the samples array is null or empty.
      */
     public static float[][] swapChannels(float[][] samples) {
-        if (samples == null || samples.length == 0) {
-            throw new IllegalArgumentException("Samples cannot be null or empty.");
-        }
+        SamplesValidation.validateSamples(samples);
 
         float[][] swapped = new float[samples.length][];
         for (int i = 0; i < samples.length; i++) {
@@ -107,9 +101,7 @@ public final class SamplesUtilities {
      * @throws IllegalArgumentException if the samples array is null or empty.
      */
     public static float[] reverse(float[] samples) {
-        if (samples == null || samples.length == 0) {
-            throw new IllegalArgumentException("Samples array cannot be null or empty.");
-        }
+        SamplesValidation.validateSamples(samples);
         
         float[] reversed = new float[samples.length];
         for (int i = 0; i < samples.length; i++) {
@@ -127,9 +119,7 @@ public final class SamplesUtilities {
      * @throws IllegalArgumentException if the samples array is null or empty.
      */
     public static float[][] reverse(float[][] samples) {
-        if (samples == null || samples.length == 0) {
-            throw new IllegalArgumentException("Samples array cannot be null or empty.");
-        }
+        SamplesValidation.validateSamples(samples);
         
         float[][] reversed = new float[samples.length][samples[0].length];
         for (int i = 0; i < samples.length; i++) {
@@ -151,13 +141,12 @@ public final class SamplesUtilities {
      *                                  or if the channels do not have the same length.
      */
     public static float[][] stereoSeparation(float[][] samples, float separation) {
-        if (samples == null || samples.length < 2)
+        SamplesValidation.validateSamples(samples);
+        if (samples.length < 2)
             throw new IllegalArgumentException("Samples must contain at least two channels.");
 
-        try {
-            checkLength(samples);
-        } catch (LengthMismatchException ex) {
-            throw new IllegalArgumentException("All channels must have the same length.", ex);
+        if (!SamplesValidation.checkLength(samples)) {
+            throw new IllegalArgumentException("Channels must have the same length.");
         }
 
         if (samples.length != 2)
@@ -192,9 +181,7 @@ public final class SamplesUtilities {
      * @throws IllegalArgumentException if the samples array is null or empty.
      */
     public static float[] normalize(float[] samples) {
-        if (samples == null || samples.length == 0) {
-            throw new IllegalArgumentException("Samples array cannot be null or empty.");
-        }
+        SamplesValidation.validateSamples(samples);
 
         float max = getAbsMaxVolume(samples);
 
@@ -218,9 +205,7 @@ public final class SamplesUtilities {
      * @throws IllegalArgumentException if the samples array is null or empty.
      */
     public static float[][] normalize(float[][] samples) {
-        if (samples == null || samples.length == 0) {
-            throw new IllegalArgumentException("Samples array cannot be null or empty.");
-        }
+        SamplesValidation.validateSamples(samples);
 
         float max = getAbsMaxVolume(samples);
 
@@ -248,9 +233,7 @@ public final class SamplesUtilities {
      * @throws IllegalArgumentException if the samples array is null or empty.
      */
     public static float getAbsMaxVolume(float[] samples) {
-        if (samples == null || samples.length == 0) {
-            throw new IllegalArgumentException("Samples array cannot be null or empty.");
-        }
+        SamplesValidation.validateSamples(samples);
 
         float max = 0.0f;
         for (float sample : samples) {
@@ -269,9 +252,7 @@ public final class SamplesUtilities {
      * @throws IllegalArgumentException if the samples array is null or empty.
      */
     public static float getAbsMaxVolume(float[][] samples) {
-        if (samples == null || samples.length == 0) {
-            throw new IllegalArgumentException("Samples array cannot be null or empty.");
-        }
+        SamplesValidation.validateSamples(samples);
 
         float max = 0.0f;
         for (float[] channel : samples) {
@@ -292,9 +273,7 @@ public final class SamplesUtilities {
      * @throws IllegalArgumentException if the samples array is null or empty.
      */
     public static float getAbsAvgVolume(float[] samples) {
-        if (samples == null || samples.length == 0) {
-            throw new IllegalArgumentException("Samples array cannot be null or empty.");
-        }
+        SamplesValidation.validateSamples(samples);
 
         float sum = 0.0f;
         int count = 0;
@@ -315,9 +294,7 @@ public final class SamplesUtilities {
      * @throws IllegalArgumentException if the samples array is null or empty.
      */
     public static float getAbsAvgVolume(float[][] samples) {
-        if (samples == null || samples.length == 0) {
-            throw new IllegalArgumentException("Samples array cannot be null or empty.");
-        }
+        SamplesValidation.validateSamples(samples);
 
         float sum = 0.0f;
         int count = 0;
@@ -341,6 +318,8 @@ public final class SamplesUtilities {
      * @throws IllegalArgumentException if the samples array is null or empty.
      */
     public static float[][] adjustGainAndPan(float[][] samples, float gain, float pan) {
+        SamplesValidation.validateSamples(samples);
+
         float[][] output = new float[samples.length][];
         for (int i = 0; i < samples.length; i++) {
             output[i] = new float[samples[i].length];
@@ -368,15 +347,8 @@ public final class SamplesUtilities {
      *                                  or if the input and output arrays do not have the same number of samples.
      */
     public static boolean adjustGainAndPan(float[][] samples, float[][] output, float gain, float pan) {
-        if (samples == null || samples.length == 0) {
-            throw new IllegalArgumentException("Samples array cannot be null or empty.");
-        }
-        if (output == null || output.length == 0) {
-            throw new IllegalArgumentException("Output array cannot be null or empty.");
-        }
-        if (output.length != samples.length) {
-            throw new IllegalArgumentException("Output array must have the same number of channels as the input array.");
-        }
+        SamplesValidation.validateSamples(samples);
+        SamplesValidation.validateSamples(output);
 
         if (pan * pan <= PAN_EPSILON && gain * gain <= GAIN_EPSILON) {
             return false;
@@ -412,40 +384,5 @@ public final class SamplesUtilities {
         if (ch == 0) return gain * leftVol;
         if (ch == 1) return gain * rightVol;
         return gain;
-    }
-
-    /**
-     * Checks if all channels in the samples array have the same length.
-     * Throws a LengthMismatchException if any channel has a different length.
-     *
-     * @param samples The 2D float array representing audio samples.
-     * @throws LengthMismatchException if any channel has a different length.
-     * @throws IllegalArgumentException if the samples array is null or empty.
-     */
-    public static void checkLength(float[][] samples) throws LengthMismatchException {
-        if (samples == null || samples.length == 0) {
-            throw new IllegalArgumentException("Samples array cannot be null or empty.");
-        }
-        checkLength(samples, samples[0].length);
-    }
-
-    /**
-     * Checks if all channels in the samples array have the specified length.
-     * Throws a LengthMismatchException if any channel has a different length.
-     *
-     * @param samples The 2D float array representing audio samples.
-     * @param length The expected length of each channel.
-     * @throws LengthMismatchException if any channel has a different length.
-     * @throws IllegalArgumentException if the samples array is null or empty.
-     */
-    public static void checkLength(float[][] samples, int length) throws LengthMismatchException {
-        if (samples == null || samples.length == 0) {
-            throw new IllegalArgumentException("Samples array cannot be null or empty.");
-        }
-        for (int ch = 0; ch < samples.length; ch++) {
-            if (samples[ch].length != length) {
-                throw new LengthMismatchException("Channel " + ch + " has " + samples[ch].length + " samples, expected " + length);
-            }
-        }
     }
 }

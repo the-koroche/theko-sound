@@ -29,6 +29,8 @@ import org.theko.sound.effects.AudioEffect;
 import org.theko.sound.effects.IncompatibleEffectTypeException;
 import org.theko.sound.effects.MultipleVaryingSizeEffectsException;
 import org.theko.sound.effects.VaryingSizeEffect;
+import org.theko.sound.samples.SamplesValidation;
+
 import static org.theko.sound.properties.AudioSystemProperties.*;
 import org.theko.sound.utility.ArrayUtilities;
 import org.theko.sound.utility.MathUtilities;
@@ -217,16 +219,17 @@ public class AudioMixer implements AudioNode {
     }
 
     @Override
-    public void render(float[][] samples, int sampleRate) {
-        if (samples == null || samples.length == 0) {
-            throw new IllegalArgumentException("Samples array cannot be null or empty.");
+    public void render(float[][] samples, int sampleRate) throws MixingException, IllegalArgumentException {
+        if (sampleRate <= 0) {
+            logger.error("Sample rate must be positive.");
+            throw new IllegalArgumentException("Sample rate must be positive.");
         }
 
-        try {
-            SamplesUtilities.checkLength(samples);
-        } catch (LengthMismatchException e) {
-            logger.error("Input length is not valid.", e);
-            throw new MixingException(e);
+        SamplesValidation.validateSamples(samples);
+
+        if (!SamplesValidation.checkLength(samples)) {
+            logger.error("Samples length must be the same for all channels.");
+            throw new MixingException(new LengthMismatchException("Samples length must be the same for all channels."));
         }
 
         int outputLength = samples[0].length;
@@ -371,8 +374,12 @@ public class AudioMixer implements AudioNode {
                 );
             }
 
-            if (CHECK_LENGTH_MISMATCH_IN_MIXER) {
-                SamplesUtilities.checkLength(input, frameCount);
+            if (CHECK_INPUT_LENGTH_MISMATCH_IN_MIXER) {
+                if (!SamplesValidation.checkLength(input, frameCount)) {
+                    throw new LengthMismatchException(
+                        String.format("Expected %d frames, but got %d at index %d", frameCount, input[0].length, i)
+                    );
+                }
             }
         }
     }

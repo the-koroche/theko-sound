@@ -27,7 +27,7 @@ import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.BooleanControl;
 import org.theko.sound.control.Controllable;
 import org.theko.sound.control.FloatControl;
-import org.theko.sound.utility.SamplesUtilities;
+import org.theko.sound.samples.SamplesValidation;
 
 /**
  * AudioEffect is an abstract class representing an audio effect that can be applied to audio samples.
@@ -94,19 +94,15 @@ public abstract class AudioEffect implements AudioNode, Controllable {
      * @param length The length of the audio samples.
      */
     @Override
-    public final void render(float[][] samples, int sampleRate) {
+    public final void render(float[][] samples, int sampleRate) throws IllegalArgumentException {
         if (sampleRate <= 0) {
             throw new IllegalArgumentException("Sample rate must be positive.");
         }
 
-        if (samples == null || samples.length == 0) {
-            throw new IllegalArgumentException("Samples must not be null or empty.");
-        }
+        SamplesValidation.validateSamples(samples);
 
-        try {
-            SamplesUtilities.checkLength(samples);
-        } catch (LengthMismatchException e) {
-            throw new RuntimeException("Samples length mismatch.", e);
+        if (!SamplesValidation.checkLength(samples)) {
+            throw new RuntimeException(new LengthMismatchException("Samples length must be the same for all channels."));
         }
  
         effectRender(samples, sampleRate);
