@@ -49,7 +49,7 @@ public interface AudioOutputBackend extends AudioBackend, AutoCloseable {
      *
      * @param port The {@link AudioPort} to be used.
      * @param audioFormat The {@link AudioFormat} for audio data.
-     * @param bufferSize The size of the buffer for audio data.
+     * @param bufferSize The size of the buffer for audio data, in bytes.
      * @throws AudioBackendException If an error occurs while opening the backend.
      */
     void open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException;
