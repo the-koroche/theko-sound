@@ -16,7 +16,10 @@
 
 package org.theko.sound;
 
-import static org.theko.sound.properties.AudioSystemProperties.*;
+import static org.theko.sound.properties.AudioSystemProperties.OUTPUT_LAYER_OUTPUT_THREAD_PRIORITY;
+import static org.theko.sound.properties.AudioSystemProperties.OUTPUT_LAYER_PROCESSING_THREAD_PRIORITY;
+import static org.theko.sound.properties.AudioSystemProperties.OUTPUT_LAYER_RESAMPLE_METHOD;
+import static org.theko.sound.properties.AudioSystemProperties.OUTPUT_LAYER_RESAMPLE_QUALITY;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,7 +51,7 @@ import org.theko.sound.utility.FormatUtilities;
 import org.theko.sound.utility.ThreadUtilities;
 
 /**
- * The {@code AudioOutputLayer} class is responsible for managing an audio output line.
+ * The {@code AudioOutputLayer} class is responsible for managing an audio output.
  * It encapsulates an {@link AudioOutputBackend} and provides a unified interface for
  * audio output operations. It is possible to add {@link AudioNode} to this
  * class as a root node, which can be used to process audio data in real-time.
@@ -56,12 +59,12 @@ import org.theko.sound.utility.ThreadUtilities;
  * This class is {@link AutoCloseable}, so it can be used in a try-with-resources
  * statement. It is also thread-safe.
  * <p>
- * The class provides methods to open and close the audio output line, start and stop
+ * The class provides methods to open and close the audio output, start and stop
  * audio playback, and retrieve information about the audio line, such as buffer size,
  * frame position, and latency.
  * <p>
  * <p>
- * Also, this class adds a shutdown hook to close the audio output line when the
+ * Also, this class adds a shutdown hook to close the audio output when the
  * JVM is shut down, ensuring proper cleanup.
  * <p>
  * Usage example:
@@ -89,12 +92,13 @@ public class AudioOutputLayer implements AutoCloseable {
     
     private static final Logger logger = LoggerFactory.getLogger(AudioOutputLayer.class);
 
+    private static final int TIME_FORMAT_PRECISION = 4;
+
     /* Counter for instance IDs */
     private static final AtomicInteger instances = new AtomicInteger(0);
     private final int instanceId = instances.incrementAndGet();
     private final String baseName = "AudioOutputLayer" + instanceId;
     
-    /* AOL opened state */
     private boolean isOpened = false;
 
     /* Processing and output threads */
@@ -107,6 +111,7 @@ public class AudioOutputLayer implements AutoCloseable {
     /* Audio output backend and buffers */
     private final AudioOutputBackend aob;
     private volatile byte[][] ringBuffers;
+    private int buffersCount;
     private volatile int writeIndex, readIndex;
 
     /* Underrun behavior */
@@ -120,7 +125,8 @@ public class AudioOutputLayer implements AutoCloseable {
     private AudioFormat openedFormat;
     private int resampledLength;
     private int rawLength;
-    private int renderBufferSize;
+    private int renderBufferSize; // frames
+    private int outputBufferSize; // frames
     private long bufferTimeMicros;
     private long latencyMicros;
 
@@ -129,7 +135,6 @@ public class AudioOutputLayer implements AutoCloseable {
     private boolean isPlaying;
     private float resamplingFactor = 1.0f;
     private AudioResampler resampler;
-    private volatile boolean processedFirstBuffer = false; // To prevent underruns on the first frame
 
     /* Shutdown hook */
     private final Runnable shutdownHook;
@@ -142,13 +147,16 @@ public class AudioOutputLayer implements AutoCloseable {
         OPENED, CLOSED,
         STARTED, STOPPED,
         FLUSHED, DRAINED,
-        UNDERRUN, OVERRUN,
+        UNDERRUN,
         PROCESSING_INTERRUPTED, OUTPUT_INTERRUPTED,
         LENGTH_MISMATCH,
         UNCHECKED_CLOSE,
         RENDER_EXCEPTION
     }
 
+    /**
+     * An enumeration of underrun behavior options.
+     */
     public enum UnderrunBehavior {
         SILENCE,
         REPEAT_LAST
@@ -194,7 +202,6 @@ public class AudioOutputLayer implements AutoCloseable {
         eventHandlers.put(OutputLayerEventType.FLUSHED, OutputLayerListener::onFlushed);
         eventHandlers.put(OutputLayerEventType.DRAINED, OutputLayerListener::onDrained);        
         eventHandlers.put(OutputLayerEventType.UNDERRUN, OutputLayerListener::onUnderrun);
-        eventHandlers.put(OutputLayerEventType.OVERRUN, OutputLayerListener::onOverrun);
         eventHandlers.put(OutputLayerEventType.PROCESSING_INTERRUPTED, OutputLayerListener::onProcessingInterrupted);
         eventHandlers.put(OutputLayerEventType.OUTPUT_INTERRUPTED, OutputLayerListener::onOutputInterrupted);
         eventHandlers.put(OutputLayerEventType.LENGTH_MISMATCH, OutputLayerListener::onLengthMismatch);
@@ -203,7 +210,7 @@ public class AudioOutputLayer implements AutoCloseable {
         eventDispatcher.setEventMap(eventHandlers);
     }
     
-    private final OutputLayerEvent getEvent() {
+    private OutputLayerEvent getEvent() {
         int outBufferSize = (aob != null && aob.isOpen() ? aob.getBufferSize() : -1);
         int buffersCount = (ringBuffers != null ? ringBuffers.length : -1);
         return new OutputLayerEvent(
@@ -225,32 +232,32 @@ public class AudioOutputLayer implements AutoCloseable {
 
     
     /**
-     * Opens the audio output line with the specified port, format, and buffer size.
+     * Opens the audio output with the specified port, format, and buffer size.
      * If the port is null, the default output port will be used.
      * This method also tries to use best matching audio format, if the given format is not supported.
      * 
      * @param port The {@link AudioPort} to be used.
      * @param audioFormat The {@link AudioFormat} for audio data.
-     * @param bufferSizeInSamples The size of the buffer for audio data in samples.
+     * @param bufferSize The size of the buffer for audio data, defined by {@link AudioMeasure}.
      * @param buffersCount The number of audio ring buffers to be used.
      * @throws UnsupportedAudioFormatException If the specified audio format is not supported.
      * @throws IllegalArgumentException If the audio port, audio format, buffer size, or buffer count are invalid.
      * @throws AudioBackendException If an error occurs while opening the backend.
      * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output.
      */
-    public void open(AudioPort port, AudioFormat audioFormat, int bufferSizeInSamples, int buffersCount) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioPortsNotFoundException, AudioBackendException {
+    public void open(AudioPort port, AudioFormat audioFormat, AudioMeasure bufferSize, int buffersCount) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioPortsNotFoundException, AudioBackendException {
         if (isOpened) {
-            logger.warn("Audio output line is already open.");
+            logger.warn("Audio output layer is already open.");
             return;
         }
 
         if (audioFormat == null) throw new IllegalArgumentException("Audio format cannot be null.");
-        if (bufferSizeInSamples <= 0) throw new IllegalArgumentException("Buffer size must be greater than 0.");
+        if (bufferSize == null) throw new IllegalArgumentException("Buffer size cannot be null.");
         if (buffersCount <= 0) throw new IllegalArgumentException("Buffer count must be greater than 0.");
-        if (buffersCount > 4) throw new IllegalArgumentException("Buffer count must be less than or equal to 4, due to inefficiency.");
 
-        logger.debug("Trying to open with port: {}, format: {}, buffer size: {}.",
-                port != null ? port.toString() : "Default", audioFormat, bufferSizeInSamples);
+        int bufferSizeInFrames = (int)bufferSize.onFormat(audioFormat).getFrames();
+        if (bufferSizeInFrames <= 0) throw new IllegalArgumentException("Buffer size must be greater than 0.");
+
         AudioPort targetPort = (port == null ? aob.getDefaultPort(AudioFlow.OUT).get() : port);
         if (targetPort == null) {
             throw new AudioPortsNotFoundException("No default output port was found.");
@@ -259,104 +266,126 @@ public class AudioOutputLayer implements AutoCloseable {
             logger.debug("Using default output port: {}.", targetPort);
         }
 
-        AudioFormat targetFormat = audioFormat;
+        this.sourceFormat = audioFormat;
+        this.openedFormat = findFormat(targetPort, audioFormat);
+        if (!openedFormat.equals(sourceFormat)) {
+            resamplingFactor = (float) sourceFormat.getSampleRate() / (float) openedFormat.getSampleRate();
+            logger.debug(
+                "Audio format conversion (details in info block). Resampling factor: '{}'.", resamplingFactor
+            );
+        } else {
+            this.resamplingFactor = 1.0f;
+        }
+
+        this.renderBufferSize = bufferSizeInFrames;
+        this.outputBufferSize = (int)(bufferSizeInFrames / resamplingFactor);
+        this.resampledLength = (int)(renderBufferSize / resamplingFactor);
+        this.rawLength = resampledLength * openedFormat.getChannels() * openedFormat.getBytesPerSample();
+        this.bufferTimeMicros = AudioUnitsConverter.framesToMicroseconds(
+            renderBufferSize,
+            (int)(sourceFormat.getSampleRate())
+        );
+
+        StringBuilder outputLog = new StringBuilder("Info:\n");
+        outputLog.append("  Port: ").append(targetPort.toString()).append(",\n");
+        outputLog.append("  Source format (requested): ").append(sourceFormat.toString()).append(",\n");
+        outputLog.append("  Opened Format (output opened with): ").append(openedFormat.toString()).append(",\n");
+        outputLog.append("  Resampling factor: ").append(resamplingFactor).append(",\n");
+        outputLog.append("  Render buffer size (processing): ").append(renderBufferSize).append(" frames,\n");
+        outputLog.append("  Output buffer size (per-buffer): ").append(outputBufferSize).append(" frames,\n");
+        outputLog.append("  Output bytes length (per-buffer): ").append(rawLength).append(" bytes,\n");
+        outputLog.append("  Buffer time: ").append(FormatUtilities.formatTime(bufferTimeMicros*1000, TIME_FORMAT_PRECISION)).append(",\n");
+        outputLog.append("  Buffers count: ").append(buffersCount).append(".\n");
+        
+        try {
+            aob.open(targetPort, openedFormat, outputBufferSize * openedFormat.getFrameSize());
+        } catch (AudioBackendException e) {
+            logger.error("Failed to open audio output. {}", outputLog.toString());
+            logger.error("Audio exception stack trace", e);
+            throw e;
+        }
+
+        long driverLatency = aob.getMicrosecondLatency();
+        long buffersLatency = bufferTimeMicros * buffersCount;
+        latencyMicros = buffersLatency + driverLatency;
+
+        String driverLatencyStr = (driverLatency > 0 ?
+                FormatUtilities.formatTime(driverLatency*1000, TIME_FORMAT_PRECISION) :
+                "N/A");
+        outputLog.append("Latency info:\n");
+        outputLog.append("  Latency (driver-only): ").append(driverLatencyStr).append(",\n");
+        outputLog.append("  Latency (computed) [one-buffer, all-buffers]: {")
+                 .append(FormatUtilities.formatTime(bufferTimeMicros*1000, TIME_FORMAT_PRECISION)).append(", ")
+                 .append(FormatUtilities.formatTime(buffersLatency*1000, TIME_FORMAT_PRECISION)).append("},\n");
+        outputLog.append("  Effective latency: ").append(FormatUtilities.formatTime(latencyMicros*1000, TIME_FORMAT_PRECISION)).append(".");
+        logger.info("Output layer opened. {}", outputLog.toString());
+
+        this.silenceBuffer = new byte[rawLength];
+        Arrays.fill(silenceBuffer, (byte) 0);
+
+        this.buffersCount = buffersCount;
+        if (buffersCount > 1) {
+            ringBuffers = new byte[buffersCount][rawLength];
+        }
+
+        isOpened = true;
+        eventDispatcher.dispatch(OutputLayerEventType.OPENED, getEvent());
+    }
+
+    private AudioFormat findFormat(AudioPort port, AudioFormat sourceFormat) throws UnsupportedAudioFormatException {
+        AudioFormat targetFormat = sourceFormat;
 
         AtomicReference<AudioFormat> closestFormat = new AtomicReference<>();
         closestFormat.set(null);
-        if (!aob.isFormatSupported(targetPort, targetFormat, closestFormat)) {
+        if (!aob.isFormatSupported(port, targetFormat, closestFormat)) {
             logger.debug("Audio format is not supported. Using closest supported format: {}.", closestFormat.get());
             if (closestFormat.get() != null) {
                 targetFormat = closestFormat.get();
                 logger.debug("Using closest supported format: {}.", targetFormat);
             } else {
                 // Using targetPort's mix format
-                targetFormat = targetPort.getMixFormat();
+                targetFormat = port.getMixFormat();
                 logger.debug("Audio format is not supported. Using target port's mix format: {}.", targetFormat);
                 closestFormat.set(null);
 
-                if (!aob.isFormatSupported(targetPort, targetFormat, closestFormat)) {
+                if (!aob.isFormatSupported(port, targetFormat, closestFormat)) {
                     logger.debug("Mix format is not supported. Using closest supported format: {}.", closestFormat.get());
                     if (closestFormat.get() != null) {
                         targetFormat = closestFormat.get();
                         logger.debug("Using closest supported format: {}.", targetFormat);
                     } else {
-                        logger.error("Failed to open audio output line. Unsupported audio format: {}.", targetFormat);
+                        logger.error("Failed to open audio output. Unsupported audio format: {}.", targetFormat);
                         throw new UnsupportedAudioFormatException(
-                            "Unsupported audio format. Source format: %s. Used format: %s.".formatted(audioFormat, targetFormat)
+                            "Unsupported audio format. Source format: %s. Used format: %s.".formatted(sourceFormat, targetFormat)
                         );
                     }
                 }
             }
         }
 
-        if (!targetFormat.equals(audioFormat)) {
-            resamplingFactor = (float) audioFormat.getSampleRate() / (float) targetFormat.getSampleRate();
-            logger.info(
-                "Audio format conversion: {} -> {}. Resampling factor: '{}'.",
-                audioFormat,
-                targetFormat,
-                resamplingFactor
-            );
-        } else {
-            resamplingFactor = 1.0f;
-        }
-
-        aob.open(targetPort, targetFormat, bufferSizeInSamples * targetFormat.getFrameSize());
-        this.sourceFormat = audioFormat;
-        this.openedFormat = targetFormat;
-        this.renderBufferSize = bufferSizeInSamples;
-
-        resampledLength = (int)(renderBufferSize / resamplingFactor);
-        rawLength = resampledLength * openedFormat.getChannels() * openedFormat.getBytesPerSample();
-        bufferTimeMicros = AudioUnitsConverter.framesToMicroseconds(
-            renderBufferSize,
-            (int)(sourceFormat.getSampleRate())
-        );
-        latencyMicros = aob.getMicrosecondLatency() + bufferTimeMicros * buffersCount;
-        logger.debug("Render buffer size: {}. Buffer time: {}. Latency (computed): {}.",
-                renderBufferSize,
-                FormatUtilities.formatTime(bufferTimeMicros*1000, 4),
-                FormatUtilities.formatTime(latencyMicros*1000, 4)
-            );
-
-        processedFirstBuffer = false;
-
-        silenceBuffer = new byte[rawLength];
-        Arrays.fill(silenceBuffer, (byte) 0);
-
-        ringBuffers = new byte[buffersCount][rawLength];
-
-        isOpened = true;
-        eventDispatcher.dispatch(OutputLayerEventType.OPENED, getEvent());
-
-        logger.debug(
-            "Opened with port {}, format {}, buffer size {}.",
-            targetPort,
-            targetFormat,
-            bufferSizeInSamples
-        );
+        return targetFormat;
     }
 
     /**
-     * Opens the audio output line with the specified port, format, and buffer size.
+     * Opens the audio output with the specified port, format, and buffer size.
      * If the port is null, the default output port will be used.
-     * It creates a double buffered audio output line.
+     * It creates a double buffered audio output.
      * This method also tries to use best matching audio format, if the given format is not supported.
      * 
      * @param port The {@link AudioPort} to be used.
      * @param audioFormat The {@link AudioFormat} for audio data.
-     * @param bufferSizeInSamples The size of the buffer for audio data in samples.
+     * @param bufferSize The size of the buffer for audio data, defined by {@link AudioMeasure}.
      * @throws UnsupportedAudioFormatException If the specified audio format is not supported.
      * @throws IllegalArgumentException If the audio port, audio format, or buffer size are invalid.
      * @throws AudioBackendException If an error occurs while opening the backend.
      * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output.
      */
-    public void open(AudioPort port, AudioFormat audioFormat, int bufferSizeInSamples) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioPortsNotFoundException, AudioBackendException {
-        this.open(port, audioFormat, bufferSizeInSamples, 2 /* Double buffering */); 
+    public void open(AudioPort port, AudioFormat audioFormat, AudioMeasure bufferSize) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioPortsNotFoundException, AudioBackendException {
+        this.open(port, audioFormat, bufferSize, 1); 
     }
 
     /**
-     * Opens the audio output line with the specified port and format.
+     * Opens the audio output with the specified port and format.
      * 
      * @param port The {@link AudioPort} to be used.
      * @param audioFormat The {@link AudioFormat} for audio data.
@@ -366,11 +395,11 @@ public class AudioOutputLayer implements AutoCloseable {
      * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output.
      */
     public void open(AudioPort port, AudioFormat audioFormat) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException, AudioPortsNotFoundException {
-        this.open(port, audioFormat, AudioSystemProperties.OUTPUT_LAYER_BUFFER_SIZE);
+        this.open(port, audioFormat, AudioMeasure.ofFrames(AudioSystemProperties.OUTPUT_LAYER_BUFFER_SIZE));
     }
 
     /**
-     * Opens the audio output line with the specified format.
+     * Opens the audio output with the specified format, and default output port.
      * 
      * @param audioFormat The {@link AudioFormat} for audio data.
      * @throws UnsupportedAudioFormatException If the specified audio format is not supported.
@@ -383,16 +412,16 @@ public class AudioOutputLayer implements AutoCloseable {
     }
 
     /**
-     * Checks if the audio output line is open.
+     * Checks if the audio output is open.
      * 
-     * @return True if the audio output line is open, false otherwise.
+     * @return True if the audio output is open, false otherwise.
      */
     public boolean isOpen() {
         return aob.isOpen() && isOpened;
     }
 
     /**
-     * Starts the audio output line, processing audio data from the root node.
+     * Starts the audio output, processing audio data from the root node.
      * Creates a processing thread and starts it.
      * The thread is set as a daemon thread to not block JVM exit.
      * 
@@ -401,39 +430,41 @@ public class AudioOutputLayer implements AutoCloseable {
      */
     public void start() throws AudioBackendException {
         if (isPlaying) return;
+        if (!isOpened) {
+            throw new IllegalStateException("Audio output layer is not open.");
+        }
         aob.start();
+        boolean isOneBuffer = buffersCount == 1;
+
+        String processingThreadName = baseName + (isOneBuffer ? "-ProcessAndOutput" : "-Processing");
+        int processingThreadPriority = (isOneBuffer ? 
+                Math.max(processingPriority, outputPriority) :
+                processingPriority);
+        
         processingThread = ThreadUtilities.startThread(
-            baseName + "-Processing",
+            processingThreadName,
             AudioSystemProperties.OUTPUT_LAYER_PROCESSING_THREAD_TYPE,
-            processingPriority,
-            () -> {
-                try {
-                    process();
-                } catch (Exception ex) {
-                    logger.error("Error in AudioOutputLayer{}-Processing.", instanceId, ex);
-                }
-            }
+            processingThreadPriority,
+            this::process
+            // Do not catch exceptions here, they will be caught in process().
+            // Critical exceptions can stop the processing thread.
         );
         if (processingThread == null) 
             throw new RuntimeException(
-                "Failed to start " + baseName + "-Processing. Thread is null."
+                "Failed to start " + processingThreadName + ". Thread is null."
             );
-        outputThread = ThreadUtilities.startThread(
-            baseName + "-Output",
-            AudioSystemProperties.OUTPUT_LAYER_OUTPUT_THREAD_TYPE,
-            outputPriority,
-            () -> {
-                try {
-                    output();
-                } catch (Exception ex) {
-                    logger.error("Error in AudioOutputLayer{}-Output.", instanceId, ex);
-                }
-            }
-        );
-        if (outputThread == null) 
-            throw new RuntimeException(
-                "Failed to start " + baseName + "-Output. Thread is null."
+        if (!isOneBuffer) {
+            outputThread = ThreadUtilities.startThread(
+                baseName + "-Output",
+                AudioSystemProperties.OUTPUT_LAYER_OUTPUT_THREAD_TYPE,
+                outputPriority,
+                this::output
             );
+            if (outputThread == null) 
+                throw new RuntimeException(
+                    "Failed to start " + baseName + "-Output. Thread is null."
+                );
+        }
         underruns = 0;
         isPlaying = true;
         logger.debug("Started {}. Processing thread: {}, Output thread: {}.", baseName, processingThread, outputThread);
@@ -441,7 +472,7 @@ public class AudioOutputLayer implements AutoCloseable {
     }
 
     /**
-     * Stops the audio output line and interrupts the processing thread.
+     * Stops the audio output and interrupts the processing thread.
      * @throws AudioBackendException If an error occurs while stopping the backend.
      * @throws InterruptedException If the threads join operation is interrupted.
      */
@@ -470,7 +501,7 @@ public class AudioOutputLayer implements AutoCloseable {
     }
 
     /**
-     * Closes the audio output line, stopping the processing thread and closing the backend.
+     * Closes the audio output, stopping the processing thread and closing the backend.
      * Stop can take some time, so it is recommended to call it in a separate thread.
      * 
      * @throws InterruptedException If the threads join operation is interrupted while stopping.
@@ -623,8 +654,8 @@ public class AudioOutputLayer implements AutoCloseable {
     }
 
     /**
-     * Returns the audio format of the audio output line.
-     * @return The audio format of the audio output line.
+     * Returns the audio format of the audio output.
+     * @return The audio format of the audio output.
      */
     public AudioFormat getSourceFormat() {
         return sourceFormat;
@@ -639,7 +670,7 @@ public class AudioOutputLayer implements AutoCloseable {
     }
 
     /**
-     * Returns the current frame position of the audio output line.
+     * Returns the current frame position of the audio output.
      * @return The current frame position.
      */
     public long getFramePosition() {
@@ -647,7 +678,7 @@ public class AudioOutputLayer implements AutoCloseable {
     }
 
     /**
-     * Returns the current microsecond position of the audio output line.
+     * Returns the current microsecond position of the audio output.
      * @return The current microsecond position.
      */
     public long getMicrosecondPosition() {
@@ -663,7 +694,7 @@ public class AudioOutputLayer implements AutoCloseable {
     }
 
     /**
-     * Returns the current audio port of the audio output line.
+     * Returns the current audio port of the audio output.
      * @return The current audio port.
      */
     public AudioPort getCurrentAudioPort() {
@@ -675,12 +706,8 @@ public class AudioOutputLayer implements AutoCloseable {
     private byte[] readAudio() {
         synchronized(bufferLock) {
             if (readIndex == writeIndex) {
-                if (processedFirstBuffer) {
-                    logger.warn("Underrun in {}. Total underruns: {}", baseName, underruns);
-                    eventDispatcher.dispatch(OutputLayerEventType.UNDERRUN, getEvent());
-                } else {
-                    return silenceBuffer;
-                }
+                logger.warn("Underrun. Total underruns: {}", underruns);
+                eventDispatcher.dispatch(OutputLayerEventType.UNDERRUN, getEvent());
                 underruns++;
                 switch (underrunBehavior) {
                     case SILENCE:
@@ -693,7 +720,7 @@ public class AudioOutputLayer implements AutoCloseable {
             }
             byte[] output = ringBuffers[readIndex];
             lastAudioBuffer = output;
-            readIndex = (readIndex + 1) % ringBuffers.length;
+            readIndex = (readIndex + 1) % buffersCount;
             bufferLock.notifyAll();
             return output;
         }
@@ -701,15 +728,11 @@ public class AudioOutputLayer implements AutoCloseable {
 
     private void writeAudio(byte[] data) throws InterruptedException {
         synchronized(bufferLock) {
-            /*if ((writeIndex + 1) % buffersList.size() == readIndex) {
-                logger.info("Overrun in {}", baseName);
-                eventDispatcher.dispatch(OutputLayerEventType.OVERRUN, getEvent());
-            }*/
-            while ((writeIndex + 1) % ringBuffers.length == readIndex) {
+            while ((writeIndex + 1) % buffersCount == readIndex) {
                 bufferLock.wait();
             }
             System.arraycopy(data, 0, ringBuffers[writeIndex], 0, data.length);
-            writeIndex = (writeIndex + 1) % ringBuffers.length;
+            writeIndex = (writeIndex + 1) % buffersCount;
             bufferLock.notifyAll();
         }
     }
@@ -720,19 +743,14 @@ public class AudioOutputLayer implements AutoCloseable {
                 byte[] data = readAudio();
                 aob.write(data, 0, data.length);
             } catch (BackendNotOpenException e) {
-                logger.info("{} is closed", baseName);
+                logger.info("Backend is closed.");
                 eventDispatcher.dispatch(OutputLayerEventType.UNCHECKED_CLOSE, getEvent());
                 return;
             } catch (AudioBackendException e) {
                 logger.error("Error writing to audio backend.", e);
                 break;
-            }/* catch (InterruptedException e) {
-                logger.debug("{}-Output thread is interrupted.", baseName);
-                eventDispatcher.dispatch(OutputLayerEventType.OUTPUT_INTERRUPTED, getEvent());
-                Thread.currentThread().interrupt();
-                break;
-            } */catch (Exception e) {
-                logger.error("Error in " + baseName + "-Output thread.", e);
+            } catch (Exception e) {
+                logger.error("Error in output thread.", e);
                 break;
             }
         }
@@ -743,10 +761,6 @@ public class AudioOutputLayer implements AutoCloseable {
         public ProcessingException(String message, Throwable cause) {
             super(message, cause);
         }
-
-        public ProcessingException(Throwable cause) {
-            super(cause);
-        }
     }
 
     private void process() {
@@ -755,6 +769,7 @@ public class AudioOutputLayer implements AutoCloseable {
         byte[] rawBytes = new byte[rawLength];
 
         int lengthMismatchCounter = 0;
+        boolean isOneBuffer = buffersCount == 1;
 
         // Use shorter buffer to prevent underruns
         long bufferMcsWait = Math.min(bufferTimeMicros - 1000, 100);
@@ -764,6 +779,7 @@ public class AudioOutputLayer implements AutoCloseable {
                 long startRenderNs = System.nanoTime();
                 AudioNode snapshot = rootNode;
                 if (snapshot == null) {
+                    writeAudio(silenceBuffer);
                     waitMicros(bufferMcsWait);
                     continue;
                 }
@@ -773,7 +789,7 @@ public class AudioOutputLayer implements AutoCloseable {
                 } catch (IllegalArgumentException ex) {
                     logger.error("Passed wrong arguments to the render method (invalid sample rate?).", ex);
                 } catch (MixingException ex) {
-                    logger.error("Mixing error in " + baseName + "-Processing thread.", ex);
+                    logger.error("Mixing error.", ex);
                 }
                 // if changed the channels or samples length
                 if (SamplesValidation.isValidSamples(sampleBuffer) != ValidationResult.VALID || !SamplesValidation.checkLength(sampleBuffer, renderBufferSize)) {
@@ -784,11 +800,13 @@ public class AudioOutputLayer implements AutoCloseable {
                     // Initialize buffers again
                     if (lengthMismatchCounter < 10) {
                         sampleBuffer = new float[openedFormat.getChannels()][renderBufferSize];
-                        waitMicros(bufferMcsWait);
+                        long endRenderNs = System.nanoTime();
+                        long durationRenderNs = endRenderNs - startRenderNs;
+                        waitMicros(bufferMcsWait - (int)(durationRenderNs * 0.001));
                         continue;
                     } else {
-                        logger.error("Too many length mismatches in {}-Processing thread. Aborting.", baseName);
-                        throw new LengthMismatchException("Length mismatch in " + baseName + "-Processing thread. Expected " + renderBufferSize + " got " + sampleBuffer[0].length);
+                        logger.error("Too many length mismatches. Aborting.");
+                        throw new LengthMismatchException("Length mismatch. Expected " + renderBufferSize + " got " + sampleBuffer[0].length);
                     }
                 }
 
@@ -800,27 +818,30 @@ public class AudioOutputLayer implements AutoCloseable {
                     throw new ProcessingException("Internal error", ex);
                 }
 
-                writeAudio(rawBytes);
-                processedFirstBuffer = true;
+                if (isOneBuffer) {
+                    aob.write(rawBytes, 0, rawBytes.length); // Write directly
+                } else {
+                    writeAudio(rawBytes);
 
-                long endRenderNs = System.nanoTime();
-                long durationRenderNs = endRenderNs - startRenderNs;
-                waitMicros(bufferMcsWait - (int)(durationRenderNs * 0.001));
+                    long endRenderNs = System.nanoTime();
+                    long durationRenderNs = endRenderNs - startRenderNs;
+                    waitMicros(bufferMcsWait - (int)(durationRenderNs * 0.001));
+                }
             } catch (LengthMismatchException ex) {
                 // Already logged
                 throw new RuntimeException(ex);
             } catch (InterruptedException ex) {
-                logger.debug(baseName + "-Processing thread interrupted.", ex);
+                logger.debug("Thread interrupted.");
                 eventDispatcher.dispatch(OutputLayerEventType.PROCESSING_INTERRUPTED, getEvent());
                 Thread.currentThread().interrupt();  
             } catch (ProcessingException ex) { 
-                logger.error("Error in " + baseName + "-Processing thread.", ex);
+                logger.error("Processing error.", ex);
                 eventDispatcher.dispatch(OutputLayerEventType.RENDER_EXCEPTION, getEvent());
                 throw ex;
             } catch (Exception ex) {
-                logger.error("Error in " + baseName + "-Processing thread.", ex);
+                logger.error("Exception in processing thread.", ex);
                 eventDispatcher.dispatch(OutputLayerEventType.RENDER_EXCEPTION, getEvent());
-                throw new RuntimeException(ex);
+                // Ignore
             }
         }
     }
