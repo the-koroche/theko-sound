@@ -34,7 +34,7 @@
 #include <jni.h>
 
 static jobject WAVEFORMATEX_to_AudioFormat(JNIEnv* env, const WAVEFORMATEX* waveformat) {
-    Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBridge.WAVEFORMATEX_to_AudioFormat");
+    Logger* logger = getLoggerManager()->getLogger(env, "NATIVE: WASAPIBridge.WAVEFORMATEX -> AudioFormat");
     ClassesCache* classesCache = getClassesCache(env);
 
     if (!waveformat) return nullptr;
@@ -97,7 +97,7 @@ static jobject WAVEFORMATEX_to_AudioFormat(JNIEnv* env, const WAVEFORMATEX* wave
 }
 
 static WAVEFORMATEX* AudioFormat_to_WAVEFORMATEX(JNIEnv* env, jobject audioFormat) {
-    Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBridge.AudioFormat_to_WAVEFORMATEX");
+    Logger* logger = getLoggerManager()->getLogger(env, "NATIVE: WASAPIBridge.AudioFormat -> WAVEFORMATEX");
     ClassesCache* classesCache = getClassesCache(env);
 
     if (!audioFormat) return nullptr;
@@ -151,7 +151,7 @@ static WAVEFORMATEX* AudioFormat_to_WAVEFORMATEX(JNIEnv* env, jobject audioForma
 }
 
 static wchar_t* getAudioDeviceProperty(JNIEnv* env, IMMDevice* device, const PROPERTYKEY& key) {
-    Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBridge.getAudioDeviceProperty");
+    Logger* logger = getLoggerManager()->getLogger(env, "NATIVE: WASAPIBridge.getAudioDeviceProperty");
 
     if (!device) return nullptr;
 
@@ -197,7 +197,7 @@ static wchar_t* getAudioDeviceProperty(JNIEnv* env, IMMDevice* device, const PRO
 }
 
 static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
-    Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBridge.IMMDevice_to_AudioPort");
+    Logger* logger = getLoggerManager()->getLogger(env, "NATIVE: WASAPIBridge.IMMDevice -> AudioPort");
     ClassesCache* classesCache = getClassesCache(env);
 
     if (!pDevice) return nullptr;
@@ -347,7 +347,7 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
 }
 
 static IMMDevice* AudioPort_to_IMMDevice(JNIEnv* env, jobject jAudioPort) {
-    Logger* logger = getLoggerManager()->getLogger(env, "<Native> : WASAPIBridge.AudioPort_to_IMMDevice");
+    Logger* logger = getLoggerManager()->getLogger(env, "NATIVE: WASAPIBridge.AudioPort -> IMMDevice");
     ClassesCache* classesCache = getClassesCache(env);
 
     if (!jAudioPort || !env->IsInstanceOf(jAudioPort, classesCache->audioPort->clazz)) {
