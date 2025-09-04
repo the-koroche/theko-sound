@@ -66,7 +66,7 @@ public class SoundPlayer extends SoundSource {
         }
     }
 
-    public void open(File file, AudioPort port, int bufferSize) throws FileNotFoundException, AudioCodecNotFoundException {
+    public void open(File file, AudioPort port, AudioMeasure bufferSize) throws FileNotFoundException, AudioCodecNotFoundException {
         super.open(file);
         try {
             this.outputLine.open(port, getAudioFormat(), bufferSize);
