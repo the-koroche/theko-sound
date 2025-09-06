@@ -16,6 +16,8 @@
 
  package org.theko.sound;
 
+import org.theko.sound.utility.FormatUtilities;
+
 /**
  * Represents a measure of audio data, such as a number of frames, samples, bytes, or seconds.
  * It can be created using the static methods {@code ofFrames}, {@code ofSamples}, {@code ofBytes}, or {@code ofSeconds},
@@ -28,20 +30,30 @@ public class AudioMeasure {
 
     private final long longVal; // for frames, samples, bytes
     private final double timeVal; // for seconds
-    private final Type type;
+    private final Unit unit;
     private AudioFormat audioFormat;
 
     /**
-     * Represents the type of audio measure.
+     * Represents the unit of audio measure.
      */
-    public enum Type {
-        FRAMES, SAMPLES, BYTES, SECONDS
+    public enum Unit {
+        FRAMES, SAMPLES, BYTES, SECONDS;
+
+        @Override
+        public String toString() {
+            return switch (this) {
+                case FRAMES -> "frames";
+                case SAMPLES -> "samples";
+                case BYTES -> "bytes";
+                case SECONDS -> "seconds";
+            };
+        }
     }
 
-    private AudioMeasure(long longVal, double timeVal, Type type, AudioFormat format) {
+    private AudioMeasure(long longVal, double timeVal, Unit unit, AudioFormat format) {
         this.longVal = longVal;
         this.timeVal = timeVal;
-        this.type = type;
+        this.unit = unit;
         this.audioFormat = format;
     }
 
@@ -64,7 +76,7 @@ public class AudioMeasure {
      * @return An audio measure for the specified number of frames.
      */
     public static AudioMeasure ofFrames(long frames) {
-        return new AudioMeasure(frames, 0, Type.FRAMES, null);
+        return new AudioMeasure(frames, 0, Unit.FRAMES, null);
     }
 
     /**
@@ -74,7 +86,7 @@ public class AudioMeasure {
      * @return An audio measure for the specified number of samples.
      */
     public static AudioMeasure ofSamples(long samples) {
-        return new AudioMeasure(samples, 0, Type.SAMPLES, null);
+        return new AudioMeasure(samples, 0, Unit.SAMPLES, null);
     }
 
     /**
@@ -84,7 +96,7 @@ public class AudioMeasure {
      * @return An audio measure for the specified number of bytes.
      */
     public static AudioMeasure ofBytes(long bytes) {
-        return new AudioMeasure(bytes, 0, Type.BYTES, null);
+        return new AudioMeasure(bytes, 0, Unit.BYTES, null);
     }
 
     /**
@@ -94,7 +106,15 @@ public class AudioMeasure {
      * @return An audio measure for the specified number of seconds.
      */
     public static AudioMeasure ofSeconds(double seconds) {
-        return new AudioMeasure(0, seconds, Type.SECONDS, null);
+        return new AudioMeasure(0, seconds, Unit.SECONDS, null);
+    }
+
+    public static AudioMeasure of(long value, Unit unit) {
+        return new AudioMeasure(value, (double)value, unit, null);
+    }
+
+    public static AudioMeasure of(double value, Unit unit) {
+        return new AudioMeasure((long)value, value, unit, null);
     }
 
     private void checkFormat() {
@@ -109,12 +129,12 @@ public class AudioMeasure {
      */
     public long getFrames() {
         checkFormat();
-        switch (type) {
+        switch (unit) {
             case FRAMES: return longVal;
             case SAMPLES: return longVal / audioFormat.getChannels();
             case BYTES: return longVal / (audioFormat.getChannels() * audioFormat.getBytesPerSample());
             case SECONDS: return (long)(timeVal * audioFormat.getSampleRate());
-            default: throw new IllegalStateException("Unexpected type: " + type);
+            default: throw new IllegalStateException("Unexpected unit: " + unit);
         }
     }
 
@@ -125,12 +145,12 @@ public class AudioMeasure {
      */
     public long getSamples() {
         checkFormat();
-        switch (type) {
+        switch (unit) {
             case FRAMES: return longVal * audioFormat.getChannels();
             case SAMPLES: return longVal;
             case BYTES: return longVal / audioFormat.getBytesPerSample();
             case SECONDS: return (long)(timeVal * audioFormat.getSampleRate() * audioFormat.getChannels());
-            default: throw new IllegalStateException("Unexpected type: " + type);
+            default: throw new IllegalStateException("Unexpected unit: " + unit);
         }
     }
 
@@ -141,12 +161,12 @@ public class AudioMeasure {
      */
     public long getBytes() {
         checkFormat();
-        switch (type) {
+        switch (unit) {
             case FRAMES: return longVal * audioFormat.getChannels() * audioFormat.getBytesPerSample();
             case SAMPLES: return longVal * audioFormat.getBytesPerSample();
             case BYTES: return longVal;
             case SECONDS: return (long)(timeVal * audioFormat.getSampleRate() * audioFormat.getChannels() * audioFormat.getBytesPerSample());
-            default: throw new IllegalStateException("Unexpected type: " + type);
+            default: throw new IllegalStateException("Unexpected unit: " + unit);
         }
     }
 
@@ -157,12 +177,23 @@ public class AudioMeasure {
      */
     public double getSeconds() {
         checkFormat();
-        switch (type) {
+        switch (unit) {
             case FRAMES: return (double) longVal / audioFormat.getSampleRate();
             case SAMPLES: return (double) longVal / (audioFormat.getSampleRate() * audioFormat.getChannels());
             case BYTES: return (double) longVal / (audioFormat.getSampleRate() * audioFormat.getChannels() * audioFormat.getBytesPerSample());
             case SECONDS: return timeVal;
-            default: throw new IllegalStateException("Unexpected type: " + type);
+            default: throw new IllegalStateException("Unexpected unit: " + unit);
+        }
+    }
+
+    @Override
+    public String toString() {
+        boolean isLongValue = unit != Unit.SECONDS;
+        if (isLongValue) {
+            return String.format("%d %s", longVal, unit);
+        } else {
+            return String.format("%s %s", 
+                    FormatUtilities.formatTime((long)(timeVal*FormatUtilities.SECONDS), 4), unit);
         }
     }
 }
