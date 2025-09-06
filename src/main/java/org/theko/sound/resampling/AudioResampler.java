@@ -18,7 +18,7 @@ package org.theko.sound.resampling;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.theko.sound.properties.AudioSystemProperties;
+import static org.theko.sound.properties.AudioSystemProperties.SHARED_RESAMPLER;
 
 /**
  * The AudioResampler class provides utility methods for resampling audio data.
@@ -69,7 +69,7 @@ public class AudioResampler {
      * The default quality is set to the shared quality defined in AudioSystemProperties.
      */
     public AudioResampler() {
-        this(AudioSystemProperties.RESAMPLER_SHARED_METHOD, AudioSystemProperties.RESAMPLER_SHARED_QUALITY);
+        this(SHARED_RESAMPLER.resampleMethod, SHARED_RESAMPLER.quality);
     }
 
     /**

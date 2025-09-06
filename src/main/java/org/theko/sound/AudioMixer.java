@@ -82,9 +82,9 @@ public class AudioMixer implements AudioNode {
     private final FloatControl panControl = new FloatControl("Pan", -1.0f, 1.0f, 0.0f);
     private final FloatControl stereoSeparationControl = new FloatControl("Stereo Separation", -1.0f, 1.0f, 0.0f);
 
-    private final BooleanControl enableEffectsControl = new BooleanControl("Enable Effects", ENABLE_EFFECTS_IN_MIXER);
-    private final BooleanControl swapChannelsControl = new BooleanControl("Swap Channels", SWAP_CHANNELS_IN_MIXER);
-    private final BooleanControl reversePolarityControl = new BooleanControl("Reverse Polarity", REVERSE_POLARITY_IN_MIXER);
+    private final BooleanControl enableEffectsControl = new BooleanControl("Enable Effects", MIXER_DEFAULT_ENABLE_EFFECTS);
+    private final BooleanControl swapChannelsControl = new BooleanControl("Swap Channels", MIXER_DEFAULT_SWAP_CHANNELS);
+    private final BooleanControl reversePolarityControl = new BooleanControl("Reverse Polarity", MIXER_DEFAULT_REVERSE_POLARITY);
 
     private static final float STEREO_SEP_EPSILON = 0.000001f;
 
@@ -472,12 +472,10 @@ public class AudioMixer implements AudioNode {
                 );
             }
 
-            if (CHECK_INPUT_LENGTH_MISMATCH_IN_MIXER) {
-                if (!SamplesValidation.checkLength(input, frameCount)) {
-                    throw new LengthMismatchException(
-                        String.format("Expected %d frames, but got %d at index %d", frameCount, input[0].length, i)
-                    );
-                }
+            if (!SamplesValidation.checkLength(input, frameCount)) {
+                throw new LengthMismatchException(
+                    String.format("Expected %d frames, but got %d at index %d", frameCount, input[0].length, i)
+                );
             }
         }
     }

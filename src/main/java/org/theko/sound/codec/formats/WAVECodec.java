@@ -42,6 +42,7 @@ import org.theko.sound.codec.AudioCodecType;
 import org.theko.sound.codec.AudioDecodeResult;
 import org.theko.sound.codec.AudioEncodeResult;
 import org.theko.sound.codec.AudioTag;
+//import org.theko.sound.codec.converters.ImaAdpcmConverter;
 import org.theko.sound.properties.AudioSystemProperties;
 import org.theko.sound.samples.SamplesConverter;
 import org.theko.sound.utility.FormatUtilities;
@@ -258,8 +259,8 @@ public class WAVECodec extends AudioCodec {
                     format = format.convertTo(Encoding.ALAW);
                     pcm = SamplesConverter.toSamples(audioData, format);
                     break;
-                case IMA_ADPCM:
-                    /*format = format.convertTo(Encoding.PCM_SIGNED);
+                case IMA_ADPCM:/*
+                    format = format.convertTo(Encoding.PCM_SIGNED);
                     pcm = ImaAdpcmConverter.toSamples(audioData, format);
                     format = new AudioFormat(
                             format.getSampleRate(),
@@ -458,7 +459,7 @@ public class WAVECodec extends AudioCodec {
             }
     
             String decodedValue = new String(valueBytes, StandardCharsets.UTF_8);
-            String value = AudioSystemProperties.WAVE_CODEC_INFO_CLEAN_TEXT ? cleanText(decodedValue) : decodedValue;
+            String value = AudioSystemProperties.WAVE_CODEC_CLEAN_TAG_TEXT ? cleanText(decodedValue) : decodedValue;
 
             String tag = mapInfoIdToTag(id);
             if (tag != null) {

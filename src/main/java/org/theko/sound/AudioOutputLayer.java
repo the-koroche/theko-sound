@@ -16,10 +16,7 @@
 
 package org.theko.sound;
 
-import static org.theko.sound.properties.AudioSystemProperties.OUTPUT_LAYER_OUTPUT_THREAD_PRIORITY;
-import static org.theko.sound.properties.AudioSystemProperties.OUTPUT_LAYER_PROCESSING_THREAD_PRIORITY;
-import static org.theko.sound.properties.AudioSystemProperties.OUTPUT_LAYER_RESAMPLE_METHOD;
-import static org.theko.sound.properties.AudioSystemProperties.OUTPUT_LAYER_RESAMPLE_QUALITY;
+import static org.theko.sound.properties.AudioSystemProperties.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,7 +39,6 @@ import org.theko.sound.event.EventHandler;
 import org.theko.sound.event.EventType;
 import org.theko.sound.event.OutputLayerEvent;
 import org.theko.sound.event.OutputLayerListener;
-import org.theko.sound.properties.AudioSystemProperties;
 import org.theko.sound.resampling.AudioResampler;
 import org.theko.sound.samples.SamplesConverter;
 import org.theko.sound.samples.SamplesValidation;
@@ -105,8 +101,8 @@ public class AudioOutputLayer implements AutoCloseable {
     private Thread processingThread;
     private Thread outputThread;
     private final Object bufferLock = new Object();
-    private int processingPriority = OUTPUT_LAYER_PROCESSING_THREAD_PRIORITY;
-    private int outputPriority = OUTPUT_LAYER_OUTPUT_THREAD_PRIORITY;
+    private int processingPriority = AOL_PROCESSING_THREAD.priority;
+    private int outputPriority = AOL_OUTPUT_THREAD.priority;
 
     /* Audio output backend and buffers */
     private final AudioOutputBackend aob;
@@ -179,7 +175,7 @@ public class AudioOutputLayer implements AutoCloseable {
             try {
                 stop();
             } catch (Exception e) {
-                logger.error("Failed to stop " + baseName + ".", e);
+                logger.error("Failed to stop {}.", baseName, e);
             }
             if (aob != null) {
                 aob.close();
@@ -189,9 +185,11 @@ public class AudioOutputLayer implements AutoCloseable {
         };
         shutdownHookThread = new Thread(shutdownHook, baseName + "-ShutdownHook");
         aob.initialize();
-        Runtime.getRuntime().addShutdownHook(shutdownHookThread);
+        if (AOL_ENABLE_SHUTDOWN_HOOK) {
+            Runtime.getRuntime().addShutdownHook(shutdownHookThread);
+        }
 
-        resampler = new AudioResampler(OUTPUT_LAYER_RESAMPLE_METHOD, OUTPUT_LAYER_RESAMPLE_QUALITY);
+        resampler = new AudioResampler(AOL_RESAMPLER.resampleMethod, AOL_RESAMPLER.quality);
 
         eventDispatcher = new EventDispatcher<>();
         Map<OutputLayerEventType, EventHandler<OutputLayerListener, OutputLayerEvent>> eventHandlers = new HashMap<>();
@@ -279,8 +277,8 @@ public class AudioOutputLayer implements AutoCloseable {
 
         this.renderBufferSize = bufferSizeInFrames;
         this.outputBufferSize = (int)(bufferSizeInFrames / resamplingFactor);
-        this.resampledLength = (int)(renderBufferSize / resamplingFactor);
-        this.rawLength = resampledLength * openedFormat.getChannels() * openedFormat.getBytesPerSample();
+        this.resampledLength = outputBufferSize;
+        this.rawLength = resampledLength * openedFormat.getFrameSize();
         this.bufferTimeMicros = AudioUnitsConverter.framesToMicroseconds(
             renderBufferSize,
             (int)(sourceFormat.getSampleRate())
@@ -298,7 +296,7 @@ public class AudioOutputLayer implements AutoCloseable {
         outputLog.append("  Buffers count: ").append(buffersCount).append(".\n");
         
         try {
-            aob.open(targetPort, openedFormat, outputBufferSize * openedFormat.getFrameSize());
+            aob.open(targetPort, openedFormat, rawLength);
         } catch (AudioBackendException e) {
             logger.error("Failed to open audio output. {}", outputLog.toString());
             logger.error("Audio exception stack trace", e);
@@ -381,7 +379,7 @@ public class AudioOutputLayer implements AutoCloseable {
      * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output.
      */
     public void open(AudioPort port, AudioFormat audioFormat, AudioMeasure bufferSize) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioPortsNotFoundException, AudioBackendException {
-        this.open(port, audioFormat, bufferSize, 1); 
+        this.open(port, audioFormat, bufferSize, AOL_DEFAULT_RING_BUFFERS); 
     }
 
     /**
@@ -395,7 +393,7 @@ public class AudioOutputLayer implements AutoCloseable {
      * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output.
      */
     public void open(AudioPort port, AudioFormat audioFormat) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException, AudioPortsNotFoundException {
-        this.open(port, audioFormat, AudioMeasure.ofFrames(AudioSystemProperties.OUTPUT_LAYER_BUFFER_SIZE));
+        this.open(port, audioFormat, AOL_DEFAULT_BUFFER);
     }
 
     /**
@@ -440,10 +438,14 @@ public class AudioOutputLayer implements AutoCloseable {
         int processingThreadPriority = (isOneBuffer ? 
                 Math.max(processingPriority, outputPriority) :
                 processingPriority);
+        ThreadType processingThreadType = (isOneBuffer ? (
+                AOL_PROCESSING_THREAD.threadType == ThreadType.PLATFORM ||
+                AOL_OUTPUT_THREAD.threadType == ThreadType.PLATFORM ?
+                ThreadType.PLATFORM : ThreadType.VIRTUAL) : AOL_PROCESSING_THREAD.threadType);
         
         processingThread = ThreadUtilities.startThread(
             processingThreadName,
-            AudioSystemProperties.OUTPUT_LAYER_PROCESSING_THREAD_TYPE,
+            processingThreadType,
             processingThreadPriority,
             this::process
             // Do not catch exceptions here, they will be caught in process().
@@ -456,7 +458,7 @@ public class AudioOutputLayer implements AutoCloseable {
         if (!isOneBuffer) {
             outputThread = ThreadUtilities.startThread(
                 baseName + "-Output",
-                AudioSystemProperties.OUTPUT_LAYER_OUTPUT_THREAD_TYPE,
+                AOL_OUTPUT_THREAD.threadType,
                 outputPriority,
                 this::output
             );
@@ -485,10 +487,10 @@ public class AudioOutputLayer implements AutoCloseable {
             processingThread.interrupt();
         }
         try {
-            if (outputThread != null && outputThread.isAlive()) outputThread.join(1000);
-            if (processingThread != null && processingThread.isAlive()) processingThread.join(1000);
+            if (outputThread != null && outputThread.isAlive()) outputThread.join(AOL_OUTPUT_STOP_TIMEOUT);
+            if (processingThread != null && processingThread.isAlive()) processingThread.join(AOL_PROCESSING_STOP_TIMEOUT);
         } catch (InterruptedException ex) {
-            logger.error("Interrupted while joining output and processing threads, in " + baseName + ".", ex);
+            logger.error("Interrupted while joining output and processing threads, in {}.", baseName, ex);
             throw ex;
         }
         if (outputThread != null && outputThread.isAlive()) {
@@ -516,15 +518,17 @@ public class AudioOutputLayer implements AutoCloseable {
         stop();
         aob.close();
         aob.shutdown();
-        try {
-            boolean result = Runtime.getRuntime().removeShutdownHook(shutdownHookThread);
-            if (!result) {
-                logger.warn("Shutdown hook was not removed (maybe already removed or never registered?).");
+        if (AOL_ENABLE_SHUTDOWN_HOOK) {
+            try {
+                boolean result = Runtime.getRuntime().removeShutdownHook(shutdownHookThread);
+                if (!result) {
+                    logger.warn("Shutdown hook failed to remove (maybe already removed or never registered?).");
+                }
+            } catch (IllegalStateException ex) {
+                logger.warn("Shutdown hook is running.", ex);
+            } catch (SecurityException ex) {
+                logger.error("Cannot remove shutdown hook due to security restrictions.", ex);
             }
-        } catch (IllegalStateException ex) {
-            logger.warn("Shutdown hook is running.", ex);
-        } catch (SecurityException ex) {
-            logger.error("Cannot remove shutdown hook due to security restrictions.", ex);
         }
         isOpened = false;
         logger.debug("Closed {}.", baseName);
