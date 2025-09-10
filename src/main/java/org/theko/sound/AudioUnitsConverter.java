@@ -17,12 +17,11 @@
 package org.theko.sound;
 
 /**
- * Utility class for converting audio units such as microseconds, frames, and samples.
- * Provides methods for converting between different time and sample-based representations
- * of audio data.
+ * Provides methods for converting between time durations in microseconds and audio frames,
+ * and also between linear amplitude multipliers and decibel (dB) values.
  *
  * @since 1.1.0
- * author Theko
+ * @author Theko
  */
 public final class AudioUnitsConverter {
 
@@ -78,5 +77,40 @@ public final class AudioUnitsConverter {
      */
     public static long microsecondsToSamples(long microseconds, int sampleRate, int channels) {
         return (long) (microseconds * sampleRate / 1_000_000.0) * channels;
+    }
+
+    /**
+     * Converts a decibel (dB) value to a linear amplitude multiplier.
+     * <p>
+     * Decibel values are relative to a reference level of 1.0 (0 dB), and are typically used to measure
+     * the amplitude of audio signals. A decibel value of -3 dB represents a relative amplitude of 0.7071,
+     * which is half the power of 0 dB. A decibel value of -20 dB represents a relative amplitude of 0.1,
+     * which is one-tenth the power of 0 dB.
+     * <p>
+     * The conversion formula is: linear = 10^(decibels/20)
+     * <p>
+     * Returns 0.0 if decibels is Double.NEGATIVE_INFINITY.
+     * 
+     * @param decibels The decibel value to convert.
+     * @return The linear amplitude multiplier.
+     */
+    public static double decibelToLinear(double decibels) {
+        if (decibels == Double.NEGATIVE_INFINITY) return 0.0;
+        return Math.pow(10.0, decibels / 20.0);
+    }
+
+    /**
+     * Converts a linear amplitude multiplier to a decibel (dB) value.
+     * <p>
+     * The conversion formula is: decibels = 20 * log10(linear)
+     * <p>
+     * Returns Double.NEGATIVE_INFINITY if linear is 0.0 or negative.
+     * 
+     * @param linear The linear amplitude multiplier to convert.
+     * @return The decibel value.
+     */
+    public static double linearToDecibel(double linear) {
+        if (linear <= 0.0) return Double.NEGATIVE_INFINITY;
+        return 20.0 * Math.log10(linear);
     }
 }
