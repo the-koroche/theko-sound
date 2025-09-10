@@ -18,6 +18,7 @@ package org.theko.sound.utility;
 
 import java.util.Locale;
 
+import org.theko.sound.properties.AudioSystemProperties.ThreadConfig;
 import org.theko.sound.properties.AudioSystemProperties.ThreadType;
 
 /**
@@ -59,7 +60,7 @@ public final class FormatUtilities {
      * @param precision The number of decimal places to use.
      * @return The formatted string.
      */
-    public static String formatBytes (long bytes, boolean binary, int precision) {
+    public static String formatBytes(long bytes, boolean binary, int precision) {
         return binary ? formatBytesBinary(bytes, precision) : formatBytesDecimal(bytes, precision);
     }
 
@@ -70,7 +71,7 @@ public final class FormatUtilities {
      * @param precision The number of decimal places to use.
      * @return The formatted string.
      */
-    public static String formatBytes (long bytes, int precision) {
+    public static String formatBytes(long bytes, int precision) {
         return formatBytesDecimal(bytes, precision);
     }
 
@@ -120,6 +121,39 @@ public final class FormatUtilities {
         else if (ns < MINUTES) return formatAdaptive(ns / (double) SECONDS, precision) + " s";
         else if (ns < HOURS) return formatAdaptive(ns / (double) MINUTES, precision) + " min";
         else return formatAdaptive(ns / (double) HOURS, precision) + " h";
+    }
+
+    /**
+     * Formats time in a human-readable way from microseconds.
+     * 
+     * @param us The number of microseconds to format.
+     * @param precision The number of decimal places to use.
+     * @return The formatted string.
+     */
+    public static String formatTimeMicros(long us, int precision) {
+        return formatTime(us * MICROS, precision);
+    }
+
+    /**
+     * Formats time in a human-readable way from milliseconds.
+     * 
+     * @param ms The number of milliseconds to format.
+     * @param precision The number of decimal places to use.
+     * @return The formatted string.
+     */
+    public static String formatTimeMillis(long ms, int precision) {
+        return formatTime(ms * MILLIS, precision);
+    }
+
+    /**
+     * Formats time in a human-readable way from seconds.
+     * 
+     * @param sec The number of seconds to format.
+     * @param precision The number of decimal places to use.
+     * @return The formatted string.
+     */
+    public static String formatTimeSeconds(long sec, int precision) {
+        return formatTime(sec * SECONDS, precision);
     }
 
     /**
@@ -176,6 +210,16 @@ public final class FormatUtilities {
     /**
      * Formats thread information in a human-readable way.
      * 
+     * @param threadConfig The thread config to format
+     * @return The formatted string.
+     */
+    public static String formatThreadInfo(ThreadConfig threadCnofig) {
+        return String.format("(%s, %d)", threadCnofig.threadType.toString(), threadCnofig.priority);
+    }
+
+    /**
+     * Formats thread information in a human-readable way.
+     * 
      * @param isPlatform True if the thread is a platform thread, false if it's a virtual thread.
      * @param priority The priority of the thread.
      * @return The formatted string.
@@ -192,6 +236,6 @@ public final class FormatUtilities {
      * @return The formatted string.
      */ 
     public static String formatThreadInfo(ThreadType type, int priority) {
-        return String.format("(%s, %d)", (type == ThreadType.PLATFORM ? "Platform" : "Virtual"), priority);
+        return String.format("(%s, %d)", type.toString(), priority);
     }
 }
