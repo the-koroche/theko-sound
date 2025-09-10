@@ -54,6 +54,11 @@
             <artifactId>slf4j-simple</artifactId>
             <version>2.0.13</version>
         </dependency>
+        <dependency>
+            <groupId>org.theko.events</groupId>
+            <artifactId>theko-events</artifactId>
+            <version>1.1</version>
+        </dependency>
     </dependencies>
 
     <properties>
@@ -75,7 +80,7 @@
                     <include>LICENSE</include>
                     <include>NOTICE</include>
                 </includes>
-                <targetPath>.</targetPath>
+                <targetPath>META-INF</targetPath>
                 <filtering>false</filtering>
             </resource>
             <resource>
@@ -136,30 +141,6 @@
                         <arg>src/native</arg>
                     </compilerArgs>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.5.0</version>
-                <executions>
-                    <execution>
-                        <?m2e execute onConfiguration,onIncremental?>
-                        <id>run-script</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>powershell</executable>
-                            <arguments>
-                                <argument>-ExecutionPolicy</argument>
-                                <argument>Bypass</argument>
-                                <argument>-File</argument>
-                                <argument>${project.basedir}/increment_build.ps1</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
