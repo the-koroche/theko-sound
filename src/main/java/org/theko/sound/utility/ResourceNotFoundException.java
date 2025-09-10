@@ -25,7 +25,7 @@ import java.io.IOException;
  * @since 2.4.0
  * @author Theko
  */
-public class ResourceNotFoundException extends IOException {
+public class ResourceNotFoundException extends Exception {
     public ResourceNotFoundException(String message) {
         super(message);
     }

@@ -17,6 +17,7 @@
 package org.theko.sound.utility;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -84,7 +85,7 @@ public final class ResourceLoader {
             Files.copy(resourceStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
             return tempFile;
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException("Failed to create temporary file for resource: " + resourceName, e);
         }
     }
