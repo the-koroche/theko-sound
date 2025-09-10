@@ -17,6 +17,7 @@
 package org.theko.sound.control;
 
 import org.theko.sound.event.AudioControlEvent;
+import org.theko.sound.event.AudioControlEventType;
 
 /**
  * The {@code BooleanControl} class represents a type of {@link AudioControl}
@@ -45,7 +46,7 @@ public class BooleanControl extends AudioControl {
      */
     public void setValue(boolean value) {
         this.value = value;
-        eventDispatcher.dispatch(AudioControlNotifyType.VALUE_CHANGE, new AudioControlEvent(this));
+        eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGED, new AudioControlEvent(this));
     }
 
     /**

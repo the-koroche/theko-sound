@@ -16,7 +16,9 @@
 
 package org.theko.sound.control;
 
+import org.theko.events.ListenerPriority;
 import org.theko.sound.event.AudioControlEvent;
+import org.theko.sound.event.AudioControlEventType;
 import org.theko.sound.event.AudioControlListener;
 
 public class Vector3Control extends AudioControl {
@@ -28,7 +30,7 @@ public class Vector3Control extends AudioControl {
     private final AudioControlListener valueChangeListener = new AudioControlListener() {
         @Override
         public void onValueChanged(AudioControlEvent event) {
-            eventDispatcher.dispatch(AudioControlNotifyType.VALUE_CHANGE, new AudioControlEvent(Vector3Control.this));
+            eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGED, new AudioControlEvent(Vector3Control.this));
         }
     };
 
@@ -37,9 +39,9 @@ public class Vector3Control extends AudioControl {
         xControl = new FloatControl(name + " X", xMin, xMax, 0.0f);
         yControl = new FloatControl(name + " Y", yMin, yMax, 0.0f);
         zControl = new FloatControl(name + " Z", zMin, zMax, 0.0f);
-        xControl.addListener(valueChangeListener);
-        yControl.addListener(valueChangeListener);
-        zControl.addListener(valueChangeListener);
+        xControl.getListenerManager().addListener(ListenerPriority.HIGHEST, valueChangeListener);
+        yControl.getListenerManager().addListener(ListenerPriority.HIGHEST, valueChangeListener);
+        zControl.getListenerManager().addListener(ListenerPriority.HIGHEST, valueChangeListener);
     }
 
     public Vector3Control(String name, float min, float max) {

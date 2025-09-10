@@ -20,12 +20,11 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.theko.events.EventDispatcher;
 import org.theko.sound.codec.AudioCodec;
 import org.theko.sound.codec.AudioCodecException;
 import org.theko.sound.codec.AudioCodecInfo;
@@ -38,10 +37,9 @@ import org.theko.sound.control.FloatControl;
 import org.theko.sound.effects.IncompatibleEffectTypeException;
 import org.theko.sound.effects.MultipleVaryingSizeEffectsException;
 import org.theko.sound.effects.ResamplerEffect;
-import org.theko.sound.event.EventDispatcher;
-import org.theko.sound.event.EventHandler;
-import org.theko.sound.event.EventType;
+import org.theko.sound.event.AudioControlEventType;
 import org.theko.sound.event.SoundSourceEvent;
+import org.theko.sound.event.SoundSourceEventType;
 import org.theko.sound.event.SoundSourceListener;
 import org.theko.sound.utility.ArrayUtilities;
 
@@ -96,12 +94,6 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
     protected int playedSamples = 0;
     protected boolean isPlaying = false;
     protected boolean loop = false;
-
-    protected enum SoundSourceEventType implements EventType<SoundSourceEvent> {
-        OPENED, CLOSED, STARTED, STOPPED,
-        VOLUME_CHANGE, PAN_CHANGE, SPEED_CHANGE, POSITION_CHANGE,
-        LOOP, DATA_ENDED
-    }
 
     /**
      * The {@code Playback} class represents the inner class responsible for rendering audio samples.
@@ -178,7 +170,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
      * which is not associated with any audio file.
      */
     public SoundSource() {
-        Map<SoundSourceEventType, EventHandler<SoundSourceListener, SoundSourceEvent>> eventMap = new HashMap<>();
+        var eventMap = eventDispatcher.createEventMap();
         eventMap.put(SoundSourceEventType.OPENED, SoundSourceListener::onOpened);
         eventMap.put(SoundSourceEventType.CLOSED, SoundSourceListener::onClosed);
         eventMap.put(SoundSourceEventType.STARTED, SoundSourceListener::onStarted);
@@ -221,16 +213,16 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
         innerMixer = new AudioMixer();
         innerMixer.addInput(playback);
 
-        innerMixer.getPostGainControl().addChangeListener(control -> 
+        innerMixer.getPostGainControl().getListenerManager().addConsumer(AudioControlEventType.VALUE_CHANGED, event -> 
                 eventDispatcher.dispatch(SoundSourceEventType.VOLUME_CHANGE, new SoundSourceEvent(SoundSource.this)));
 
-        innerMixer.getPanControl().addChangeListener(control -> 
+        innerMixer.getPanControl().getListenerManager().addConsumer(AudioControlEventType.VALUE_CHANGED, event -> 
                 eventDispatcher.dispatch(SoundSourceEventType.PAN_CHANGE, new SoundSourceEvent(SoundSource.this)));
 
         resamplerEffect = new ResamplerEffect();
         try {
             innerMixer.addEffect(resamplerEffect);
-            resamplerEffect.getSpeedControl().addChangeListener(control -> 
+            resamplerEffect.getSpeedControl().getListenerManager().addConsumer(AudioControlEventType.VALUE_CHANGED, event -> 
                     eventDispatcher.dispatch(SoundSourceEventType.SPEED_CHANGE, new SoundSourceEvent(SoundSource.this)));
         } catch (IncompatibleEffectTypeException | MultipleVaryingSizeEffectsException e) {
             logger.error("Failed to add resampler effect to inner mixer", e);

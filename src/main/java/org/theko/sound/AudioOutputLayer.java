@@ -19,14 +19,13 @@ package org.theko.sound;
 import static org.theko.sound.properties.AudioSystemProperties.*;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.theko.events.EventDispatcher;
 import org.theko.sound.backend.AudioBackendCreationException;
 import org.theko.sound.backend.AudioBackendException;
 import org.theko.sound.backend.AudioBackendInfo;
@@ -34,11 +33,10 @@ import org.theko.sound.backend.AudioBackendNotFoundException;
 import org.theko.sound.backend.AudioBackends;
 import org.theko.sound.backend.AudioOutputBackend;
 import org.theko.sound.backend.BackendNotOpenException;
-import org.theko.sound.event.EventDispatcher;
-import org.theko.sound.event.EventHandler;
-import org.theko.sound.event.EventType;
 import org.theko.sound.event.OutputLayerEvent;
+import org.theko.sound.event.OutputLayerEventType;
 import org.theko.sound.event.OutputLayerListener;
+import org.theko.sound.properties.AudioSystemProperties.ThreadType;
 import org.theko.sound.resampling.AudioResampler;
 import org.theko.sound.samples.SamplesConverter;
 import org.theko.sound.samples.SamplesValidation;
@@ -139,17 +137,6 @@ public class AudioOutputLayer implements AutoCloseable {
     /* Event dispatcher */
     private final EventDispatcher<OutputLayerEvent, OutputLayerListener, OutputLayerEventType> eventDispatcher;
 
-    protected enum OutputLayerEventType implements EventType<OutputLayerEvent> {
-        OPENED, CLOSED,
-        STARTED, STOPPED,
-        FLUSHED, DRAINED,
-        UNDERRUN,
-        PROCESSING_INTERRUPTED, OUTPUT_INTERRUPTED,
-        LENGTH_MISMATCH,
-        UNCHECKED_CLOSE,
-        RENDER_EXCEPTION
-    }
-
     /**
      * An enumeration of underrun behavior options.
      */
@@ -192,20 +179,20 @@ public class AudioOutputLayer implements AutoCloseable {
         resampler = new AudioResampler(AOL_RESAMPLER.resampleMethod, AOL_RESAMPLER.quality);
 
         eventDispatcher = new EventDispatcher<>();
-        Map<OutputLayerEventType, EventHandler<OutputLayerListener, OutputLayerEvent>> eventHandlers = new HashMap<>();
-        eventHandlers.put(OutputLayerEventType.OPENED, OutputLayerListener::onOpened);
-        eventHandlers.put(OutputLayerEventType.CLOSED, OutputLayerListener::onClosed);
-        eventHandlers.put(OutputLayerEventType.STARTED, OutputLayerListener::onStarted);
-        eventHandlers.put(OutputLayerEventType.STOPPED, OutputLayerListener::onStopped);
-        eventHandlers.put(OutputLayerEventType.FLUSHED, OutputLayerListener::onFlushed);
-        eventHandlers.put(OutputLayerEventType.DRAINED, OutputLayerListener::onDrained);        
-        eventHandlers.put(OutputLayerEventType.UNDERRUN, OutputLayerListener::onUnderrun);
-        eventHandlers.put(OutputLayerEventType.PROCESSING_INTERRUPTED, OutputLayerListener::onProcessingInterrupted);
-        eventHandlers.put(OutputLayerEventType.OUTPUT_INTERRUPTED, OutputLayerListener::onOutputInterrupted);
-        eventHandlers.put(OutputLayerEventType.LENGTH_MISMATCH, OutputLayerListener::onLengthMismatch);
-        eventHandlers.put(OutputLayerEventType.UNCHECKED_CLOSE, OutputLayerListener::onUncheckedClose);
-        eventHandlers.put(OutputLayerEventType.RENDER_EXCEPTION, OutputLayerListener::onRenderException);
-        eventDispatcher.setEventMap(eventHandlers);
+        var eventMap = eventDispatcher.createEventMap();
+        eventMap.put(OutputLayerEventType.OPENED, OutputLayerListener::onOpened);
+        eventMap.put(OutputLayerEventType.CLOSED, OutputLayerListener::onClosed);
+        eventMap.put(OutputLayerEventType.STARTED, OutputLayerListener::onStarted);
+        eventMap.put(OutputLayerEventType.STOPPED, OutputLayerListener::onStopped);
+        eventMap.put(OutputLayerEventType.FLUSHED, OutputLayerListener::onFlushed);
+        eventMap.put(OutputLayerEventType.DRAINED, OutputLayerListener::onDrained);        
+        eventMap.put(OutputLayerEventType.UNDERRUN, OutputLayerListener::onUnderrun);
+        eventMap.put(OutputLayerEventType.PROCESSING_INTERRUPTED, OutputLayerListener::onProcessingInterrupted);
+        eventMap.put(OutputLayerEventType.OUTPUT_INTERRUPTED, OutputLayerListener::onOutputInterrupted);
+        eventMap.put(OutputLayerEventType.LENGTH_MISMATCH, OutputLayerListener::onLengthMismatch);
+        eventMap.put(OutputLayerEventType.UNCHECKED_CLOSE, OutputLayerListener::onUncheckedClose);
+        eventMap.put(OutputLayerEventType.RENDER_EXCEPTION, OutputLayerListener::onRenderException);
+        eventDispatcher.setEventMap(eventMap);
     }
     
     private OutputLayerEvent getEvent() {

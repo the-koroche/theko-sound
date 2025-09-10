@@ -16,6 +16,7 @@
 
 package org.theko.sound.event;
 
+import org.theko.events.Event;
 import org.theko.sound.AudioFormat;
 
 /**

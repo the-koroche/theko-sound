@@ -18,6 +18,8 @@ package org.theko.sound.event;
 
 import org.theko.sound.control.AudioControl;
 
+import org.theko.events.Event;
+
 /**
  * Event for {@link AudioControl} events.
  * It contains the audio control that triggered the event.

@@ -16,16 +16,11 @@
 
 package org.theko.sound.control;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-
+import org.theko.events.EventDispatcher;
+import org.theko.events.ListenersManager;
 import org.theko.sound.event.AudioControlEvent;
+import org.theko.sound.event.AudioControlEventType;
 import org.theko.sound.event.AudioControlListener;
-import org.theko.sound.event.EventDispatcher;
-import org.theko.sound.event.EventHandler;
-import org.theko.sound.event.EventType;
 
 /**
  * The {@code AudioControl} class serves as an abstract base class for audio control components.
@@ -51,11 +46,7 @@ import org.theko.sound.event.EventType;
 public abstract class AudioControl {
 
     protected final String name;
-    protected final EventDispatcher<AudioControlEvent, AudioControlListener, AudioControlNotifyType> eventDispatcher = new EventDispatcher<>();
-
-    protected enum AudioControlNotifyType implements EventType<AudioControlEvent> {
-        VALUE_CHANGE
-    }
+    protected final EventDispatcher<AudioControlEvent, AudioControlListener, AudioControlEventType> eventDispatcher = new EventDispatcher<>();
 
     /**
      * Constructs a new AudioControl with the specified name.
@@ -64,48 +55,19 @@ public abstract class AudioControl {
      */
     public AudioControl(String name) {
         this.name = name;
-        Map<AudioControlNotifyType, EventHandler<AudioControlListener, AudioControlEvent>> eventMap = new HashMap<>();
-        eventMap.put(AudioControlNotifyType.VALUE_CHANGE, AudioControlListener::onValueChanged);
+        var eventMap = eventDispatcher.createEventMap();
+        eventMap.put(AudioControlEventType.VALUE_CHANGED, AudioControlListener::onValueChanged);
         eventDispatcher.setEventMap(eventMap);
     }
 
 
     /**
-     * Registers a new listener for audio control events.
-     * @param listener The listener to register.
+     * Returns a listeners manager, to add/remove listeners.
+     * 
+     * @return The listeners manager.
      */
-    public void addListener(AudioControlListener listener) {
-        eventDispatcher.addListener(listener);
-    }
-
-    /**
-     * Registers a new consumer when an audio control value changes.
-     * @param consumer The consumer to register.
-     */
-    public void addChangeListener(Consumer<AudioControlEvent> consumer) {
-        eventDispatcher.addListener(new AudioControlListener() {
-            @Override
-            public void onValueChanged(AudioControlEvent event) {
-                consumer.accept(event);
-            }
-        });
-    }
-
-    /**
-     * Removes a previously registered listener for audio control events.
-     * @param listener The listener to remove.
-     */
-    public void removeListener(AudioControlListener listener) {
-        eventDispatcher.removeListener(listener);
-    }
-
-    /**
-     * Retrieves a list of registered audio control listeners.
-     *
-     * @return An unmodifiable list of audio control listeners.
-     */
-    public List<AudioControlListener> getListeners() {
-        return eventDispatcher.getListeners();
+    public ListenersManager<AudioControlEvent, AudioControlListener, AudioControlEventType> getListenerManager() {
+        return eventDispatcher.getListenersManager();
     }
 
     /**

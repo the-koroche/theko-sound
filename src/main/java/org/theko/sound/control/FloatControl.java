@@ -17,6 +17,7 @@
 package org.theko.sound.control;
 
 import org.theko.sound.event.AudioControlEvent;
+import org.theko.sound.event.AudioControlEventType;
 import org.theko.sound.utility.MathUtilities;
 
 /**
@@ -67,7 +68,7 @@ public class FloatControl extends AudioControl {
      */
     public void setValue(float value) {
         this.value = MathUtilities.clamp(value, min, max);
-        eventDispatcher.dispatch(AudioControlNotifyType.VALUE_CHANGE, new AudioControlEvent(this));
+        eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGED, new AudioControlEvent(this));
     }
     
     /**

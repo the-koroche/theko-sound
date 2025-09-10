@@ -16,6 +16,7 @@
 
 package org.theko.sound.event;
 
+import org.theko.events.Listener;
 import org.theko.sound.SoundSource;
 
 /**
@@ -24,7 +25,7 @@ import org.theko.sound.SoundSource;
  * @since 2.4.0
  * @author Theko
  */
-public interface SoundSourceListener {
+public interface SoundSourceListener extends Listener<SoundSourceEvent, SoundSourceEventType> {
     
     /**
      * Called when a sound source is opened, and is ready to be played.

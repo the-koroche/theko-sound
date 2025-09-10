@@ -17,6 +17,8 @@
 package org.theko.sound.control;
 
 import org.theko.sound.event.AudioControlEvent;
+import org.theko.sound.event.AudioControlEventType;
+
 import java.util.Arrays;
 
 /**
@@ -68,7 +70,7 @@ public class EnumControl extends AudioControl {
         int clampedIndex = Math.max(0, Math.min(index, enumValues.length - 1));
         if (value != enumValues[clampedIndex]) {
             this.value = enumValues[clampedIndex];
-            eventDispatcher.dispatch(AudioControlNotifyType.VALUE_CHANGE, new AudioControlEvent(this));
+            eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGED, new AudioControlEvent(this));
         }
     }
 
@@ -90,7 +92,7 @@ public class EnumControl extends AudioControl {
     public void setEnumValue(Enum<?> newValue) {
         if (newValue != null && !newValue.equals(value)) {
             this.value = newValue;
-            eventDispatcher.dispatch(AudioControlNotifyType.VALUE_CHANGE, new AudioControlEvent(this));
+            eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGED, new AudioControlEvent(this));
         }
     }
 

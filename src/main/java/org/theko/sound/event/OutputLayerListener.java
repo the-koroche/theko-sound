@@ -16,6 +16,7 @@
 
 package org.theko.sound.event;
 
+import org.theko.events.Listener;
 import org.theko.sound.AudioOutputLayer;
 
 /**
@@ -24,7 +25,7 @@ import org.theko.sound.AudioOutputLayer;
  * @since 2.4.0
  * @author Theko
  */
-public interface OutputLayerListener {
+public interface OutputLayerListener extends Listener<OutputLayerEvent, OutputLayerEventType> {
 
     /**
      * Called when an output layer is opened, and is ready to be played.
