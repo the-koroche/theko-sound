@@ -37,7 +37,7 @@ High-performance modular audio library for Java (17+). Provides tools for workin
 
 ## ⚡ Installation
 
-The library is available through **Maven Central**:
+The library will be available on **Maven Central**:
 
 ```xml
 <dependency>
@@ -46,6 +46,8 @@ The library is available through **Maven Central**:
     <version>2.4.0</version>
 </dependency>
 ```
+
+Or download JAR from the [Releases](https://github.com/the-koro/theko-sound/releases).
 
 ---
 
