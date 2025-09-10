@@ -68,52 +68,64 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISh
 
     private static final Logger logger = LoggerFactory.getLogger(WASAPISharedBackend.class);
 
-    private static final File wasapiBackendNativeLib;
+    private static final File lib32, lib64;
     private long backendContextPtr = 0;
     private boolean isOpen = false;
 
     private static final boolean isSupported;
 
     static {
-        File wasapiBackendNativeFile = null;
-        try {
-            wasapiBackendNativeFile = ResourceLoader.getResourceFile("native/libWasapiShared.dll");
-        } catch (ResourceNotFoundException e) {
-            logger.error("WASAPI backend native library not found.", e);
-        }
-        wasapiBackendNativeLib = wasapiBackendNativeFile;
+        lib64 = loadLibrary("native/WASApiShrd64.dll", "X64");
+        lib32 = loadLibrary("native/WASApiShrd32.dll", "X32");
 
         isSupported = isAvailableOnThisPlatformStatic();
 
         if (!isSupported) {
             logger.warn("WASAPI backend is not supported on this platform.");
         } else {
-            try {
-                System.load(wasapiBackendNativeLib.getAbsolutePath());
-            } catch (UnsatisfiedLinkError e) {
-                logger.error("Failed to load WASAPISharedBackend DLL.", e);
+            File libToLoad = switch (PlatformUtilities.getArchitecture()) {
+                case X86_64 -> lib64;
+                case X86_32 -> lib32;
+                default -> {
+                    logger.error("Unsupported architecture.");
+                    yield null;
+                }
+            };
+            if (libToLoad != null) {
+                try {
+                    System.load(libToLoad.getAbsolutePath());
+                    logger.info("Loaded WASAPI library: {}", libToLoad.getName());
+                } catch (UnsatisfiedLinkError e) {
+                    logger.error("Failed to load WASAPI library: {}", libToLoad.getAbsolutePath(), e);
+                }
+            } else {
+                logger.error("WASAPI library is null for architecture {}", PlatformUtilities.getArchitecture());
             }
         }
     }
 
-    @Override
-    public boolean isAvailableOnThisPlatform() {
-        return isSupported;
+    private static File loadLibrary(String resourcePath, String archLabel) {
+        try {
+            return ResourceLoader.getResourceFile(resourcePath);
+        } catch (ResourceNotFoundException e) {
+            logger.error("{} library was not found: {}", archLabel, resourcePath, e);
+            return null;
+        }
     }
 
     protected static boolean isAvailableOnThisPlatformStatic() {
         boolean isWindows = PlatformUtilities.getPlatform() == Platform.WINDOWS;
-        boolean hasLibraryResource = wasapiBackendNativeLib != null;
+        boolean is64 = PlatformUtilities.getArchitecture().getBits() == 64;
+        boolean is32 = PlatformUtilities.getArchitecture().getBits() == 32;
+        boolean hasLibraryResource = (is64 && lib64 != null) || (is32 && lib32 != null);
         boolean hasSysLibrary = hasWASAPISystemLib();
 
-        logger.trace("isWindows: {}, hasLibraryResource: {}, hasSysLibrary: {}",
-                isWindows, hasLibraryResource, hasSysLibrary);
+        logger.trace("isWindows: {}, hasLibraryResource: {}, hasSysLibrary: {}", isWindows, hasLibraryResource, hasSysLibrary);
 
         return isWindows && hasLibraryResource && hasSysLibrary;
     }
 
     private static boolean hasWASAPISystemLib() {
-        // Check for mmdevapi.dll and avrt.dll
         String systemRoot = System.getenv("SystemRoot");
         if (systemRoot == null) return false;
 
@@ -122,6 +134,11 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISh
 
         return FileUtilities.existsAny(sys32, "mmdevapi.dll", "avrt.dll")
             || FileUtilities.existsAny(wow64, "mmdevapi.dll", "avrt.dll");
+    }
+
+    @Override
+    public boolean isAvailableOnThisPlatform() {
+        return isSupported;
     }
 
     @Override
