@@ -2,10 +2,10 @@
 *.dll
 *.so
 *.dylib
+
 dependency-reduced-pom.xml
-increment_build.ps1
-build_number.txt
-.vscode/*
-!.vscode/launch.json
+compile_natives.ps1
+
+\.vscode
 \target
 \logs
