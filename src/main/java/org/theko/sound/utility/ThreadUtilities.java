@@ -21,7 +21,7 @@ import java.lang.reflect.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.properties.AudioSystemProperties;
-import org.theko.sound.properties.AudioSystemProperties.ThreadType;
+import org.theko.sound.properties.ThreadType;
 
 /**
  * Utility class for creating threads.

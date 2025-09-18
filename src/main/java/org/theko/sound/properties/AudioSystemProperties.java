@@ -16,8 +16,11 @@
 
 package org.theko.sound.properties;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +52,7 @@ public final class AudioSystemProperties {
     *   platform -> [p]
     *
     * === ThreadConfig ===
-    * Format: <type;optional>:<priority;optional>
+    * Format: <type;optional>:<priority; optional>
     *   type      - Thread type (ThreadType), optional if priority is specified
     *   priority  - Thread priority (int, 0-10), optional if type is specified
     * Examples:
@@ -63,24 +66,25 @@ public final class AudioSystemProperties {
     * === AudioMeasure.Unit ===
     * Values: [frames, samples, bytes, seconds]
     * Aliases:
-    *   frames  -> [frame]
-    *   samples -> [sample, smp]
-    *   bytes   -> [byte]
-    *   seconds -> [second, sec]
+    *   frames  -> [f, frms, frame]
+    *   samples -> [smp, sample]
+    *   bytes   -> [b, byte]
+    *   seconds -> [s, sec, second]
     *
     * === AudioMeasure ===
-    * Format: <value>:<unit;optional>
+    * Format: <value><unit; optional>
     *   value - Value (long or double)
     *   unit  - Unit type (AudioMeasure.Unit), optional, default = frames
     * Examples:
-    *   -Dkey=512:frames    // 512 frames (default)
-    *   -Dkey=2048:bytes    // 2048 bytes
-    *   -Dkey=0.52:sec      // 0.52 seconds
-    *   -Dkey=1024:smp      // 1024 samples (using alias)
-    *   -Dkey=4096          // 4096 frames (default unit)
+    *   -Dkey=512frms      // 512 frames (default unit)
+    *   -Dkey=2048bytes    // 2048 bytes
+    *   -Dkey=0.52sec      // 0.52 seconds
+    *   -Dkey=1024smp      // 1024 samples (using alias)
+    *   -Dkey=4096         // 4096 frames (default unit)
+    *   -Dkey=2048b        // 2048 bytes (using alias)
     *
     * === AudioResamplerConfig ===
-    * Format: <method>:<quality;optional>
+    * Format: <method>:<quality; optional>
     *   method  - Resample method (class)
     *   quality - Quality (int > 0), optional
     * Examples:
@@ -132,54 +136,6 @@ public final class AudioSystemProperties {
     */
 
     private static final Logger logger = LoggerFactory.getLogger(AudioSystemProperties.class);
-
-    public enum ThreadType {
-        VIRTUAL, PLATFORM;
-
-        public static ThreadType from(String str) {
-            return "virtual".equalsIgnoreCase(str) ? VIRTUAL : PLATFORM;
-        }
-
-        @Override
-        public String toString() {
-            return switch (this) {
-                case PLATFORM -> "Platform";
-                case VIRTUAL -> "Virtual";
-                default -> "N/A";
-            };
-        }
-    }
-
-    public static class ThreadConfig {
-        public final ThreadType threadType;
-        public final int priority;
-
-        public ThreadConfig(ThreadType threadType, int priority) {
-            this.threadType = threadType;
-            this.priority = priority;
-        }
-
-        @Override
-        public String toString() {
-            return "ThreadConfig{type=%s, priority=%d}".formatted(threadType, priority);
-        }
-    }
-
-    public static class AudioResamplerConfig {
-        public final ResampleMethod resampleMethod;
-        public final int quality;
-
-        public AudioResamplerConfig(ResampleMethod resampleMethod, int quality) {
-            this.resampleMethod = resampleMethod;
-            this.quality = quality;
-        }
-
-        @Override
-        public String toString() {
-            return "AudioResamplerConfig{method=%s, quality=%d}".formatted(
-                resampleMethod.getClass().getSimpleName(), quality);
-        }
-    }
 
     /* Primitives parsing */
 
@@ -270,7 +226,7 @@ public final class AudioSystemProperties {
         }
     }
 
-    private static ThreadConfig getThreadConfig(String key, ThreadConfig defaultValue) {
+    private static ThreadConfiguration getThreadConfig(String key, ThreadConfiguration defaultValue) {
         String value = getString(key, null);
         if (value == null || value.isBlank()) {
             return defaultValue;
@@ -307,7 +263,7 @@ public final class AudioSystemProperties {
             }
         }
 
-        return new ThreadConfig(threadType, priority);
+        return new ThreadConfiguration(threadType, priority);
     }
 
     private static AudioMeasure getAudioMeasure(String key, AudioMeasure defaultValue) {
@@ -316,34 +272,37 @@ public final class AudioSystemProperties {
             return defaultValue;
         }
 
-        String[] parts = value.trim().split(":", 2);
-        String valueStr = parts[0].trim();
-        String unitStr = (parts.length > 1) ? parts[1].trim().toLowerCase(Locale.US) : "";
+        value = value.trim().toLowerCase(Locale.US);
 
-        if (valueStr.isEmpty()) {
-            logger.warn("Value missing for '{}'. Using default {}", key, defaultValue);
+        Pattern pattern = Pattern.compile("([0-9]+(?:\\.[0-9]+)?)([a-z]*)");
+        Matcher matcher = pattern.matcher(value);
+        if (!matcher.matches()) {
+            logger.warn("Invalid format '{}' for '{}'. Using default {}", value, key, defaultValue);
             return defaultValue;
         }
 
+        String valueStr = matcher.group(1);
+        String unitStr = matcher.group(2);
+
         Number numericValue;
         try {
-            numericValue = Long.parseLong(valueStr);
-            if (numericValue.longValue() <= 0) throw new NumberFormatException();
-        } catch (NumberFormatException e1) {
-            try {
+            if (valueStr.contains(".")) {
                 numericValue = Double.parseDouble(valueStr);
                 if (numericValue.doubleValue() <= 0.0) throw new NumberFormatException();
-            } catch (NumberFormatException e2) {
-                logger.warn("Invalid value '{}' for '{}'. Using default {}", valueStr, key, defaultValue);
-                return defaultValue;
+            } else {
+                numericValue = Long.parseLong(valueStr);
+                if (numericValue.longValue() <= 0) throw new NumberFormatException();
             }
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid numeric value '{}' for '{}'. Using default {}", valueStr, key, defaultValue);
+            return defaultValue;
         }
 
         AudioMeasure.Unit unit = switch (unitStr) {
-            case "frames", "frame" -> AudioMeasure.Unit.FRAMES;
-            case "samples", "sample", "smp" -> AudioMeasure.Unit.SAMPLES;
-            case "bytes", "byte" -> AudioMeasure.Unit.BYTES;
-            case "seconds", "second", "sec" -> AudioMeasure.Unit.SECONDS;
+            case "", "f", "frms", "frame", "frames" -> AudioMeasure.Unit.FRAMES;
+            case "smp", "samples", "sample" -> AudioMeasure.Unit.SAMPLES;
+            case "b", "byte", "bytes" -> AudioMeasure.Unit.BYTES;
+            case "s", "sec", "second", "seconds" -> AudioMeasure.Unit.SECONDS;
             default -> {
                 logger.warn("Invalid unit '{}' for '{}'. Using default {}", unitStr, key, AudioMeasure.Unit.FRAMES.name());
                 yield AudioMeasure.Unit.FRAMES;
@@ -356,7 +315,7 @@ public final class AudioSystemProperties {
         };
     }
 
-    private static AudioResamplerConfig getAudioResamplerConfig(String key, AudioResamplerConfig defaultValue) {
+    private static AudioResamplerConfiguration getAudioResamplerConfig(String key, AudioResamplerConfiguration defaultValue) {
         String value = getString(key, null);
         if (value == null || value.isBlank()) {
             return defaultValue;
@@ -403,7 +362,7 @@ public final class AudioSystemProperties {
             }
         }
 
-        return new AudioResamplerConfig(resampleMethod, quality);
+        return new AudioResamplerConfiguration(resampleMethod, quality);
     }
 
     public static final Platform PLATFORM = PlatformUtilities.getPlatform();
@@ -416,14 +375,14 @@ public final class AudioSystemProperties {
     public static final long TOTAL_MEMORY = Runtime.getRuntime().totalMemory();
     public static final long MAX_MEMORY = Runtime.getRuntime().maxMemory();
 
-    public static final ThreadConfig AOL_PROCESSING_THREAD = getThreadConfig(
-        "org.theko.sound.outputLayer.processing.thread", new ThreadConfig(ThreadType.PLATFORM, 7));
+    public static final ThreadConfiguration AOL_PROCESSING_THREAD = getThreadConfig(
+        "org.theko.sound.outputLayer.processing.thread", new ThreadConfiguration(ThreadType.PLATFORM, 7));
 
     public static final int AOL_PROCESSING_STOP_TIMEOUT = getIntInRange(
         "org.theko.sound.outputLayer.processing.timeout", 10, 60000, true /* clamp */, 1000);
 
-    public static final ThreadConfig AOL_OUTPUT_THREAD = getThreadConfig(
-        "org.theko.sound.outputLayer.output.thread", new ThreadConfig(ThreadType.PLATFORM, 8));
+    public static final ThreadConfiguration AOL_OUTPUT_THREAD = getThreadConfig(
+        "org.theko.sound.outputLayer.output.thread", new ThreadConfiguration(ThreadType.PLATFORM, 8));
 
     public static final int AOL_OUTPUT_STOP_TIMEOUT = getIntInRange(
         "org.theko.sound.outputLayer.output.timeout", 10, 60000, true /* clamp */, 1000);
@@ -434,14 +393,14 @@ public final class AudioSystemProperties {
     public static final int AOL_DEFAULT_RING_BUFFERS = getIntInRange(
         "org.theko.sound.outputLayer.defaultRingBuffers", 1, Integer.MAX_VALUE, false /* use default */, 1);
     
-    public static final AudioResamplerConfig AOL_RESAMPLER = getAudioResamplerConfig(
-        "org.theko.sound.outputLayer.resampler", new AudioResamplerConfig(new LinearResampleMethod(), 2));
+    public static final AudioResamplerConfiguration AOL_RESAMPLER = getAudioResamplerConfig(
+        "org.theko.sound.outputLayer.resampler", new AudioResamplerConfiguration(new LinearResampleMethod(), 2));
 
     public static final boolean AOL_ENABLE_SHUTDOWN_HOOK = getBoolean(
         "org.theko.sound.outputLayer.enableShutdownHook", true);
 
-    public static final AudioResamplerConfig SHARED_RESAMPLER = getAudioResamplerConfig(
-        "org.theko.sound.resampler.shared", new AudioResamplerConfig(new LinearResampleMethod(), 2));
+    public static final AudioResamplerConfiguration SHARED_RESAMPLER = getAudioResamplerConfig(
+        "org.theko.sound.resampler.shared", new AudioResamplerConfiguration(new LinearResampleMethod(), 2));
 
     public static final boolean MIXER_DEFAULT_ENABLE_EFFECTS = getBoolean(
         "org.theko.sound.mixer.default.enableEffects", true);
@@ -455,17 +414,17 @@ public final class AudioSystemProperties {
     public static final boolean WAVE_CODEC_CLEAN_TAG_TEXT = getBoolean(
         "org.theko.sound.waveCodec.cleanTagText", true);
 
-    public static final ThreadConfig AUTOMATIONS_THREAD = getThreadConfig(
-        "org.theko.sound.automation.thread", new ThreadConfig(ThreadType.VIRTUAL, 5));
+    public static final int AUTOMATIONS_THREADS = getIntInRange(
+        "org.theko.sound.automation.threads", 1, CPU_AVAILABLE_CORES*4, true, CPU_AVAILABLE_CORES);
 
     public static final int AUTOMATIONS_UPDATE_TIME = getIntInRange(
         "org.theko.sound.automation.updateTime", 0, Integer.MAX_VALUE, false /* use default */, 15);
 
-    public static final ThreadConfig CLEANERS_THREAD = getThreadConfig(
-        "org.theko.sound.cleaner.thread", new ThreadConfig(ThreadType.VIRTUAL, 1));
+    public static final ThreadConfiguration CLEANERS_THREAD = getThreadConfig(
+        "org.theko.sound.cleaner.thread", new ThreadConfiguration(ThreadType.VIRTUAL, 1));
 
-    public static final AudioResamplerConfig RESAMPLER_EFFECT = getAudioResamplerConfig(
-        "org.theko.sound.effects.resampler", new AudioResamplerConfig(new LanczosResampleMethod(), 2));
+    public static final AudioResamplerConfiguration RESAMPLER_EFFECT = getAudioResamplerConfig(
+        "org.theko.sound.effects.resampler", new AudioResamplerConfiguration(new LinearResampleMethod(), 2));
 
     static {
         if (logger.isDebugEnabled()) {
@@ -503,7 +462,7 @@ public final class AudioSystemProperties {
             .append(" OutputLayer: {")
             .append("Processing").append(FormatUtilities.formatThreadInfo(AOL_PROCESSING_THREAD))
             .append(", Output").append(FormatUtilities.formatThreadInfo(AOL_OUTPUT_THREAD))
-            .append("}, Automation").append(FormatUtilities.formatThreadInfo(AUTOMATIONS_THREAD))
+            .append("}, Automations pool threads count: ").append(AUTOMATIONS_THREADS)
             .append(", Cleaner").append(FormatUtilities.formatThreadInfo(CLEANERS_THREAD))
             .append("\n");
         builder.append("  Default Output Buffer Size=").append(AOL_DEFAULT_BUFFER).append("\n");
@@ -527,9 +486,16 @@ public final class AudioSystemProperties {
         StringBuilder propertiesLog = new StringBuilder();
 
         Properties props = System.getProperties();
-        for (String key : props.stringPropertyNames()) {
-            if (key.startsWith("org.theko.sound.")) {
-                propertiesLog.append(key).append(": ").append(props.getProperty(key)).append("\n");
+        List<String> keys = props.stringPropertyNames().stream()
+                                .filter(k -> k.startsWith("org.theko.sound."))
+                                .sorted()
+                                .toList();
+
+        for (int i = 0; i < keys.size(); i++) {
+            String key = keys.get(i);
+            propertiesLog.append(key).append(": ").append(props.getProperty(key));
+            if (i < keys.size() - 1) { // только если не последний элемент
+                propertiesLog.append("\n");
             }
         }
 

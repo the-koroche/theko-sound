@@ -18,8 +18,8 @@ package org.theko.sound.utility;
 
 import java.util.Locale;
 
-import org.theko.sound.properties.AudioSystemProperties.ThreadConfig;
-import org.theko.sound.properties.AudioSystemProperties.ThreadType;
+import org.theko.sound.properties.ThreadType;
+import org.theko.sound.properties.ThreadConfiguration;
 
 /**
  * Utility class for formatting data in a human-readable way.
@@ -213,7 +213,7 @@ public final class FormatUtilities {
      * @param threadConfig The thread config to format
      * @return The formatted string.
      */
-    public static String formatThreadInfo(ThreadConfig threadCnofig) {
+    public static String formatThreadInfo(ThreadConfiguration threadCnofig) {
         return String.format("(%s, %d)", threadCnofig.threadType.toString(), threadCnofig.priority);
     }
 
