@@ -15,10 +15,9 @@
  */
 
 #pragma once
-
-#include <IJavaClassCache.hpp>
 #include <jni.h>
-#include <jni_util.hpp>
+#include "IJavaClassCache.hpp"
+#include "jni_util.hpp"
 
 class AudioPortCache : public IJavaClassCache {
 public:
