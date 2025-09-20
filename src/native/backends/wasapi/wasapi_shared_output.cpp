@@ -80,7 +80,7 @@ extern "C" {
             nullptr, nullptr, nullptr, nullptr, nullptr,
             0, 0, FALSE, nullptr, 0
         };
-        logger->trace(env, "OutputContext allocated. Pointer: %p", context);
+        logger->trace(env, "OutputContext allocated. Pointer: %s", FORMAT_PTR(context));
 
         IMMDevice* device = AudioPort_to_IMMDevice(env, jport);
         if (!device) {
@@ -88,14 +88,14 @@ extern "C" {
             return;
         }
         context->outputDevice = device;
-        logger->trace(env, "IMMDevice pointer: %p", device);
+        logger->trace(env, "IMMDevice pointer: %s", FORMAT_PTR(device));
 
         WAVEFORMATEX* format = AudioFormat_to_WAVEFORMATEX(env, jformat);
         if (!format) {
             cleanupAndLogError(env, logger, context, E_FAIL, "Failed to get WAVEFORMATEX.");
             return;
         }
-        logger->trace(env, "WAVEFORMATEX (Source) pointer: %p", format);
+        logger->trace(env, "WAVEFORMATEX (Source) pointer: %s", FORMAT_PTR(format));
 
         context->audioClient = nullptr;
         HRESULT hr = context->outputDevice->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr, (void**)&context->audioClient);
@@ -103,7 +103,7 @@ extern "C" {
             cleanupAndLogError(env, logger, context, hr, "Failed to get IAudioClient.");
             return;
         }
-        logger->trace(env, "IAudioClient pointer: %p", context->audioClient);
+        logger->trace(env, "IAudioClient pointer: %s", FORMAT_PTR(context->audioClient));
 
         WAVEFORMATEX* closestFormat = nullptr;
         hr = context->audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, format, &closestFormat);
@@ -118,7 +118,7 @@ extern "C" {
             logger->info(env, "Format is not supported, using closest match: WAVEFORMATEX[%d Hz, %d bits, %d channels, isFloat: %d, isPcm: %d]",
                 closestFormat->nSamplesPerSec, closestFormat->wBitsPerSample, closestFormat->nChannels, 
                 closestFormat->wFormatTag == WAVE_FORMAT_IEEE_FLOAT, closestFormat->wFormatTag == WAVE_FORMAT_PCM);
-            logger->trace(env, "Closest format pointer: %p", closestFormat);
+            logger->trace(env, "Closest format pointer: %s", FORMAT_PTR(closestFormat));
             
             CoTaskMemFree(format);
             format = (WAVEFORMATEX*)closestFormat;
@@ -156,7 +156,7 @@ extern "C" {
             cleanupAndLogError(env, logger, context, hr, "Failed to get IAudioRenderClient.");
             return;
         }
-        logger->trace(env, "IAudioRenderClient pointer: %p", context->renderClient);
+        logger->trace(env, "IAudioRenderClient pointer: %s", FORMAT_PTR(context->renderClient));
 
         context->audioClock = nullptr;
         hr = context->audioClient->GetService(__uuidof(IAudioClock), (void**)&context->audioClock);
@@ -164,11 +164,11 @@ extern "C" {
             cleanupAndLogError(env, logger, context, hr, "Failed to get IAudioClock.");
             return;
         }
-        logger->trace(env, "IAudioClock pointer: %p", context->audioClock);
+        logger->trace(env, "IAudioClock pointer: %s", FORMAT_PTR(context->audioClock));
 
         context->hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
         context->audioClient->SetEventHandle(context->hEvent);
-        logger->trace(env, "Event handle: %p", context->hEvent);
+        logger->trace(env, "Event handle: %s", FORMAT_PTR(context->hEvent));
 
         context->audioClient->GetBufferSize(&context->bufferFrameCount);
         context->bytesPerFrame = format->nBlockAlign;
@@ -178,7 +178,7 @@ extern "C" {
         logger->debug(env, "Actual buffer size: %d frames", context->bufferFrameCount);
 
         env->SetLongField(obj, WASAPIOutputCache::get(env)->outputContextPtr, (jlong)context);
-        logger->debug(env, "Opened WASAPI output. ContextPtr: %p", context);
+        logger->debug(env, "Opened WASAPI output. ContextPtr: %s", FORMAT_PTR(context));
     }
 
     JNIEXPORT void JNICALL

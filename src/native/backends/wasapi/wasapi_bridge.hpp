@@ -107,7 +107,7 @@ static jobject WAVEFORMATEX_to_AudioFormat(JNIEnv* env, const WAVEFORMATEX* wave
         formatCache->ctor,
         sampleRate, bits, channels, jAudioEncoding, bigEndian);
 
-    logger->trace(env, "Created jAudioFormat. Pointer: %p", jAudioFormat);
+    logger->trace(env, "Created AudioFormat. Pointer: %s", FORMAT_PTR(jAudioFormat));
 
     return jAudioFormat;
 }
@@ -165,7 +165,7 @@ static WAVEFORMATEX* AudioFormat_to_WAVEFORMATEX(JNIEnv* env, jobject audioForma
     }
     memset(format, 0, sizeof(WAVEFORMATEX));
 
-    logger->trace(env, "Created WAVEFORMATEX. Pointer: %p", format);
+    logger->trace(env, "Created WAVEFORMATEX. Pointer: %s", FORMAT_PTR(format));
 
     format->wFormatTag = isFloat ? WAVE_FORMAT_IEEE_FLOAT : WAVE_FORMAT_PCM;
     format->nChannels = channels;
@@ -210,7 +210,7 @@ static wchar_t* getAudioDeviceProperty(JNIEnv* env, IMMDevice* device, const PRO
         return nullptr;
     }
 
-    logger->trace(env, "Opened audio device property store. Pointer: %p", pProps);
+    logger->trace(env, "Opened audio device property store. Pointer: %s", FORMAT_PTR(pProps));
  
     PROPVARIANT var;
     PropVariantInit(&var);
@@ -294,7 +294,8 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     jstring jVersion = env->NewString((const jchar*)version, wcslen(version));
     jstring jDescription = env->NewString((const jchar*)description, wcslen(description));
 
-    logger->trace(env, "Created java strings. Name: %p, Manufacturer: %p, Version: %p, Description: %p", jName, jManufacturer, jVersion, jDescription);
+    logger->trace(env, "Created java strings. Name: %s, Manufacturer: %s, Version: %s, Description: %s",
+            FORMAT_PTR(jName), FORMAT_PTR(jManufacturer), FORMAT_PTR(jVersion), FORMAT_PTR(jDescription));
 
     // Obtain WASAPI device ID
     jstring jHandle = nullptr;
@@ -322,7 +323,7 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
         jHandle
     ));
 
-    logger->trace(env, "Created WASAPI native handle: %p", jNativeHandleObj);
+    logger->trace(env, "Created WASAPI native handle: %s", FORMAT_PTR(jNativeHandleObj));
 
     // Get flow
     jobject jFlowObj = nullptr;
@@ -339,7 +340,7 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
         } else if (flow == eCapture) {
             jFlowObj = flowCache->inObj;
         }
-        logger->trace(env, "Obtained audio flow: %p", jFlowObj);
+        logger->trace(env, "Obtained audio flow. Pointer: %s", FORMAT_PTR(jFlowObj));
     } else {
         char* hr_msg = format_hr_msg(hr);
         char* msg = format("Failed to get flow. (%s)", hr_msg);
@@ -377,10 +378,10 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     } else if (!mixFormat && !isActive) {
         logger->info(env, "Device is not active, and mix format is not available.");
     }
-    logger->trace(env, "Obtained WAVEFORMATEX: %p", mixFormat);
+    logger->trace(env, "Obtained WAVEFORMATEX. Pointer: %s", FORMAT_PTR(mixFormat));
 
     jobject jAudioMixFormat = (mixFormat ?WAVEFORMATEX_to_AudioFormat(env, mixFormat) : nullptr);
-    logger->trace(env, "Created AudioFormat: %p", jAudioMixFormat);
+    logger->trace(env, "Created AudioFormat. Pointer: %s", FORMAT_PTR(jAudioMixFormat));
 
     // Create AudioPort
     jobject audioPort = env->NewObject(
@@ -390,7 +391,7 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
         jFlowObj, jIsActive, jAudioMixFormat, 
         jName, jManufacturer, jVersion, jDescription);
 
-    logger->trace(env, "Created AudioPort: %p", audioPort);
+    logger->trace(env, "Created AudioPort. Pointer: %s", FORMAT_PTR(audioPort));
 
     // Cleanup
     CoTaskMemFree(name);

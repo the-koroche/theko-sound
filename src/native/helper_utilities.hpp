@@ -19,12 +19,30 @@
 #include <string.h>
 #include <stdarg.h>
 #include <malloc.h>
+#include <array>
 #include <cstdio>
+#include <inttypes.h>
 
 #ifdef _WIN32
 #include <combaseapi.h> // CoTaskMemAlloc / CoTaskMemFree
 #include "winhr_defs.hpp"
 #endif
+
+class PtrStr {
+    std::array<char, 2 + sizeof(uintptr_t)*2 + 1> buf;
+    
+public:
+    explicit PtrStr(const void* p) {
+        snprintf(buf.data(), buf.size(), "0x%0*" PRIXPTR, 
+                static_cast<int>(sizeof(uintptr_t)*2), 
+                reinterpret_cast<uintptr_t>(p));
+    }
+    
+    const char* c_str() const { return buf.data(); }
+    operator const char*() const { return buf.data(); }
+};
+
+#define FORMAT_PTR(p) PtrStr(p)
 
 /**
  * Format a string using a variable argument list.
@@ -74,17 +92,6 @@ static char* formatv(const char* fmt, va_list args) {
 
     vsnprintf(buf, len + 1, fmt, args);
     return buf; // caller must free using 'free()'
-}
-
-/**
- * Format a string representing a pointer to a given void pointer.
- * The returned string is in the format of "%p", i.e. a hexadecimal representation of the pointer value.
- * The caller is responsible for freeing the returned buffer using 'free()'
- * @param ptr The void pointer to format.
- * @return A pointer to the formatted string. If an error occurs, NULL is returned.
- */
-static char* formatptr(void* ptr) {
-    return format("%p", ptr); // caller must free using 'free()'
 }
 
 /**

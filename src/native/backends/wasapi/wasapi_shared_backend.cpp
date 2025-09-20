@@ -80,7 +80,7 @@ extern "C" {
         }
         env->SetLongField(obj, WASAPIBackendCache::get(env)->backendContextPtr, (jlong)ctx);
 
-        logger->debug(env, "Initialized WASAPI backend. ContextPtr: %p", ctx);
+        logger->debug(env, "Initialized WASAPI backend. ContextPtr: %s", FORMAT_PTR(ctx));
     }
 
     JNIEXPORT void JNICALL 
@@ -196,7 +196,7 @@ extern "C" {
             return nullptr;
         }
 
-        logger->trace(env, "Default audio endpoint ptr: %p", pDevice);
+        logger->trace(env, "Default audio endpoint pointer: %s", FORMAT_PTR(pDevice));
 
         wchar_t* idName = nullptr;
         hr = pDevice->GetId(&idName);
@@ -237,7 +237,7 @@ extern "C" {
             return JNI_FALSE;
         }
 
-        logger->trace(env, "IMMDevice ptr: %p", device);
+        logger->trace(env, "IMMDevice pointer: %s", FORMAT_PTR(device));
 
         WAVEFORMATEX* format = AudioFormat_to_WAVEFORMATEX(env, jformat);
         if (!format) {
@@ -245,7 +245,7 @@ extern "C" {
             return JNI_FALSE;
         }
 
-        logger->trace(env, "WAVEFORMATEX ptr: %p", format);
+        logger->trace(env, "WAVEFORMATEX pointer: %s", FORMAT_PTR(format));
 
         IAudioClient* audioClient = nullptr;
         HRESULT hr = device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, NULL, (void**)&audioClient);
@@ -258,7 +258,7 @@ extern "C" {
             return JNI_FALSE;
         }
 
-        logger->trace(env, "IAudioClient ptr: %p", audioClient);
+        logger->trace(env, "IAudioClient pointer: %s", FORMAT_PTR(audioClient));
 
         WAVEFORMATEX* closest = nullptr;
         hr = audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, format, &closest);
@@ -271,9 +271,9 @@ extern "C" {
         } else if (hr == S_FALSE) {
             logger->trace(env, "Format is not supported.");
             if (closest) {
-                logger->trace(env, "Closest format ptr: %p", closest);
+                logger->trace(env, "Closest format pointer: %s", FORMAT_PTR(closest));
                 if (atomicClosestFormat) {
-                    logger->trace(env, "AtomicClosestFormat ptr: %p", atomicClosestFormat);
+                    logger->trace(env, "AtomicClosestFormat pointer: %s", FORMAT_PTR(atomicClosestFormat));
                     jobject jAudioFormat = WAVEFORMATEX_to_AudioFormat(env, closest);
                     env->CallVoidMethod(atomicClosestFormat, AtomicReferenceCache::get(env)->setMethod, jAudioFormat);
                 }
