@@ -303,7 +303,7 @@ extern "C" {
 
     JNIEXPORT jobjectArray JNICALL 
     Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nGetAllPorts
-    (JNIEnv* env, jobject obj) {
+    (JNIEnv* env, jobject obj, jobject flowObj) {
         env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
         return nullptr;
     }
@@ -317,7 +317,7 @@ extern "C" {
 
     JNIEXPORT jboolean JNICALL
     Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nIsFormatSupported
-    (JNIEnv* env, jobject obj, jobject jport, jobject jformat) {
+    (JNIEnv* env, jobject obj, jobject jport, jobject jformat, jobject atomicClosestFormat) {
         env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
         return JNI_FALSE;
     }

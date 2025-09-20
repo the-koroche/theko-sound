@@ -528,7 +528,7 @@ extern "C" {
 extern "C" {
     JNIEXPORT void JNICALL 
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nOpen
-    (JNIEnv* env, jobject obj, jobject jport, jobject jformat, jint bufferSize) {
+    (JNIEnv* env, jobject obj, jobject jport, jobject jformat, jint bufferSize /* in bytes */) {
         env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
     }
 
