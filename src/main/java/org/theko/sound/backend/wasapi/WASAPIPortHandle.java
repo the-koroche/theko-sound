@@ -23,14 +23,24 @@ package org.theko.sound.backend.wasapi;
  * @since 2.3.2
  * @author Theko
  */
-public class WASAPINativeAudioPortHandle {
+public class WASAPIPortHandle {
     
     private final String handle;
 
-    public WASAPINativeAudioPortHandle(String handle) {
+    /**
+     * Creates a new WASAPIPortHandle instance.
+     * 
+     * @param handle the native audio port handle identifier
+     */
+    public WASAPIPortHandle(String handle) {
         this.handle = handle;
     }
 
+    /**
+     * Returns the native audio port handle identifier.
+     * 
+     * @return the native audio port handle identifier
+     */
     public String getHandle() {
         return handle;
     }
@@ -39,7 +49,7 @@ public class WASAPINativeAudioPortHandle {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        WASAPINativeAudioPortHandle that = (WASAPINativeAudioPortHandle) o;
+        WASAPIPortHandle that = (WASAPIPortHandle) o;
         return handle.equals(that.handle);
     }
 

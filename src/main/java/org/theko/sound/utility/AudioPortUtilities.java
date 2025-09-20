@@ -22,7 +22,7 @@ import javax.sound.sampled.Mixer;
 
 import org.theko.sound.backend.AudioBackend;
 import org.theko.sound.backend.javasound.JavaSoundBackend;
-import org.theko.sound.backend.wasapi.WASAPINativeAudioPortHandle;
+import org.theko.sound.backend.wasapi.WASAPIPortHandle;
 import org.theko.sound.backend.wasapi.WASAPISharedBackend;
 
 /**
@@ -37,7 +37,7 @@ public final class AudioPortUtilities {
 
     static {
         backends.put(Mixer.Info.class, JavaSoundBackend.class);
-        backends.put(WASAPINativeAudioPortHandle.class, WASAPISharedBackend.class);
+        backends.put(WASAPIPortHandle.class, WASAPISharedBackend.class);
     }
     
     private AudioPortUtilities() {

@@ -97,6 +97,7 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISh
                     logger.info("Loaded WASAPI library: {}", libToLoad.getName());
                 } catch (UnsatisfiedLinkError e) {
                     logger.error("Failed to load WASAPI library: {}", libToLoad.getAbsolutePath(), e);
+                    logger.warn("Library failed to load; API operations may be unstable. See stack trace for details: {}", e.getMessage());
                 }
             } else {
                 logger.error("WASAPI library is null for architecture {}", PlatformUtilities.getArchitecture());
@@ -225,7 +226,7 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISh
     }
 
     public boolean isAudioPortSupported(AudioPort port) {
-        return port != null && port.getLink().getClass().equals(WASAPINativeAudioPortHandle.class);
+        return port != null && port.getLink().getClass().equals(WASAPIPortHandle.class);
     }
 
     private synchronized native void nInit();
