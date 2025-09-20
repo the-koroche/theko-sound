@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include "IJavaClassCache.hpp"
 #include "helper_utilities.hpp"
 #include "jni_util.hpp"
 

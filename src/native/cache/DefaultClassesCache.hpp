@@ -15,11 +15,14 @@
  */
 
 #pragma once
+#include <jni.h>
 
-#include <IJavaClassCache.hpp>
-#include <AtomicReferenceCache.hpp>
-#include <AudioFlowCache.hpp>
-#include <AudioFormatCache.hpp>
-#include <AudioFormatEncodingCache.hpp>
-#include <AudioPortCache.hpp>
-#include <ExceptionClassesCache.hpp>
+#include "IJavaClassCache.hpp"
+#include "jni_util.hpp"
+
+#include "AtomicReferenceCache.hpp"
+#include "AudioFlowCache.hpp"
+#include "AudioFormatCache.hpp"
+#include "AudioFormatEncodingCache.hpp"
+#include "AudioPortCache.hpp"
+#include "ExceptionClassesCache.hpp"

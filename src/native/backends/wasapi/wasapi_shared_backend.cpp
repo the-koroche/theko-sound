@@ -18,6 +18,12 @@
 
 #include "helper_utilities.hpp"
 
+#include "DefaultClassesCache.hpp"
+#include "WASAPIClassesCache.hpp"
+
+#include "logger.hpp"
+#include "logger_manager.hpp"
+
 #include "org_theko_sound_backend_wasapi_WASAPISharedBackend.h"
 
 #ifdef _WIN32
@@ -30,12 +36,6 @@
 
 #include "wasapi_utils.hpp"
 #include "wasapi_bridge.hpp"
-
-#include <DefaultClassesCache.hpp>
-#include <WASAPIClassesCache.hpp>
-
-#include "logger.hpp"
-#include "logger_manager.hpp"
 
 typedef struct {
     IMMDeviceEnumerator* deviceEnumerator;
@@ -290,33 +290,33 @@ extern "C" {
 #else // end of _WIN32
 extern "C" {
     JNIEXPORT void JNICALL 
-    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_initialize0
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nInit
     (JNIEnv* env, jobject obj) {
         env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
     }
 
     JNIEXPORT void JNICALL 
-    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_shutdown0
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nShutdown
     (JNIEnv* env, jobject obj) {
         env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
     }
 
     JNIEXPORT jobjectArray JNICALL 
-    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_getAllPorts0
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nGetAllPorts
     (JNIEnv* env, jobject obj) {
         env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
         return nullptr;
     }
 
     JNIEXPORT jobject JNICALL 
-    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_getDefaultPort0
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nGetDefaultPort
     (JNIEnv* env, jobject obj, jobject flowObj) {
         env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
         return nullptr;
     }
 
     JNIEXPORT jboolean JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_isFormatSupported0
+    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nIsFormatSupported
     (JNIEnv* env, jobject obj, jobject jport, jobject jformat) {
         env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
         return JNI_FALSE;

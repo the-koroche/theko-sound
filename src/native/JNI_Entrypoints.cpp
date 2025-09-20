@@ -16,8 +16,7 @@
 
 #include <jni.h>
 
-#include <GlobalClassCachesRegistry.hpp>
-
+#include "GlobalClassCachesRegistry.hpp"
 #include "logger_manager.hpp"
 
 extern "C" {

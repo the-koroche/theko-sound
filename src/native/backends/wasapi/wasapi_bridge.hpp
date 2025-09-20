@@ -24,16 +24,16 @@
 #include <Functiondiscoverykeys_devpkey.h>
 #include <initguid.h>
 
-#include <wasapi_utils.hpp>
-#include <helper_utilities.hpp>
-
-#include <DefaultClassesCache.hpp>
-#include <WASAPIClassesCache.hpp>
-
-#include <logger.hpp>
-#include <logger_manager.hpp>
-
 #include <jni.h>
+
+#include "wasapi_utils.hpp"
+#include "helper_utilities.hpp"
+
+#include "DefaultClassesCache.hpp"
+#include "WASAPIClassesCache.hpp"
+
+#include "logger.hpp"
+#include "logger_manager.hpp"
 
 /**
  * Converts a native WAVEFORMATEX object to a org.theko.sound.AudioFormat object.

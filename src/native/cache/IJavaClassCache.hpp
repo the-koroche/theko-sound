@@ -26,7 +26,7 @@ public:
     virtual void release(JNIEnv* env) = 0;
 };
 
-#include <GlobalClassCachesRegistry.hpp>
+#include "GlobalClassCachesRegistry.hpp"
 
 #define AUTO_STATIC_CACHE_GET(_typename) \
 static _typename* get(JNIEnv* env) { \

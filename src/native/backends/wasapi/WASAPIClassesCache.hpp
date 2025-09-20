@@ -16,7 +16,11 @@
 
 #pragma once
 
-#include <IJavaClassCache.hpp>
-#include <WASAPIBackendCache.hpp>
-#include <WASAPIOutputCache.hpp>
-#include <WASAPIPortHandleCache.hpp>
+#include <jni.h>
+
+#include "IJavaClassCache.hpp"
+#include "jni_util.hpp"
+
+#include "WASAPIBackendCache.hpp"
+#include "WASAPIOutputCache.hpp"
+#include "WASAPIPortHandleCache.hpp"

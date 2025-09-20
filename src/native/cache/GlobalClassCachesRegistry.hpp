@@ -15,9 +15,10 @@
  */
 
 #pragma once
+#include <jni.h>
 
 #include <vector>
-#include <IJavaClassCache.hpp>
+#include "IJavaClassCache.hpp"
 
 class GlobalClassCachesRegistry {
 public:
