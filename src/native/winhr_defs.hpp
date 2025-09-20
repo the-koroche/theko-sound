@@ -28,6 +28,15 @@
 #include <unordered_map>
 #include <string>
 
+/**
+ * Return a human-readable constant name of the given HRESULT.
+ * If no mapping is found, nullptr is returned.
+ * @param hr The HRESULT to format.
+ * @return A human-readable constant name for the given HRESULT,
+ *         or nullptr if no mapping is found.
+ * @note This function is thread-safe and does not allocate any memory.
+ * @note This function is only available on Windows.
+ */
 static const char* get_hr_name(HRESULT hr) {
     static const std::unordered_map<HRESULT, const char*> hr_names = {
         //  General — winerror.h
@@ -84,7 +93,6 @@ static const char* get_hr_name(HRESULT hr) {
         {0x88890030, "AUDCLNT_E_HEADTRACKING_ENABLED"},
         {0x88890040, "AUDCLNT_E_HEADTRACKING_UNSUPPORTED"},
 
-        //  WASAPI - success codes
         {0x088890001, "AUDCLNT_S_BUFFER_EMPTY"},
         {0x088890002, "AUDCLNT_S_THREAD_ALREADY_REGISTERED"},
         {0x088890003, "AUDCLNT_S_POSITION_STALLED"}

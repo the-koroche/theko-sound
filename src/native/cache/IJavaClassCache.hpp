@@ -14,25 +14,27 @@
  * limitations under the License.
  */
 
+#pragma once
 #include <jni.h>
+
+class IJavaClassCache {
+public:
+    IJavaClassCache(JNIEnv* env) {};
+    virtual ~IJavaClassCache() = default; // Use release(JNIEnv* env)
+    
+    virtual bool isValid() const = 0;
+    virtual void release(JNIEnv* env) = 0;
+};
 
 #include <GlobalClassCachesRegistry.hpp>
 
-#include "logger_manager.hpp"
-
-extern "C" {
-    JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
-        JNIEnv *env = nullptr;
-        vm->GetEnv((void**) &env, JNI_VERSION_1_6);
-
-        return JNI_VERSION_1_6;
-    }
-
-    JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void* reserved) {
-        JNIEnv *env = nullptr;
-        vm->GetEnv((void**) &env, JNI_VERSION_1_6);
-
-        GlobalClassCachesRegistry::releaseAll(env);
-        LoggerManager::getManager()->releaseAll(env);
-    }
+#define AUTO_STATIC_CACHE_GET(_typename) \
+static _typename* get(JNIEnv* env) { \
+    static _typename* cache = nullptr; \
+    if (!cache) { \
+        if (!env) return nullptr; \
+        cache = new _typename(env); \
+        GlobalClassCachesRegistry::add(cache); \
+    } \
+    return cache; \
 }

@@ -20,7 +20,7 @@
 #include <string>
 #include <unordered_map>
 #include <mutex>
-#include "Logger.hpp"
+#include "logger.hpp"
 
 class LoggerManager {
 private:
@@ -28,6 +28,21 @@ private:
     std::mutex mutex;
 
 public:
+    /**
+     * @brief Retrieves a SLF4J logger instance by name.
+     *
+     * @param env The JNIEnv pointer for the current thread.
+     * @param name The name of the logger to retrieve.
+     *
+     * @return A pointer to the logger or nullptr if the logger could not be
+     *          created.
+     *
+     * This function is thread-safe and will return a cached logger if one
+     * already exists for the given name. If the logger does not exist, a
+     * new one will be created and stored in the cache for future requests.
+     * If the logger could not be created for any reason, nullptr will be
+     * returned.
+     */
     Logger* getLogger(JNIEnv* env, const std::string& name) {
         std::lock_guard<std::mutex> guard(mutex);
 
@@ -44,6 +59,15 @@ public:
         return logger;
     }
 
+    /**
+     * @brief Releases all cached loggers and the logger cache.
+     *
+     * This function is thread-safe and will release all loggers and the logger
+     * cache if they exist. The loggers will be released in the order they
+     * were retrieved from the cache, and the logger cache will be released last.
+     *
+     * @param env The JNIEnv pointer for the current thread.
+     */
     void releaseAll(JNIEnv* env) {
         std::lock_guard<std::mutex> guard(mutex);
 
@@ -56,15 +80,25 @@ public:
 
         loggerCache.clear();
 
-        getLoggerCache(env)->release(env);
+        LoggerCache::get(env)->release(env);
     }
 
     ~LoggerManager() {
         fprintf(stderr, "[LoggerManager] Destructor cannot release resources: no JNIEnv available in native destructor. Call releaseAll(env) manually.\n");
     }
-};
 
-static LoggerManager* getLoggerManager() {
-    static LoggerManager* loggerManager = new LoggerManager();
-    return loggerManager;
-}
+    /**
+     * @brief Retrieves the global LoggerManager instance.
+     *
+     * This function returns the global LoggerManager instance, which is
+     * lazily initialized when the function is first called. The
+     * instance is stored in a static variable and is guaranteed
+     * to be thread-safe.
+     *
+     * @return The global LoggerManager instance.
+     */
+    static LoggerManager* getManager() {
+        static LoggerManager* manager = new LoggerManager();
+        return manager;
+    }
+};

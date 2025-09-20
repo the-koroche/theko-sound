@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2025 Alex Soloviov (aka Theko)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,14 +21,19 @@
 #include <malloc.h>
 #include <cstdio>
 
-#include <jni.h>
-#include <stringapiset.h>
-
 #ifdef _WIN32
 #include <combaseapi.h> // CoTaskMemAlloc / CoTaskMemFree
 #include "winhr_defs.hpp"
 #endif
 
+/**
+ * Format a string using a variable argument list.
+ * This function is similar to vfprintf, but it allocates a buffer to store the formatted string.
+ * The caller is responsible for freeing the returned buffer using 'free()'
+ * @param fmt The format string.
+ * @param ... The variable argument list.
+ * @return A pointer to the formatted string. If an error occurs, NULL is returned.
+ */
 static char* format(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
@@ -46,9 +51,17 @@ static char* format(const char* fmt, ...) {
 
     vsnprintf(buf, len + 1, fmt, args);
     va_end(args);
-    return buf; // caller must free using 'free'
+    return buf; // caller must free using 'free()'
 }
 
+/**
+ * Format a string using a variable argument list.
+ * This function is similar to vfprintf, but it allocates a buffer to store the formatted string.
+ * The caller is responsible for freeing the returned buffer using 'free()'
+ * @param fmt The format string.
+ * @param args The variable argument list.
+ * @return A pointer to the formatted string. If an error occurs, NULL is returned.
+ */
 static char* formatv(const char* fmt, va_list args) {
     va_list args_copy;
     va_copy(args_copy, args);
@@ -60,18 +73,41 @@ static char* formatv(const char* fmt, va_list args) {
     if (!buf) return NULL;
 
     vsnprintf(buf, len + 1, fmt, args);
-    return buf; // caller must free using 'free'
+    return buf; // caller must free using 'free()'
 }
 
+/**
+ * Format a string representing a pointer to a given void pointer.
+ * The returned string is in the format of "%p", i.e. a hexadecimal representation of the pointer value.
+ * The caller is responsible for freeing the returned buffer using 'free()'
+ * @param ptr The void pointer to format.
+ * @return A pointer to the formatted string. If an error occurs, NULL is returned.
+ */
+static char* formatptr(void* ptr) {
+    return format("%p", ptr); // caller must free using 'free()'
+}
+
+/**
+ * Allocate a buffer to store a literal UTF-8 string and copy the contents of the given string into it.
+ * The caller is responsible for freeing the returned buffer using 'free()'
+ * @param str The string to copy into the allocated buffer.
+ * @return A pointer to the allocated buffer containing a copy of the given string, or NULL if an error occurs.
+ */
 static char* memalloc_literal_utf8(const char* str) {
     if (!str) return NULL;
     size_t len = strlen(str) + 1;
     char* result = (char*)malloc(len);
     strcpy_s(result, len, str);
-    return result; // caller must free using 'free'
+    return result; // caller must free using 'free()'
 }
 
 #ifdef _WIN32
+/**
+ * Allocate a buffer to store a literal UTF-16 string and copy the contents of the given UTF-8 string into it.
+ * The caller is responsible for freeing the returned buffer using 'free()'
+ * @param utf8 The UTF-8 string to copy into the allocated buffer.
+ * @return A pointer to the allocated buffer containing a copy of the given string, or NULL if an error occurs.
+ */
 static wchar_t* utf8_to_utf16(const char* utf8) {
     if (!utf8) return NULL;
 
@@ -82,9 +118,15 @@ static wchar_t* utf8_to_utf16(const char* utf8) {
     if (!utf16) return NULL;
 
     MultiByteToWideChar(CP_UTF8, 0, utf8, -1, utf16, len);
-    return utf16; // caller must free using 'free'
+    return utf16; // caller must free using 'free()'
 }
 
+/**
+ * Allocate a buffer to store a literal UTF-8 string and copy the contents of the given UTF-16 string into it.
+ * The caller is responsible for freeing the returned buffer using 'free()'
+ * @param utf16 The UTF-16 string to copy into the allocated buffer.
+ * @return A pointer to the allocated buffer containing a copy of the given string, or NULL if an error occurs.
+ */
 static char* utf16_to_utf8(const wchar_t* utf16) {
     if (!utf16) return NULL;
 
@@ -95,36 +137,60 @@ static char* utf16_to_utf8(const wchar_t* utf16) {
     if (!utf8) return NULL;
 
     WideCharToMultiByte(CP_UTF8, 0, utf16, -1, utf8, len, NULL, NULL);
-    return utf8; // caller must free using 'free'
+    return utf8; // caller must free using 'free()'
 }
 
+/**
+ * Allocate a buffer to store a literal UTF-8 string and copy the contents of the given string into it.
+ * The caller is responsible for freeing the returned buffer using 'CoTaskMemFree()'
+ * @param str The string to copy into the allocated buffer.
+ * @return A pointer to the allocated buffer containing a copy of the given string, or NULL if an error occurs.
+ */
 static char* com_memalloc_literal_utf8(const char* str) {
     if (!str) return NULL;
     size_t len = strlen(str) + 1;
     char* result = (char*)CoTaskMemAlloc(len);
     strcpy_s(result, len, str);
-    return result; // caller must free using 'CoTaskMemFree'
+    return result; // caller must free using 'CoTaskMemFree()'
 }
 
+/**
+ * Allocate a buffer to store a literal UTF-16 string and copy the contents of the given string into it.
+ * The caller is responsible for freeing the returned buffer using 'free()'
+ * @param str The string to copy into the allocated buffer.
+ * @return A pointer to the allocated buffer containing a copy of the given string, or NULL if an error occurs.
+ */
 static wchar_t* memalloc_literal_utf16(const wchar_t* str) {
     if (!str) return NULL;
     size_t len = wcslen(str) + 1;
     wchar_t* result = (wchar_t*)malloc(len * sizeof(wchar_t));
     wcscpy_s(result, len, str);
-    return result; // caller must free using 'free'
+    return result; // caller must free using 'free()'
 }
 
+/**
+ * Allocate a buffer to store a literal UTF-16 string and copy the contents of the given string into it.
+ * The caller is responsible for freeing the returned buffer using 'CoTaskMemFree()'
+ * @param str The string to copy into the allocated buffer.
+ * @return A pointer to the allocated buffer containing a copy of the given string, or NULL if an error occurs.
+ */
 static wchar_t* com_memalloc_literal_utf16(const wchar_t* str) {
     if (!str) return NULL;
     size_t len = wcslen(str) + 1;
     wchar_t* result = (wchar_t*)CoTaskMemAlloc(len * sizeof(wchar_t));
     wcscpy_s(result, len, str);
-    return result; // caller must free using 'CoTaskMemFree'
+    return result; // caller must free using 'CoTaskMemFree()'
 }
 
+/**
+ * Format an HRESULT into a human-readable string.
+ * The returned string is dynamically allocated and must be freed using 'free()'
+ * @param hr The HRESULT to format.
+ * @return A human-readable string representation of the given HRESULT, or NULL if an error occurs.
+ */
 static char* format_hr_msg(HRESULT hr) {
     const char* msgBuf = get_hr_name(hr);
     char* result = format("%s (HRESULT: 0x%08X)", msgBuf, hr);
-    return result; // caller must free using 'free'
+    return result; // caller must free using 'free()'
 }
 #endif

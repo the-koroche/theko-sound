@@ -14,25 +14,29 @@
  * limitations under the License.
  */
 
-#include <jni.h>
+#pragma once
 
-#include <GlobalClassCachesRegistry.hpp>
+#include <vector>
+#include <IJavaClassCache.hpp>
 
-#include "logger_manager.hpp"
-
-extern "C" {
-    JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
-        JNIEnv *env = nullptr;
-        vm->GetEnv((void**) &env, JNI_VERSION_1_6);
-
-        return JNI_VERSION_1_6;
+class GlobalClassCachesRegistry {
+public:
+    static std::vector<IJavaClassCache*>& getRegistry() {
+        static std::vector<IJavaClassCache*> registry;
+        return registry;
     }
 
-    JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void* reserved) {
-        JNIEnv *env = nullptr;
-        vm->GetEnv((void**) &env, JNI_VERSION_1_6);
-
-        GlobalClassCachesRegistry::releaseAll(env);
-        LoggerManager::getManager()->releaseAll(env);
+    static void add(IJavaClassCache* cache) {
+        getRegistry().push_back(cache);
     }
-}
+
+    static void releaseAll(JNIEnv* env) {
+        for (auto* cache : getRegistry()) {
+            if (cache) {
+                cache->release(env);
+                delete cache;
+            }
+        }
+        getRegistry().clear();
+    }
+};
