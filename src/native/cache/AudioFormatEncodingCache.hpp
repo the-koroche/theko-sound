@@ -17,7 +17,7 @@
 #pragma once
 #include <jni.h>
 #include "IJavaClassCache.hpp"
-#include "jni_util.hpp"
+#include "JNI_Utility.hpp"
 
 class AudioFormatEncodingCache : IJavaClassCache {
 public:
@@ -34,29 +34,34 @@ public:
     jobject alawObj;
 
     AudioFormatEncodingCache(JNIEnv* env) : IJavaClassCache(env) {
-        clazz = JNI_TRY_RETURN(env->FindClass("org/theko/sound/AudioFormat$Encoding"));
-        pcmUnsigned = JNI_TRY_RETURN(env->GetStaticFieldID(clazz, "PCM_UNSIGNED", "Lorg/theko/sound/AudioFormat$Encoding;"));
-        pcmUnsignedObj = JNI_TRY_RETURN(env->GetStaticObjectField(clazz, pcmUnsigned));
-        pcmSigned = JNI_TRY_RETURN(env->GetStaticFieldID(clazz, "PCM_SIGNED", "Lorg/theko/sound/AudioFormat$Encoding;"));
-        pcmSignedObj = JNI_TRY_RETURN(env->GetStaticObjectField(clazz, pcmSigned));
-        pcmFloat = JNI_TRY_RETURN(env->GetStaticFieldID(clazz, "PCM_FLOAT", "Lorg/theko/sound/AudioFormat$Encoding;"));
-        pcmFloatObj = JNI_TRY_RETURN(env->GetStaticObjectField(clazz, pcmFloat));
-        ulaw = JNI_TRY_RETURN(env->GetStaticFieldID(clazz, "ULAW", "Lorg/theko/sound/AudioFormat$Encoding;"));
-        ulawObj = JNI_TRY_RETURN(env->GetStaticObjectField(clazz, ulaw));
-        alaw = JNI_TRY_RETURN(env->GetStaticFieldID(clazz, "ALAW", "Lorg/theko/sound/AudioFormat$Encoding;"));
-        alawObj = JNI_TRY_RETURN(env->GetStaticObjectField(clazz, alaw));
+        clazz = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/AudioFormat$Encoding"));
+
+        pcmUnsigned = JNI_TRY_RETURN(env, env->GetStaticFieldID(clazz, "PCM_UNSIGNED", "Lorg/theko/sound/AudioFormat$Encoding;"));
+        pcmUnsignedObj = JNI_TRY_RETURN(env, env->GetStaticObjectField(clazz, pcmUnsigned));
+
+        pcmSigned = JNI_TRY_RETURN(env, env->GetStaticFieldID(clazz, "PCM_SIGNED", "Lorg/theko/sound/AudioFormat$Encoding;"));
+        pcmSignedObj = JNI_TRY_RETURN(env, env->GetStaticObjectField(clazz, pcmSigned));
+
+        pcmFloat = JNI_TRY_RETURN(env, env->GetStaticFieldID(clazz, "PCM_FLOAT", "Lorg/theko/sound/AudioFormat$Encoding;"));
+        pcmFloatObj = JNI_TRY_RETURN(env, env->GetStaticObjectField(clazz, pcmFloat));
+
+        ulaw = JNI_TRY_RETURN(env, env->GetStaticFieldID(clazz, "ULAW", "Lorg/theko/sound/AudioFormat$Encoding;"));
+        ulawObj = JNI_TRY_RETURN(env, env->GetStaticObjectField(clazz, ulaw));
+        
+        alaw = JNI_TRY_RETURN(env, env->GetStaticFieldID(clazz, "ALAW", "Lorg/theko/sound/AudioFormat$Encoding;"));
+        alawObj = JNI_TRY_RETURN(env, env->GetStaticObjectField(clazz, alaw));
 
         if (!isValid()) {
             env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "AudioFormat$Encoding failed to initialize");
             return;
         }
 
-        clazz = (jclass) JNI_TRY_RETURN(env->NewGlobalRef(clazz));
-        pcmUnsignedObj = (jobject) JNI_TRY_RETURN(env->NewGlobalRef(pcmUnsignedObj));
-        pcmSignedObj = (jobject) JNI_TRY_RETURN(env->NewGlobalRef(pcmSignedObj));
-        pcmFloatObj = (jobject) JNI_TRY_RETURN(env->NewGlobalRef(pcmFloatObj));
-        ulawObj = (jobject) JNI_TRY_RETURN(env->NewGlobalRef(ulawObj));
-        alawObj = (jobject) JNI_TRY_RETURN(env->NewGlobalRef(alawObj));
+        clazz = (jclass) JNIUtil_CreateGlobal(env, clazz);
+        pcmUnsignedObj = JNIUtil_CreateGlobal(env, pcmUnsignedObj);
+        pcmSignedObj = JNIUtil_CreateGlobal(env, pcmSignedObj);
+        pcmFloatObj = JNIUtil_CreateGlobal(env, pcmFloatObj);
+        ulawObj = JNIUtil_CreateGlobal(env, ulawObj);
+        alawObj = JNIUtil_CreateGlobal(env, alawObj);
     }
 
     bool isValid() const override {
@@ -65,12 +70,12 @@ public:
     }
 
     void release(JNIEnv* env) override {
-        JNI_RELEASE_GLOBAL(clazz);
-        JNI_RELEASE_GLOBAL(pcmUnsignedObj);
-        JNI_RELEASE_GLOBAL(pcmSignedObj);
-        JNI_RELEASE_GLOBAL(pcmFloatObj);
-        JNI_RELEASE_GLOBAL(ulawObj);
-        JNI_RELEASE_GLOBAL(alawObj);
+        JNI_RELEASE_GLOBAL(env, clazz);
+        JNI_RELEASE_GLOBAL(env, pcmUnsignedObj);
+        JNI_RELEASE_GLOBAL(env, pcmSignedObj);
+        JNI_RELEASE_GLOBAL(env, pcmFloatObj);
+        JNI_RELEASE_GLOBAL(env, ulawObj);
+        JNI_RELEASE_GLOBAL(env, alawObj);
     }
 
     AUTO_STATIC_CACHE_GET(AudioFormatEncodingCache)

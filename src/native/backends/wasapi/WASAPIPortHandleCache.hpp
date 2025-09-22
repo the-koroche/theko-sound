@@ -17,7 +17,7 @@
 #pragma once
 #include <jni.h>
 #include "IJavaClassCache.hpp"
-#include "jni_util.hpp"
+#include "JNI_Utility.hpp"
 
 class WASAPIPortHandleCache : public IJavaClassCache {
 public:
@@ -26,16 +26,16 @@ public:
     jmethodID getHandle;
 
     WASAPIPortHandleCache(JNIEnv* env) : IJavaClassCache(env) {
-        clazz = JNI_TRY_RETURN(env->FindClass("org/theko/sound/backend/wasapi/WASAPIPortHandle"));
-        ctor = JNI_TRY_RETURN(env->GetMethodID(clazz, "<init>", "(Ljava/lang/String;)V"));
-        getHandle = JNI_TRY_RETURN(env->GetMethodID(clazz, "getHandle", "()Ljava/lang/String;"));
+        clazz = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backend/wasapi/WASAPIPortHandle"));
+        ctor = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "<init>", "(Ljava/lang/String;)V"));
+        getHandle = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "getHandle", "()Ljava/lang/String;"));
 
         if (!isValid()) {
             env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "WASAPIPortHandle failed to initialize");
             return;
         }
 
-        clazz = (jclass) JNI_TRY_RETURN(env->NewGlobalRef(clazz));
+        clazz = (jclass) JNIUtil_CreateGlobal(env, clazz);
     }
 
     bool isValid() const override {
@@ -43,7 +43,7 @@ public:
     }
 
     void release(JNIEnv* env) override {
-        JNI_RELEASE_GLOBAL(clazz);
+        JNI_RELEASE_GLOBAL(env, clazz);
     }
 
     AUTO_STATIC_CACHE_GET(WASAPIPortHandleCache)

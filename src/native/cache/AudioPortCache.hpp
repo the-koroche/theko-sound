@@ -17,7 +17,7 @@
 #pragma once
 #include <jni.h>
 #include "IJavaClassCache.hpp"
-#include "jni_util.hpp"
+#include "JNI_Utility.hpp"
 
 class AudioPortCache : public IJavaClassCache {
 public:
@@ -33,23 +33,23 @@ public:
     jmethodID getLink;
 
     AudioPortCache(JNIEnv* env) : IJavaClassCache(env) {
-        clazz = JNI_TRY_RETURN(env->FindClass("org/theko/sound/AudioPort"));
-        ctor = JNI_TRY_RETURN(env->GetMethodID(clazz, "<init>", "(Ljava/lang/Object;Lorg/theko/sound/AudioFlow;ZLorg/theko/sound/AudioFormat;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"));
-        getName = JNI_TRY_RETURN(env->GetMethodID(clazz, "getName", "()Ljava/lang/String;"));
-        getVendor = JNI_TRY_RETURN(env->GetMethodID(clazz, "getVendor", "()Ljava/lang/String;"));
-        getVersion = JNI_TRY_RETURN(env->GetMethodID(clazz, "getVersion", "()Ljava/lang/String;"));
-        getDescription = JNI_TRY_RETURN(env->GetMethodID(clazz, "getDescription", "()Ljava/lang/String;"));
-        getFlow = JNI_TRY_RETURN(env->GetMethodID(clazz, "getFlow", "()Lorg/theko/sound/AudioFlow;"));
-        getMixFormat = JNI_TRY_RETURN(env->GetMethodID(clazz, "getMixFormat", "()Lorg/theko/sound/AudioFormat;"));
-        isActive = JNI_TRY_RETURN(env->GetMethodID(clazz, "isActive", "()Z"));
-        getLink = JNI_TRY_RETURN(env->GetMethodID(clazz, "getLink", "()Ljava/lang/Object;"));
+        clazz = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/AudioPort"));
+        ctor = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "<init>", "(Ljava/lang/Object;Lorg/theko/sound/AudioFlow;ZLorg/theko/sound/AudioFormat;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V"));
+        getName = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "getName", "()Ljava/lang/String;"));
+        getVendor = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "getVendor", "()Ljava/lang/String;"));
+        getVersion = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "getVersion", "()Ljava/lang/String;"));
+        getDescription = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "getDescription", "()Ljava/lang/String;"));
+        getFlow = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "getFlow", "()Lorg/theko/sound/AudioFlow;"));
+        getMixFormat = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "getMixFormat", "()Lorg/theko/sound/AudioFormat;"));
+        isActive = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "isActive", "()Z"));
+        getLink = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "getLink", "()Ljava/lang/Object;"));
 
         if (!isValid()) {
             env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "AudioPort failed to initialize");
             return;
         }
 
-        clazz = (jclass) JNI_TRY_RETURN(env->NewGlobalRef(clazz));
+        clazz = (jclass) JNIUtil_CreateGlobal(env, clazz);
     }
 
     bool isValid() const override {
@@ -57,7 +57,7 @@ public:
     }
     
     void release(JNIEnv* env) override {
-        JNI_RELEASE_GLOBAL(clazz);
+        JNI_RELEASE_GLOBAL(env, clazz);
     }
 
     AUTO_STATIC_CACHE_GET(AudioPortCache)

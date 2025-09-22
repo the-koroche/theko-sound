@@ -17,6 +17,8 @@
 #pragma once
 
 #ifdef _WIN32
+#include "helper_utilities.hpp"
+
 #include <windows.h>
 #include <initguid.h>
 #include <mmdeviceapi.h>
@@ -24,6 +26,14 @@
 #include <functiondiscoverykeys.h>
 #include <Functiondiscoverykeys_devpkey.h>
 #include <cstdio>
+
+#include <initguid.h>
+#include <mmreg.h>
+#include <ks.h>
+#include <ksmedia.h>
+
+DEFINE_GUID(KSDATAFORMAT_SUBTYPE_PCM, 0x00000001,0x0000,0x0010,0x80,0x00,0x00,0xaa,0x00,0x38,0x9b,0x71);
+DEFINE_GUID(KSDATAFORMAT_SUBTYPE_IEEE_FLOAT, 0x00000003,0x0000,0x0010,0x80,0x00,0x00,0xaa,0x00,0x38,0x9b,0x71);
 
 /**
  * Retrieves the IMMDeviceEnumerator COM object responsible for
@@ -100,6 +110,50 @@ static WAVEFORMATEX* getMixFormat(IMMDevice* device) {
         return nullptr;
     }
 
-    return format; // Caller need to free CoTaskMemFree(format)
+    return format; // Caller need to free, using CoTaskMemFree(format)
+}
+
+/**
+ * Converts a WAVEFORMATEX object to a human-readable string.
+ * 
+ * @param waveformat The WAVEFORMATEX object to be converted.
+ * @return A human-readable string representing the WAVEFORMATEX object, or nullptr if the conversion fails.
+ */
+static const char* WAVEFORMATEX_toText(WAVEFORMATEX* waveformat) {
+    if (!waveformat) return nullptr;
+
+    const char* enc = nullptr;
+    static char unknown[64];
+
+    if (waveformat->wFormatTag == WAVE_FORMAT_PCM) {
+        enc = "PCM";
+    } else if (waveformat->wFormatTag == WAVE_FORMAT_IEEE_FLOAT) {
+        enc = "FLOAT";
+    } else if (waveformat->wFormatTag == WAVE_FORMAT_EXTENSIBLE) {
+        WAVEFORMATEXTENSIBLE* ext = (WAVEFORMATEXTENSIBLE*)waveformat;
+
+        // Проверяем подформат
+        if (ext->SubFormat == KSDATAFORMAT_SUBTYPE_PCM) {
+            enc = "PCM (EXT)";
+        } else if (ext->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT) {
+            enc = "FLOAT (EXT)";
+        } else {
+            snprintf(unknown, sizeof(unknown), "EXT_UNKNOWN({%08X})", ext->SubFormat.Data1);
+            enc = unknown;
+        }
+    } else {
+        snprintf(unknown, sizeof(unknown), "UNKNOWN(0x%X)", waveformat->wFormatTag);
+        enc = unknown;
+    }
+
+    static std::string txt;
+    txt = std::string("WAVEFORMATEX{sampleRate=") + std::to_string(waveformat->nSamplesPerSec) +
+          ", channels=" + std::to_string(waveformat->nChannels) +
+          ", bits=" + std::to_string(waveformat->wBitsPerSample) +
+          ", encoding=" + enc +
+          ", blockAlign=" + std::to_string(waveformat->nBlockAlign) +
+          ", avgBytesPerSec=" + std::to_string(waveformat->nAvgBytesPerSec) + "}";
+
+    return txt.c_str();
 }
 #endif // _WIN32

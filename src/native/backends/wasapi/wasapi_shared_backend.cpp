@@ -51,12 +51,10 @@ extern "C" {
 
         HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
         if (FAILED(hr)) {
-            char* hr_msg = format_hr_msg(hr);
-            char* msg = format("Failed to initialize COM. (%s)", hr_msg);
-            free(hr_msg);
+            const char* hr_msg = formatHRMessage(hr).c_str();
+            const char* msg = format("Failed to initialize COM. (%s)", hr_msg).c_str();
             logger->error(env, msg);
             env->ThrowNew(exceptionsCache->audioBackendException, msg);
-            free(msg);
             return;
         }
 
@@ -69,12 +67,10 @@ extern "C" {
             (void**)&ctx->deviceEnumerator
         );
         if (FAILED(hr)) {
-            char* hr_msg = format_hr_msg(hr);
-            char* msg = format("Failed to create IMMDeviceEnumerator. (%s)", hr_msg);
-            free(hr_msg);
+            const char* hr_msg = formatHRMessage(hr).c_str();
+            const char* msg = format("Failed to create IMMDeviceEnumerator. (%s)", hr_msg).c_str();
             logger->error(env, msg);
             env->ThrowNew(exceptionsCache->audioBackendException, msg);
-            free(msg);
             CoUninitialize();
             return;
         }
@@ -201,14 +197,12 @@ extern "C" {
         wchar_t* idName = nullptr;
         hr = pDevice->GetId(&idName);
         if (FAILED(hr)) {
-            char* hr_msg = format_hr_msg(hr);
+            const char* hr_msg = formatHRMessage(hr).c_str();
             logger->debug(env, "Failed to get default audio endpoint ID. %s", hr_msg);
-            free(hr_msg);
             logger->debug(env, "Default audio endpoint flow: %s", flow == eRender ? "Render" : "Capture");
         } else {
-            char* utf8_idName = utf16_to_utf8(idName);
+            const char* utf8_idName = utf16_to_utf8(idName).c_str();
             logger->debug(env, "Default audio endpoint: %s. Flow: %s", utf8_idName, flow == eRender ? "Render" : "Capture");
-            free(utf8_idName);
         }
 
         if (idName) {
@@ -245,16 +239,15 @@ extern "C" {
             return JNI_FALSE;
         }
 
-        logger->trace(env, "WAVEFORMATEX pointer: %s", FORMAT_PTR(format));
+        logger->trace(env, "WAVEFORMATEX: %s. Pointer: %s", (format ? WAVEFORMATEX_toText(format) : "NULL"), FORMAT_PTR(format));
 
         IAudioClient* audioClient = nullptr;
         HRESULT hr = device->Activate(__uuidof(IAudioClient), CLSCTX_ALL, NULL, (void**)&audioClient);
         device->Release();
         if (FAILED(hr) || audioClient == nullptr) {
             CoTaskMemFree(format);
-            char* hr_msg = format_hr_msg(hr);
+            const char* hr_msg = formatHRMessage(hr).c_str();
             logger->warn(env, "Failed to get or activate IAudioClient. (%s)", hr_msg);
-            free(hr_msg);
             return JNI_FALSE;
         }
 
@@ -271,7 +264,7 @@ extern "C" {
         } else if (hr == S_FALSE) {
             logger->trace(env, "Format is not supported.");
             if (closest) {
-                logger->trace(env, "Closest format pointer: %s", FORMAT_PTR(closest));
+                logger->trace(env, "Closest format: %s. Pointer: %s", (closest ? WAVEFORMATEX_toText(closest) : "NULL"), FORMAT_PTR(closest));
                 if (atomicClosestFormat) {
                     logger->trace(env, "AtomicClosestFormat pointer: %s", FORMAT_PTR(atomicClosestFormat));
                     jobject jAudioFormat = WAVEFORMATEX_to_AudioFormat(env, closest);

@@ -37,7 +37,7 @@
  * @note This function is thread-safe and does not allocate any memory.
  * @note This function is only available on Windows.
  */
-static const char* get_hr_name(HRESULT hr) {
+static const char* GetHRESULTConstantName(HRESULT hr) {
     static const std::unordered_map<HRESULT, const char*> hr_names = {
         //  General — winerror.h
         {S_OK, "S_OK"},

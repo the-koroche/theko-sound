@@ -24,7 +24,7 @@
 
 #include "IJavaClassCache.hpp"
 #include "helper_utilities.hpp"
-#include "jni_util.hpp"
+#include "JNI_Utility.hpp"
 
 class LoggerCache : public IJavaClassCache {
 public:
@@ -52,8 +52,8 @@ public:
             env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Logger failed to initialize");
         }
 
-        factoryClass = (jclass) env->NewGlobalRef(factoryClass);
-        loggerClass = (jclass) env->NewGlobalRef(loggerClass);
+        factoryClass = (jclass) JNIUtil_CreateGlobal(env, factoryClass);
+        loggerClass = (jclass) JNIUtil_CreateGlobal(env, loggerClass);
     }
 
     bool isValid() const override {
@@ -61,8 +61,8 @@ public:
     }
 
     void release(JNIEnv* env) override {
-        JNI_RELEASE_GLOBAL(factoryClass);
-        JNI_RELEASE_GLOBAL(loggerClass);
+        JNI_RELEASE_GLOBAL(env, factoryClass);
+        JNI_RELEASE_GLOBAL(env, loggerClass);
     }
 
     AUTO_STATIC_CACHE_GET(LoggerCache)
@@ -82,17 +82,13 @@ private:
      */
     void log(JNIEnv* env, jmethodID method, const char* msg, va_list args) {
         if (!logger || !method || !msg) return;
-        char* formatted = formatv(msg, args);
+        const char* formatted = formatv(msg, args).c_str();
         if (!formatted) return;
 
         jstring jmsg = env->NewStringUTF(formatted);
         env->CallVoidMethod(logger, method, jmsg);
-        if (env->ExceptionCheck()) {
-            env->ExceptionDescribe(); 
-            env->ExceptionClear();
-        }
+        JNIUtil_ReportException(env);
         env->DeleteLocalRef(jmsg);
-        free(formatted);
     }
 
 public:
@@ -112,12 +108,9 @@ public:
         LoggerCache* cache = LoggerCache::get(env);
         jstring jname = env->NewStringUTF(name);    
         logger = env->CallStaticObjectMethod(cache->factoryClass, cache->getLogger, jname);
-        if (env->ExceptionCheck()) {
-            env->ExceptionDescribe(); 
-            env->ExceptionClear();
-        }
+        JNIUtil_ReportException(env);
 
-        logger = (jobject) env->NewGlobalRef(logger);
+        logger = (jobject) JNIUtil_CreateGlobal(env, logger);
 
         env->DeleteLocalRef(jname);
     }

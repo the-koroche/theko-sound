@@ -17,7 +17,7 @@
 #pragma once
 #include <jni.h>
 #include "IJavaClassCache.hpp"
-#include "jni_util.hpp"
+#include "JNI_Utility.hpp"
 
 class WASAPIBackendCache : public IJavaClassCache {
 public:
@@ -25,15 +25,15 @@ public:
     jfieldID backendContextPtr;
 
     WASAPIBackendCache(JNIEnv* env) : IJavaClassCache(env) {
-        clazz = JNI_TRY_RETURN(env->FindClass("org/theko/sound/backend/wasapi/WASAPISharedBackend"));
-        backendContextPtr = JNI_TRY_RETURN(env->GetFieldID(clazz, "backendContextPtr", "J"));
+        clazz = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backend/wasapi/WASAPISharedBackend"));
+        backendContextPtr = JNI_TRY_RETURN(env, env->GetFieldID(clazz, "backendContextPtr", "J"));
 
         if (!isValid()) {
             env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "WASAPIBackend failed to initialize");
             return;
         }
 
-        clazz = (jclass) JNI_TRY_RETURN(env->NewGlobalRef(clazz));
+        clazz = (jclass) JNIUtil_CreateGlobal(env, clazz);
     }
 
     bool isValid() const override {
@@ -41,7 +41,7 @@ public:
     }
 
     void release(JNIEnv* env) override {
-        JNI_RELEASE_GLOBAL(clazz);
+        JNI_RELEASE_GLOBAL(env, clazz);
     }
 
     AUTO_STATIC_CACHE_GET(WASAPIBackendCache)

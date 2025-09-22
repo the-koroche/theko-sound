@@ -17,7 +17,7 @@
 #pragma once
 #include <jni.h>
 #include "IJavaClassCache.hpp"
-#include "jni_util.hpp"
+#include "JNI_Utility.hpp"
 
 class AudioFormatCache : public IJavaClassCache {
 public:
@@ -33,23 +33,23 @@ public:
     jmethodID getByteRate;
 
     AudioFormatCache(JNIEnv* env) : IJavaClassCache(env) {
-        clazz = JNI_TRY_RETURN(env->FindClass("org/theko/sound/AudioFormat"));
-        ctor = JNI_TRY_RETURN(env->GetMethodID(clazz, "<init>", "(IIILorg/theko/sound/AudioFormat$Encoding;Z)V"));
-        getSampleRate = JNI_TRY_RETURN(env->GetMethodID(clazz, "getSampleRate", "()I"));
-        getBitsPerSample = JNI_TRY_RETURN(env->GetMethodID(clazz, "getBitsPerSample", "()I"));
-        getBytesPerSample = JNI_TRY_RETURN(env->GetMethodID(clazz, "getBytesPerSample", "()I"));
-        getChannels = JNI_TRY_RETURN(env->GetMethodID(clazz, "getChannels", "()I"));
-        getEncoding = JNI_TRY_RETURN(env->GetMethodID(clazz, "getEncoding", "()Lorg/theko/sound/AudioFormat$Encoding;"));
-        isBigEndian = JNI_TRY_RETURN(env->GetMethodID(clazz, "isBigEndian", "()Z"));
-        getFrameSize = JNI_TRY_RETURN(env->GetMethodID(clazz, "getFrameSize", "()I"));
-        getByteRate = JNI_TRY_RETURN(env->GetMethodID(clazz, "getByteRate", "()I"));
+        clazz = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/AudioFormat"));
+        ctor = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "<init>", "(IIILorg/theko/sound/AudioFormat$Encoding;Z)V"));
+        getSampleRate = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "getSampleRate", "()I"));
+        getBitsPerSample = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "getBitsPerSample", "()I"));
+        getBytesPerSample = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "getBytesPerSample", "()I"));
+        getChannels = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "getChannels", "()I"));
+        getEncoding = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "getEncoding", "()Lorg/theko/sound/AudioFormat$Encoding;"));
+        isBigEndian = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "isBigEndian", "()Z"));
+        getFrameSize = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "getFrameSize", "()I"));
+        getByteRate = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "getByteRate", "()I"));
 
         if (!isValid()) {
             env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "AudioFormat failed to initialize");
             return;
         }
 
-        clazz = (jclass) JNI_TRY_RETURN(env->NewGlobalRef(clazz));
+        clazz = (jclass) JNIUtil_CreateGlobal(env, clazz);
     }
 
     bool isValid() const override {
@@ -58,7 +58,7 @@ public:
     }
 
     void release(JNIEnv* env) override {
-        JNI_RELEASE_GLOBAL(clazz);
+        JNI_RELEASE_GLOBAL(env, clazz);
     }
 
     AUTO_STATIC_CACHE_GET(AudioFormatCache)

@@ -21,11 +21,12 @@
 #include <malloc.h>
 #include <array>
 #include <cstdio>
+#include <vector>
 #include <inttypes.h>
 
 #ifdef _WIN32
 #include <combaseapi.h> // CoTaskMemAlloc / CoTaskMemFree
-#include "winhr_defs.hpp"
+#include "HRESULT_Defs.hpp"
 #endif
 
 class PtrStr {
@@ -45,53 +46,56 @@ public:
 #define FORMAT_PTR(p) PtrStr(p)
 
 /**
- * Format a string using a variable argument list.
- * This function is similar to vfprintf, but it allocates a buffer to store the formatted string.
- * The caller is responsible for freeing the returned buffer using 'free()'
- * @param fmt The format string.
- * @param ... The variable argument list.
- * @return A pointer to the formatted string. If an error occurs, NULL is returned.
+ * Format a string using va_list and return the result as a std::string.
+ * If the underlying vsnprintf call fails (returns a negative value), an empty string is returned.
+ * @param fmt The format string to use.
+ * @param ... The arguments to pass to vsnprintf.
+ * @return The formatted string, or an empty string if vsnprintf fails.
  */
-static char* format(const char* fmt, ...) {
+static std::string format(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
+
     va_list args_copy;
     va_copy(args_copy, args);
-    int len = vsnprintf(NULL, 0, fmt, args_copy);
-    if (len < 0) return NULL;
+    int len = vsnprintf(nullptr, 0, fmt, args_copy);
     va_end(args_copy);
 
-    char* buf = (char*)malloc(len + 1);
-    if (!buf) {
+    if (len < 0) {
         va_end(args);
-        return NULL;
+        return {};
     }
-
-    vsnprintf(buf, len + 1, fmt, args);
+ 
+    std::vector<char> buf(len + 1);
+    vsnprintf(buf.data(), buf.size(), fmt, args);
     va_end(args);
-    return buf; // caller must free using 'free()'
+
+    return std::string(buf.data(), len);
 }
 
 /**
- * Format a string using a variable argument list.
- * This function is similar to vfprintf, but it allocates a buffer to store the formatted string.
- * The caller is responsible for freeing the returned buffer using 'free()'
- * @param fmt The format string.
- * @param args The variable argument list.
- * @return A pointer to the formatted string. If an error occurs, NULL is returned.
+ * Format a string using va_list and return the result as a std::string.
+ * If the underlying vsnprintf call fails (returns a negative value), an empty string is returned.
+ * @param fmt The format string to use.
+ * @param args The arguments to pass to vsnprintf.
+ * @return The formatted string, or an empty string if vsnprintf fails.
  */
-static char* formatv(const char* fmt, va_list args) {
+static std::string formatv(const char* fmt, va_list args) {
     va_list args_copy;
     va_copy(args_copy, args);
-    int len = vsnprintf(NULL, 0, fmt, args_copy);
+
+    int len = vsnprintf(nullptr, 0, fmt, args_copy);
     va_end(args_copy);
-    if (len < 0) return NULL;
 
-    char* buf = (char*)malloc(len + 1);
-    if (!buf) return NULL;
+    if (len < 0) return {};
 
-    vsnprintf(buf, len + 1, fmt, args);
-    return buf; // caller must free using 'free()'
+    std::vector<char> buf(len + 1);
+
+    va_copy(args_copy, args);
+    vsnprintf(buf.data(), buf.size(), fmt, args_copy);
+    va_end(args_copy);
+
+    return std::string(buf.data(), len);
 }
 
 /**
@@ -129,22 +133,25 @@ static wchar_t* utf8_to_utf16(const char* utf8) {
 }
 
 /**
- * Allocate a buffer to store a literal UTF-8 string and copy the contents of the given UTF-16 string into it.
- * The caller is responsible for freeing the returned buffer using 'free()'
- * @param utf16 The UTF-16 string to copy into the allocated buffer.
- * @return A pointer to the allocated buffer containing a copy of the given string, or NULL if an error occurs.
+ * Converts a UTF-16 string to a UTF-8 string and returns it.
+ * If the input string is null, an empty string is returned.
+ * The returned string is guaranteed to be null-terminated.
+ * If the conversion fails, an empty string is returned.
+ * @param utf16 The UTF-16 string to convert.
+ * @return The converted UTF-8 string, or an empty string if the conversion fails.
  */
-static char* utf16_to_utf8(const wchar_t* utf16) {
-    if (!utf16) return NULL;
+static std::string utf16_to_utf8(const wchar_t* utf16) {
+    if (!utf16) return {};
 
-    int len = WideCharToMultiByte(CP_UTF8, 0, utf16, -1, NULL, 0, NULL, NULL);
-    if (len <= 0) return NULL;
+    int len = WideCharToMultiByte(CP_UTF8, 0, utf16, -1, nullptr, 0, nullptr, nullptr);
+    if (len <= 0) return {};
 
-    char* utf8 = (char*)malloc(len);
-    if (!utf8) return NULL;
+    std::string result(len, 0);
+    WideCharToMultiByte(CP_UTF8, 0, utf16, -1, result.data(), len, nullptr, nullptr);
 
-    WideCharToMultiByte(CP_UTF8, 0, utf16, -1, utf8, len, NULL, NULL);
-    return utf8; // caller must free using 'free()'
+    if (!result.empty() && result.back() == '\0') result.pop_back();
+
+    return result;
 }
 
 /**
@@ -190,14 +197,15 @@ static wchar_t* com_memalloc_literal_utf16(const wchar_t* str) {
 }
 
 /**
- * Format an HRESULT into a human-readable string.
- * The returned string is dynamically allocated and must be freed using 'free()'
+ * Formats a human-readable string for the given HRESULT.
+ * If no mapping is found, nullptr is returned.
  * @param hr The HRESULT to format.
- * @return A human-readable string representation of the given HRESULT, or NULL if an error occurs.
+ * @return A human-readable string for the given HRESULT, or nullptr if no mapping is found.
+ * @note This function is thread-safe and does not allocate any memory.
+ * @note This function is only available on Windows.
  */
-static char* format_hr_msg(HRESULT hr) {
-    const char* msgBuf = get_hr_name(hr);
-    char* result = format("%s (HRESULT: 0x%08X)", msgBuf, hr);
-    return result; // caller must free using 'free()'
-}
+static std::string formatHRMessage(HRESULT hr) {
+    const char* msgBuf = GetHRESULTConstantName(hr);
+    return format("%s (HRESULT: 0x%08X)", msgBuf, hr);
+} 
 #endif

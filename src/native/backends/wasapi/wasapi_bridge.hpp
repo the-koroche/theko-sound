@@ -25,6 +25,7 @@
 #include <initguid.h>
 
 #include <jni.h>
+#include "JNI_Utility.hpp"
 
 #include "wasapi_utils.hpp"
 #include "helper_utilities.hpp"
@@ -132,10 +133,10 @@ static WAVEFORMATEX* AudioFormat_to_WAVEFORMATEX(JNIEnv* env, jobject audioForma
     AudioFormatEncodingCache* encodingCache = AudioFormatEncodingCache::get(env);
     ExceptionClassesCache* exceptionsCache = ExceptionClassesCache::get(env);
 
-    int sampleRate = JNI_TRY_RETURN(env->CallIntMethod(audioFormat, formatCache->getSampleRate));
-    int bits = JNI_TRY_RETURN(env->CallIntMethod(audioFormat, formatCache->getBitsPerSample));
-    int channels = JNI_TRY_RETURN(env->CallIntMethod(audioFormat, formatCache->getChannels));
-    jobject audioEncoding = JNI_TRY_RETURN(env->CallObjectMethod(audioFormat, formatCache->getEncoding));
+    int sampleRate = JNI_TRY_RETURN(env, env->CallIntMethod(audioFormat, formatCache->getSampleRate));
+    int bits = JNI_TRY_RETURN(env, env->CallIntMethod(audioFormat, formatCache->getBitsPerSample));
+    int channels = JNI_TRY_RETURN(env, env->CallIntMethod(audioFormat, formatCache->getChannels));
+    jobject audioEncoding = JNI_TRY_RETURN(env, env->CallObjectMethod(audioFormat, formatCache->getEncoding));
 
     logger->trace(env, "SampleRate=%d, Bits=%d, Channels=%d, AudioEncoding=%p", sampleRate, bits, channels, audioEncoding);
 
@@ -149,7 +150,8 @@ static WAVEFORMATEX* AudioFormat_to_WAVEFORMATEX(JNIEnv* env, jobject audioForma
     bool isPcm = env->IsSameObject(audioEncoding, encodingCache->pcmUnsignedObj) ||
             env->IsSameObject(audioEncoding, encodingCache->pcmSignedObj);
 
-    logger->trace(env, "Audio Encoding: isFloat=%d, isPcm=%d", isFloat, isPcm);
+    const char* encodingName = isFloat ? "PCM_FLOAT" : isPcm ? "PCM_SIGNED" : "Unsupported";
+    logger->trace(env, "Audio Encoding: %s", encodingName);
 
     if (!isFloat && !isPcm) {
         logger->error(env, "Unsupported audio format encoding.");
@@ -198,26 +200,18 @@ static WAVEFORMATEX* AudioFormat_to_WAVEFORMATEX(JNIEnv* env, jobject audioForma
  * @param key the PROPERTYKEY object identifying the property to retrieve.
  * @return a pointer to the retrieved property value, or nullptr if the call fails.
  */
-static wchar_t* getAudioDeviceProperty(JNIEnv* env, IMMDevice* device, const PROPERTYKEY& key) {
+static wchar_t* getAudioDeviceProperty(JNIEnv* env, IPropertyStore* pProps, IMMDevice* device, const PROPERTYKEY& key) {
     Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPIBridge.getAudioDeviceProperty");
 
     if (!device) return nullptr;
-
-    IPropertyStore* pProps = nullptr;
-    HRESULT hr = device->OpenPropertyStore(STGM_READ, &pProps);
-    if (FAILED(hr)) {
-        logger->warn(env, "Failed to open audio device property store.");
-        return nullptr;
-    }
-
-    logger->trace(env, "Opened audio device property store. Pointer: %s", FORMAT_PTR(pProps));
+    if (!pProps) return nullptr;
  
     PROPVARIANT var;
     PropVariantInit(&var);
 
-    logger->trace(env, "Trying to get audio device property.");
+    logger->trace(env, "Trying to get audio device property. Key pointer: %s", FORMAT_PTR(&key));
 
-    hr = pProps->GetValue(key, &var);
+    HRESULT hr = pProps->GetValue(key, &var);
     if (SUCCEEDED(hr)) {
         wchar_t* result = nullptr;
         if (var.vt == VT_LPWSTR && var.pwszVal) {
@@ -225,21 +219,21 @@ static wchar_t* getAudioDeviceProperty(JNIEnv* env, IMMDevice* device, const PRO
             result = (wchar_t*)CoTaskMemAlloc(sizeof(wchar_t) * len);
             wcscpy_s(result, len, var.pwszVal);
 
-            logger->trace(env, "Obtained audio device property (VT_LPWSTR): %ls", (result ? result : L"N\\A"));
+            const char* utf8_result = utf16_to_utf8(result).c_str();
+            logger->trace(env, "Obtained audio device property: %s", utf8_result);
         } else {
-            logger->trace(env, "Obtained audio device property: %ls", (result ? result : L"N\\A"));
+            result = var.pwszVal;
+            const char* utf8_result = utf16_to_utf8(result).c_str();
+            logger->trace(env, "Obtained audio device property: %s", utf8_result);
         }
         PropVariantClear(&var);
 
-        pProps->Release();
         return result;
     }
     PropVariantClear(&var);
-    pProps->Release();
 
-    char* hr_msg = format_hr_msg(hr);
+    const char* hr_msg = formatHRMessage(hr).c_str();
     logger->info(env, "Failed to get audio device property. (%s)", hr_msg);
-    free(hr_msg);
 
     return nullptr;
 }
@@ -265,36 +259,44 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     IPropertyStore *pProps = nullptr;
     HRESULT hr = pDevice->OpenPropertyStore(STGM_READ, &pProps);
     if (FAILED(hr)) {
-        char* hr_msg = format_hr_msg(hr);
-        char* msg = format("Failed to open property store. (%s)", hr_msg);
-        free(hr_msg);
-        logger->debug(env, msg);
+        const char* hr_msg = formatHRMessage(hr).c_str();
+        const char* msg = format("Failed to open property store. (%s)", hr_msg).c_str();
+        logger->warn(env, msg);
         env->ThrowNew(exceptionsCache->audioBackendException, msg);
-        free(msg);
         return nullptr;
     }
 
+    logger->trace(env, "Opened property store. Pointer: %s", FORMAT_PTR(pProps));
+
     // Obtain device info
-    wchar_t* name = getAudioDeviceProperty(env, pDevice, PKEY_Device_FriendlyName);
-    wchar_t* manufacturer = getAudioDeviceProperty(env, pDevice, PKEY_Device_Manufacturer);
+    wchar_t* name = getAudioDeviceProperty(env, pProps, pDevice, PKEY_Device_FriendlyName);
+    wchar_t* manufacturer = getAudioDeviceProperty(env, pProps, pDevice, PKEY_Device_Manufacturer);
+    if (manufacturer == nullptr) {
+        logger->info(env, "Failed to get audio device manufacturer. Using device description.");
+        manufacturer = getAudioDeviceProperty(env, pProps, pDevice, PKEY_Device_DeviceDesc); // fallback
+    }
     // TODO: get accurate version
     wchar_t* version = nullptr;
-    wchar_t* description = getAudioDeviceProperty(env, pDevice, PKEY_Device_DeviceDesc);
-
-    logger->trace(env, "Obtained audio device info. Name: %ls, Manufacturer: %ls, Version: %ls, Description: %ls",
-            name, manufacturer, version, description);
+    wchar_t* description = getAudioDeviceProperty(env, pProps, pDevice, PKEY_Device_DeviceDesc);
 
     if (!name) name = com_memalloc_literal_utf16(L"Unknown");
     if (!manufacturer) manufacturer = com_memalloc_literal_utf16(L"Unknown");
     if (!version) version = com_memalloc_literal_utf16(L"Unknown");
     if (!description) description = com_memalloc_literal_utf16(L"Unknown");
 
+    const char* utf8_name = utf16_to_utf8(name).c_str();
+    const char* utf8_manufacturer = utf16_to_utf8(manufacturer).c_str();
+    const char* utf8_version = utf16_to_utf8(version).c_str();
+    const char* utf8_description = utf16_to_utf8(description).c_str();
+    logger->trace(env, "Obtained audio device info. Name: %s, Manufacturer: %s, Version: %s, Description: %s",
+            utf8_name, utf8_manufacturer, utf8_version, utf8_description);
+
     jstring jName = env->NewString((const jchar*)name, wcslen(name));
     jstring jManufacturer = env->NewString((const jchar*)manufacturer, wcslen(manufacturer));
     jstring jVersion = env->NewString((const jchar*)version, wcslen(version));
     jstring jDescription = env->NewString((const jchar*)description, wcslen(description));
 
-    logger->trace(env, "Created java strings. Name: %s, Manufacturer: %s, Version: %s, Description: %s",
+    logger->trace(env, "Created jstrings. Name (ptr): %s, Manufacturer (ptr): %s, Version (ptr): %s, Description (ptr): %s",
             FORMAT_PTR(jName), FORMAT_PTR(jManufacturer), FORMAT_PTR(jVersion), FORMAT_PTR(jDescription));
 
     // Obtain WASAPI device ID
@@ -302,10 +304,9 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     LPWSTR deviceId = nullptr;
     hr = pDevice->GetId(&deviceId);
     if (SUCCEEDED(hr) && deviceId) {
-        char* utf8_deviceId = utf16_to_utf8(deviceId);
+        const char* utf8_deviceId = utf16_to_utf8(deviceId).c_str();
         jHandle = env->NewStringUTF(utf8_deviceId);
         logger->trace(env, "Obtained WASAPI device ID: %s", utf8_deviceId);
-        free(utf8_deviceId);
         CoTaskMemFree(deviceId);
     }
 
@@ -317,7 +318,7 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     }
 
     // Create WASAPI native handle
-    jobject jNativeHandleObj = JNI_TRY_RETURN(env->NewObject(
+    jobject jNativeHandleObj = JNI_TRY_RETURN(env, env->NewObject(
         handleCache->clazz,
         handleCache->ctor,
         jHandle
@@ -340,14 +341,12 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
         } else if (flow == eCapture) {
             jFlowObj = flowCache->inObj;
         }
-        logger->trace(env, "Obtained audio flow. Pointer: %s", FORMAT_PTR(jFlowObj));
+        logger->trace(env, "Obtained audio flow. Flow: %s, Pointer: %s", flow == eRender ? "Render" : "Capture", FORMAT_PTR(jFlowObj));
     } else {
-        char* hr_msg = format_hr_msg(hr);
-        char* msg = format("Failed to get flow. (%s)", hr_msg);
-        free(hr_msg);
+        const char* hr_msg = formatHRMessage(hr).c_str();
+        const char* msg = format("Failed to get flow. (%s)", hr_msg).c_str();
         logger->error(env, msg);
         env->ThrowNew(exceptionsCache->audioBackendException, msg);
-        free(msg);
         return nullptr;
     }
     
@@ -355,12 +354,10 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     DWORD state = 0;
     hr = pDevice->GetState(&state);
     if (FAILED(hr)) {
-        char* hr_msg = format_hr_msg(hr);
-        char* msg = format("Failed to get device state. (%s)", hr_msg);
-        free(hr_msg);
+        const char* hr_msg = formatHRMessage(hr).c_str();
+        const char* msg = format("Failed to get device state. (%s)", hr_msg).c_str();
         logger->error(env, msg);
         env->ThrowNew(exceptionsCache->audioBackendException, msg);
-        free(msg);
         return nullptr;
     }
 
@@ -378,9 +375,9 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     } else if (!mixFormat && !isActive) {
         logger->info(env, "Device is not active, and mix format is not available.");
     }
-    logger->trace(env, "Obtained WAVEFORMATEX. Pointer: %s", FORMAT_PTR(mixFormat));
+    logger->trace(env, "Obtained WAVEFORMATEX: %s.Pointer: %s", (mixFormat ? WAVEFORMATEX_toText(mixFormat) : "NULL"), FORMAT_PTR(mixFormat));
 
-    jobject jAudioMixFormat = (mixFormat ?WAVEFORMATEX_to_AudioFormat(env, mixFormat) : nullptr);
+    jobject jAudioMixFormat = (mixFormat ? WAVEFORMATEX_to_AudioFormat(env, mixFormat) : nullptr);
     logger->trace(env, "Created AudioFormat. Pointer: %s", FORMAT_PTR(jAudioMixFormat));
 
     // Create AudioPort
@@ -425,14 +422,14 @@ static IMMDevice* AudioPort_to_IMMDevice(JNIEnv* env, jobject jAudioPort) {
         return nullptr;
     }
 
-    jobject jNativeHandle = JNI_TRY_RETURN(env->CallObjectMethod(jAudioPort, portCache->getLink));
+    jobject jNativeHandle = JNI_TRY_RETURN(env, env->CallObjectMethod(jAudioPort, portCache->getLink));
     if (!jNativeHandle || !env->IsInstanceOf(jNativeHandle, handleCache->clazz)) {
         logger->warn(env, "Invalid or null native handle.");
         if (jNativeHandle) env->DeleteLocalRef(jNativeHandle);
         return nullptr;
     }
 
-    jstring jHandle = (jstring)JNI_TRY_RETURN(env->CallObjectMethod(jNativeHandle, handleCache->getHandle));
+    jstring jHandle = (jstring)JNI_TRY_RETURN(env, env->CallObjectMethod(jNativeHandle, handleCache->getHandle));
     
     if (!jHandle) {
         env->DeleteLocalRef(jNativeHandle);
@@ -451,12 +448,10 @@ static IMMDevice* AudioPort_to_IMMDevice(JNIEnv* env, jobject jAudioPort) {
         pEnum->Release();
 
         if (!SUCCEEDED(hr)) {
-            char* hr_msg = format_hr_msg(hr);
-            char* msg = format("Failed to get audio device. (%s)", hr_msg);
-            free(hr_msg);
+            const char* hr_msg = formatHRMessage(hr).c_str();
+            const char* msg = format("Failed to get audio device. (%s)", hr_msg).c_str();
             logger->error(env, msg);
             env->ThrowNew(exceptionsCache->audioBackendException, msg);
-            free(msg);
             pDevice = nullptr;
         } else {
             logger->debug(env, "Obtained IMMDevice. Handle: %ls", wHandle);

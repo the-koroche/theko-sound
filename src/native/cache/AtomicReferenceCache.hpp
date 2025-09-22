@@ -17,7 +17,7 @@
 #pragma once
 #include <jni.h>
 #include "IJavaClassCache.hpp"
-#include "jni_util.hpp"
+#include "JNI_Utility.hpp"
 
 class AtomicReferenceCache : public IJavaClassCache {
 public:
@@ -27,17 +27,17 @@ public:
     jmethodID setMethod;
 
     AtomicReferenceCache(JNIEnv* env) : IJavaClassCache(env) {
-        clazz = JNI_TRY_RETURN(env->FindClass("java/util/concurrent/atomic/AtomicReference"));
-        ctor = JNI_TRY_RETURN(env->GetMethodID(clazz, "<init>", "()V"));
-        getMethod = JNI_TRY_RETURN(env->GetMethodID(clazz, "get", "()Ljava/lang/Object;"));
-        setMethod = JNI_TRY_RETURN(env->GetMethodID(clazz, "set", "(Ljava/lang/Object;)V"));
+        clazz = JNI_TRY_RETURN(env, env->FindClass("java/util/concurrent/atomic/AtomicReference"));
+        ctor = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "<init>", "()V"));
+        getMethod = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "get", "()Ljava/lang/Object;"));
+        setMethod = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "set", "(Ljava/lang/Object;)V"));
 
         if (!isValid()) {
             env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "AtomicReference failed to initialize");
             return;
         }
 
-        clazz = (jclass) JNI_TRY_RETURN(env->NewGlobalRef(clazz));
+        clazz = (jclass) JNIUtil_CreateGlobal(env, clazz);
     }
 
     bool isValid() const override {
@@ -45,7 +45,7 @@ public:
     }
 
     void release(JNIEnv* env) override {
-        JNI_RELEASE_GLOBAL(clazz);
+        JNI_RELEASE_GLOBAL(env, clazz);
     }
 
     AUTO_STATIC_CACHE_GET(AtomicReferenceCache)

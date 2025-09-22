@@ -17,7 +17,7 @@
 #pragma once
 #include <jni.h>
 #include "IJavaClassCache.hpp"
-#include "jni_util.hpp"
+#include "JNI_Utility.hpp"
 
 class AudioFlowCache : public IJavaClassCache {
 public:
@@ -28,20 +28,20 @@ public:
     jobject inObj;
 
     AudioFlowCache(JNIEnv* env) : IJavaClassCache(env) {
-        clazz = JNI_TRY_RETURN(env->FindClass("org/theko/sound/AudioFlow"));
-        out = JNI_TRY_RETURN(env->GetStaticFieldID(clazz, "OUT", "Lorg/theko/sound/AudioFlow;"));
-        outObj = JNI_TRY_RETURN(env->GetStaticObjectField(clazz, out));
-        in = JNI_TRY_RETURN(env->GetStaticFieldID(clazz, "IN", "Lorg/theko/sound/AudioFlow;"));
-        inObj = JNI_TRY_RETURN(env->GetStaticObjectField(clazz, in));
+        clazz = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/AudioFlow"));
+        out = JNI_TRY_RETURN(env, env->GetStaticFieldID(clazz, "OUT", "Lorg/theko/sound/AudioFlow;"));
+        outObj = JNI_TRY_RETURN(env, env->GetStaticObjectField(clazz, out));
+        in = JNI_TRY_RETURN(env, env->GetStaticFieldID(clazz, "IN", "Lorg/theko/sound/AudioFlow;"));
+        inObj = JNI_TRY_RETURN(env, env->GetStaticObjectField(clazz, in));
 
         if (!isValid()) {
             env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "AudioFlow failed to initialize");
             return;
         }
 
-        clazz = (jclass) JNI_TRY_RETURN(env->NewGlobalRef(clazz));
-        outObj = (jobject) JNI_TRY_RETURN(env->NewGlobalRef(outObj));
-        inObj = (jobject) JNI_TRY_RETURN(env->NewGlobalRef(inObj));
+        clazz = (jclass) JNIUtil_CreateGlobal(env, clazz);
+        outObj = JNIUtil_CreateGlobal(env, outObj);
+        inObj = JNIUtil_CreateGlobal(env, inObj);
     }
 
     bool isValid() const override {
@@ -49,9 +49,9 @@ public:
     }
 
     void release(JNIEnv* env) override {
-        JNI_RELEASE_GLOBAL(clazz);
-        JNI_RELEASE_GLOBAL(outObj);
-        JNI_RELEASE_GLOBAL(inObj);
+        JNI_RELEASE_GLOBAL(env, clazz);
+        JNI_RELEASE_GLOBAL(env, outObj);
+        JNI_RELEASE_GLOBAL(env, inObj);
     }
 
     AUTO_STATIC_CACHE_GET(AudioFlowCache)

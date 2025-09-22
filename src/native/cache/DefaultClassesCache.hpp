@@ -18,7 +18,7 @@
 #include <jni.h>
 
 #include "IJavaClassCache.hpp"
-#include "jni_util.hpp"
+#include "JNI_Utility.hpp"
 
 #include "AtomicReferenceCache.hpp"
 #include "AudioFlowCache.hpp"
