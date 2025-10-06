@@ -34,39 +34,207 @@
 #include <functiondiscoverykeys.h>
 #include <Functiondiscoverykeys_devpkey.h>
 #include <algorithm>
+#include <atomic>
+#include <codecvt>
+#include <queue>
+#include <string>
 #include <vector>
 
 #include "wasapi_utils.hpp"
 #include "wasapi_bridge.hpp"
 
-typedef struct {
+EXTERN_C const IID IID_IUnknown = {0x00000000, 0x0000, 0x0000, {0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46}};
+
+#define EVENT_AUDIO_BUFFER_READY 0
+#define EVENT_STOP_REQUEST 1
+
+class OutputContext {
+private:
+    std::mutex logMutex;
+
+public:
     IMMDevice* outputDevice;
     IAudioClient* audioClient;
     IAudioRenderClient* renderClient;
     IAudioClock* audioClock;
-    HANDLE hEvent;
+    HANDLE events[2];
     UINT32 bufferFrameCount;
     UINT32 bytesPerFrame;
-    BOOL isPendingStop;
     WAVEFORMATEX* format;
     UINT32 pendingFrames;
-} OutputContext;
+    IMMDeviceEnumerator* deviceEnumerator;
+    IMMNotificationClient* notificationClient;
+    std::queue<std::string> notifierLogs;
+
+    OutputContext() {
+        outputDevice = nullptr;
+        audioClient = nullptr;
+        renderClient = nullptr;
+        audioClock = nullptr;
+        events[0] = nullptr;
+        events[1] = nullptr;
+        bufferFrameCount = 0;
+        bytesPerFrame = 0;
+        format = nullptr;
+        pendingFrames = 0;
+        deviceEnumerator = nullptr;
+        notificationClient = nullptr;
+    }
+
+    OutputContext(const OutputContext&) = delete;
+    OutputContext& operator=(const OutputContext&) = delete;
+
+    ~OutputContext() {
+        if (notificationClient) notificationClient->Release();
+        if (deviceEnumerator) deviceEnumerator->Release();
+        if (format) CoTaskMemFree(format);
+        if (renderClient) renderClient->Release();
+        if (audioClock) audioClock->Release();
+        if (audioClient) audioClient->Release();
+        if (outputDevice) outputDevice->Release();
+        if (events[0]) CloseHandle(events[0]);
+        if (events[1]) CloseHandle(events[1]);
+    }
+
+    void pushLog(const std::string& message) {
+        std::lock_guard<std::mutex> lock(logMutex);
+        notifierLogs.push(message);
+    }
+
+    bool popLog(std::string& message) {
+        std::lock_guard<std::mutex> lock(logMutex);
+        if (notifierLogs.empty()) return false;
+        message = notifierLogs.front();
+        notifierLogs.pop();
+        return true;
+    }
+
+    bool isEmptyLogs() {
+        std::lock_guard<std::mutex> lock(logMutex);
+        return notifierLogs.empty();
+    }
+};
+
+class DeviceChangeNotifier : public IMMNotificationClient {
+private:
+    std::atomic<ULONG> refCount;
+    OutputContext* context;
+    HANDLE hStopEvent;
+
+public:
+    DeviceChangeNotifier(OutputContext* ctx)
+        : refCount(1), context(ctx), hStopEvent(ctx->events[EVENT_STOP_REQUEST]) {}
+
+    ULONG STDMETHODCALLTYPE AddRef() override {
+        return ++refCount;
+    }
+
+    ULONG STDMETHODCALLTYPE Release() override {
+        ULONG count = --refCount;
+        if (count == 0) {
+            delete this;
+        }
+        return count;
+    }
+
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** ppv) override {
+        if (riid == IID_IUnknown || riid == __uuidof(IMMNotificationClient)) {
+            *ppv = this;
+            AddRef();
+            return S_OK;
+        }
+        *ppv = nullptr;
+        return E_NOINTERFACE;
+    }
+
+    HRESULT STDMETHODCALLTYPE OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState) override {
+        std::string msg = "Device state changed: " + utf16_to_utf8(pwstrDeviceId)
+                        + " -> " + std::to_string(dwNewState);
+        context->notifierLogs.push(msg);
+
+        if (dwNewState == DEVICE_STATE_NOTPRESENT || dwNewState == DEVICE_STATE_UNPLUGGED) {
+            interruptPlayback();
+        }
+        return S_OK;
+    }
+
+    HRESULT STDMETHODCALLTYPE OnDefaultDeviceChanged(EDataFlow flow, ERole role, LPCWSTR pwstrDefaultDeviceId) override {
+        std::string msg = "Default device changed: " 
+                        + utf16_to_utf8(pwstrDefaultDeviceId)
+                        + ", flow: " + (flow == eRender ? "Render" : "Capture")
+                        + ", role: " + std::to_string(role);
+        context->notifierLogs.push(msg);
+        interruptPlayback();
+        return S_OK;
+    }
+
+    HRESULT STDMETHODCALLTYPE OnDeviceAdded(LPCWSTR pwstrDeviceId) override {
+        std::string msg = "Device added: " 
+                        + utf16_to_utf8(pwstrDeviceId);
+        context->notifierLogs.push(msg);
+        return S_OK;
+    }
+
+    HRESULT STDMETHODCALLTYPE OnDeviceRemoved(LPCWSTR pwstrDeviceId) override {
+        std::string msg = "Device removed: " 
+                        + utf16_to_utf8(pwstrDeviceId);
+        context->notifierLogs.push(msg);
+        interruptPlayback();
+        return S_OK;
+    }
+
+    HRESULT STDMETHODCALLTYPE OnPropertyValueChanged(LPCWSTR pwstrDeviceId, const PROPERTYKEY key) override {
+        if (key == PKEY_AudioEngine_DeviceFormat) {
+            std::string msg = "Device format changed: " 
+                            + utf16_to_utf8(pwstrDeviceId);
+            context->notifierLogs.push(msg);
+            interruptPlayback();
+        } else if (key == PKEY_DeviceInterface_Enabled) {
+            std::string msg = "Device interface enabled changed: " 
+                            + utf16_to_utf8(pwstrDeviceId);
+            context->notifierLogs.push(msg);
+            interruptPlayback();
+        }
+        return S_OK;
+    }
+
+    void interruptPlayback() {
+        std::string msg = "Interrupting playback due to device change";
+        context->notifierLogs.push(msg);
+
+        if (hStopEvent) {
+            SetEvent(hStopEvent);
+        }
+    }
+};
 
 extern "C" {
-    inline void cleanupAndLogError(JNIEnv* env, Logger* logger, OutputContext* ctx, HRESULT hr, const char* msg) {
+    inline void cleanupAndThrowError(JNIEnv* env, Logger* logger, OutputContext* ctx, HRESULT hr, const char* msg) {
         if(ctx) {
+            if(ctx->notificationClient) ctx->notificationClient->Release();
+            if(ctx->deviceEnumerator) ctx->deviceEnumerator->Release();
             if(ctx->renderClient) ctx->renderClient->Release();
             if(ctx->audioClock) ctx->audioClock->Release();
             if(ctx->audioClient) ctx->audioClient->Release();
             if(ctx->outputDevice) ctx->outputDevice->Release();
             if(ctx->format) CoTaskMemFree(ctx->format);
-            if(ctx->hEvent) CloseHandle(ctx->hEvent);
+            if(ctx->events[EVENT_AUDIO_BUFFER_READY]) CloseHandle(ctx->events[EVENT_AUDIO_BUFFER_READY]);
+            if(ctx->events[EVENT_STOP_REQUEST]) CloseHandle(ctx->events[EVENT_STOP_REQUEST]);
             delete ctx;
         }
         
-        char* hr_msg = format_hr_msg(hr);
+        const char* hr_msg = formatHRMessage(hr).c_str();
         logger->error(env, "%s (%s)", msg, hr_msg);
-        free(hr_msg);
+        env->ThrowNew(ExceptionClassesCache::get(env)->audioBackendException, msg);
+    }
+
+    inline void logNotifierMessages(JNIEnv* env, Logger* logger, OutputContext* ctx) {
+        if (!ctx) return;
+        
+        std::string log;
+        while (ctx->popLog(log)) {
+            logger->debug(env, "%s", log.c_str());
+        }
     }
 
     JNIEXPORT void JNICALL 
@@ -76,15 +244,12 @@ extern "C" {
 
         if (!jport || !jformat) return;
 
-        OutputContext* context = new OutputContext{
-            nullptr, nullptr, nullptr, nullptr, nullptr,
-            0, 0, FALSE, nullptr, 0
-        };
+        OutputContext* context = new OutputContext();
         logger->trace(env, "OutputContext allocated. Pointer: %s", FORMAT_PTR(context));
 
         IMMDevice* device = AudioPort_to_IMMDevice(env, jport);
         if (!device) {
-            cleanupAndLogError(env, logger, context, E_FAIL, "Failed to get IMMDevice.");
+            cleanupAndThrowError(env, logger, context, E_FAIL, "Failed to get IMMDevice.");
             return;
         }
         context->outputDevice = device;
@@ -92,15 +257,15 @@ extern "C" {
 
         WAVEFORMATEX* format = AudioFormat_to_WAVEFORMATEX(env, jformat);
         if (!format) {
-            cleanupAndLogError(env, logger, context, E_FAIL, "Failed to get WAVEFORMATEX.");
+            cleanupAndThrowError(env, logger, context, E_FAIL, "Failed to get WAVEFORMATEX.");
             return;
         }
-        logger->trace(env, "WAVEFORMATEX (Source) pointer: %s", FORMAT_PTR(format));
+        logger->trace(env, "WAVEFORMATEX (Request): %s. Pointer: %s", WAVEFORMATEX_toText(format), FORMAT_PTR(format));
 
         context->audioClient = nullptr;
         HRESULT hr = context->outputDevice->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr, (void**)&context->audioClient);
         if (FAILED(hr) || !context->audioClient) {
-            cleanupAndLogError(env, logger, context, hr, "Failed to get IAudioClient.");
+            cleanupAndThrowError(env, logger, context, hr, "Failed to get IAudioClient.");
             return;
         }
         logger->trace(env, "IAudioClient pointer: %s", FORMAT_PTR(context->audioClient));
@@ -108,25 +273,22 @@ extern "C" {
         WAVEFORMATEX* closestFormat = nullptr;
         hr = context->audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, format, &closestFormat);
         if (FAILED(hr)) {
-            cleanupAndLogError(env, logger, context, hr, "Failed to check format support.");
+            cleanupAndThrowError(env, logger, context, hr, "Failed to check format support.");
             return;
         }
 
         if (hr == S_OK) {
             logger->trace(env, "Format is supported.");
         } else if (hr == S_FALSE && closestFormat) {
-            logger->info(env, "Format is not supported, using closest match: WAVEFORMATEX[%d Hz, %d bits, %d channels, isFloat: %d, isPcm: %d]",
-                closestFormat->nSamplesPerSec, closestFormat->wBitsPerSample, closestFormat->nChannels, 
-                closestFormat->wFormatTag == WAVE_FORMAT_IEEE_FLOAT, closestFormat->wFormatTag == WAVE_FORMAT_PCM);
+            logger->info(env, "Format is not supported, using closest match: %s" , WAVEFORMATEX_toText(closestFormat));
             logger->trace(env, "Closest format pointer: %s", FORMAT_PTR(closestFormat));
             
             CoTaskMemFree(format);
             format = (WAVEFORMATEX*)closestFormat;
         } else {
-            logger->error(env, "Format not supported and no closest format found.");
-            context->audioClient->Release();
-            device->Release();
-            delete context;
+            CoTaskMemFree(closestFormat);
+            CoTaskMemFree(format);
+            cleanupAndThrowError(env, logger, context, hr, "Failed to check format support.");
             return;
         }
         context->format = format;
@@ -145,7 +307,7 @@ extern "C" {
             0,
             format, nullptr);
         if (FAILED(hr)) {
-            cleanupAndLogError(env, logger, context, hr, "Failed to initialize IAudioClient.");
+            cleanupAndThrowError(env, logger, context, hr, "Failed to initialize IAudioClient.");
             return;
         }
         logger->trace(env, "IAudioClient initialized.");
@@ -153,7 +315,7 @@ extern "C" {
         context->renderClient = nullptr;
         hr = context->audioClient->GetService(__uuidof(IAudioRenderClient), (void**)&context->renderClient);
         if (FAILED(hr) || !context->renderClient) {
-            cleanupAndLogError(env, logger, context, hr, "Failed to get IAudioRenderClient.");
+            cleanupAndThrowError(env, logger, context, hr, "Failed to get IAudioRenderClient.");
             return;
         }
         logger->trace(env, "IAudioRenderClient pointer: %s", FORMAT_PTR(context->renderClient));
@@ -161,14 +323,25 @@ extern "C" {
         context->audioClock = nullptr;
         hr = context->audioClient->GetService(__uuidof(IAudioClock), (void**)&context->audioClock);
         if (FAILED(hr) || !context->audioClock) {
-            cleanupAndLogError(env, logger, context, hr, "Failed to get IAudioClock.");
+            cleanupAndThrowError(env, logger, context, hr, "Failed to get IAudioClock.");
             return;
         }
         logger->trace(env, "IAudioClock pointer: %s", FORMAT_PTR(context->audioClock));
 
-        context->hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-        context->audioClient->SetEventHandle(context->hEvent);
-        logger->trace(env, "Event handle: %s", FORMAT_PTR(context->hEvent));
+        context->events[EVENT_AUDIO_BUFFER_READY] = CreateEvent(NULL, TRUE, FALSE, NULL);
+        if (!context->events[EVENT_AUDIO_BUFFER_READY]) {
+            cleanupAndThrowError(env, logger, context, E_FAIL, "Failed to create audio callback event.");
+            return;
+        }
+        context->audioClient->SetEventHandle(context->events[EVENT_AUDIO_BUFFER_READY]);
+        logger->trace(env, "Event handle: %s", FORMAT_PTR(context->events[EVENT_AUDIO_BUFFER_READY]));
+
+        context->events[EVENT_STOP_REQUEST] = CreateEvent(NULL, TRUE, FALSE, NULL);
+        if (!context->events[EVENT_STOP_REQUEST]) {
+            cleanupAndThrowError(env, logger, context, E_FAIL, "Failed to create stop event.");
+            return;
+        }
+        logger->trace(env, "Stop event handle: %s", FORMAT_PTR(context->events[EVENT_STOP_REQUEST]));
 
         context->audioClient->GetBufferSize(&context->bufferFrameCount);
         context->bytesPerFrame = format->nBlockAlign;
@@ -176,6 +349,26 @@ extern "C" {
 
         context->audioClient->GetBufferSize(&context->bufferFrameCount);
         logger->debug(env, "Actual buffer size: %d frames", context->bufferFrameCount);
+
+        hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL,
+            CLSCTX_ALL, __uuidof(IMMDeviceEnumerator),
+            (void**)&context->deviceEnumerator);
+    
+        if (SUCCEEDED(hr)) {
+            DeviceChangeNotifier* notifier = new DeviceChangeNotifier(context);
+            hr = context->deviceEnumerator->RegisterEndpointNotificationCallback(notifier);
+            
+            if (SUCCEEDED(hr)) {
+                context->notificationClient = notifier;
+                notifier->AddRef();
+                logger->debug(env, "Device change notification registered");
+            } else {
+                notifier->Release();
+                logger->warn(env, "Failed to register device notifications");
+            }
+        } else {
+            logger->warn(env, "Failed to create device enumerator");
+        }
 
         env->SetLongField(obj, WASAPIOutputCache::get(env)->outputContextPtr, (jlong)context);
         logger->debug(env, "Opened WASAPI output. ContextPtr: %s", FORMAT_PTR(context));
@@ -195,58 +388,71 @@ extern "C" {
             return;
         }
 
-        std::vector<std::string> errors;
-
-        ULONG audioClockFreeResult = S_OK;
-        ULONG renderClientFreeResult = S_OK;
-        ULONG audioClientFreeResult = S_OK;
-        ULONG outputDeviceFreeResult = S_OK;
-        WINBOOL hEventCloseResult = TRUE;
+        logNotifierMessages(env, logger, context);
 
         if (context->audioClock) {
-            audioClockFreeResult = context->audioClock->Release();
-            if (audioClockFreeResult != S_OK)
-                errors.push_back("IAudioClock Release failed. ERRNO: " + std::to_string(audioClockFreeResult));
+            ULONG refCount = context->audioClock->Release();
+            if (refCount > 0) {
+                logger->warn(env, "IAudioClock still has %lu references.", refCount);
+            }
+            context->audioClock = nullptr;
         }
 
         if (context->renderClient) {
-            renderClientFreeResult = context->renderClient->Release();
-            if (renderClientFreeResult != S_OK)
-                errors.push_back("IAudioRenderClient Release failed. ERRNO: " + std::to_string(renderClientFreeResult));
+            ULONG refCount = context->renderClient->Release();
+            if (refCount > 0) {
+                logger->warn(env, "IAudioRenderClient still has %lu references.", refCount);
+            }
+            context->renderClient = nullptr;
         }
 
         if (context->audioClient) {
-            audioClientFreeResult = context->audioClient->Release();
-            if (audioClientFreeResult != S_OK)
-                errors.push_back("IAudioClient Release failed. ERRNO: " + std::to_string(audioClientFreeResult));
+            ULONG refCount = context->audioClient->Release();
+            if (refCount > 0) {
+                logger->warn(env, "IAudioClient still has %lu references.", refCount);
+            }
+            context->audioClient = nullptr;
         }
 
         if (context->outputDevice) {
-            outputDeviceFreeResult = context->outputDevice->Release();
-            if (outputDeviceFreeResult != S_OK)
-                errors.push_back("IMMDevice Release failed. ERRNO: " + std::to_string(outputDeviceFreeResult));
+            ULONG refCount = context->outputDevice->Release();
+            if (refCount > 0) {
+                logger->warn(env, "IMMDevice still has %lu references.", refCount);
+            }
+            context->outputDevice = nullptr;
         }
 
-        if (context->hEvent) {
-            hEventCloseResult = CloseHandle(context->hEvent);
-            if (!hEventCloseResult)
-                errors.push_back("CloseHandle failed for event handle.");
+        if (context->deviceEnumerator && context->notificationClient) {
+            context->deviceEnumerator->UnregisterEndpointNotificationCallback(
+                context->notificationClient);
+            logger->debug(env, "Device change notification unregistered");
         }
 
-        if (context->format) {
-            CoTaskMemFree(context->format);
+        if (context->deviceEnumerator) {
+            ULONG refCount = context->deviceEnumerator->Release();
+            if (refCount > 0) {
+                logger->warn(env, "IMMDeviceEnumerator still has %lu references.", refCount);
+            }
+            context->deviceEnumerator = nullptr;
+        }
+
+        if (context->notificationClient) {
+            context->notificationClient->Release();
+            context->notificationClient = nullptr;
+        }
+
+        if (context->events[EVENT_AUDIO_BUFFER_READY]) {
+            CloseHandle(context->events[EVENT_AUDIO_BUFFER_READY]);
+            context->events[EVENT_AUDIO_BUFFER_READY] = nullptr;
+        }
+
+        if (context->events[EVENT_STOP_REQUEST]) {
+            CloseHandle(context->events[EVENT_STOP_REQUEST]);
+            context->events[EVENT_STOP_REQUEST] = nullptr;
         }
 
         delete context;
         env->SetLongField(obj, outputCache->outputContextPtr, 0);
-
-        if (!errors.empty()) {
-            std::string combined = "Failed to close WASAPI output:\n";
-            for (auto &e : errors) combined += " - " + e + "\n";
-            logger->error(env, combined.c_str());
-        } else {
-            logger->debug(env, "Closed WASAPI output successfully.");
-        }
     }
 
     JNIEXPORT void JNICALL
@@ -259,6 +465,8 @@ extern "C" {
         OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
         
         if (context) {
+            logNotifierMessages(env, logger, context);
+
             HRESULT hr = context->audioClient->Start();
             if (FAILED(hr)) {
                 logger->error(env, "Failed to start WASAPI output.");
@@ -271,18 +479,31 @@ extern "C" {
     JNIEXPORT void JNICALL
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nStop
     (JNIEnv* env, jobject obj) {
-        Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nStart");
+        Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nStop");
 
         WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
 
         OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
         
         if (context) {
-            context->audioClient->Stop();
-            logger->debug(env, "Stopped WASAPI render client.");
+            logNotifierMessages(env, logger, context);
+            SetEvent(context->events[EVENT_STOP_REQUEST]);
+            HRESULT hr = context->audioClient->Stop();
+            if (FAILED(hr)) {
+                logger->error(env, "Failed to stop WASAPI output.");
+            } else {
+                logger->debug(env, "Stopped WASAPI render client.");
+            }
             BYTE* pBuffer;
-            context->renderClient->GetBuffer(context->bufferFrameCount, &pBuffer);
-            context->renderClient->ReleaseBuffer(0, AUDCLNT_BUFFERFLAGS_SILENT);
+            hr = context->renderClient->GetBuffer(context->bufferFrameCount, &pBuffer);
+            if (SUCCEEDED(hr)) {
+                context->renderClient->ReleaseBuffer(
+                    context->bufferFrameCount, 
+                    AUDCLNT_BUFFERFLAGS_SILENT
+                );
+            } else {
+                logger->error(env, "Failed to get WASAPI buffer.");
+            }
             context->pendingFrames = 0;
             logger->debug(env, "Flushed WASAPI buffer.");
         } else {
@@ -312,9 +533,36 @@ extern "C" {
 
         UINT32 padding;
         do {
-            context->audioClient->GetCurrentPadding(&padding);
+            DWORD deviceState;
+            HRESULT hr = context->outputDevice->GetState(&deviceState);
+            if (FAILED(hr) || deviceState != DEVICE_STATE_ACTIVE) {
+                logNotifierMessages(env, logger, context);
+                logger->error(env, "Device invalid during drain: hr=%lx, state=%lu", hr, deviceState);
+                env->ThrowNew(ExceptionClassesCache::get(env)->deviceInvalidatedException, "Device invalid during drain");
+                break;
+            }
+            
+            hr = context->audioClient->GetCurrentPadding(&padding);
+            if (FAILED(hr)) {
+                logNotifierMessages(env, logger, context);
+                if (hr == AUDCLNT_E_DEVICE_INVALIDATED) {
+                    logger->error(env, "Device invalidated during drain");
+                    env->ThrowNew(ExceptionClassesCache::get(env)->deviceInvalidatedException, "Device invalidated during drain");
+                    break;
+                }
+                logger->error(env, "GetCurrentPadding failed during drain: hr=%lx", hr);
+                break;
+            }
+            
             if (padding == 0) break;
-            WaitForSingleObject(context->hEvent, 100);
+
+            HANDLE handles[2] = { context->events[EVENT_AUDIO_BUFFER_READY], context->events[EVENT_STOP_REQUEST] };
+            DWORD waitResult = WaitForMultipleObjects(2, handles, FALSE, 100);
+            
+            if (waitResult == WAIT_OBJECT_0 + 1) {
+                logger->debug(env, "Drain operation interrupted by stop event");
+                break;
+            }
         } while (true);
         context->pendingFrames = 0;
     }
@@ -334,41 +582,86 @@ extern "C" {
         }
 
         jbyte* src = env->GetByteArrayElements(buffer, NULL);
+        if (!src) {
+            logger->error(env, "Failed to get array elements");
+            return -1;
+        }
         UINT32 totalFrames = length / context->bytesPerFrame;
         UINT32 framesWritten = 0;
 
-        // logger->trace(env, "Writing %d frames.", totalFrames);
-
         while (framesWritten < totalFrames) {
-            UINT32 availableFrames;
-            UINT32 padding;
-            context->audioClient->GetCurrentPadding(&padding);
-            availableFrames = context->bufferFrameCount - padding;
-            if (availableFrames == 0) {
-                WaitForSingleObject(context->hEvent, INFINITE);
-                continue;
+            DWORD deviceState;
+            HRESULT hr = context->outputDevice->GetState(&deviceState);
+            if (FAILED(hr)) {
+                logNotifierMessages(env, logger, context);
+                if (hr == AUDCLNT_E_DEVICE_INVALIDATED) {
+                    logger->error(env, "Audio device invalidated (format changed?)");
+                    env->ReleaseByteArrayElements(buffer, src, JNI_ABORT);
+                    return -1;
+                }
+                env->ReleaseByteArrayElements(buffer, src, JNI_ABORT);
+                return -1;
             }
-            // logger->trace(env, "Available frames: %d", availableFrames);
-
-            UINT32 framesToWrite = std::min(availableFrames, totalFrames - framesWritten);
-            // logger->trace(env, "Writing %d frames.", framesToWrite);
-            BYTE* dest;
-            HRESULT hr = context->renderClient->GetBuffer(framesToWrite, &dest);
-            if (FAILED(hr)) { 
-                char* hr_msg = format_hr_msg(hr);
-                logger->error(env, "Failed to get WASAPI output buffer. (%s)", hr_msg);
-                free(hr_msg);
+            
+            if (deviceState != DEVICE_STATE_ACTIVE) {
+                logNotifierMessages(env, logger, context);
+                logger->error(env, "Audio device not active: state=%lu", deviceState);
+                env->ReleaseByteArrayElements(buffer, src, JNI_ABORT);
+                env->ThrowNew(ExceptionClassesCache::get(env)->deviceInactiveException, "Audio device not active.");
                 return -1;
             }
 
+            UINT32 availableFrames;
+            UINT32 padding;
+            hr = context->audioClient->GetCurrentPadding(&padding); 
+            if (FAILED(hr)) {
+                logNotifierMessages(env, logger, context);
+                if (hr == AUDCLNT_E_DEVICE_INVALIDATED) {
+                    logger->error(env, "Device invalidated during GetCurrentPadding");
+                    env->ReleaseByteArrayElements(buffer, src, JNI_ABORT);
+                    env->ThrowNew(ExceptionClassesCache::get(env)->deviceInvalidatedException, "Device invalidated during write, in GetCurrentPadding.");
+                    return -1;
+                }
+                const char* hr_msg = formatHRMessage(hr).c_str();
+                logger->error(env, "GetCurrentPadding failed: %s", hr_msg);
+                env->ReleaseByteArrayElements(buffer, src, JNI_ABORT);
+                env->ThrowNew(ExceptionClassesCache::get(env)->audioBackendException, "GetCurrentPadding in write failed.");
+                return -1;
+            }
+            availableFrames = context->bufferFrameCount - padding;
+            if (availableFrames == 0) {
+                DWORD waitResult = WaitForMultipleObjects(2, context->events, FALSE, INFINITE);
+                
+                if (waitResult == WAIT_OBJECT_0 + 1) {
+                    logger->trace(env, "Write operation interrupted by stop event");
+                    break;
+                }
+                else if (waitResult != WAIT_OBJECT_0) {
+                    logger->error(env, "WaitForMultipleObjects failed: %lu", GetLastError());
+                    env->ReleaseByteArrayElements(buffer, src, JNI_ABORT);
+                    return -1;
+                }
+                continue;
+            }
+
+            UINT32 framesToWrite = std::min(availableFrames, totalFrames - framesWritten);
+            BYTE* dest;
+            hr = context->renderClient->GetBuffer(framesToWrite, &dest);
+            if (FAILED(hr)) { 
+                const char* hr_msg = formatHRMessage(hr).c_str();
+                logger->error(env, "Failed to get WASAPI output buffer. (%s)", hr_msg);
+                return -1;
+            }
+
+            UINT32 maxFrames = (length - offset) / context->bytesPerFrame;
+            framesToWrite = std::min(framesToWrite, maxFrames);
             memcpy(dest, src + offset + framesWritten * context->bytesPerFrame, 
                 framesToWrite * context->bytesPerFrame);
             
             hr = context->renderClient->ReleaseBuffer(framesToWrite, 0);
             if (FAILED(hr)) {
-                char* hr_msg = format_hr_msg(hr);
+                const char* hr_msg = formatHRMessage(hr).c_str();
                 logger->error(env, "Failed to release WASAPI output buffer. (%s)", hr_msg);
-                free(hr_msg);
                 return -1;
             }
             framesWritten += framesToWrite;
@@ -393,19 +686,22 @@ extern "C" {
             return -1;
         }
 
+        logNotifierMessages(env, logger, context);
+
         UINT32 padding = 0;
         HRESULT hr = context->audioClient->GetCurrentPadding(&padding);
         if (FAILED(hr)) {
-            char* hr_msg = format_hr_msg(hr);
-            char* fmsg = format("Failed to get WASAPI output buffer. (%s)", hr_msg);
-            free(hr_msg);
+            const char* hr_msg = formatHRMessage(hr).c_str();
+            const char* fmsg = format("Failed to get WASAPI output buffer. (%s)", hr_msg).c_str();
             logger->error(env, fmsg);
             env->ThrowNew(ExceptionClassesCache::get(env)->audioBackendException, fmsg);
-            free(fmsg);
             return -1;
         }
 
         UINT32 availableFrames = context->bufferFrameCount - padding;
+        if (availableFrames > INT_MAX) {
+            return -1; // overflow
+        }
         return (jint)availableFrames;
     }
 
@@ -445,9 +741,8 @@ extern "C" {
         HRESULT hr = context->audioClock->GetPosition(&position, &qpc);
 
         if (FAILED(hr)) {
-            char* hr_msg = format_hr_msg(hr);
+            const char* hr_msg = formatHRMessage(hr).c_str();
             logger->error(env, "Failed to get WASAPI output position. (%s)", hr_msg);
-            free(hr_msg);
             return -1;
         }
 
@@ -470,12 +765,10 @@ extern "C" {
         REFERENCE_TIME latency = 0;
         HRESULT hr = context->audioClient->GetStreamLatency(&latency);
         if (FAILED(hr)) {
-            char* hr_msg = format_hr_msg(hr);
-            char* fmsg = format("Failed to get WASAPI output latency. (%s)", hr_msg);
-            free(hr_msg);
+            const char* hr_msg = formatHRMessage(hr).c_str();
+            const char* fmsg = format("Failed to get WASAPI output latency. (%s)", hr_msg).c_str();
             logger->error(env, fmsg);
             env->ThrowNew(ExceptionClassesCache::get(env)->audioBackendException, fmsg);
-            free(fmsg);
             return -1;
         } else if (SUCCEEDED(hr) && latency > 0) {
             // latency in 100-ns (1e-7 sec), converted to microseconds (1e-6 sec)
