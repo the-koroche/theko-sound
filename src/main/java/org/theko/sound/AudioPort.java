@@ -16,6 +16,8 @@
 
 package org.theko.sound;
 
+import org.theko.sound.backend.AudioPortLink;
+
 /**
  * The {@code AudioPort} class represents an audio port with specific attributes
  * such as its name, vendor, version, description, flow direction (input or output),
@@ -39,7 +41,7 @@ public class AudioPort {
     private final boolean isActive;   // Whether the port is active or not
     private final AudioFormat mixFormat;    // The audio format used for mixing
 
-    private final Object link;        // The link object associated with the port
+    private final AudioPortLink link;        // The link object associated with the port
     
     /**
      * Constructor to create an AudioPort instance.
@@ -54,7 +56,7 @@ public class AudioPort {
      * @param description A description providing details about the port.
      */
     public AudioPort(
-            Object link,
+            AudioPortLink link,
             AudioFlow flow,
             boolean isActive,
             AudioFormat mixFormat,
@@ -83,7 +85,7 @@ public class AudioPort {
      * @param version The version of the port.
      */
     public AudioPort(
-            Object link,
+            AudioPortLink link,
             AudioFlow flow,
             AudioFormat mixFormat,
             String name,
@@ -103,7 +105,7 @@ public class AudioPort {
      * @param vendor The vendor name of the port.
      */
     public AudioPort(
-            Object link,
+            AudioPortLink link,
             AudioFlow flow,
             boolean isActive,
             AudioFormat mixFormat,
@@ -115,9 +117,9 @@ public class AudioPort {
     /**
      * Returns the link object associated with the audio port.
      * 
-     * @return The link object.
+     * @return The link object as an AudioPortLink.
      */
-    public Object getLink() {
+    public AudioPortLink getLink() {
         return link;
     }
 

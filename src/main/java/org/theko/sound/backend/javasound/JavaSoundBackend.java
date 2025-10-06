@@ -110,7 +110,7 @@ public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundIn
         }
         AudioFormat mixFormat = getMixingFormat(mixer, flow);
         AudioPort port = new AudioPort(
-            info,
+            new JavaSoundPortLink(info),
             flow,
             true,
             mixFormat,
@@ -225,8 +225,8 @@ public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundIn
         }
 
         Object mixer = port.getLink();
-        if (mixer instanceof Mixer.Info) {
-            return AudioSystem.getMixer((Mixer.Info) mixer);
+        if (mixer instanceof JavaSoundPortLink) {
+            return AudioSystem.getMixer(((JavaSoundPortLink) mixer).getMixerInfo());
         } else {
             logger.warn("Audio port link is not compatible with Java Sound: {}", port);
             throw new UnsupportedPortLinkException("Audio port link is not compatible with Java Sound");

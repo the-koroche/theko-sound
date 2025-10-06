@@ -18,10 +18,9 @@ package org.theko.sound.utility;
 
 import java.util.HashMap;
 
-import javax.sound.sampled.Mixer;
-
 import org.theko.sound.backend.AudioBackend;
 import org.theko.sound.backend.javasound.JavaSoundBackend;
+import org.theko.sound.backend.javasound.JavaSoundPortLink;
 import org.theko.sound.backend.wasapi.WASAPIPortHandle;
 import org.theko.sound.backend.wasapi.WASAPISharedBackend;
 
@@ -36,7 +35,7 @@ public final class AudioPortUtilities {
     private static final HashMap<Class<?>, Class<? extends AudioBackend>> backends = new HashMap<>();
 
     static {
-        backends.put(Mixer.Info.class, JavaSoundBackend.class);
+        backends.put(JavaSoundPortLink.class, JavaSoundBackend.class);
         backends.put(WASAPIPortHandle.class, WASAPISharedBackend.class);
     }
     

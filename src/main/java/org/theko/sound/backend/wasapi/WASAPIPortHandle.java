@@ -16,6 +16,8 @@
 
 package org.theko.sound.backend.wasapi;
 
+import org.theko.sound.backend.AudioPortLink;
+
 /**
  * String identifier representation of a native audio port handle.
  * Used to identify audio ports link type in the WASAPI backend.
@@ -23,7 +25,7 @@ package org.theko.sound.backend.wasapi;
  * @since 2.3.2
  * @author Theko
  */
-public class WASAPIPortHandle {
+public class WASAPIPortHandle implements AudioPortLink {
     
     private final String handle;
 
@@ -55,6 +57,6 @@ public class WASAPIPortHandle {
 
     @Override
     public String toString() {
-        return String.format("WASAPINativeAudioPortHandle{handle='%s'}", handle);
+        return String.format("WASAPIPortHandle{handle='%s'}", handle);
     }
 }
