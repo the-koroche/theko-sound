@@ -17,7 +17,7 @@
 #pragma once
 #include <jni.h>
 #include "IJavaClassCache.hpp"
-#include "jni_util.hpp"
+#include "JNI_Utility.hpp"
 
 class ExceptionClassesCache : public IJavaClassCache {
 public:
@@ -27,48 +27,61 @@ public:
     jclass outOfMemoryException;
     
     jclass audioBackendException;
+    jclass deviceException;
+    jclass deviceInactiveException;
+    jclass deviceInvalidatedException;
     jclass unsupportedAudioFormatException;
     jclass unsupportedAudioEncodingException;
 
     ExceptionClassesCache(JNIEnv* env) : IJavaClassCache(env) {
-        runtimeException = JNI_TRY_RETURN(env->FindClass("java/lang/RuntimeException"));
-        outOfMemoryException = JNI_TRY_RETURN(env->FindClass("java/lang/OutOfMemoryError"));
-        illegalArgumentException = JNI_TRY_RETURN(env->FindClass("java/lang/IllegalArgumentException"));
-        unsupportedOperationException = JNI_TRY_RETURN(env->FindClass("java/lang/UnsupportedOperationException"));
+        runtimeException = JNI_TRY_RETURN(env, env->FindClass("java/lang/RuntimeException"));
+        outOfMemoryException = JNI_TRY_RETURN(env, env->FindClass("java/lang/OutOfMemoryError"));
+        illegalArgumentException = JNI_TRY_RETURN(env, env->FindClass("java/lang/IllegalArgumentException"));
+        unsupportedOperationException = JNI_TRY_RETURN(env, env->FindClass("java/lang/UnsupportedOperationException"));
 
-        audioBackendException = JNI_TRY_RETURN(env->FindClass("org/theko/sound/backend/AudioBackendException"));
-        unsupportedAudioFormatException = JNI_TRY_RETURN(env->FindClass("org/theko/sound/UnsupportedAudioFormatException"));
-        unsupportedAudioEncodingException = JNI_TRY_RETURN(env->FindClass("org/theko/sound/UnsupportedAudioEncodingException"));
+        audioBackendException = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backend/AudioBackendException"));
+        deviceException = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backend/DeviceException"));
+        deviceInvalidatedException = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backend/DeviceInvalidatedException"));
+        deviceInactiveException = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backend/DeviceInactiveException"));
+        unsupportedAudioFormatException = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/UnsupportedAudioFormatException"));
+        unsupportedAudioEncodingException = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/UnsupportedAudioEncodingException"));
 
         if (!isValid()) {
             env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Exception classes failed to initialize");
             return;
         }
 
-        runtimeException = (jclass) JNI_TRY_RETURN(env->NewGlobalRef(runtimeException));
-        outOfMemoryException = (jclass) JNI_TRY_RETURN(env->NewGlobalRef(outOfMemoryException));
-        illegalArgumentException = (jclass) JNI_TRY_RETURN(env->NewGlobalRef(illegalArgumentException));
-        unsupportedOperationException = (jclass) JNI_TRY_RETURN(env->NewGlobalRef(unsupportedOperationException));
+        runtimeException = (jclass) JNIUtil_CreateGlobal(env, runtimeException);
+        outOfMemoryException = (jclass) JNIUtil_CreateGlobal(env, outOfMemoryException);
+        illegalArgumentException = (jclass) JNIUtil_CreateGlobal(env, illegalArgumentException);
+        unsupportedOperationException = (jclass) JNIUtil_CreateGlobal(env, unsupportedOperationException);
 
-        audioBackendException = (jclass) JNI_TRY_RETURN(env->NewGlobalRef(audioBackendException));
-        unsupportedAudioFormatException = (jclass) JNI_TRY_RETURN(env->NewGlobalRef(unsupportedAudioFormatException));
-        unsupportedAudioEncodingException = (jclass) JNI_TRY_RETURN(env->NewGlobalRef(unsupportedAudioEncodingException));
+        audioBackendException = (jclass) JNIUtil_CreateGlobal(env, audioBackendException);
+        deviceException = (jclass) JNIUtil_CreateGlobal(env, deviceException);
+        deviceInvalidatedException = (jclass) JNIUtil_CreateGlobal(env, deviceInvalidatedException);
+        deviceInactiveException = (jclass) JNIUtil_CreateGlobal(env, deviceInactiveException);
+        unsupportedAudioFormatException = (jclass) JNIUtil_CreateGlobal(env, unsupportedAudioFormatException);
+        unsupportedAudioEncodingException = (jclass) JNIUtil_CreateGlobal(env, unsupportedAudioEncodingException);
     }
 
     bool isValid() const override {
         return runtimeException && outOfMemoryException && illegalArgumentException && unsupportedOperationException &&
-               audioBackendException && unsupportedAudioFormatException && unsupportedAudioEncodingException;
+               audioBackendException && deviceException && deviceInvalidatedException && deviceInactiveException &&
+               unsupportedAudioFormatException && unsupportedAudioEncodingException;
     }
 
     void release(JNIEnv* env) override {
-        JNI_RELEASE_GLOBAL(runtimeException);
-        JNI_RELEASE_GLOBAL(outOfMemoryException);
-        JNI_RELEASE_GLOBAL(illegalArgumentException);
-        JNI_RELEASE_GLOBAL(unsupportedOperationException);
+        JNI_RELEASE_GLOBAL(env, runtimeException);
+        JNI_RELEASE_GLOBAL(env, outOfMemoryException);
+        JNI_RELEASE_GLOBAL(env, illegalArgumentException);
+        JNI_RELEASE_GLOBAL(env, unsupportedOperationException);
 
-        JNI_RELEASE_GLOBAL(audioBackendException);
-        JNI_RELEASE_GLOBAL(unsupportedAudioFormatException);
-        JNI_RELEASE_GLOBAL(unsupportedAudioEncodingException);
+        JNI_RELEASE_GLOBAL(env, audioBackendException);
+        JNI_RELEASE_GLOBAL(env, deviceException);
+        JNI_RELEASE_GLOBAL(env, deviceInvalidatedException);
+        JNI_RELEASE_GLOBAL(env, deviceInactiveException);
+        JNI_RELEASE_GLOBAL(env, unsupportedAudioFormatException);
+        JNI_RELEASE_GLOBAL(env, unsupportedAudioEncodingException);
     }
 
     AUTO_STATIC_CACHE_GET(ExceptionClassesCache)
