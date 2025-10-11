@@ -104,4 +104,22 @@ public interface OutputLayerListener extends Listener<OutputLayerEvent, OutputLa
      * @param event the event carrying an immutable snapshot of the output layer state
      */
     default void onRenderException(OutputLayerEvent event) { }
+
+    /**
+     * Called when an output layer's output thread catches an exception.
+     * @param event the event carrying an immutable snapshot of the output layer state
+     */
+    default void onOutputException(OutputLayerEvent event) { }
+
+    /**
+     * Called when an output layer's device is invalidated or inactive.
+     * @param event the event carrying an immutable snapshot of the output layer state
+     */
+    default void onDeviceInvalidated(OutputLayerEvent event) { }
+
+    /**
+     * Called when an output layer's reopen attempt fails.
+     * @param event the event carrying an immutable snapshot of the output layer state
+     */
+    default void onReopenFailed(OutputLayerEvent event) { }
 }
