@@ -92,7 +92,7 @@ public class AudioMixer implements AudioNode {
     private float[][][] inputBuffers = null;
     private boolean[] validInputs = null;
     
-    private float[][] mixed = null;
+    private float[][] mixedBuffer = null;
     private float[][] effectBuffer = null;
 
     /**
@@ -343,29 +343,37 @@ public class AudioMixer implements AudioNode {
         int varyingSizeEffectIndex = getVaryingSizeEffectIndex();
 
         int channels = samples.length;
-        CollectedInputs collectedInputs = collectInputs(sampleRate, inputLength, channels);
-        try {
-            checkInputs(collectedInputs, inputLength, channels);
-        } catch (ChannelsCountMismatchException | LengthMismatchException ex) {
-            logger.error("Input channels or length mismatch.", ex);
-            throw new MixingException(ex);
-        }
+        float[][] mixed = null;
+        if (inputLength > 0) {
+            CollectedInputs collectedInputs = collectInputs(sampleRate, inputLength, channels);
+            try {
+                checkInputs(collectedInputs, inputLength, channels);
+            } catch (ChannelsCountMismatchException | LengthMismatchException ex) {
+                logger.error("Input channels or length mismatch.", ex);
+                throw new MixingException(ex);
+            }
 
-        float[][] mixed = mixInputs(collectedInputs, inputLength, channels);
-        SamplesUtilities.adjustGainAndPan(mixed, mixed, preGainControl.getValue(), 0.0f);
+            mixed = mixInputs(collectedInputs, inputLength, channels);
+            SamplesUtilities.adjustGainAndPan(mixed, mixed, preGainControl.getValue(), 0.0f);
 
-        if (enableEffects) {
-            int preVaryingEffectEnd = varyingSizeEffectIndex == -1 ? effects.size() : varyingSizeEffectIndex;
-            processEffectChain(mixed, sampleRate, 0, preVaryingEffectEnd);
+            if (enableEffects) {
+                int preVaryingEffectEnd = varyingSizeEffectIndex == -1 ? effects.size() : varyingSizeEffectIndex;
+                processEffectChain(mixed, sampleRate, 0, preVaryingEffectEnd);
 
-            if (varyingSizeEffectIndex != -1 || inputLength != outputLength) {
-                if (inputLength < outputLength) {
-                    mixed = ArrayUtilities.padArray(mixed, channels, outputLength);
+                if (varyingSizeEffectIndex != -1 || inputLength != outputLength) {
+                    if (inputLength < outputLength) {
+                        mixed = ArrayUtilities.padArray(mixed, channels, outputLength);
+                    }
+                    effects.get(varyingSizeEffectIndex).render(mixed, sampleRate);
+                    if (inputLength > outputLength) {
+                        mixed = ArrayUtilities.cutArray(mixed, 0, channels, 0, outputLength);
+                    }
+                    processEffectChain(mixed, sampleRate, varyingSizeEffectIndex + 1, effects.size());
                 }
-                effects.get(varyingSizeEffectIndex).render(mixed, sampleRate);
-                if (inputLength > outputLength) {
-                    mixed = ArrayUtilities.cutArray(mixed, 0, channels, 0, outputLength);
-                }
+            }
+        } else {
+            mixed = new float[channels][outputLength];
+            if (enableEffects) {
                 processEffectChain(mixed, sampleRate, varyingSizeEffectIndex + 1, effects.size());
             }
         }
@@ -403,8 +411,8 @@ public class AudioMixer implements AudioNode {
                     return length;
                 }
                 int required = ((VaryingSizeEffect) effect).getTargetLength(length);
-                if (required <= 0) {
-                    throw new LengthMismatchException("Effect requested invalid input length: " + required);
+                if (required < 0) {
+                    throw new LengthMismatchException("Effect requested negative input length: " + required);
                 }
                 length = required;
             } else {
@@ -481,10 +489,10 @@ public class AudioMixer implements AudioNode {
     }
     
     private float[][] mixInputs(CollectedInputs collectedInputs, int frameCount, int channels) {
-        if (mixed == null || mixed.length != channels || mixed[0].length != frameCount) {
-            mixed = new float[channels][frameCount];
+        if (mixedBuffer == null || mixedBuffer.length != channels || mixedBuffer[0].length != frameCount) {
+            mixedBuffer = new float[channels][frameCount];
         } else {
-            ArrayUtilities.fillZeros(mixed);
+            ArrayUtilities.fillZeros(mixedBuffer);
         }
 
         for (int i = 0; i < collectedInputs.inputs.length; i++) {
@@ -492,12 +500,12 @@ public class AudioMixer implements AudioNode {
             for (int ch = 0; ch < channels; ch++) {
                 for (int frame = 0; frame < collectedInputs.inputs[i][ch].length; frame++) {
                     // Allow out of range (-1, +1) values
-                    mixed[ch][frame] += collectedInputs.inputs[i][ch][frame];
+                    mixedBuffer[ch][frame] += collectedInputs.inputs[i][ch][frame];
                 }
             }
         }
 
-        return mixed;
+        return mixedBuffer;
     }
 
     private void processEffectChain(float[][] samples, int sampleRate, int start, int end) {
