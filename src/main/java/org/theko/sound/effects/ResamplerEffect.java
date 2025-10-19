@@ -38,7 +38,7 @@ import org.theko.sound.utility.ArrayUtilities;
  */
 public class ResamplerEffect extends AudioEffect implements VaryingSizeEffect{
 
-    protected final FloatControl speedControl = new FloatControl("Speed", 0.001f, 50.0f, 1.0f);
+    protected final FloatControl speedControl = new FloatControl("Speed", 0.0f, 50.0f, 1.0f);
     protected AudioResampler resampler;
 
     protected final List<AudioControl> resamplerControls = List.of(speedControl);
