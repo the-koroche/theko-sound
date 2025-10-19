@@ -192,7 +192,7 @@ public class AudioMeasure {
         if (isLongValue) {
             return String.format("%d %s", longVal, unit);
         } else {
-            return FormatUtilities.formatTime((long)(timeVal*FormatUtilities.SECONDS), 4);
+            return FormatUtilities.formatTime((long)(timeVal*FormatUtilities.SECONDS_NS), 4);
         }
     }
 
@@ -207,6 +207,6 @@ public class AudioMeasure {
 
         return String.format("AudioMeasure{%d frames, %d samples, %d bytes, %s}",
                 frames, samples, bytes,
-                FormatUtilities.formatTime((long)(seconds*FormatUtilities.SECONDS), 4));
+                FormatUtilities.formatTime((long)(seconds*FormatUtilities.SECONDS_NS), 4));
     }
 }

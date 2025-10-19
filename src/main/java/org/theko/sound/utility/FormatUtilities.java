@@ -42,10 +42,13 @@ public final class FormatUtilities {
     public static final long TB = 1_000_000_000_000L;
     public static final long PB = 1_000_000_000_000_000L;
 
-    public static final long MICROS = 1000;
-    public static final long MILLIS = 1_000_000;
-    public static final long SECONDS = 1_000_000_000L;
-    public static final long MINUTES = 60 * SECONDS;
+    public static final long MICROS_NS = 1000;
+    public static final long MILLIS_NS = 1_000_000;
+    public static final long SECONDS_NS = 1_000_000_000L;
+    public static final long MINUTES_NS = 60 * SECONDS_NS;
+    public static final long HOURS_NS = 60 * MINUTES_NS;
+
+    public static final long MINUTES = 60L;
     public static final long HOURS = 60 * MINUTES;
     
     private FormatUtilities() {
@@ -108,19 +111,51 @@ public final class FormatUtilities {
     }
 
     /**
-     * Formats time in a human-readable way.
+     * Formats a time in seconds to a human-readable string.
      * 
-     * @param ns The number of nanoseconds to format.
+     * <p>
+     * For times greater than or equal to 2 minutes, the format is "hh:mm:ss(.xxx)" or "mm:ss(.xxx)".
+     * For times less than 2 minutes, the format is "xx.xxx ms", "xx.xxx us", or "xx.xxx ns".
+     * </p>
+     * 
+     * @param ns The time in nanoseconds to format.
      * @param precision The number of decimal places to use.
      * @return The formatted string.
      */
     public static String formatTime(long ns, int precision) {
-        if (ns < MICROS) return ns + " ns";
-        else if (ns < MILLIS) return formatAdaptive(ns / (double) MICROS, precision) + " us";
-        else if (ns < SECONDS) return formatAdaptive(ns / (double) MILLIS, precision) + " ms";
-        else if (ns < MINUTES) return formatAdaptive(ns / (double) SECONDS, precision) + " s";
-        else if (ns < HOURS) return formatAdaptive(ns / (double) MINUTES, precision) + " min";
-        else return formatAdaptive(ns / (double) HOURS, precision) + " h";
+        double seconds = ns / (double) SECONDS_NS;
+
+        // For longer times, use hh:mm:ss(.fff) or mm:ss(.fff)
+        if (seconds >= 120) {
+            int hours = (int) (seconds / HOURS);
+            int minutes = (int) ((seconds % HOURS) / MINUTES);
+            double secs = seconds % MINUTES;
+
+            String secStr;
+            if (precision > 0) {
+                secStr = String.format(Locale.US, "%0" + (precision + 3) + "." + precision + "f", secs);
+            } else {
+                secStr = String.format(Locale.US, "%02d", (int) Math.round(secs));
+            }
+
+            if (precision > 0 && secStr.indexOf('.') == 1 && secs < 10)
+                secStr = "0" + secStr;
+
+            if (hours > 0) {
+                // H:MM:SS(.xxx)
+                return String.format(Locale.US, "%d:%02d:%s s", hours, minutes, secStr);
+            } else {
+                // MM:SS(.xxx)
+                return String.format(Locale.US, "%d:%s s", minutes, secStr);
+            }
+        }
+
+        if (ns < MICROS_NS) return ns + " ns";
+        else if (ns < MILLIS_NS) return formatAdaptive(ns / (double) MICROS_NS, precision) + " us";
+        else if (ns < SECONDS_NS) return formatAdaptive(ns / (double) MILLIS_NS, precision) + " ms";
+        else if (ns < MINUTES_NS) return formatAdaptive(ns / (double) SECONDS_NS, precision) + " s";
+        else if (ns < HOURS_NS) return formatAdaptive(ns / (double) MINUTES_NS, precision) + " min";
+        else return formatAdaptive(ns / (double) HOURS_NS, precision) + " h";
     }
 
     /**
@@ -131,7 +166,7 @@ public final class FormatUtilities {
      * @return The formatted string.
      */
     public static String formatTimeMicros(long us, int precision) {
-        return formatTime(us * MICROS, precision);
+        return formatTime(us * MICROS_NS, precision);
     }
 
     /**
@@ -142,7 +177,7 @@ public final class FormatUtilities {
      * @return The formatted string.
      */
     public static String formatTimeMillis(long ms, int precision) {
-        return formatTime(ms * MILLIS, precision);
+        return formatTime(ms * MILLIS_NS, precision);
     }
 
     /**
@@ -153,7 +188,7 @@ public final class FormatUtilities {
      * @return The formatted string.
      */
     public static String formatTimeSeconds(long sec, int precision) {
-        return formatTime(sec * SECONDS, precision);
+        return formatTime(sec * SECONDS_NS, precision);
     }
 
     /**
