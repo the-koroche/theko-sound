@@ -307,7 +307,7 @@ public class WAVECodec extends AudioCodec {
             decoded.append("Decoded WAVE:\n");
             decoded.append("  format=").append(format.toString()).append(",\n");
             decoded.append("  metadata=").append(tags).append(",\n");
-            decoded.append("  duration=").append(ms).append("ms");
+            decoded.append("  duration=").append(FormatUtilities.formatTimeMillis(ms, 3));
             logger.debug(decoded.toString());
 
             return new AudioDecodeResult(CODEC_INFO, pcm, format, Collections.unmodifiableList(tags));
