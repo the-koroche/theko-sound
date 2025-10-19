@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.LockSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +45,7 @@ import org.theko.sound.samples.SamplesValidation;
 import org.theko.sound.samples.SamplesValidation.ValidationResult;
 import org.theko.sound.utility.FormatUtilities;
 import org.theko.sound.utility.ThreadUtilities;
+import org.theko.sound.utility.TimeUtilities;
 
 /**
  * The {@code AudioOutputLayer} class is responsible for managing an audio output.
@@ -805,7 +805,7 @@ public class AudioOutputLayer implements AutoCloseable {
                     writeFailures.incrementAndGet();
                     if (writeFailures.get() < AOL_MAX_WRITE_ERRORS) {
                         logger.warn("Audio backend write failed {} times.", writeFailures);
-                        waitNanos(System.nanoTime() - startNs);
+                        TimeUtilities.waitNanosPrecise(System.nanoTime() - startNs);
                     } else {
                         logger.error("Audio backend write failed {} times. Aborting.", writeFailures);
                         throw new OutputException("Audio backend write failed " + writeFailures + " times.");
@@ -875,7 +875,7 @@ public class AudioOutputLayer implements AutoCloseable {
                 AudioNode snapshot = rootNode;
                 if (snapshot == null) {
                     writeAudio(silenceBuffer);
-                    waitNanos(bufferNsWait);
+                    TimeUtilities.waitNanosPrecise(bufferNsWait);
                     continue;
                 }
 
@@ -895,7 +895,7 @@ public class AudioOutputLayer implements AutoCloseable {
                         sampleBuffer = new float[openedFormat.getChannels()][renderBufferSize];
                         long endRenderNs = System.nanoTime();
                         long durationRenderNs = endRenderNs - startRenderNs;
-                        waitNanos(bufferNsWait - durationRenderNs);
+                        TimeUtilities.waitNanosPrecise(bufferNsWait - durationRenderNs);
                         continue;
                     } else {
                         logger.error("Too many length mismatches. Aborting.");
@@ -920,7 +920,7 @@ public class AudioOutputLayer implements AutoCloseable {
                         writeFailures.incrementAndGet();
                         if (writeFailures.get() < AOL_MAX_WRITE_ERRORS) {
                             logger.warn("Audio backend write failed {} times.", writeFailures);
-                            waitNanos(bufferNsWait - startRenderNs);
+                            TimeUtilities.waitNanosPrecise(bufferNsWait - startRenderNs);
                         } else {
                             logger.error("Audio backend write failed {} times. Aborting.", writeFailures);
                             throw new ProcessingException("Audio backend write failed " + writeFailures + " times.");
@@ -933,7 +933,7 @@ public class AudioOutputLayer implements AutoCloseable {
 
                     long endRenderNs = System.nanoTime();
                     long durationRenderNs = endRenderNs - startRenderNs;
-                    waitNanos(bufferNsWait - durationRenderNs);
+                    TimeUtilities.waitNanosPrecise(bufferNsWait - durationRenderNs);
                 }
             } catch (BackendNotOpenException ex) {
                 logger.info("Backend is closed.");
@@ -976,26 +976,6 @@ public class AudioOutputLayer implements AutoCloseable {
                 logger.error("Exception in processing thread.", ex);
                 eventDispatcher.dispatch(OutputLayerEventType.RENDER_EXCEPTION, getEvent());
                 // Ignore
-            }
-        }
-    }
-
-    private void waitNanos(long nanos) {
-        if (nanos <= 0) return;
-        final long deadline = System.nanoTime() + nanos;
-        long remaining;
-
-        while ((remaining = deadline - System.nanoTime()) > 0) {
-            if (remaining > 100_000) { 
-                LockSupport.parkNanos(remaining - 50_000);
-            } else if (remaining > 10_000) { 
-                Thread.onSpinWait();
-            } else if (remaining > 0) {
-                long target = System.nanoTime() + remaining;
-                while (System.nanoTime() < target) {
-                    Thread.onSpinWait();
-                }
-                break;
             }
         }
     }
