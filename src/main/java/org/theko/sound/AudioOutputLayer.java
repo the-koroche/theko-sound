@@ -264,11 +264,10 @@ public class AudioOutputLayer implements AutoCloseable {
             logger.debug("Using default output port: {}.", targetPort);
         }
 
-        this.openedPort = targetPort;
         this.sourceFormat = audioFormat;
-        this.openedFormat = findFormat(targetPort, audioFormat);
-        if (!openedFormat.equals(sourceFormat)) {
-            resamplingFactor = (float) sourceFormat.getSampleRate() / (float) openedFormat.getSampleRate();
+        AudioFormat selectedFormat = findFormat(targetPort, audioFormat);
+        if (!selectedFormat.equals(sourceFormat)) {
+            resamplingFactor = (float) sourceFormat.getSampleRate() / (float) selectedFormat.getSampleRate();
             logger.info(
                 "Audio format conversion (details in info block). Resampling factor: '{}'.", resamplingFactor
             );
@@ -276,22 +275,20 @@ public class AudioOutputLayer implements AutoCloseable {
             this.resamplingFactor = 1.0f;
         }
 
-        this.renderBufferSize = bufferSizeInFrames;
-        this.outputBufferSize = (int)(bufferSizeInFrames / resamplingFactor);
-        this.resampledLength = outputBufferSize;
-        this.rawLength = resampledLength * openedFormat.getFrameSize();
-        this.bufferTimeMicros = AudioUnitsConverter.framesToMicroseconds(
-            renderBufferSize,
-            (int)(sourceFormat.getSampleRate())
-        );
+        calculateLengths(sourceFormat, selectedFormat, bufferSizeInFrames);
 
-        String renderBufferSizeStr = AudioMeasure.ofFrames(renderBufferSize).onFormat(sourceFormat).getDetailedString();
-        String outputBufferSizeStr = AudioMeasure.ofFrames(outputBufferSize).onFormat(openedFormat).getDetailedString();
+        String renderBufferSizeStr; 
+        String outputBufferSizeStr;
+        
+        renderBufferSizeStr = AudioMeasure.ofFrames(renderBufferSize).onFormat(sourceFormat).getDetailedString();
+        outputBufferSizeStr = AudioMeasure.ofFrames(outputBufferSize).onFormat(selectedFormat).getDetailedString();
 
-        StringBuilder outputLog = new StringBuilder("Info:\n");
+        StringBuilder outputLog;
+        
+        outputLog = new StringBuilder("Info:\n");
         outputLog.append("  Port: ").append(targetPort.toString()).append(",\n");
         outputLog.append("  Source format (requested): ").append(sourceFormat.toString()).append(",\n");
-        outputLog.append("  Opened Format (output opened with): ").append(openedFormat.toString()).append(",\n");
+        outputLog.append("  Selected Format: ").append(selectedFormat.toString()).append(",\n");
         outputLog.append("  Resampling factor: ").append(resamplingFactor).append(",\n");
         outputLog.append("  Render buffer size (processing): ").append(renderBufferSizeStr).append(",\n");
         outputLog.append("  Output buffer size: ").append(outputBufferSizeStr).append(",\n");
@@ -299,12 +296,37 @@ public class AudioOutputLayer implements AutoCloseable {
         outputLog.append("  Buffers count: ").append(buffersCount).append(".\n");
         
         try {
-            aob.open(targetPort, openedFormat, rawLength);
-        } catch (AudioBackendException e) {
+            this.openedFormat = aob.open(targetPort, selectedFormat, rawLength);
+            if (openedFormat == null) {
+                logger.error("Failed to open audio output. {}", outputLog.toString());
+                throw new AudioBackendException("Failed to open audio output. Port: " + targetPort + ", format: " + openedFormat);
+            }
+        } catch (Exception e) {
             logger.error("Failed to open audio output. {}", outputLog.toString());
-            logger.error("Audio exception stack trace", e);
+            logger.error("Exception stack trace", e);
             throw e;
         }
+
+        if (!openedFormat.equals(selectedFormat)) {
+            logger.warn("Selected format ({}) does not match opened format ({}).", selectedFormat, openedFormat);
+            logger.info("Re-calculating lengths.");
+            calculateLengths(sourceFormat, selectedFormat, bufferSizeInFrames);
+        }
+        
+        renderBufferSizeStr = AudioMeasure.ofFrames(renderBufferSize).onFormat(sourceFormat).getDetailedString();
+        outputBufferSizeStr = AudioMeasure.ofFrames(outputBufferSize).onFormat(selectedFormat).getDetailedString();
+
+        // Create new output log, with updated values
+        outputLog = new StringBuilder("Info:\n");
+        outputLog.append("  Port: ").append(targetPort.toString()).append(",\n");
+        outputLog.append("  Source format (requested): ").append(sourceFormat.toString()).append(",\n");
+        outputLog.append("  Selected Format: ").append(selectedFormat.toString()).append(",\n");
+        outputLog.append("  Opened Format: ").append(openedFormat.toString()).append(",\n");
+        outputLog.append("  Resampling factor: ").append(resamplingFactor).append(",\n");
+        outputLog.append("  Render buffer size (processing): ").append(renderBufferSizeStr).append(",\n");
+        outputLog.append("  Output buffer size: ").append(outputBufferSizeStr).append(",\n");
+        outputLog.append("  Buffer time: ").append(FormatUtilities.formatTime(bufferTimeMicros*1000, TIME_FORMAT_PRECISION)).append(",\n");
+        outputLog.append("  Buffers count: ").append(buffersCount).append(".\n");
 
         long driverLatency = aob.getMicrosecondLatency();
         long buffersLatency = bufferTimeMicros * buffersCount;
@@ -344,7 +366,7 @@ public class AudioOutputLayer implements AutoCloseable {
                 targetFormat = closestFormat.get();
                 logger.debug("Using closest supported format: {}.", targetFormat);
             } else {
-                // Using targetPort's mix format
+                // Using mix format from target port
                 targetFormat = port.getMixFormat();
                 logger.debug("Audio format is not supported. Using target port's mix format: {}.", targetFormat);
                 closestFormat.set(null);
@@ -365,6 +387,18 @@ public class AudioOutputLayer implements AutoCloseable {
         }
 
         return targetFormat;
+    }
+
+    private void calculateLengths(AudioFormat sourceFormat, AudioFormat targetFormat, int bufferSizeInFrames) {
+        double resamplingFactor = (double)sourceFormat.getSampleRate() / (double)targetFormat.getSampleRate();
+        this.renderBufferSize = bufferSizeInFrames;
+        this.outputBufferSize = (int)(bufferSizeInFrames / resamplingFactor);
+        this.resampledLength = outputBufferSize;
+        this.rawLength = resampledLength * targetFormat.getFrameSize();
+        this.bufferTimeMicros = AudioUnitsConverter.framesToMicroseconds(
+            renderBufferSize,
+            (int)(sourceFormat.getSampleRate())
+        );
     }
 
     /**
