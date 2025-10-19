@@ -18,6 +18,9 @@ package org.theko.sound.resampling;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.theko.sound.samples.SamplesValidation;
+import org.theko.sound.utility.MathUtilities;
+
 import static org.theko.sound.properties.AudioSystemProperties.SHARED_RESAMPLER;
 
 /**
@@ -104,7 +107,7 @@ public class AudioResampler {
      * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels.
      */
     public float[][] resample(float[][] samples, float speedMultiplier) {
-        return resample(samples, (int) (samples[0].length * speedMultiplier));
+        return resample(samples, (int) (samples[0].length / speedMultiplier));
     }
 
     /**
@@ -116,6 +119,7 @@ public class AudioResampler {
      * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels.
      */
     public float[][] resample(float[][] samples, int newLength) {
+        newLength = MathUtilities.clamp(newLength, 1, samples[0].length * 50);
         float[][] output = new float[samples.length][newLength];
         resample(samples, output, newLength);
         return output;
@@ -142,10 +146,10 @@ public class AudioResampler {
      * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels.
      */
     public void resample(float[][] samples, float[][] output, int newLength) {
-        if (newLength <= 0) {
-            throw new IllegalArgumentException("New length must be greater than zero.");
-        }
-        if (samples == null || output == null || output.length != samples.length) {
+        newLength = Math.max(1, newLength);
+        SamplesValidation.validateSamples(samples);
+        SamplesValidation.validateSamples(output);
+        if (samples.length != output.length) {
             throw new IllegalArgumentException("Input and output arrays must have the same number of channels.");
         }
         for (int ch = 0; ch < samples.length; ch++) {
