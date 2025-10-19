@@ -79,7 +79,7 @@ public final class JavaSoundOutput extends JavaSoundBackend implements AudioOutp
     private AudioPort currentPort;
 
     @Override
-    public void open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException {
+    public AudioFormat open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException {
         try {
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, getJavaSoundAudioFormat(audioFormat), bufferSize);
             Mixer mixer = getMixerForPort(port);
@@ -97,11 +97,12 @@ public final class JavaSoundOutput extends JavaSoundBackend implements AudioOutp
         } catch (UnsupportedAudioFormatException ex) {
             throw new AudioBackendException("Unsupported audio format.", ex);
         }
+        return audioFormat;
     }
 
     @Override
-    public void open(AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
-        open(port, audioFormat, audioFormat.getByteRate() / 5);
+    public AudioFormat open(AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
+        return open(port, audioFormat, audioFormat.getByteRate() / 4 /* 0.25 seconds */);
     }
 
     @Override

@@ -10,9 +10,9 @@ extern "C" {
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedOutput
  * Method:    nOpen
- * Signature: (Lorg/theko/sound/AudioPort;Lorg/theko/sound/AudioFormat;I)V
+ * Signature: (Lorg/theko/sound/AudioPort;Lorg/theko/sound/AudioFormat;I)Lorg/theko/sound/AudioFormat;
  */
-JNIEXPORT void JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nOpen
+JNIEXPORT jobject JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nOpen
   (JNIEnv *, jobject, jobject, jobject, jint);
 
 /*

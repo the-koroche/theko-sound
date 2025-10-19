@@ -48,9 +48,13 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
     private AudioPort port = null;
 
     @Override
-    public synchronized void open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException {
+    public synchronized AudioFormat open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException {
         if (isOpen()) throw new AudioBackendException("Backend is already open.");
-        if (port == null) throw new IllegalArgumentException("Port is null.");
+        if (port == null) {
+            // Get default output port
+            port = super.getDefaultPort(AudioFlow.OUT).orElse(null);
+            if (port == null) throw new IllegalArgumentException("Port is null.");
+        }
         if (port.getFlow() != AudioFlow.OUT) throw new IllegalArgumentException("Port is not an output port.");
         if (port.getLink() == null) throw new IllegalArgumentException("Port link is null.");
         if (audioFormat == null) throw new IllegalArgumentException("Audio format is null.");
@@ -62,17 +66,19 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
             initialize();
         }
         logger.debug("Opening output port: {}, audio format: {}, buffer size: {}", port, audioFormat, bufferSize);
-        nOpen(port, audioFormat, bufferSize);
+        AudioFormat result = nOpen(port, audioFormat, bufferSize);
 
         this.bufferSize = bufferSize;
         this.audioFormat = audioFormat;
         this.port = port;
         isOpen = true;
+
+        return result;
     }
 
     @Override
-    public void open(AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
-        this.open(port, audioFormat, audioFormat.getByteRate() / 4 /* 0.25 seconds */);
+    public AudioFormat open(AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
+        return this.open(port, audioFormat, audioFormat.getByteRate() / 4 /* 0.25 seconds */);
     }
 
     @Override
@@ -80,10 +86,27 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
         return super.isInitialized() && isOpen && outputContextPtr != 0;
     }
 
+    /**
+     * Checks if the audio output backend is started.
+     * 
+     * @return True if the backend is started and opened, false otherwise
+     * @throws AudioBackendException If an error occurs during the operation.
+     */
+    public boolean isStarted() throws AudioBackendException {
+        return isOpen() && isStarted;
+    }
+
     @Override
     public void close() throws AudioBackendException {
+        if (!isOpen()) {
+            logger.debug("Cannot close. Backend is not open.");
+            return;
+        }
+        if (isStarted) stop();
         if (isOpen || outputContextPtr != 0) nClose();
+        if (super.isInitialized()) super.shutdown();
         isOpen = false;
+        isStarted = false;
         bufferSize = -1;
         audioFormat = null;
         port = null;
@@ -191,7 +214,7 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
         }
     }
     
-    private synchronized native void nOpen(AudioPort port, AudioFormat audioFormat, int bufferSize);
+    private synchronized native AudioFormat nOpen(AudioPort port, AudioFormat audioFormat, int bufferSize);
     private synchronized native void nClose();
     private synchronized native void nStart();
     private synchronized native void nStop();

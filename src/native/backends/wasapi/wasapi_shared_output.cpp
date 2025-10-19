@@ -237,12 +237,12 @@ extern "C" {
         }
     }
 
-    JNIEXPORT void JNICALL 
+    JNIEXPORT jobject JNICALL 
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nOpen
     (JNIEnv* env, jobject obj, jobject jport, jobject jformat, jint bufferSize /* in bytes */) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nOpen");
 
-        if (!jport || !jformat) return;
+        if (!jport || !jformat) return nullptr;
 
         OutputContext* context = new OutputContext();
         logger->trace(env, "OutputContext allocated. Pointer: %s", FORMAT_PTR(context));
@@ -250,7 +250,7 @@ extern "C" {
         IMMDevice* device = AudioPort_to_IMMDevice(env, jport);
         if (!device) {
             cleanupAndThrowError(env, logger, context, E_FAIL, "Failed to get IMMDevice.");
-            return;
+            return nullptr;
         }
         context->outputDevice = device;
         logger->trace(env, "IMMDevice pointer: %s", FORMAT_PTR(device));
@@ -258,7 +258,7 @@ extern "C" {
         WAVEFORMATEX* format = AudioFormat_to_WAVEFORMATEX(env, jformat);
         if (!format) {
             cleanupAndThrowError(env, logger, context, E_FAIL, "Failed to get WAVEFORMATEX.");
-            return;
+            return nullptr;
         }
         logger->trace(env, "WAVEFORMATEX (Request): %s. Pointer: %s", WAVEFORMATEX_toText(format), FORMAT_PTR(format));
 
@@ -266,7 +266,7 @@ extern "C" {
         HRESULT hr = context->outputDevice->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr, (void**)&context->audioClient);
         if (FAILED(hr) || !context->audioClient) {
             cleanupAndThrowError(env, logger, context, hr, "Failed to get IAudioClient.");
-            return;
+            return nullptr;
         }
         logger->trace(env, "IAudioClient pointer: %s", FORMAT_PTR(context->audioClient));
 
@@ -274,7 +274,7 @@ extern "C" {
         hr = context->audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, format, &closestFormat);
         if (FAILED(hr)) {
             cleanupAndThrowError(env, logger, context, hr, "Failed to check format support.");
-            return;
+            return nullptr;
         }
 
         if (hr == S_OK) {
@@ -289,7 +289,7 @@ extern "C" {
             CoTaskMemFree(closestFormat);
             CoTaskMemFree(format);
             cleanupAndThrowError(env, logger, context, hr, "Failed to check format support.");
-            return;
+            return nullptr;
         }
         context->format = format;
 
@@ -308,7 +308,7 @@ extern "C" {
             format, nullptr);
         if (FAILED(hr)) {
             cleanupAndThrowError(env, logger, context, hr, "Failed to initialize IAudioClient.");
-            return;
+            return nullptr;
         }
         logger->trace(env, "IAudioClient initialized.");
 
@@ -316,7 +316,7 @@ extern "C" {
         hr = context->audioClient->GetService(__uuidof(IAudioRenderClient), (void**)&context->renderClient);
         if (FAILED(hr) || !context->renderClient) {
             cleanupAndThrowError(env, logger, context, hr, "Failed to get IAudioRenderClient.");
-            return;
+            return nullptr;
         }
         logger->trace(env, "IAudioRenderClient pointer: %s", FORMAT_PTR(context->renderClient));
 
@@ -324,14 +324,14 @@ extern "C" {
         hr = context->audioClient->GetService(__uuidof(IAudioClock), (void**)&context->audioClock);
         if (FAILED(hr) || !context->audioClock) {
             cleanupAndThrowError(env, logger, context, hr, "Failed to get IAudioClock.");
-            return;
+            return nullptr;
         }
         logger->trace(env, "IAudioClock pointer: %s", FORMAT_PTR(context->audioClock));
 
         context->events[EVENT_AUDIO_BUFFER_READY] = CreateEvent(NULL, TRUE, FALSE, NULL);
         if (!context->events[EVENT_AUDIO_BUFFER_READY]) {
             cleanupAndThrowError(env, logger, context, E_FAIL, "Failed to create audio callback event.");
-            return;
+            return nullptr;
         }
         context->audioClient->SetEventHandle(context->events[EVENT_AUDIO_BUFFER_READY]);
         logger->trace(env, "Event handle: %s", FORMAT_PTR(context->events[EVENT_AUDIO_BUFFER_READY]));
@@ -339,7 +339,7 @@ extern "C" {
         context->events[EVENT_STOP_REQUEST] = CreateEvent(NULL, TRUE, FALSE, NULL);
         if (!context->events[EVENT_STOP_REQUEST]) {
             cleanupAndThrowError(env, logger, context, E_FAIL, "Failed to create stop event.");
-            return;
+            return nullptr;
         }
         logger->trace(env, "Stop event handle: %s", FORMAT_PTR(context->events[EVENT_STOP_REQUEST]));
 
@@ -372,6 +372,13 @@ extern "C" {
 
         env->SetLongField(obj, WASAPIOutputCache::get(env)->outputContextPtr, (jlong)context);
         logger->debug(env, "Opened WASAPI output. ContextPtr: %s", FORMAT_PTR(context));
+
+        jobject jAudioFormat = JNIUtil_CreateGlobal(env, WAVEFORMATEX_to_AudioFormat(env, context->format));
+        if (!jAudioFormat) {
+            cleanupAndThrowError(env, logger, context, E_FAIL, "Failed to create audio format.");
+            return nullptr;
+        }
+        return jAudioFormat;
     }
 
     JNIEXPORT void JNICALL
