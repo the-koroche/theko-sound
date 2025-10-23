@@ -37,7 +37,7 @@ public final class SamplesValidation {
     }
 
     public enum DimensionsResult {
-        VALID, INVALID_CHANNELS, INVALID_SAMPLES, NOT_MATCH_CHANNELS, NOT_MATCH_SAMPLES
+        EXACT, INVALID_CHANNELS, INVALID_SAMPLES, NOT_MATCH_CHANNELS, NOT_MATCH_SAMPLES
     }
 
     public static DimensionsResult checkSamplesDimensions(float[][] a, float[][] b) {
@@ -52,13 +52,13 @@ public final class SamplesValidation {
             }
         }
         
-        return DimensionsResult.VALID;
+        return DimensionsResult.EXACT;
     }
 
     public static DimensionsResult checkSamplesDimensions(float[] a, float[] b) {
         if (a == null || b == null) return DimensionsResult.INVALID_SAMPLES;
         if (a.length != b.length) return DimensionsResult.NOT_MATCH_SAMPLES;
-        return DimensionsResult.VALID;
+        return DimensionsResult.EXACT;
     }
 
     /**
