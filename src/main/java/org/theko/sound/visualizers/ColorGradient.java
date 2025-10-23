@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class ColorGradient {
 
-    private List<Integer> colors;
+    private int[] colors;
     
     private ColorGradient() {}
 
@@ -38,7 +38,10 @@ public class ColorGradient {
      * @param colors A list of colors in 0xAARRGGBB format.
      * @return A color gradient.
      */
-    public static ColorGradient fromIntColors(List<Integer> colors) {
+    public static ColorGradient fromIntColors(int[] colors) {
+        if (colors == null || colors.length == 0) {
+            throw new IllegalArgumentException("Color array cannot be null, or empty.");
+        }
         ColorGradient gradient = new ColorGradient();
         gradient.colors = colors;
         return gradient;
@@ -51,7 +54,14 @@ public class ColorGradient {
      */
     public static ColorGradient fromColors(List<Color> colors) {
         ColorGradient gradient = new ColorGradient();
-        gradient.colors = colors.stream().map(Color::getRGB).toList();
+        gradient.colors = new int[colors.size()];
+        for (int i = 0; i < colors.size(); i++) {
+            gradient.colors[i] = colors.get(i).getRGB();
+        }
+        
+        if (gradient.colors == null || gradient.colors.length == 0) {
+            throw new IllegalArgumentException("Color array cannot be null, or empty.");
+        }
         return gradient;
     }
 
@@ -61,7 +71,7 @@ public class ColorGradient {
      * @return An interpolated color.
      */
     public int getColorFromNormalizedValue(float normalizedValue) {
-        return getColor(normalizedValue * (colors.size() - 1));
+        return getColor(normalizedValue * (colors.length - 1));
     }
 
     /**
@@ -70,16 +80,12 @@ public class ColorGradient {
      * @return An interpolated color, in 0xAARRGGBB format.
      */
     public int getColor(float floatIndex) {
-        if (colors == null || colors.isEmpty()) {
-            throw new IllegalArgumentException("Color array cannot be null, or empty.");
-        }
-
         int index1 = (int) Math.floor(floatIndex);
-        int index2 = Math.min(index1 + 1, colors.size() - 1);
+        int index2 = Math.min(index1 + 1, colors.length - 1);
         float frac = floatIndex - index1;
 
-        int c1 = colors.get(index1);
-        int c2 = colors.get(index2);
+        int c1 = colors[index1];
+        int c2 = colors[index2];
 
         int c1a = (c1 >> 24) & 0xFF;
         int c1r = (c1 >> 16) & 0xFF;
