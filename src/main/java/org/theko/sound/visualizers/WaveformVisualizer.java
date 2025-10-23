@@ -26,6 +26,8 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.FloatControl;
 import org.theko.sound.utility.MathUtilities;
@@ -41,6 +43,8 @@ import org.theko.sound.utility.MathUtilities;
  * @author Theko
  */
 public class WaveformVisualizer extends AudioVisualizer {
+
+    private static final Logger logger = LoggerFactory.getLogger(WaveformVisualizer.class);
 
     // Audio-specific controls
     protected final FloatControl gainControl = new FloatControl("Gain", 0.0f, 2.0f, 1.0f);
@@ -60,20 +64,31 @@ public class WaveformVisualizer extends AudioVisualizer {
 
     protected final List<AudioControl> visualizerControls = List.of(gainControl);
 
-    protected final List<float[][]> audioBuffers = new ArrayList<>(10);
-    protected float[][] recentAudioWindow = new float[0][0];
+    protected final List<float[][]> audioBuffers = new ArrayList<>(4);
+
+    private List<float[][]> collectedBuffers = new ArrayList<>();
+    private float[][] recentAudioWindow = null;
+    private int lastRequiredSamples = -1;
 
     /**
      * A class that represents a waveform panel.
      * It can be used to display the waveform of an audio stream.
-     * 
-     * @since 2.1.1
-     * @author Theko
      */
     protected class WaveformPanel extends JPanel {
 
+        private BasicStroke stroke = null;
+        private float[] interpolatedSamples = null;
+
         @Override
-        protected void paintComponent (Graphics g) {
+        public void invalidate() {
+            super.invalidate();
+            logger.trace("Invalidated.");
+            stroke = null;
+            interpolatedSamples = null;
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
             super.paintComponent(g);
 
             Graphics2D g2d = (Graphics2D) g;
@@ -92,6 +107,11 @@ public class WaveformVisualizer extends AudioVisualizer {
             float scaleY = midY * gainControl.getValue();
 
             float[][] samples = recentAudioWindow;
+            if (samples == null || samples.length == 0) {
+                if (showIdleLine)
+                    drawIdleLine(g2d);
+                return;
+            }
             int channels = samples.length;
             if (channels == 0) {
                 if (showIdleLine)
@@ -102,11 +122,21 @@ public class WaveformVisualizer extends AudioVisualizer {
             int toDrawCount = (int) (sampleCount * displayDuration);
             int sampleOffset = getSamplesOffset();
 
+            if (interpolatedSamples == null || interpolatedSamples.length != sampleCount) {
+                logger.trace("New interpolatedSamples: {}. Old size: {}", sampleCount, interpolatedSamples == null ? -1 : interpolatedSamples.length);
+                interpolatedSamples = new float[sampleCount];
+            }
+
             // Calculate samples per pixel
             float samplesPerPixel = (float) toDrawCount / width;
 
+            if (stroke == null || stroke.getLineWidth() != strokeWeight) {
+                logger.trace("New stroke: {}", strokeWeight);
+                stroke = new BasicStroke(strokeWeight);
+            }
+
             g2d.setColor(waveformColor);
-            g2d.setStroke(new BasicStroke(strokeWeight));
+            g2d.setStroke(stroke);
 
             if (channels == 1) {
                 drawMonoWaveform(g2d, samples[0], samplesPerPixel, sampleCount, sampleOffset, midY, width, scaleY);
@@ -114,7 +144,6 @@ public class WaveformVisualizer extends AudioVisualizer {
                 if (!splitStereo && !interpolateStereo) {
                     drawStereoWaveform(g2d, samples, samplesPerPixel, sampleCount, sampleOffset, midY, width, scaleY);
                 } else if (!splitStereo && interpolateStereo) {
-                    float[] interpolatedSamples = new float[sampleCount];
                     for (int i = 0; i < sampleCount; i++) {
                         interpolatedSamples[i] = (samples[0][i] + samples[1][i]) / 2f;
                     }
@@ -135,7 +164,7 @@ public class WaveformVisualizer extends AudioVisualizer {
             g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
         }
 
-        private void drawMonoWaveform (
+        private void drawMonoWaveform(
             Graphics2D g2d,
             float[] channelSamples,
             float samplesPerPixel,
@@ -219,7 +248,7 @@ public class WaveformVisualizer extends AudioVisualizer {
             }
         }
 
-        private void drawIdleLine (Graphics2D g2d) {
+        private void drawIdleLine(Graphics2D g2d) {
             g2d.setColor(waveformColor);
             int midY = getHeight() / 2;
             if (!splitStereo) {
@@ -230,7 +259,7 @@ public class WaveformVisualizer extends AudioVisualizer {
             }
         }
 
-        private float clamp (float x) {
+        private float clamp(float x) {
             return Math.max(-1f, Math.min(1f, x));
         }
     }
@@ -239,79 +268,79 @@ public class WaveformVisualizer extends AudioVisualizer {
      * Constructs a new {@code WaveformVisualizer} with the specified frame rate.
      * @param frameRate The frame rate of the repaint.
      */
-    public WaveformVisualizer (float frameRate) {
+    public WaveformVisualizer(float frameRate) {
         super(Type.REALTIME, frameRate);
 
         addControls(visualizerControls);
     }
 
     @Override
-    protected void initialize () {
+    protected void initialize() {
         WaveformPanel panel = new WaveformPanel();
         panel.setOpaque(false);
         panel.setBackground(new Color(0, 0, 0, 0));
         setPanel(panel);
     }
 
-    public FloatControl getGainControl () {
+    public FloatControl getGainControl() {
         return gainControl;
     }
 
-    public void setSplitStereo (boolean separateStereo) {
+    public void setSplitStereo(boolean separateStereo) {
         this.splitStereo = separateStereo;
     }
 
-    public boolean isSplitStereo () {
+    public boolean isSplitStereo() {
         return splitStereo;
     }
 
-    public void setShowIdleLine (boolean drawIdleLine) {
+    public void setShowIdleLine(boolean drawIdleLine) {
         this.showIdleLine = drawIdleLine;
     }
 
-    public boolean isShowIdleLine () {
+    public boolean isShowIdleLine() {
         return showIdleLine;
     }
 
-    public void setDisplayDuration (float duration) {
+    public void setDisplayDuration(float duration) {
         this.displayDuration = MathUtilities.clamp(duration, MIN_DISPLAY_DURATION, MAX_DISPLAY_DURATION);
     }
 
-    public float getDisplayDuration () {
+    public float getDisplayDuration() {
         return displayDuration;
     }
 
-    public void setWaveformColor (Color color) {
+    public void setWaveformColor(Color color) {
         this.waveformColor = color;
     }
 
-    public Color getWaveformColor () {
+    public Color getWaveformColor() {
         return waveformColor;
     }
 
-    public void setWeight (float weight) {
+    public void setWeight(float weight) {
         this.strokeWeight = MathUtilities.clamp(weight, MIN_STROKE_WEIGHT, MAX_STROKE_WEIGHT);
     }
 
-    public float getWeight () {
+    public float getWeight() {
         return strokeWeight;
     }
 
-    public void setInterpolateStereo (boolean interpolate) {
+    public void setInterpolateStereo(boolean interpolate) {
         this.interpolateStereo = interpolate;
     }
 
-    public boolean isInterpolateStereo () {
+    public boolean isInterpolateStereo() {
         return interpolateStereo;
     }
 
     @Override
-    protected void repaint () {
+    protected void repaint() {
         getPanel().repaint();
     }
 
     @Override
-    protected void onBufferUpdate () {
+    protected void onBufferUpdate() {
         audioBuffers.add(getSamplesBuffer());
 
         if (audioBuffers.size() == 1) return;
@@ -334,38 +363,40 @@ public class WaveformVisualizer extends AudioVisualizer {
         int requiredSamples = (int)(displayDuration * getSampleRate() + additionalSamples);
         int channels = audioBuffers.get(0).length; // Assuming all buffers have the same number of channels
 
-        List<float[][]> collected = new ArrayList<>();
+        collectedBuffers.clear();
         int totalFrames = 0;
 
         // Collect buffers until we have enough frames
         for (int i = audioBuffers.size() - 1; i >= 0 && totalFrames < requiredSamples; i--) {
             float[][] buf = audioBuffers.get(i);
-            collected.add(0, buf); // Insert at the beginning
+            collectedBuffers.add(0, buf); // Insert at the beginning
             totalFrames += buf[0].length;
         }
 
         // Create a result array 
         int resultFrames = Math.min(totalFrames, requiredSamples);
-        float[][] result = new float[channels][resultFrames];
+        if (recentAudioWindow == null || lastRequiredSamples != resultFrames || recentAudioWindow.length != channels) {
+            logger.trace("Creating recent audio window: {}x{}", channels, resultFrames);
+            recentAudioWindow = new float[channels][resultFrames];
+            lastRequiredSamples = resultFrames;
+        }
 
         int copied = 0;
-        for (float[][] buf : collected) {
+        for (float[][] buf : collectedBuffers) {
             int bufLength = buf[0].length;
             int toCopy = Math.min(bufLength, resultFrames - copied);
 
             for (int ch = 0; ch < channels; ch++) {
-                System.arraycopy(buf[ch], bufLength - toCopy, result[ch], copied, toCopy);
+                System.arraycopy(buf[ch], bufLength - toCopy, recentAudioWindow[ch], copied, toCopy);
             }
 
             copied += toCopy;
             if (copied >= resultFrames) break;
         }
-
-        this.recentAudioWindow = result;
     }
 
     @Override
-    protected int getSamplesOffset () {
+    protected int getSamplesOffset() {
         if (recentAudioWindow == null || recentAudioWindow.length == 0 || recentAudioWindow[0].length == 0) {
             return 0;
         }
@@ -380,7 +411,7 @@ public class WaveformVisualizer extends AudioVisualizer {
     
 
     @Override
-    protected void onEnd () {
+    protected void onEnd() {
         audioBuffers.clear();
     }
 }
