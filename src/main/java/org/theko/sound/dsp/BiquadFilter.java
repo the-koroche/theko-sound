@@ -20,11 +20,12 @@ package org.theko.sound.dsp;
  * Represents a second-order Butterworth filter.
  * 
  * @see AudioFilter
+ * @see MultiModeFilter
  * 
  * @since 2.3.2
  * @author Theko
  */
-public class BiquadFilter {
+public class BiquadFilter implements AudioFilter {
 
     private static final float SMOOTH_FACTOR = 0.005f;
 
@@ -121,7 +122,21 @@ public class BiquadFilter {
         a2t = a2;
     }
 
-    public float process(float input) {
+    
+
+    /**
+     * Processes a single audio sample using the filter's current
+     * coefficients. The filter's coefficients are smoothly updated
+     * to the target coefficients using the SMOOTH_FACTOR.
+     * <p>Note: This method ignores the sample rate parameter.
+     * Update the filter's coefficients using {@link #update(FilterType, float, float, float, int)}.
+     * 
+     * @param input the audio sample to process
+     * @param sampleRate the sample rate of the input
+     * @return the processed audio sample
+     */
+    @Override
+    public float process(float input, int sampleRate) {
         b0c += (b0t - b0c) * SMOOTH_FACTOR;
         b1c += (b1t - b1c) * SMOOTH_FACTOR;
         b2c += (b2t - b2c) * SMOOTH_FACTOR;
@@ -137,12 +152,28 @@ public class BiquadFilter {
 
         return y0;
     }
-
-    public float[] process(float[] in) {
-        float[] out = new float[in.length];
-        for (int i = 0; i < in.length; i++) {
-            out[i] = process(in[i]);
-        }
-        return out;
+    
+    /**
+     * Creates a copy of the filter using the current coefficients.
+     * @return a copy of the filter
+     */
+    @Override
+    public AudioFilter copyFilter() {
+        BiquadFilter copy = new BiquadFilter();
+        copy.b0c = b0c;
+        copy.b1c = b1c;
+        copy.b2c = b2c;
+        copy.a1c = a1c;
+        copy.a2c = a2c;
+        copy.b0t = b0t;
+        copy.b1t = b1t;
+        copy.b2t = b2t;
+        copy.a1t = a1t;
+        copy.a2t = a2t;
+        copy.x1 = x1;
+        copy.x2 = x2;
+        copy.y1 = y1;
+        copy.y2 = y2;
+        return copy;
     }
 }
