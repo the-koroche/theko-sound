@@ -22,7 +22,7 @@ package org.theko.sound.dsp;
  * <p>
  * Window functions are commonly applied to signals to reduce spectral leakage when performing Fourier transforms.
  * Each window type provides a different trade-off between main lobe width and side lobe attenuation.
- * </p>
+ * 
  * 
  * <p>
  * Usage example:
@@ -30,7 +30,7 @@ package org.theko.sound.dsp;
  * float[] samples = ...; // audio data
  * float[] windowedSamples = WindowFunction.apply(samples, WindowType.HANN);
  * </pre>
- * </p>
+ * 
  * 
  * @see WindowType
  * 
@@ -219,7 +219,7 @@ public final class WindowFunction {
      * <p>
      * This factor compensates for the average amplitude loss caused by the window function.
      * It is typically used to normalize the output after windowing.
-     * </p>
+     * 
      *
      * @param type the window type
      * @return the compensation factor (multiplier)

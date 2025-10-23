@@ -25,9 +25,9 @@ import org.theko.sound.AudioPort;
  * for initialization, control, and resource management.
  *
  * <p>Implementations of this interface should provide mechanisms to open and close the backend,
- * manage audio data flow, and retrieve backend-related information.</p>
+ * manage audio data flow, and retrieve backend-related information.
  *
- * <p>Key functionalities include:</p>
+ * <p>Key functionalities include:
  * <ul>
  *   <li>Opening the backend for audio output with specified port and format.</li>
  *   <li>Checking if the backend is open and managing its state.</li>

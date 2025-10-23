@@ -25,13 +25,13 @@ import org.theko.sound.control.FloatControl;
  * and release phases of a sound envelope.
  * 
  * <p>This class implements the {@link Controllable} interface, enabling 
- * external control of its parameters.</p>
+ * external control of its parameters.
  * 
  * <p>The attack and release parameters are represented as {@link FloatControl} 
  * objects, which provide a range of values and a descriptive name for each 
- * parameter.</p>
+ * parameter.
  * 
- * <p>Usage example:</p>
+ * <p>Usage example:
  * <pre>
  *     AREnvelope envelope = new AREnvelope(0.5f, 1.0f);
  *     FloatControl attackControl = envelope.getAttack();

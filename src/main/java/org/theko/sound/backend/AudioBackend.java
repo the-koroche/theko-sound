@@ -32,10 +32,10 @@ import org.theko.sound.UnsupportedAudioFormatException;
  * retrieving available audio ports, and checking port compatibility with specific audio formats.
  * 
  * <p>This interface is intended to be implemented by classes that interact with 
- * software audio backends, providing a standardized way to manage audio input and output.</p>
+ * software audio backends, providing a standardized way to manage audio input and output.
  * 
  * <p>Implementations of this interface should define the behavior for interacting with
- * audio input and output backends, as well as managing audio ports.</p>
+ * audio input and output backends, as well as managing audio ports.
  * 
  * @see AudioPort
  * @see AudioFlow

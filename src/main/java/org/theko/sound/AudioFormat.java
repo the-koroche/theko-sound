@@ -27,10 +27,10 @@ import org.theko.sound.utility.FormatUtilities;
  * methods to analyze and manipulate audio format properties.
  * 
  * <p>AudioFormat instances are immutable and include computed properties such as 
- * frame size (bytes per frame) and byte rate (bytes per second).</p>
+ * frame size (bytes per frame) and byte rate (bytes per second).
  * 
  * <p>Supported encodings are defined in the {@link Encoding} enum, which includes 
- * PCM (signed, unsigned, and float), ULAW, and ALAW formats.</p>
+ * PCM (signed, unsigned, and float), ULAW, and ALAW formats.
  * 
  * <h2>Usage Example:</h2>
  * <pre>{@code

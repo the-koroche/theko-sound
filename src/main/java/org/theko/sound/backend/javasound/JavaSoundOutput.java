@@ -33,15 +33,15 @@ import org.theko.sound.backend.BackendNotOpenException;
  * <p>This class manages a {@link SourceDataLine} for audio playback and supports operations
  * such as starting, stopping, flushing, draining, and writing audio data. It also provides
  * methods to retrieve information about the audio line, such as buffer size, frame position,
- * and latency.</p>
+ * and latency.
  * 
- * <p>Key features include:</p>
+ * <p>Key features include:
  * <ul>
  *   <li>Opening and configuring audio output lines with specified {@link AudioPort} and {@link AudioFormat}.</li>
  *   <li>Support for querying the current audio port and checking the state of the audio line.</li>
  * </ul>
  * 
- * <p>Usage example:</p>
+ * <p>Usage example:
  * <pre>{@code
  * JavaSoundOutput output = new JavaSoundOutput();
  * output.open(audioPort, audioFormat);
@@ -52,7 +52,7 @@ import org.theko.sound.backend.BackendNotOpenException;
  * }</pre>
  * 
  * <p>Note: This class throws {@link AudioBackendException} for various error conditions,
- * such as unsupported audio formats or attempting to operate on a closed backend.</p>
+ * such as unsupported audio formats or attempting to operate on a closed backend.
  * 
  * @see AudioOutputBackend
  * @see JavaSoundBackend

@@ -24,13 +24,13 @@ import org.theko.sound.control.FloatControl;
  * sustain, decay, and release phases of a sound envelope.
  * 
  * <p>This class implements the {@link Controllable} interface, enabling 
- * external control of its parameters.</p>
+ * external control of its parameters.
  * 
  * <p>The attack, sustain, decay and release parameters are represented as {@link FloatControl} 
  * objects, which provide a range of values and a descriptive name for each 
- * parameter.</p>
+ * parameter.
  * 
- * <p>Usage example:</p>
+ * <p>Usage example:
  * <pre>
  *     ASDREnvelope envelope = new ASDREnvelope(0.5f, 0,75f, 0.3f 1.0f);
  *     FloatControl attackControl = envelope.getAttack();

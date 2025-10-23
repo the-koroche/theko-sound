@@ -25,12 +25,10 @@ package org.theko.sound.backend;
  * an error message, a cause, or both. It extends the {@code Exception} class,
  * making it a checked exception that must be declared in a method or constructor's
  * {@code throws} clause if it can be thrown during execution.
- * </p>
  * 
  * <p>
  * Usage examples include handling errors when initializing or configuring audio
  * backends in an application.
- * </p>
  *
  * @since 1.0.0
  * @author Theko

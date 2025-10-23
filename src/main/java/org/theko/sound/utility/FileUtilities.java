@@ -35,7 +35,7 @@ public final class FileUtilities {
      * <p>
      * If the {@code dir} is {@code null} or not a directory, this method
      * returns {@code false}.
-     * </p>
+     * 
      *
      * @param dir   the directory to search in (may be {@code null})
      * @param names the file names to check (must not be {@code null})

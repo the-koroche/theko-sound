@@ -100,7 +100,7 @@ class AutomationsThreadPool {
      * multiple times without side effects. If the pool is already shutting down,
      * this method does nothing.
      * 
-     * <p>When shutting down the pool, the following steps are taken:</p>
+     * <p>When shutting down the pool, the following steps are taken:
      * <ul>
      *   <li>The pool is marked as shutting down.</li>
      *   <li>The pool is shut down using {@link ExecutorService#shutdown()}.</li>

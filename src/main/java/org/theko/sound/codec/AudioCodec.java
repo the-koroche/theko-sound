@@ -31,12 +31,12 @@ import org.theko.sound.utility.FormatUtilities;
  *
  * <p>Subclasses must implement the {@link #innerDecode(InputStream)} and {@link #innerEncode(byte[], AudioFormat, List)}
  * methods to provide specific codec functionality. Additionally, subclasses must provide
- * codec-specific information via the {@link #getInfo()} method.</p>
+ * codec-specific information via the {@link #getInfo()} method.
  *
  * <p>The {@code callDecode} and {@code callEncode} methods wrap the abstract methods
- * with timing and logging functionality to measure performance.</p>
+ * with timing and logging functionality to measure performance.
  *
- * <p>Example usage:</p>
+ * <p>Example usage:
  * <pre>{@code
  * AudioCodec codec = new MyAudioCodec();
  * try (InputStream is = new FileInputStream("audiofile.wav")) {

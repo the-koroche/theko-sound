@@ -116,7 +116,7 @@ public final class FormatUtilities {
      * <p>
      * For times greater than or equal to 2 minutes, the format is "hh:mm:ss(.xxx)" or "mm:ss(.xxx)".
      * For times less than 2 minutes, the format is "xx.xxx ms", "xx.xxx us", or "xx.xxx ns".
-     * </p>
+     * 
      * 
      * @param ns The time in nanoseconds to format.
      * @param precision The number of decimal places to use.
@@ -198,9 +198,9 @@ public final class FormatUtilities {
      * Trailing zeros and an unnecessary decimal point are removed, so the result
      * may be shorter than the requested precision. If the rounded value is an integer,
      * it is formatted without a fractional part.
-     * </p>
+     * 
      *
-     * <p>Examples (with {@code precision = 3}):</p>
+     * <p>Examples (with {@code precision = 3}):
      * <ul>
      *   <li>{@code 12.3456 -> "12.346"}</li>
      *   <li>{@code 12.3000 -> "12.3"}</li>

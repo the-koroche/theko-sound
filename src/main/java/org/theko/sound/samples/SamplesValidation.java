@@ -63,7 +63,7 @@ public final class SamplesValidation {
 
     /**
      * Checks if the provided 1D float array represents valid audio samples.
-     * <p>If the array is null or empty, the method returns corresponding ValidationResult.</p>
+     * <p>If the array is null or empty, the method returns corresponding ValidationResult.
      *
      * @param samples The 1D float array representing audio samples, in the {@code float[samples]} format.
      * @return ValidationResult indicating the validity of the samples.
@@ -76,7 +76,7 @@ public final class SamplesValidation {
 
     /**
      * Checks if the provided 2D float array represents valid audio samples.
-     * <p>If the array is null, empty, or contains null or empty channels, the method returns corresponding ValidationResult.</p>
+     * <p>If the array is null, empty, or contains null or empty channels, the method returns corresponding ValidationResult.
      *
      * @param samples The 2D float array representing audio samples, in the {@code float[channels][samples]} format.
      * @return ValidationResult indicating the validity of the samples.
@@ -93,8 +93,8 @@ public final class SamplesValidation {
 
     /**
      * Validates the provided 1D float array representing audio samples.
-     * <p>This method throws an IllegalArgumentException if the array is invalid, determined by {@link #isValidSamples(float[])} method.</p>
-     * <p>Throws IllegalArgumentException if the array is null or empty.</p>
+     * <p>This method throws an IllegalArgumentException if the array is invalid, determined by {@link #isValidSamples(float[])} method.
+     * <p>Throws IllegalArgumentException if the array is null or empty.
      *
      * @throws IllegalArgumentException if the array is null or empty.
      * @param samples The 1D float array representing audio samples, in the {@code float[samples]} format.
@@ -114,8 +114,8 @@ public final class SamplesValidation {
 
     /**
      * Validates the provided 2D float array representing audio samples.
-     * <p>This method throws an IllegalArgumentException if the array is invalid, determined by {@link #isValidSamples(float[][])} method.</p>
-     * <p>Throws IllegalArgumentException if the array is null, empty, or contains null or empty channels.</p>
+     * <p>This method throws an IllegalArgumentException if the array is invalid, determined by {@link #isValidSamples(float[][])} method.
+     * <p>Throws IllegalArgumentException if the array is null, empty, or contains null or empty channels.
      *
      * @throws IllegalArgumentException if the array is null, empty, or contains null or empty channels.
      * @param samples The 2D float array representing audio samples, in the {@code float[channels][samples]} format.

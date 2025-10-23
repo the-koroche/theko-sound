@@ -27,7 +27,7 @@ import java.util.Objects;
  * For example, on Windows libraries typically end with {@code .dll},
  * while on macOS they end with {@code .dylib}, and on Unix-like systems
  * with {@code .so}.
- * </p>
+ * 
  * 
  * @since 2.3.2
  * @author Theko

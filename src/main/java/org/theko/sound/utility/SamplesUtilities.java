@@ -132,6 +132,7 @@ public final class SamplesUtilities {
 
     /**
      * Separates stereo samples into mid and side channels based on the specified separation factor.
+     * <p>
      * This method applies a stereo separation effect to the provided 2D float array of samples.
      *
      * @param samples The stereo audio samples to separate, represented as a 2D float array.
@@ -341,10 +342,13 @@ public final class SamplesUtilities {
      * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged.
      * @param pan The pan value to apply. A value of 0.0f is center, -1.0f is left, and 1.0f is right.
      * @return true if the samples were changed, false otherwise
-     * @throws IllegalArgumentException if the samples array is null or empty,
-     *                                  or if the output array is null or empty,
-     *                                  or if the output array does not have the same number of channels as the input array,
-     *                                  or if the input and output arrays do not have the same number of samples.
+     * @throws IllegalArgumentException if:
+     *         <ul>
+     *             <li>the samples array is null or empty,</li>
+     *             <li>the output array is null or empty,</li>
+     *             <li>the output array does not have the same number of channels as the input array,</li>
+     *             <li>or the input and output arrays do not have the same number of samples.</li>
+     *         </ul>
      */
     public static boolean adjustGainAndPan(float[][] samples, float[][] output, float gain, float pan) {
         SamplesValidation.validateSamples(samples);

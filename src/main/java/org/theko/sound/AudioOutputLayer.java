@@ -705,7 +705,7 @@ public class AudioOutputLayer implements AutoCloseable {
 
     /**
      * Sets the root node for audio processing.
-     * <p>If the root node is null, the output layer will wait buffer-time, until a new root node is set.</p>
+     * <p>If the root node is null, the output layer will wait buffer-time, until a new root node is set.
      * @param rootNode The new root node for audio processing (can be null).
      */
     public void setRootNode(AudioNode rootNode) {

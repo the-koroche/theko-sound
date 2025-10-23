@@ -53,7 +53,7 @@ import org.theko.sound.utility.FormatUtilities;
  * with various audio formats, including PCM (signed/unsigned), IEEE Float, ALAW,
  * and ULAW. The class also handles metadata stored in the WAVE INFO chunk.
  * 
- * <p>Features:</p>
+ * <p>Features:
  * <ul>
  *   <li>Decoding WAVE files to extract audio data, format, and metadata.</li>
  *   <li>Encoding audio data into WAVE format with optional metadata.</li>
@@ -62,14 +62,14 @@ import org.theko.sound.utility.FormatUtilities;
  *   <li>Validation of WAVE file structure and error handling for unsupported formats.</li>
  * </ul>
  * 
- * <p>Usage:</p>
+ * <p>Usage:
  * <ul>
  *   <li>To decode a WAVE file, use the {@link #innerDecode(InputStream)} method.</li>
  *   <li>To encode audio data into a WAVE file, use the {@link #innerEncode(byte[], AudioFormat, List)} method.</li>
  *   <li>To retrieve codec information, use the {@link #getInfo()} method.</li>
  * </ul>
  * 
- * <p>Example:</p>
+ * <p>Example:
  * <pre>
  * {@code
  * WAVECodec codec = new WAVECodec();
@@ -84,7 +84,7 @@ import org.theko.sound.utility.FormatUtilities;
  * }
  * </pre>
  * 
- * <p>Note:</p>
+ * <p>Note:
  * <ul>
  *   <li>The class assumes that the input WAVE file conforms to the RIFF specification.</li>
  *   <li>Unsupported audio formats or encodings will result in an {@link AudioCodecException}.</li>

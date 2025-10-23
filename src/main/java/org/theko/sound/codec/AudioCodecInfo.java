@@ -29,7 +29,7 @@ package org.theko.sound.codec;
  *   <li>Version of the codec</li>
  *   <li>The codec class itself</li>
  * </ul>
- * </p>
+ * 
  * 
  * If the provided codec class is not annotated with {@link AudioCodecType},
  * an {@link IllegalArgumentException} is thrown.

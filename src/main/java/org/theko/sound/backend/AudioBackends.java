@@ -38,7 +38,7 @@ import org.theko.sound.utility.PlatformUtilities.Platform;
  * This class is designed to be thread-safe and ensures that all registered audio backends are
  * accessible throughout the application.
  *
- * <p>Key Features:</p>
+ * <p>Key Features:
  * <ul>
  *   <li>Automatic registration of audio backends annotated with {@link AudioBackendType}.</li>
  *   <li>Retrieval of audio backends by name or class type.</li>
@@ -46,7 +46,7 @@ import org.theko.sound.utility.PlatformUtilities.Platform;
  *   <li>Thread-safe storage and access to registered audio backends.</li>
  * </ul>
  *
- * <p>Usage:</p>
+ * <p>Usage:
  * <pre>
  * {@code
  * // Retrieve an audio backend by name
@@ -60,7 +60,7 @@ import org.theko.sound.utility.PlatformUtilities.Platform;
  * }
  * </pre>
  *
- * <p>Note: This class cannot be instantiated as it is designed to be a utility class.</p>
+ * <p>Note: This class cannot be instantiated as it is designed to be a utility class.
  *
  * @see AudioBackend
  * @see AudioBackendInfo

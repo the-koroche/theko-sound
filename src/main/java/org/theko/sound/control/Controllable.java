@@ -66,7 +66,7 @@ public interface Controllable {
      * </ul>
      *
      * <p>It is recommended to override this method in performance-critical implementations
-     * to avoid the cost of reflection.</p>
+     * to avoid the cost of reflection.
      *
      * @return an unmodifiable list of {@code AudioControl} objects found in the implementing class
      */

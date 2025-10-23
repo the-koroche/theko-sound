@@ -23,7 +23,7 @@ package org.theko.sound.codec;
  * 
  * <p>Possible use cases include scenarios where the application
  * attempts to process audio data with a codec that is unavailable
- * or unsupported.</p>
+ * or unsupported.
  * 
  * @since 1.3.1
  * @author Theko

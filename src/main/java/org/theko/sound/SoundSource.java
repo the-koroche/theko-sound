@@ -49,9 +49,9 @@ import org.theko.sound.utility.ArrayUtilities;
  * allowing it to render audio samples and manage audio controls.
  *
  * <p>This class provides functionalities such as opening an audio file, rendering audio samples,
- * and controlling playback. It supports looping and can reset playback state as needed.</p>
+ * and controlling playback. It supports looping and can reset playback state as needed.
  *
- * <p>Key features include:</p>
+ * <p>Key features include:
  * <ul>
  *   <li>Opening audio files and decoding them into samples data.</li>
  *   <li>Rendering audio samples through the {@link Playback} inner class.</li>
@@ -59,7 +59,7 @@ import org.theko.sound.utility.ArrayUtilities;
  *   <li>Support for looping and resetting playback.</li>
  * </ul>
  *
- * <p>Usage example:</p>
+ * <p>Usage example:
  * <pre>{@code
  * SoundSource soundSource = new SoundSource();
  * soundSource.open(new File("path/to/audio/file"));
@@ -67,7 +67,7 @@ import org.theko.sound.utility.ArrayUtilities;
  * }</pre>
  *
  * <p>Note: This class relies on external utilities and effects such as {@link AudioMixer}
- * and {@link ResamplerEffect} for processing audio data.</p>
+ * and {@link ResamplerEffect} for processing audio data.
  *
  * @see AudioNode
  * @see Controllable

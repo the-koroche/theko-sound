@@ -22,7 +22,7 @@ package org.theko.sound.dsp;
  * Window functions are commonly applied to signals to reduce spectral leakage
  * when performing Fourier transforms. Each window type provides a different
  * trade-off between main lobe width and side lobe attenuation.
- * </p>
+ * 
  *
  * @since 1.4.1
  * @author Theko

@@ -25,7 +25,8 @@ import org.theko.sound.effects.AudioEffect;
 
 /**
  * The {@code AudioVisualizer} class serves as an abstract base class for creating
- * custom audio visualizers. It extends the {@code AudioEffect} class and provides
+ * custom audio visualizers. 
+ * <p>It extends the {@code AudioEffect} class and provides
  * a framework for visualizing audio data in real-time.
  * 
  * @since 2.1.1
@@ -49,7 +50,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
      * @param type The type of the audio visualizer (REALTIME or OFFLINE_PROCESSING)
      * @param frameRate The frame rate of the audio visualizer
      */
-    public AudioVisualizer (Type type, float frameRate) {
+    public AudioVisualizer(Type type, float frameRate) {
         super(type);
         this.frameRate = frameRate;
         initialize();
@@ -57,7 +58,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
         repaintTimer.start();
     }
 
-    private void initializeTimer () {
+    private void initializeTimer() {
         repaintTimer = new Timer((int)(1000 / frameRate), e -> repaint());
     }
 
@@ -68,7 +69,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
      * @param length The length of the audio samples
      */
     @Override
-    public void effectRender (float[][] samples, int sampleRate) {
+    public void effectRender(float[][] samples, int sampleRate) {
         int length = samples[0].length;
         samplesBuffer = new float[samples.length][length];
         for (int ch = 0; ch < samples.length; ch++) {
@@ -81,7 +82,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
         onBufferUpdate();
     }
 
-    protected int getSamplesOffset () {
+    protected int getSamplesOffset() {
         long now = System.nanoTime();
         long delta = now - lastBufferUpdateTime;
         if (length > 0) {
@@ -94,25 +95,25 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
     /**
      * Initializes the audio visualizer before the repaint timer starts.
      */
-    protected abstract void initialize ();
+    protected abstract void initialize();
 
     /**
      * Repaint task. Executes by the 'repaintTimer'.
      */
-    protected abstract void repaint ();
+    protected abstract void repaint();
     
     /**
      * Automatically called when the audio samples buffer is updated.
      */
-    protected void onBufferUpdate () {}
+    protected void onBufferUpdate() {}
 
-    protected void onEnd () {}
+    protected void onEnd() {}
 
     /**
      * Returns the panel of the audio visualizer.
      * @return The panel of the audio visualizer
      */
-    public JPanel getPanel () {
+    public JPanel getPanel() {
         return panel;
     }
 
@@ -120,7 +121,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
      * Returns the frame rate of the audio visualizer.
      * @return The frame rate of the audio visualizer
      */
-    public float getFrameRate () {
+    public float getFrameRate() {
         return frameRate;
     }
 
@@ -128,7 +129,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
      * Closes the audio visualizer.
      */
     @Override
-    public void close () {
+    public void close() {
         repaintTimer.stop();
         onEnd();
         panel.setVisible(false);
@@ -138,7 +139,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
      * Sets the panel of the audio visualizer.
      * @param panel The panel of the audio visualizer
      */
-    protected void setPanel (JPanel panel) {
+    protected void setPanel(JPanel panel) {
         this.panel = panel;
     }
 
@@ -146,7 +147,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
      * Returns the repaint timer of the audio visualizer.
      * @return The repaint timer of the audio visualizer
      */
-    protected Timer getRepaintTimer () {
+    protected Timer getRepaintTimer() {
         return repaintTimer;
     }
 
@@ -154,7 +155,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
      * Returns the audio samples buffer.
      * @return The audio samples buffer
      */
-    protected float[][] getSamplesBuffer () {
+    protected float[][] getSamplesBuffer() {
         return samplesBuffer;
     }
 
@@ -162,7 +163,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
      * Returns the sample rate of the audio samples.
      * @return The sample rate of the audio samples
      */
-    protected int getSampleRate () {
+    protected int getSampleRate() {
         return sampleRate;
     }
 
@@ -170,11 +171,11 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
      * Returns the length of the audio samples.
      * @return The length of the audio samples
      */
-    protected int getLength () {
+    protected int getLength() {
         return length;
     }
 
-    protected long getLastBufferUpdateTime () {
+    protected long getLastBufferUpdateTime() {
         return lastBufferUpdateTime;
     }
 }

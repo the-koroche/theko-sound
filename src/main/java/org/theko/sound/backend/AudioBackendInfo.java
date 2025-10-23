@@ -21,7 +21,7 @@ package org.theko.sound.backend;
  * and the class type of the audio backend. This class extracts metadata from 
  * the provided audio backend class, which must be annotated with {@link AudioBackendType}.
  * 
- * <p>Usage:</p>
+ * <p>Usage:
  * <pre>
  * {@code
  * AudioBackendInfo info = new AudioBackendInfo(MyAudioBackend.class);

@@ -21,7 +21,7 @@ package org.theko.sound.codec;
  * It extends {@link RuntimeException}, allowing it to be used as an unchecked exception.
  *
  * <p>Possible use cases include scenarios where an application attempts to process
- * audio data but the necessary codec for decoding or encoding is unavailable.</p>
+ * audio data but the necessary codec for decoding or encoding is unavailable.
  * 
  * @since 1.3.0
  * @author Theko

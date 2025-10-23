@@ -32,9 +32,9 @@ import org.theko.sound.AudioClassRegister;
  * by name or file extension, as well as to instantiate codec objects.
  * 
  * <p>This class uses reflection to discover and register all available audio codecs that are annotated
- * with {@code AudioCodecType}. It ensures thread-safe access to the collection of codecs.</p>
+ * with {@code AudioCodecType}. It ensures thread-safe access to the collection of codecs.
  * 
- * <p>Key functionalities include:</p>
+ * <p>Key functionalities include:
  * <ul>
  *   <li>Registering all available audio codecs annotated with {@code AudioCodecType}.</li>
  *   <li>Retrieving codec information by name or file extension.</li>
@@ -42,7 +42,7 @@ import org.theko.sound.AudioClassRegister;
  *   <li>Providing access to all registered codecs.</li>
  * </ul>
  * 
- * <p>Usage of this class requires the presence of the following components:</p>
+ * <p>Usage of this class requires the presence of the following components:
  * <ul>
  *   <li>{@code AudioCodec}: The interface or base class for audio codecs.</li>
  *   <li>{@code AudioCodecType}: Annotation used to mark audio codec classes.</li>
@@ -51,9 +51,9 @@ import org.theko.sound.AudioClassRegister;
  *   <li>Custom exceptions such as {@code AudioCodecNotFoundException} and {@code AudioCodecCreationException}.</li>
  * </ul>
  * 
- * <p>This class is not meant to be instantiated and provides all its functionality through static methods.</p>
+ * <p>This class is not meant to be instantiated and provides all its functionality through static methods.
  * 
- * <p><strong>Thread Safety:</strong> The collection of codecs is synchronized to ensure thread-safe access.</p>
+ * <p><strong>Thread Safety:</strong> The collection of codecs is synchronized to ensure thread-safe access.
  * 
  * @since 1.3.1
  * @author Theko

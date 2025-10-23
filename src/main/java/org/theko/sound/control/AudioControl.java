@@ -27,9 +27,9 @@ import org.theko.sound.event.AudioControlListener;
  * It provides a common structure for managing audio controls with a name property.
  * 
  * <p>This class is intended to be extended by specific types of audio controls.
- * Subclasses must implement additional functionality as required.</p>
+ * Subclasses must implement additional functionality as required.
  * 
- * <p>Key Features:</p>
+ * <p>Key Features:
  * <ul>
  *   <li>Stores a name for the audio control.</li>
  *   <li>Provides a method to retrieve the name.</li>

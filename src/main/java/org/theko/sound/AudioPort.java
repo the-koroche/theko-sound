@@ -25,7 +25,7 @@ import org.theko.sound.backend.AudioPortLink;
  * It provides methods to retrieve these attributes and a string representation
  * of the audio port.
  * 
- * <p>This class is immutable, meaning its state cannot be changed after it is created.</p>
+ * <p>This class is immutable, meaning its state cannot be changed after it is created.
  * 
  * @since 1.0.0
  * @author Theko
