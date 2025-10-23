@@ -24,9 +24,9 @@ import org.theko.sound.AudioPort;
  * for initialization, control, and resource management.
  * 
  * <p>Implementations of this interface should provide mechanisms to open and close the backend,
- * manage audio data flow, and retrieve backend-related information.</p>
+ * manage audio data flow, and retrieve backend-related information.
  * 
- * <p>Key functionalities include:</p>
+ * <p>Key functionalities include:
  * <ul>
  *   <li>Opening the backend for audio input with specified port and format.</li>
  *   <li>Checking if the backend is open and managing its state.</li>
@@ -52,18 +52,20 @@ public interface AudioInputBackend extends AudioBackend, AutoCloseable {
      * @param port The {@link AudioPort} to be used.
      * @param audioFormat The {@link AudioFormat} for audio data.
      * @param bufferSize The size of the buffer for audio data, in bytes.
+     * @return The {@link AudioFormat} of the opened output.
      * @throws AudioBackendException If an error occurs while opening the backend.
      */
-    void open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException;
+    AudioFormat open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException;
 
     /**
      * Opens the audio input backend with the specified audio port and format.
      *
      * @param port The {@link AudioPort} to be used.
      * @param audioFormat The {@link AudioFormat} for audio data.
+     * @return The {@link AudioFormat} of the opened output.
      * @throws AudioBackendException If an error occurs while opening the backend.
      */
-    void open(AudioPort port, AudioFormat audioFormat) throws AudioBackendException;
+    AudioFormat open(AudioPort port, AudioFormat audioFormat) throws AudioBackendException;
 
     /**
      * Checks if the audio input backend is currently open.

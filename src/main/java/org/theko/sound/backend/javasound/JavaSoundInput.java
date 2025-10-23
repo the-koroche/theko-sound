@@ -83,7 +83,7 @@ public final class JavaSoundInput extends JavaSoundBackend implements AudioInput
     private AudioPort currentPort;
 
     @Override
-    public void open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException {
+    public AudioFormat open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException {
         try {
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, getJavaSoundAudioFormat(audioFormat), bufferSize);
             Mixer mixer = getMixerForPort(port);
@@ -96,6 +96,8 @@ public final class JavaSoundInput extends JavaSoundBackend implements AudioInput
             targetDataLine.open(getJavaSoundAudioFormat(audioFormat), bufferSize);
             this.currentPort = port;
             open = true;
+
+            return audioFormat;
         } catch (LineUnavailableException ex) {
             throw new AudioBackendException("Failed to open audio output line.", ex);
         } catch (UnsupportedAudioFormatException ex) {
@@ -104,8 +106,8 @@ public final class JavaSoundInput extends JavaSoundBackend implements AudioInput
     }
 
     @Override
-    public void open(AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
-        open(port, audioFormat, audioFormat.getByteRate() / 5);
+    public AudioFormat open(AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
+        return open(port, audioFormat, audioFormat.getByteRate() / 2 /* 0.5 seconds */);
     }
 
     @Override
