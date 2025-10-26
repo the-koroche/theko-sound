@@ -33,7 +33,7 @@ import org.theko.sound.LengthMismatchException;
  */
 public final class ArrayUtilities {
 
-    private ArrayUtilities () {
+    private ArrayUtilities() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
@@ -46,7 +46,7 @@ public final class ArrayUtilities {
      * @return A new float array containing the specified range.
      * @throws IndexOutOfBoundsException if the indices are out of bounds.
      */
-    public static float[] cutArray (float[] array, int start, int end) {
+    public static float[] cutArray(float[] array, int start, int end) {
         if (start < 0 || end > array.length || start > end) {
             throw new IndexOutOfBoundsException("Invalid indices for cutting the array.");
         }
@@ -64,7 +64,7 @@ public final class ArrayUtilities {
      * @return A new 2D float array containing the specified range.
      * @throws IndexOutOfBoundsException if the indices are out of bounds.
      */
-    public static float[][] cutArray (float[][] array, int startD1, int endD1, int startD2, int endD2) {
+    public static float[][] cutArray(float[][] array, int startD1, int endD1, int startD2, int endD2) {
         if (startD1 < 0 || endD1 > array.length || startD1 > endD1) {
             throw new IndexOutOfBoundsException("Invalid D1 indices.");
         }
@@ -109,14 +109,14 @@ public final class ArrayUtilities {
     /**
      * Copies a 2D float array (matrix) from source to target.
      * The source and target arrays must have the same number of channels (rows).
-     * Each channel must also have the same length.
+     * Each channel can have a different length, the target length will be minimum of the two.
      *
      * @param source The source 2D float array to copy from.
      * @param target The target 2D float array to copy to.
      * @throws LengthMismatchException if the lengths of the channels do not match.
      * @throws ChannelsCountMismatchException if the number of channels does not match.
      */
-    public static void copyArray (float[][] source, float[][] target) throws LengthMismatchException, ChannelsCountMismatchException {
+    public static void copyArray(float[][] source, float[][] target) throws LengthMismatchException, ChannelsCountMismatchException {
         if (source == null || target == null) {
             throw new IllegalArgumentException("Source and target cannot be null.");
         }
@@ -125,15 +125,11 @@ public final class ArrayUtilities {
         }
 
         for (int ch = 0; ch < source.length; ch++) {
-            if (source[ch].length != target[ch].length) {
-                throw new LengthMismatchException(
-                    String.format(
-                        "Length mismatch at channel %d: source=%d, target=%d",
-                        ch, source[ch].length, target[ch].length
-                    )
-                );
+            if (source[ch] == null || target[ch] == null) {
+                throw new IllegalArgumentException("Source and target channels cannot be null.");
             }
-            System.arraycopy(source[ch], 0, target[ch], 0, source[ch].length);
+            int min = Math.min(source[ch].length, target[ch].length);
+            System.arraycopy(source[ch], 0, target[ch], 0, min);
         }
     }
 
