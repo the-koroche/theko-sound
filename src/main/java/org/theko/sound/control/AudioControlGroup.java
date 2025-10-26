@@ -95,6 +95,15 @@ public class AudioControlGroup {
     }
 
     /**
+     * Clears all controls from the group.
+     */
+    public void clearControls() {
+        floatControls.clear();
+        booleanControls.clear();
+        enumControls.clear();
+    }
+
+    /**
      * Applies the given value to all controls in the group.
      * <p>
      * Behavior depends on control type:
