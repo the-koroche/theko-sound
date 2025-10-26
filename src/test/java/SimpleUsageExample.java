@@ -62,6 +62,7 @@ public class SimpleUsageExample {
 
             // Start playback
             sound.start();
+            out.start();
 
             // Launch a thread to dynamically change bitcrusher mix level (like an LFO)
             Thread changingThread = new Thread(() -> {
@@ -69,6 +70,12 @@ public class SimpleUsageExample {
                     bitcrusher.getMixLevelControl().setValue(
                         0.5f + (float) Math.sin(System.nanoTime() / 1_000_000_000.0) * 0.5f
                     );
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
                 }
             });
             changingThread.setDaemon(true); // Mark as daemon so it won't prevent exit
@@ -101,7 +108,7 @@ public class SimpleUsageExample {
                         artist
                     )
                 );
-                Thread.sleep(500);
+                Thread.sleep(100);
             }
 
             // Stop and clean up after playback
@@ -112,7 +119,14 @@ public class SimpleUsageExample {
         } catch (Exception e) {
             // Handle any unexpected error
             System.err.println("Unexpected exception: " + e.getMessage());
-            if (out != null) out.close(); // Ensure the audio system is shut down
+            if (out != null) {
+                try {
+                    out.close(); // Ensure the audio system is shut down
+                } catch (InterruptedException ex) {
+                    System.err.println("Interrupted while shutting down audio system.");
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
     }
 }
