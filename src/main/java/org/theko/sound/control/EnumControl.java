@@ -106,12 +106,21 @@ public class EnumControl extends AudioControl {
     }
 
     /**
+     * Retrieves the index of the current enum value in the array of available enum constants.
+     * 
+     * @return The index of the current enum value.
+     */
+    public int getEnumIndex() {
+        return Arrays.asList(enumValues).indexOf(value);
+    }
+
+    /**
      * Gets the current value as normalized float [0.0 – 1.0].
      * 
      * @return Normalized float representing enum value.
      */
     public float getNormalized() {
-        return (float) Arrays.asList(enumValues).indexOf(value) / (enumValues.length - 1);
+        return (float)(getEnumIndex()) / (enumValues.length - 1);
     }
 
     /**
