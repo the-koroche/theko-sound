@@ -88,16 +88,41 @@ public class SpectrumVisualizer extends AudioVisualizer {
 
     protected final List<float[]> audioBuffers = new ArrayList<>(10);
     protected float[] recentAudioWindow = new float[channelToShow];
+    private float[] window = null;
 
     protected float[] displayedSpectrum = new float[channelToShow];
 
+    /**
+     * An enum that represents the interpolation mode, between bins.
+     */
     public enum InterpolationMode {
         NONE,
         LINEAR,
         EASING
     }
 
+    /**
+     * A class that represents a spectrum panel.
+     */
     protected class SpectrumPanel extends JPanel {
+
+        private float[] fftInputBuffer;
+        private float[] fftSpectrum;
+        private float[] mappingPositions;
+        private float[] interpolatedSpectrum;
+        private float[] real, imag;
+
+        @Override
+        public void invalidate() {
+            super.invalidate();
+            // Recreate on paintComponent
+            fftInputBuffer = null;
+            fftSpectrum = null;
+            mappingPositions = null;
+            interpolatedSpectrum = null;
+            real = null;
+            imag = null;
+        }
         
         @Override
         protected void paintComponent (Graphics g) {
@@ -106,27 +131,40 @@ public class SpectrumVisualizer extends AudioVisualizer {
             Graphics2D g2d = (Graphics2D) g;
             setupG2D(g2d);
 
-            float[] sampleBuffer = recentAudioWindow;
-            if (sampleBuffer.length < fftWindowSize) {
+            // Return if there is not enough samples
+            if (recentAudioWindow == null) {
                 if (showIdleLine) drawIdleLine(g2d);
                 return;
             }
 
             int offset = getSamplesOffset();
-            offset = Math.max(0, Math.min(offset, sampleBuffer.length - fftWindowSize));
-            float[] fftInputBuffer = Arrays.copyOfRange(sampleBuffer, offset, offset + fftWindowSize);
-            float[] currentSpectrum = getSpectrum(fftInputBuffer);
-
-            normalizerDecaySpeed += normalizerRecoverySpeed * (1.0f / getFrameRate());
-
-            if (currentSpectrum.length != displayedSpectrum.length) 
-                displayedSpectrum = new float[currentSpectrum.length];
-
-            for (int i = 0; i < displayedSpectrum.length; i++) {
-                displayedSpectrum[i] = Math.max(currentSpectrum[i], displayedSpectrum[i] * spectrumDecayFactor);
+            offset = Math.max(0, Math.min(offset, recentAudioWindow.length - fftWindowSize));
+            
+            if (fftInputBuffer == null || fftInputBuffer.length != fftWindowSize) {
+                fftInputBuffer = new float[fftWindowSize];
             }
+            System.arraycopy(recentAudioWindow, offset, fftInputBuffer, 0, Math.min(recentAudioWindow.length - offset, fftWindowSize));
 
-            float[] interpolatedSpectrum = mapSpectrum(displayedSpectrum, getWidth(), frequencyScale);
+            if (fftSpectrum == null || fftSpectrum.length != fftWindowSize / 2) {
+                fftSpectrum = new float[fftWindowSize / 2];
+            }
+            getSpectrum(fftInputBuffer, fftSpectrum);
+
+            if (interpolatedSpectrum == null || interpolatedSpectrum.length != getWidth()) {
+                interpolatedSpectrum = new float[getWidth()];
+            }
+            
+            if (mappingPositions == null || mappingPositions.length != fftSpectrum.length) {
+                mappingPositions = new float[fftSpectrum.length];
+            }
+            
+            calculatePositions(mappingPositions, getWidth(), frequencyScale);
+            mapSpectrum(fftSpectrum, mappingPositions, interpolatedSpectrum);
+
+            // Process after mapping
+            for (int i = 0; i < interpolatedSpectrum.length; i++) {
+                interpolatedSpectrum[i] *= spectrumDecayFactor;
+            }
 
             int binsPerPixel = (int) (interpolatedSpectrum.length / getWidth());
 
@@ -168,27 +206,78 @@ public class SpectrumVisualizer extends AudioVisualizer {
             g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
         }
 
-        private float[] mapSpectrum(float[] spectrum, int width, float scale) {
-            float[] mapped = new float[width];
-            float[] positions = new float[spectrum.length];
+        private void getSpectrum(float[] inputSamples, float[] outputSpectrum) {
+            if (inputSamples.length == 0) return;
+            
+            int fftLength = fftWindowSize;
 
-            // Calculate positions
-            for (int i = 0; i < spectrum.length; i++) {
-                double normalized = Math.log10(1 + i) / Math.log10(1 + spectrum.length);
-                double scaled = Math.pow(normalized, scale);
-                positions[i] = (float) (scaled * (width - 1));
+            if (real == null || real.length != fftLength) {
+                real = new float[fftLength];
             }
+            if (imag == null || imag.length != fftLength) {
+                imag = new float[fftLength];
+            }
+            
+            System.arraycopy(inputSamples, 0, real, 0, inputSamples.length);
+            Arrays.fill(imag, 0.0f);
+
+            if (Math.abs(gainControl.getValue() - 1.0f) > 1e-6f) {
+                for (int i = 0; i < inputSamples.length; i++) {
+                    real[i] *= gainControl.getValue();
+                }
+            }
+
+            WindowFunction.applyInPlace(real, windowType);
+            
+            FFT.fft(real, imag);
+            
+            float maxAmplitude = 0.0f;
+            float minNormalizerRoot = (float) Math.pow(minAmplitudeNormalizer, 1 / amplitudeExponent);
+            
+            int spectrumLength = Math.min(real.length / 2, outputSpectrum.length);
+            for (int i = 0; i < spectrumLength; i++) {
+                float magnitude = (float) Math.sqrt(real[i] * real[i] + imag[i] * imag[i]);
+                outputSpectrum[i] = (float) Math.log1p(Math.pow(magnitude, amplitudeExponent));
+                if (outputSpectrum[i] > maxAmplitude) maxAmplitude = outputSpectrum[i];
+            }
+
+            currentAmplitudeNormalizer -= normalizerDecaySpeed;
+            maxAmplitude = Math.max(minNormalizerRoot, maxAmplitude) * 1.25f;
+
+            if (currentAmplitudeNormalizer < maxAmplitude) {
+                currentAmplitudeNormalizer = maxAmplitude;
+                normalizerDecaySpeed = 0.0f;
+            }
+
+            for (int i = 0; i < spectrumLength; i++) {
+                outputSpectrum[i] = MathUtilities.clamp(outputSpectrum[i] / currentAmplitudeNormalizer, 0.0f, 1.0f);
+            }
+        }
+
+        private void calculatePositions(float[] outPositions, int height, float scale) {
+            for (int i = 0; i < outPositions.length; i++) {
+                double normalized = Math.log10(1 + i) / Math.log10(1 + outPositions.length);
+                double scaled = Math.pow(normalized, scale);
+                outPositions[i] = (float) (scaled * (height - 1));
+            }
+        }
+
+        private void mapSpectrum(float[] inputSpectrum, float[] positions, float[] interpolatedSpectrumOut) {
+            //Arrays.fill(interpolatedSpectrumOut, 0.0f);
 
             boolean isEasing = spectrumInterpolationMode == InterpolationMode.EASING;
             boolean needToInterpolate = spectrumInterpolationMode == InterpolationMode.LINEAR || isEasing;
-
-            // Interpolate between positions
-            for (int i = 0; i < spectrum.length - 1; i++) {
+            
+            for (int i = 0; i < positions.length - 1; i++) {
                 int startX = (int) positions[i];
                 int endX = (int) positions[i + 1];
 
-                float startValue = spectrum[i];
-                float endValue = spectrum[i + 1];
+                if (startX >= interpolatedSpectrumOut.length || endX >= interpolatedSpectrumOut.length) {
+                    continue;
+                }
+
+                float startValue = inputSpectrum[i];
+                float endValue = inputSpectrum[i + 1];
 
                 for (int x = startX; x <= endX; x++) {
                     if (needToInterpolate) {
@@ -202,59 +291,16 @@ public class SpectrumVisualizer extends AudioVisualizer {
 
                         // Lerp
                         float value = startValue * (1 - t) + endValue * t;
-                        mapped[x] = value;
+                        if (value > interpolatedSpectrumOut[x]) {
+                            interpolatedSpectrumOut[x] = value;
+                        }
                     } else {
-                        mapped[x] = startValue;
+                        if (startValue > interpolatedSpectrumOut[x]) {
+                            interpolatedSpectrumOut[x] = startValue;
+                        }
                     }
                 }
             }
-
-            return mapped;
-        }
-
-        private float[] getSpectrum (float[] samples) {
-            if (samples.length == 0) return new float[channelToShow];
-            
-            int inputLength = samples.length;
-            int fftLength = 1;
-            while (fftLength < inputLength) fftLength *= 2;
-
-            float[] real = new float[fftLength];
-            float[] imag = new float[fftLength];
-            System.arraycopy(samples, 0, real, 0, samples.length);
-
-            if (Math.abs(gainControl.getValue() - 1.0f) > 1e-6f) {
-                for (int i = 0; i < samples.length; i++) {
-                    real[i] *= gainControl.getValue();
-                }
-            }
-
-            real = WindowFunction.apply(real, windowType);
-            
-            FFT.fft(real, imag);
-            
-            float maxAmplitude = 0.0f;
-            float minNormalizerRoot = (float) Math.pow(minAmplitudeNormalizer, 1 / amplitudeExponent);
-            
-            float[] spectrum = new float[real.length / 2];
-            for (int i = 0; i < real.length / 2; i++) {
-                spectrum[i] = (float) Math.log1p(Math.pow(Math.sqrt(real[i] * real[i] + imag[i] * imag[i]), amplitudeExponent));
-                if (spectrum[i] > maxAmplitude) maxAmplitude = spectrum[i];
-            }
-
-            currentAmplitudeNormalizer -= normalizerDecaySpeed;
- 
-            maxAmplitude = Math.max(minNormalizerRoot, maxAmplitude) * 1.25f;
-
-            if (currentAmplitudeNormalizer < maxAmplitude) {
-                currentAmplitudeNormalizer = maxAmplitude;
-                normalizerDecaySpeed = 0.0f;
-            }
-
-            for (int i = 0; i < spectrum.length; i++) {
-                spectrum[i] /= currentAmplitudeNormalizer;
-            }
-            return spectrum;
         }
 
         private void drawIdleLine (Graphics2D g2d) {
@@ -392,7 +438,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
     }
     
     @Override
-    protected void onBufferUpdate() {
+    protected void onBufferUpdate () {
         float[] newSamples = getSamplesBuffer()[channelToShow];
         audioBuffers.add(newSamples);
 
@@ -406,10 +452,16 @@ public class SpectrumVisualizer extends AudioVisualizer {
             totalSamples -= audioBuffers.remove(0).length;
         }
 
-        float[] window = new float[Math.min(totalSamples, requiredSamples)];
+        if (window == null || window.length != requiredSamples) {
+            window = new float[requiredSamples];
+        }
+        if (window.length > totalSamples) {
+            Arrays.fill(window, 0.0f);
+        }
         int pos = 0;
+        int minLength = Math.min(requiredSamples, totalSamples);
         for (float[] buf : audioBuffers) {
-            int copyLen = Math.min(buf.length, window.length - pos);
+            int copyLen = Math.min(buf.length, minLength - pos);
             System.arraycopy(buf, buf.length - copyLen, window, pos, copyLen);
             pos += copyLen;
             if (pos >= window.length) break;
