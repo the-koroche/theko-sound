@@ -29,7 +29,7 @@ import org.theko.sound.samples.SamplesValidation;
  * It designed to process multiple audio channels at the same time, without the need to create a new filter for each channel.
  * 
  * @see AudioFilter
- * @see MultiModeFilter
+ * @see CascadeFilter
  * 
  * @since 2.4.1
  * @author Theko
