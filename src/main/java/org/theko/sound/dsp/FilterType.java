@@ -25,37 +25,37 @@ package org.theko.sound.dsp;
 public enum FilterType {
 
     /**
-     * Low-pass filter — attenuates (reduces) high frequencies,
+     * Low-pass filter - attenuates (reduces) high frequencies,
      * allowing low frequencies to pass through.
      */
     LOWPASS,
 
     /**
-     * High-pass filter — attenuates low frequencies,
+     * High-pass filter - attenuates low frequencies,
      * allowing high frequencies to pass through.
      */
     HIGHPASS,
 
     /**
-     * Band-pass filter — passes only a specific frequency band
+     * Band-pass filter - passes only a specific frequency band
      * and attenuates frequencies outside this range.
      */
     BANDPASS,
 
     /**
-     * Notch filter (band-stop) — attenuates a specific frequency band,
+     * Notch filter (band-stop) - attenuates a specific frequency band,
      * passing frequencies outside this range.
      */
     NOTCH,
 
     /**
-     * Peak (resonance) filter — boosts or attenuates a narrow
+     * Peak (resonance) filter - boosts or attenuates a narrow
      * range of frequencies around the center frequency.
      */
     PEAK,
 
     /**
-     * All-pass filter — passes all frequencies but changes
+     * All-pass filter - passes all frequencies but changes
      * the phase response across the spectrum.
      */
     ALLPASS

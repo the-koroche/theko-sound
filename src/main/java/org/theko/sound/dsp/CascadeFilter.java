@@ -47,23 +47,23 @@ import org.theko.sound.control.FloatControl;
  * 
  * 
  * @see MultiChannelAudioFilter
- * @see BiquadFilter
+ * @see BiquadStage
  * @see FilterType
  * @see MonoChannelSamplesProcessable
  * 
  * @since 2.3.2
  * @author Theko
  */
-public class MultiModeFilter implements AudioFilter, Controllable {
+public class CascadeFilter implements AudioFilter, Controllable {
 
     protected final FloatControl cutoff = new FloatControl("Cutoff", 1, 22000, 4000);
-    protected final FloatControl bandwidth = new FloatControl("Bandwidth", 0.1f, 10.0f, 1.0f);
+    protected final FloatControl bandwidth = new FloatControl("Bandwidth", 0.1f, 3.0f, 1.92f); // 1.92 octaves ≈ Q 0.707
     protected final FloatControl gain = new FloatControl("Gain", 0.0f, 2.0f, 1.0f);
 
     protected final List<AudioControl> filterControls = List.of(cutoff, bandwidth, gain);
 
     protected final FilterType filterType;
-    private final BiquadFilter[] biquads;
+    private final BiquadStage[] biquads;
 
     /**
      * Constructs a new AudioFilter with the specified filter type and order.
@@ -71,16 +71,16 @@ public class MultiModeFilter implements AudioFilter, Controllable {
      * @param filterType the type of filter to apply
      * @param order      the order of the filter (must be an even number between 2 and 8)
      */
-    public MultiModeFilter(FilterType filterType, int order) {
+    public CascadeFilter(FilterType filterType, int order) {
         if (order % 2 != 0 || order < 2 || order > 8) {
             throw new IllegalArgumentException("Order must be an even number between 2 and 8");
         }
 
         this.filterType = filterType;
         int stages = order / 2;
-        biquads = new BiquadFilter[stages];
+        biquads = new BiquadStage[stages];
         for (int i = 0; i < stages; i++) {
-            biquads[i] = new BiquadFilter();
+            biquads[i] = new BiquadStage();
         }
     }
 
@@ -109,21 +109,6 @@ public class MultiModeFilter implements AudioFilter, Controllable {
      */
     public FloatControl getGainControl() {
         return gain;
-    }
-
-    /**
-     * Sets the parameters of the filter for each channel separately.
-     * This method does not update the filter coefficients.
-     * Use the {@link #updateCoefficients(int)} method to update the filter coefficients.
-     * 
-     * @param cutoff the cutoff frequency in Hz
-     * @param bandwidth the bandwidth in Hz
-     * @param gain the linear gain multiplier
-     */
-    public void setParameters(float cutoff, float bandwidth, float gain) {
-        this.cutoff.setValue(cutoff);
-        this.bandwidth.setValue(bandwidth);
-        this.gain.setValue(gain);
     }
 
     /**
@@ -199,18 +184,65 @@ public class MultiModeFilter implements AudioFilter, Controllable {
     }
 
     /**
+     * Sets the parameters of the filter for each channel separately.
+     * This method does not update the filter coefficients.
+     * Use the {@link #updateCoefficients(int)} method to update the filter coefficients.
+     * 
+     * @param cutoff the cutoff frequency in Hz
+     * @param bandwidth the bandwidth in Hz
+     * @param gain the linear gain multiplier
+     */
+    public void setParameters(float cutoff, float bandwidth, float gain) {
+        this.cutoff.setValue(cutoff);
+        this.bandwidth.setValue(bandwidth);
+        this.gain.setValue(gain);
+    }
+
+    /**
      * Updates the filter coefficients based on the current control values and the provided sample rate.
      * @param sampleRate the sample rate
      */
-    public void updateCoefficients(int sampleRate) {
-        for (BiquadFilter biquad : biquads) {
-            biquad.update(filterType, cutoff.getValue(), bandwidth.getValue(), gain.getValue(), sampleRate);
+    public void update(int sampleRate) {
+        for (BiquadStage biquad : biquads) {
+            biquad.update(
+                filterType,
+                cutoff.getValue(),
+                octavesToQ(bandwidth.getValue()),
+                gain.getValue(), sampleRate
+            );
         }
+    }
+
+    /**
+     * Updates the filter coefficients for each channel based on the provided parameters.
+     * 
+     * @param cutoff the cutoff frequency in Hz
+     * @param bandwidth the bandwidth in octaves
+     * @param gain the linear gain multiplier
+     * @param sampleRate the sample rate
+     */
+    public void update(float cutoff, float bandwidth, float gain, int sampleRate) {
+        setParameters(cutoff, bandwidth, gain);
+        for (BiquadStage biquad : biquads) {
+            biquad.update(filterType, cutoff, octavesToQ(bandwidth), gain, sampleRate);
+        }
+    }
+
+    private float octavesToQ(float bandwidth) {
+        if (bandwidth <= 0) return 0.707f; // default Q
+
+        if (bandwidth < 0.1f) bandwidth = 0.1f;
+        if (bandwidth > 3.0f) bandwidth = 3.0f;
+
+        // Q = 1 / (2*sinh(ln(2)/2 * BW))
+        double bw = bandwidth;
+        double q = 1.0 / (2.0 * Math.sinh(Math.log(2)/2.0 * bw));
+        return (float) q;
     }
 
     @Override
     public float process(float sample, int sampleRate) {
-        for (BiquadFilter biquad : biquads) {
+        for (BiquadStage biquad : biquads) {
             sample = biquad.process(sample, sampleRate);
         }
 
@@ -219,7 +251,7 @@ public class MultiModeFilter implements AudioFilter, Controllable {
 
     @Override
     public AudioFilter copyFilter() {
-        MultiModeFilter copy = new MultiModeFilter(filterType, biquads.length * 2);
+        CascadeFilter copy = new CascadeFilter(filterType, biquads.length * 2);
         copy.setParameters(cutoff.getValue(), bandwidth.getValue(), gain.getValue());
         return copy;
     }

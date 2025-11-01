@@ -20,14 +20,14 @@ package org.theko.sound.dsp;
  * Represents a second-order Butterworth filter.
  * 
  * @see AudioFilter
- * @see MultiModeFilter
+ * @see CascadeFilter
  * 
  * @since 2.3.2
  * @author Theko
  */
-public class BiquadFilter implements AudioFilter {
+public class BiquadStage implements AudioFilter {
 
-    private static final float SMOOTH_FACTOR = 0.005f;
+    private static final float SMOOTH_FACTOR = 0.2f;
 
     // current coefficients
     private float b0c, b1c, b2c, a1c, a2c;
@@ -36,10 +36,20 @@ public class BiquadFilter implements AudioFilter {
 
     private float x1, x2, y1, y2;
 
-    public void update(FilterType type, float cutoff, float q, float gain, float sampleRate) {
+    private FilterType filterType;
+    private float cutoff, q, gain;
+
+    private int lastSampleRate;
+
+    public void update(FilterType type, float cutoff /* Hz */, float q, float gain /* linear gain multiplier */, float sampleRate) {
         if (gain <= 0) gain = 1.0f;
         if (cutoff <= 0 || cutoff >= sampleRate / 2) cutoff = sampleRate / 4;
         if (q <= 0) q = 0.707f; // Butterworth default
+
+        this.filterType = type;
+        this.cutoff = cutoff;
+        this.q = q;
+        this.gain = gain;
 
         float A = gain;
         float omega = (float) (2.0 * Math.PI * cutoff / sampleRate);
@@ -122,14 +132,44 @@ public class BiquadFilter implements AudioFilter {
         a2t = a2;
     }
 
-    
+
+    /**
+     * Returns the filter type of the filter.
+     * @return the filter type
+     */
+    public FilterType getFilterType() {
+        return filterType;
+    }
+
+    /**
+     * Returns the cutoff frequency of the filter in Hz.
+     * @return the cutoff frequency in Hz
+     */
+    public float getCutoff() {
+        return cutoff;
+    }
+
+    /**
+     * Returns the Q factor of the filter.
+     * @return the Q factor of the filter
+     */
+    public float getQ() {
+        return q;
+    }
+
+    /**
+     * Returns the gain of the filter. The gain is a linear multiplier
+     * applied to the output of the filter.
+     * @return the gain of the filter
+     */
+    public float getGain() {
+        return gain;
+    }
 
     /**
      * Processes a single audio sample using the filter's current
      * coefficients. The filter's coefficients are smoothly updated
      * to the target coefficients using the SMOOTH_FACTOR.
-     * <p>Note: This method ignores the sample rate parameter.
-     * Update the filter's coefficients using {@link #update(FilterType, float, float, float, int)}.
      * 
      * @param input the audio sample to process
      * @param sampleRate the sample rate of the input
@@ -137,6 +177,11 @@ public class BiquadFilter implements AudioFilter {
      */
     @Override
     public float process(float input, int sampleRate) {
+        if (sampleRate != lastSampleRate) {
+            update(filterType, cutoff, q, gain, sampleRate);
+            lastSampleRate = sampleRate;
+        }
+
         b0c += (b0t - b0c) * SMOOTH_FACTOR;
         b1c += (b1t - b1c) * SMOOTH_FACTOR;
         b2c += (b2t - b2c) * SMOOTH_FACTOR;
@@ -159,7 +204,7 @@ public class BiquadFilter implements AudioFilter {
      */
     @Override
     public AudioFilter copyFilter() {
-        BiquadFilter copy = new BiquadFilter();
+        BiquadStage copy = new BiquadStage();
         copy.b0c = b0c;
         copy.b1c = b1c;
         copy.b2c = b2c;
