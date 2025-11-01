@@ -99,14 +99,20 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
 
     /**
      * Repaint task. Executes by the 'repaintTimer'.
+     * @implNote By default, it repaints the panel obtained by {@link #getPanel()}.
      */
-    protected abstract void repaint();
+    protected void repaint() {
+        getPanel().repaint();
+    }
     
     /**
      * Automatically called when the audio samples buffer is updated.
      */
     protected void onBufferUpdate() {}
 
+    /**
+     * Automatically called when the audio visualizer is closed.
+     */
     protected void onEnd() {}
 
     /**
