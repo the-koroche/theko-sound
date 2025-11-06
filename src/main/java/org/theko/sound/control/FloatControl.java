@@ -70,6 +70,20 @@ public class FloatControl extends AudioControl {
         this.value = MathUtilities.clamp(value, min, max);
         eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGED, new AudioControlEvent(this));
     }
+
+    /**
+     * Sets the value of this control to the given normalized value (between 0.0 and 1.0), ensuring that the
+     * new value is within the range of {@code min} and {@code max}.
+     * If the value is outside of this range, it will be clamped to fit within the range.
+     * <p>
+     * The resulting value will be remapped to the range of {@code min} to {@code max}.
+     * 
+     * @param value The normalized value to set this control to.
+     */
+    public void setNormalized(float value) {
+        this.value = MathUtilities.remapClamped(value, 0f, 1f, min, max);
+        eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGED, new AudioControlEvent(this));
+    }
     
     /**
      * Retrieves the current value of this control.
