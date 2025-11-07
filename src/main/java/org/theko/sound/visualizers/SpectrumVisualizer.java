@@ -34,10 +34,20 @@ import org.theko.sound.dsp.WindowType;
 import org.theko.sound.utility.MathUtilities;
 
 /**
- * A class that represents a spectrum visualizer.
- * It can be used to display the spectrum of an audio stream.
+ * Real-time audio spectrum visualizer that displays frequency content using FFT analysis.
+ * Supports multiple interpolation modes, customizable coloring, and various spectrum processing options.
+ * 
+ * <p><b>Key Features:</b>
+ * <ul>
+ *   <li>Real-time FFT-based frequency analysis</li>
+ *   <li>Multiple interpolation modes for smooth visualization</li>
+ *   <li>Configurable window functions and FFT sizes</li>
+ *   <li>Dynamic amplitude normalization with decay</li>
+ *   <li>Dual/single bar display modes</li>
+ * </ul>
  * 
  * @see AudioVisualizer
+ * @see #setFrequencyScale(float)
  * 
  * @since 2.2.0
  * @author Theko
@@ -49,8 +59,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
     protected float frequencyScale = 1.0f;
     protected Color upperBarColor = Color.LIGHT_GRAY;
     protected Color lowerBarColor = Color.GRAY;
-    protected boolean drawCenteredBars = true;
-    protected boolean showIdleLine = true;
+    protected boolean drawDoubleBars = true;
 
     protected InterpolationMode spectrumInterpolationMode = InterpolationMode.EASING;
 
@@ -125,7 +134,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
         }
         
         @Override
-        protected void paintComponent (Graphics g) {
+        protected void paintComponent(Graphics g) {
             super.paintComponent(g);
 
             Graphics2D g2d = (Graphics2D) g;
@@ -133,7 +142,6 @@ public class SpectrumVisualizer extends AudioVisualizer {
 
             // Return if there is not enough samples
             if (recentAudioWindow == null) {
-                if (showIdleLine) drawIdleLine(g2d);
                 return;
             }
 
@@ -185,7 +193,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
 
                 int xPosition = x;
 
-                if (drawCenteredBars) {
+                if (drawDoubleBars) {
                     // Upper bar
                     g2d.setColor(upperBarColor);
                     g2d.fillRect(xPosition, centerY - halfAmplitudePixels, 1, halfAmplitudePixels);
@@ -201,7 +209,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
             }
         }
 
-        private void setupG2D (Graphics2D g2d) {
+        private void setupG2D(Graphics2D g2d) {
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
         }
@@ -263,8 +271,6 @@ public class SpectrumVisualizer extends AudioVisualizer {
         }
 
         private void mapSpectrum(float[] inputSpectrum, float[] positions, float[] interpolatedSpectrumOut) {
-            //Arrays.fill(interpolatedSpectrumOut, 0.0f);
-
             boolean isEasing = spectrumInterpolationMode == InterpolationMode.EASING;
             boolean needToInterpolate = spectrumInterpolationMode == InterpolationMode.LINEAR || isEasing;
             
@@ -302,125 +308,315 @@ public class SpectrumVisualizer extends AudioVisualizer {
                 }
             }
         }
-
-        private void drawIdleLine (Graphics2D g2d) {
-            g2d.setColor(upperBarColor);
-            g2d.drawLine(0, getHeight() -1, getWidth(), getHeight() -1);
-        }
     }
 
-    public SpectrumVisualizer (float frameRate) {
+    public SpectrumVisualizer(float frameRate) {
         super(Type.REALTIME, frameRate);
         addControls(visualizerControls);
     }
 
-    public FloatControl getGainControl () {
+    /**
+     * Returns the gain control for the spectrum visualizer.
+     * The gain control allows adjusting the amplitude of the audio signal
+     * that is used to generate the spectrum display.
+     * 
+     * @return The gain control of the spectrum visualizer.
+     */
+    public FloatControl getGainControl() {
         return gainControl;
     }
 
-    public void setFrequencyScale (float frequencyScale) {
+    /**
+     * Sets the frequency scale of the spectrum visualizer.
+     * The frequency scale is used to determine the frequency range of the
+     * spectrum that is displayed. The frequency scale is relative to the
+     * sampling rate of the audio signal, with a frequency scale of 1.0f
+     * representing the full frequency range of the sampling rate and a
+     * frequency scale of 0.5f representing half of the full frequency range.
+     * A frequency scale of 2.0f would represent twice the full frequency range
+     * of the sampling rate.
+     *
+     * @param frequencyScale The frequency scale of the spectrum visualizer.
+     */
+    public void setFrequencyScale(float frequencyScale) {
         this.frequencyScale = MathUtilities.clamp(frequencyScale, MIN_SCALE, MAX_SCALE);
     }
 
-    public float getFrequencyScale () {
+    /**
+     * Returns the frequency scale of the spectrum visualizer.
+     * The frequency scale is used to determine the frequency range of the
+     * spectrum that is displayed.
+     * 
+     * @return The frequency scale of the spectrum visualizer.
+     */
+    public float getFrequencyScale() {
         return frequencyScale;
     }
 
-    public void setUpperBarColor (Color color) {
+    /**
+     * Sets the color used to draw the upper bar when the visualizer is
+     * configured to draw two bars representing the amplitude of the upper
+     * and lower channel of the audio signal.
+     * 
+     * @param color The color used to draw the upper bar
+     */
+    public void setUpperBarColor(Color color) {
         this.upperBarColor = color;
     }
 
-    public Color getUpperBarColor () {
+    /**
+     * Gets the color used to draw the upper bar when the visualizer is
+     * configured to draw two bars representing the amplitude of the upper
+     * and lower channel of the audio signal.
+     * 
+     * @return The color used to draw the upper bar
+     */
+    public Color getUpperBarColor() {
         return upperBarColor;
     }
 
-    public void setLowerBarColor (Color color) {
+    /**
+     * Sets the color used to draw the lower bar when the visualizer is
+     * configured to draw two bars representing the amplitude of the upper
+     * and lower channel of the audio signal.
+     *
+     * @param color The color used to draw the lower bar
+     */
+    public void setLowerBarColor(Color color) {
         this.lowerBarColor = color;
     }
 
-    public Color getLowerBarColor () {
+    /**
+     * Returns the color used to draw the lower bar when the visualizer is
+     * configured to draw two bars representing the amplitude of the upper
+     * and lower channel of the audio signal.
+     *
+     * @return the color used to draw the lower bar
+     */
+    public Color getLowerBarColor() {
         return lowerBarColor;
     }
 
-    public void setDrawCenteredBars (boolean drawOnCenter) {
-        this.drawCenteredBars = drawOnCenter;
+    /**
+     * Sets whether or not the visualizer should draw two bars representing the
+     * amplitude of the upper and lower channel of the audio signal, or a single
+     * bar representing the amplitude of the audio signal.
+     * 
+     * @param doubleBars true if the visualizer should draw two bars, false if it
+     * should draw a single bar.
+     */
+    public void setDoubleBars(boolean doubleBars) {
+        this.drawDoubleBars = doubleBars;
     }
 
-    public boolean isDrawCenteredBars () {
-        return drawCenteredBars;
+    /**
+     * Returns true if the visualizer is currently configured to draw two bars
+     * representing the amplitude of the upper and lower channel of the audio
+     * signal, and false if it is configured to draw a single bar representing
+     * the amplitude of the audio signal.
+     * 
+     * @return true if the visualizer is configured to draw two bars, false
+     * otherwise
+     */
+    public boolean isDoubleBars() {
+        return drawDoubleBars;
     }
 
-    public void setShowIdleLine (boolean drawIdleLine) {
-        this.showIdleLine = drawIdleLine;
+    /**
+     * Returns true if the visualizer is currently configured to draw a single
+     * bar representing the amplitude of the audio signal, and false if it is
+     * configured to draw two bars, one for the upper and one for the lower
+     * channel of the audio signal.
+     * 
+     * @return true if the visualizer is configured to draw a single bar,
+     * false otherwise
+     */
+    public boolean isSingleBar() {
+        return !drawDoubleBars;
     }
 
-    public boolean isShowIdleLine () {
-        return showIdleLine;
-    }
-
-    public void setSpectrumDecayFactor (float decay) {
+    /**
+     * Sets the spectrum decay factor of the visualizer.
+     * This value controls how quickly the spectrum decays back to zero.
+     * 
+     * @param decay The spectrum decay factor of the visualizer.
+     */
+    public void setSpectrumDecayFactor(float decay) {
         this.spectrumDecayFactor = MathUtilities.clamp(decay, MIN_DECAY, MAX_DECAY);
     }
 
-    public float getSpectrumDecayFactor () {
+    /**
+     * Gets the spectrum decay factor of the visualizer.
+     * This value controls how quickly the spectrum decays back to zero after the
+     * audio signal has stopped.
+     * 
+     * @return The spectrum decay factor of the visualizer.
+     */
+    public float getSpectrumDecayFactor() {
         return spectrumDecayFactor;
     }
 
-    public void setMinAmplitudeNormalizer (float divider) {
+    /**
+     * Sets the minimum amplitude normalizer of the visualizer.
+     * This value is used to scale the amplitude of the spectrum before it is
+     * displayed. The amplitude normalizer is calculated as follows:
+     * amplitude = Math.max(minNormalizerRoot, maxAmplitude) * 1.25f;
+     * where minNormalizerRoot is the square root of the minimum amplitude normalizer
+     * and maxAmplitude is the maximum amplitude of the spectrum.
+     * 
+     * @param divider The minimum amplitude normalizer of the visualizer.
+     */
+    public void setMinAmplitudeNormalizer(float divider) {
         this.minAmplitudeNormalizer = MathUtilities.clamp(divider, MIN_DIVIDER, MAX_DIVIDER);
     }
 
-    public float getMinAmplitudeNormalizer () {
+    /**
+     * Returns the minimum amplitude normalizer of the visualizer.
+     * 
+     * @return The minimum amplitude normalizer of the visualizer.
+     */
+    public float getMinAmplitudeNormalizer() {
         return minAmplitudeNormalizer;
     }
 
-    public void setAmplitudeExponent (float power) {
+    /**
+     * Sets the amplitude exponent of the visualizer.
+     * This value is used to scale the amplitude of the spectrum before it is
+     * displayed. The amplitude exponent is applied as follows: amplitude =
+     * Math.pow(amplitude, amplitudeExponent).
+     * 
+     * @param power The amplitude exponent of the visualizer.
+     */
+    public void setAmplitudeExponent(float power) {
         this.amplitudeExponent = MathUtilities.clamp(power, MIN_AMPLITUDE_POWER, MAX_AMPLITUDE_POWER);
     }
 
-    public float getAmplitudeExponent () {
+    /**
+     * Returns the amplitude exponent of the visualizer.
+     * 
+     * @return the amplitude exponent of the visualizer
+     */
+    public float getAmplitudeExponent() {
         return amplitudeExponent;
     }
 
-    public void setNormalizerDecaySpeed (float speed) {
+    /**
+     * Sets the decay speed of the amplitude normalizer.
+     * A decay speed of 0.0f will cause the amplitude normalizer to recover
+     * instantly, while a decay speed of 1.0f will cause the amplitude normalizer
+     * to recover very slowly.
+     * 
+     * @param speed The decay speed of the amplitude normalizer.
+     */
+    public void setNormalizerDecaySpeed(float speed) {
         this.normalizerDecaySpeed = MathUtilities.clamp(speed, MIN_DIVIDER_DECAY_SPEED, MAX_DIVIDER_DECAY_SPEED);
     }
 
-    public float getNormalizerDecaySpeed () {
+    /**
+     * Returns the decay speed of the amplitude normalizer.
+     * 
+     * @return The decay speed of the amplitude normalizer.
+     */
+    public float getNormalizerDecaySpeed() {
         return normalizerDecaySpeed;
     }
 
-    public void setSpectrumInterpolationMode (InterpolationMode mode) {
+    /**
+     * Sets the interpolation mode used to generate the spectrum.
+     * 
+     * <p>
+     * The interpolation mode determines how the spectrum is generated from the
+     * input samples. If the interpolation mode is set to
+     * {@link InterpolationMode#LINEAR}, the spectrum is generated by
+     * linearly interpolating between the input samples. If the interpolation
+     * mode is set to {@link InterpolationMode#EASING}, the spectrum is
+     * generated by applying an easing function to the input samples.
+     * Otherwise, if the interpolation mode is set to
+     * {@link InterpolationMode#NONE}, the spectrum is generated by copying the
+     * bin value until next bin.
+     * 
+     * @param mode The interpolation mode used to generate the spectrum.
+     * @see InterpolationMode
+     */
+    public void setSpectrumInterpolationMode(InterpolationMode mode) {
         this.spectrumInterpolationMode = mode;
     }
 
-    public InterpolationMode getSpectrumInterpolationMode () {
+    /**
+     * Returns the current interpolation mode used to generate the spectrum.
+     * 
+     * @return The current interpolation mode used.
+     * @see InterpolationMode
+     */
+    public InterpolationMode getSpectrumInterpolationMode() {
         return spectrumInterpolationMode;
     }
 
-    public void setFftWindowSize (int size) {
+    /**
+     * Sets the size of the FFT used to generate the spectrum.
+     * A larger FFT size will provide a more detailed spectrum, but will also
+     * increase the computational cost of generating the spectrum, and may cause
+     * lower time resolution.
+     * 
+     * @param size The size of the FFT to use.
+     */
+    public void setFftWindowSize(int size) {
         this.fftWindowSize = MathUtilities.clamp(size, MIN_FFT_SIZE, MAX_FFT_SIZE);
     }
 
-    public int getFftWindowSize () {
+    /**
+     * Returns the size of the FFT used to generate the spectrum.
+     * 
+     * @return the size of the FFT used.
+     */
+    public int getFftWindowSize() {
         return fftWindowSize;
     }
 
-    public void setWindowType (WindowType type) {
+    /**
+     * Sets the window type used before the FFT is applied.
+     * 
+     * <p>
+     * Window functions are commonly applied to signals to reduce spectral leakage
+     * when performing Fourier transforms. Each window type provides a different
+     * trade-off between main lobe width and side lobe attenuation.
+     * 
+     * @param type the type of window function to apply before the FFT
+     */
+    public void setWindowType(WindowType type) {
         if (type == null) return;
         this.windowType = type;
     }
 
-    public WindowType getWindowType () {
+    /**
+     * Returns the window type used before the FFT is applied.
+     * 
+     * @return The window type used.
+     */
+    public WindowType getWindowType() {
         return windowType;
     }
 
-    public void setChannelToShow (int channel) {
-        if (channel < 0 || channel > getSamplesBuffer().length) return;
+    /**
+     * Sets the channel to show in the spectrogram visualizer.
+     * 
+     * @param channel The channel to show (0-based index)
+     * @throws IllegalArgumentException if the channel is out of range (less than 0 or greater than the number of channels in the samples buffer)
+     */
+    public void setChannelToShow(int channel) {
+        if (channel < 0 || channel > getSamplesBuffer().length) {
+            throw new IllegalArgumentException("Channel must be between 0 and the number of channels in the samples buffer.");
+        }
         this.channelToShow = channel;
     }
 
-    public int getChannelToShow () {
+    /**
+     * Returns the channel to show in the spectrogram visualizer.
+     * 
+     * @return The channel to show.
+     * @see #setChannelToShow(int)
+     */
+    public int getChannelToShow() {
         return channelToShow;
     }
 
@@ -438,7 +634,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
     }
     
     @Override
-    protected void onBufferUpdate () {
+    protected void onBufferUpdate() {
         float[] newSamples = getSamplesBuffer()[channelToShow];
         audioBuffers.add(newSamples);
 
