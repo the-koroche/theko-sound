@@ -42,22 +42,22 @@ public class AudioPositioningEffect extends AudioEffect {
         panControl
     );
 
-    public AudioPositioningEffect () {
+    public AudioPositioningEffect() {
         super(Type.REALTIME);
 
         addControls(positioningControls);
     }
 
-    @Override
-    public void effectRender (float[][] samples, int sampleRate) {
-        SamplesUtilities.adjustGainAndPan(samples, gainControl.getValue(), panControl.getValue());
-    }
-
-    public FloatControl getGain () {
+    public FloatControl getGain() {
         return gainControl;
     }
 
-    public FloatControl getPan () {
+    public FloatControl getPan() {
         return panControl;
+    }
+
+    @Override
+    public void effectRender(float[][] samples, int sampleRate) {
+        SamplesUtilities.adjustGainAndPan(samples, gainControl.getValue(), panControl.getValue());
     }
 }

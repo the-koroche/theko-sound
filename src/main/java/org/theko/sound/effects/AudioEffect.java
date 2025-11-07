@@ -86,6 +86,26 @@ public abstract class AudioEffect implements AudioNode, Controllable {
     }
 
     /**
+     * Returns the mix level control for this audio effect.
+     * The mix level controls the amount of effect applied to the audio samples.
+     * 
+     * @return The FloatControl representing the mix level.
+     */
+    public FloatControl getMixLevelControl() {
+        return mixLevel;
+    }
+
+    /**
+     * Returns the enable control for this audio effect.
+     * The enable control allows toggling the effect on or off.
+     * 
+     * @return The BooleanControl representing the enable state of the effect.
+     */
+    public BooleanControl getEnableControl() {
+        return enable;
+    }
+
+    /**
      * Renders the audio effect on the provided samples.
      * This method must be implemented by subclasses to apply the effect to the audio samples.
      * 
@@ -117,26 +137,6 @@ public abstract class AudioEffect implements AudioNode, Controllable {
      */
     public Type getType() {
         return type;
-    }
-
-    /**
-     * Returns the mix level control for this audio effect.
-     * The mix level controls the amount of effect applied to the audio samples.
-     * 
-     * @return The FloatControl representing the mix level.
-     */
-    public FloatControl getMixLevelControl() {
-        return mixLevel;
-    }
-
-    /**
-     * Returns the enable control for this audio effect.
-     * The enable control allows toggling the effect on or off.
-     * 
-     * @return The BooleanControl representing the enable state of the effect.
-     */
-    public BooleanControl getEnableControl() {
-        return enable;
     }
 
     /**
