@@ -54,7 +54,7 @@ public class WaveformVisualizer extends AudioVisualizer {
     protected Color waveformColor = Color.LIGHT_GRAY;
     protected float displayDuration = 0.1f;
     protected boolean splitStereo = false;
-    protected boolean showIdleLine = true;
+    protected boolean drawIdleLine = true;
     protected boolean interpolateStereo = false;
 
     protected static final float MIN_STROKE_WEIGHT = 0.1f;
@@ -95,7 +95,7 @@ public class WaveformVisualizer extends AudioVisualizer {
             setupG2D(g2d);
 
             if (audioBuffers.isEmpty()) {
-                if (showIdleLine)
+                if (drawIdleLine)
                     drawIdleLine(g2d);
                 return;
             }
@@ -108,13 +108,13 @@ public class WaveformVisualizer extends AudioVisualizer {
 
             float[][] samples = recentAudioWindow;
             if (samples == null || samples.length == 0) {
-                if (showIdleLine)
+                if (drawIdleLine)
                     drawIdleLine(g2d);
                 return;
             }
             int channels = samples.length;
             if (channels == 0) {
-                if (showIdleLine)
+                if (drawIdleLine)
                     drawIdleLine(g2d);
                 return;
             }
@@ -294,12 +294,12 @@ public class WaveformVisualizer extends AudioVisualizer {
         return splitStereo;
     }
 
-    public void setShowIdleLine(boolean drawIdleLine) {
-        this.showIdleLine = drawIdleLine;
+    public void setdrawIdleLine(boolean drawIdleLine) {
+        this.drawIdleLine = drawIdleLine;
     }
 
-    public boolean isShowIdleLine() {
-        return showIdleLine;
+    public boolean isIdleLineVisible() {
+        return drawIdleLine;
     }
 
     public void setDisplayDuration(float duration) {
