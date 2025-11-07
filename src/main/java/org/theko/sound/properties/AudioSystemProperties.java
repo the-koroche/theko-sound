@@ -106,6 +106,10 @@ public final class AudioSystemProperties {
     * org.theko.sound.outputLayer.defaultBuffer          | AudioMeasure           | Default audio buffer size
     * org.theko.sound.outputLayer.defaultRingBuffers     | int (>= 1)             | Ring buffers count, used if not specified in open()
     * org.theko.sound.outputLayer.resampler              | AudioResamplerConfig   | Resampler method and quality
+    * org.theko.sound.outputLayer.maxLengthMismatches    | int (>= 0)             | Maximum number of render length mismatches to ignore
+    * org.theko.sound.outputLayer.resetLengthMismatches  | boolean                | Reset length mismatches counter after successful render
+    * org.theko.sound.outputLayer.maxWriteErrors         | int (>= 0)             | Maximum number of write errors to ignore
+    * org.theko.sound.outputLayer.resetWriteErrors       | boolean                | Reset write errors counter after successful write
     * org.theko.sound.outputLayer.enableShutdownHook     | boolean                | Enables or disables shutdown hook on JVM exit
     * 
     * === Shared Resampler ===
@@ -126,12 +130,12 @@ public final class AudioSystemProperties {
     * WAVE      | org.theko.sound.waveCodec.cleanTagText             | boolean                | Cleans every tag from 'LIST' chunk
     *
     * === Miscellaneous ===
-    * Property                                           | Type                   | Description / Default
-    * ---------------------------------------------------|------------------------|-------------------------------------------
-    * org.theko.sound.automation.thread                  | ThreadConfig           | Thread config for each automation, and LFO
-    * org.theko.sound.automation.updateTime              | int > 0                | Update time in millis for automation and LFO process updates
-    * org.theko.sound.cleaner.thread                     | ThreadConfig           | Thread config for each Cleaner
-    * org.theko.sound.effects.resampler                  | AudioResamplerConfig   | Default ResamplerEffect resampler
+    * Property                                           | Type                       | Description / Default
+    * ---------------------------------------------------|----------------------------|-------------------------------------------
+    * org.theko.sound.automation.threads                 | int (>= 1 & < CPU_CORES*4) | Number of threads pool used for automation and LFO processing
+    * org.theko.sound.automation.updateTime              | int > 0                    | Update time in millis for automation and LFO process updates
+    * org.theko.sound.cleaner.thread                     | ThreadConfig               | Thread config for each Cleaner
+    * org.theko.sound.effects.resampler                  | AudioResamplerConfig       | Default ResamplerEffect resampler
     * 
     */
 
@@ -148,6 +152,7 @@ public final class AudioSystemProperties {
         return value;
     }
 
+    @SuppressWarnings("unused")
     private static int getInt(String key, int defaultValue) {
         try {
             return Integer.parseInt(getString(key, String.valueOf(defaultValue)));
@@ -186,6 +191,7 @@ public final class AudioSystemProperties {
         }
     }
 
+    @SuppressWarnings("unused")
     private static float getFloat(String key, float defaultValue) {
         return (float)getDouble(key, defaultValue);
     }
@@ -209,6 +215,7 @@ public final class AudioSystemProperties {
 
     /* Structures/Classes parsing */
 
+    @SuppressWarnings("unused")
     private static ThreadType getThreadType(String key, ThreadType defaultValue) {
         String value = getString(key, null);
         if (value == null) {
@@ -387,6 +394,22 @@ public final class AudioSystemProperties {
     public static final int AOL_OUTPUT_STOP_TIMEOUT = getIntInRange(
         "org.theko.sound.outputLayer.output.timeout", 10, 60000, true /* clamp */, 1000);
 
+    public static final int AOL_MAX_LENGTH_MISMATCHES = getIntInRange(
+        "org.theko.sound.outputLayer.maxLengthMismatches", 1, Integer.MAX_VALUE, false /* use default */, 10
+    );
+
+    public static final boolean AOL_RESET_LENGTH_MISMATCHES = getBoolean(
+        "org.theko.sound.outputLayer.resetLengthMismatches", true
+    );
+
+    public static final int AOL_MAX_WRITE_ERRORS = getIntInRange(
+        "org.theko.sound.outputLayer.maxWriteErrors", 1, Integer.MAX_VALUE, false /* use default */, 10
+    );
+
+    public static final boolean AOL_RESET_WRITE_ERRORS = getBoolean(
+        "org.theko.sound.outputLayer.resetWriteErrors", true
+    );
+
     public static final AudioMeasure AOL_DEFAULT_BUFFER = getAudioMeasure(
         "org.theko.sound.outputLayer.defaultBuffer", AudioMeasure.ofFrames(2048));
     
@@ -469,18 +492,24 @@ public final class AudioSystemProperties {
         builder.append("  Default OutputLayer Ring Buffers Count=").append(AOL_DEFAULT_RING_BUFFERS).append("\n");
         builder.append("  OutputLayer resampler: ")
             .append(AOL_RESAMPLER).append("\n");
+        builder.append("  OutputLayer output stop timeout: ").append(AOL_OUTPUT_STOP_TIMEOUT).append(" ms,\n");
+        builder.append("  OutputLayer processing stop timeout: ").append(AOL_PROCESSING_STOP_TIMEOUT).append(" ms.\n");
+        builder.append("  OutputLayer max length mismatches: ").append(AOL_MAX_LENGTH_MISMATCHES)
+            .append(", reset after valid render: ").append(AOL_RESET_LENGTH_MISMATCHES).append(".\n");
+        builder.append("  OutputLayer max write errors: ").append(AOL_MAX_WRITE_ERRORS)
+            .append(", reset after successful write: ").append(AOL_RESET_WRITE_ERRORS).append(".\n");
         builder.append("  Enable OutputLayer shutdown hook: ").append(AOL_ENABLE_SHUTDOWN_HOOK).append("\n");
         builder.append("  Resampler (Shared): ")
             .append(SHARED_RESAMPLER).append("\n");
         builder.append("  Mixer (default):")
-            .append(" Enable effects=").append(MIXER_DEFAULT_ENABLE_EFFECTS)
-            .append(", Swap channels=").append(MIXER_DEFAULT_SWAP_CHANNELS)
-            .append(", Reverse polarity=").append(MIXER_DEFAULT_REVERSE_POLARITY)
+            .append(" Enable effects: ").append(MIXER_DEFAULT_ENABLE_EFFECTS)
+            .append(", Swap channels: ").append(MIXER_DEFAULT_SWAP_CHANNELS)
+            .append(", Reverse polarity: ").append(MIXER_DEFAULT_REVERSE_POLARITY)
             .append("\n");
         builder.append("  Effect resampler: ")
             .append(RESAMPLER_EFFECT).append("\n");
         builder.append("  Wave Codec:")
-            .append(" Clean Tags Text=").append(WAVE_CODEC_CLEAN_TAG_TEXT);
+            .append(" Clean Tags Text: ").append(WAVE_CODEC_CLEAN_TAG_TEXT);
         logger.debug(builder.toString());
 
         StringBuilder propertiesLog = new StringBuilder();
