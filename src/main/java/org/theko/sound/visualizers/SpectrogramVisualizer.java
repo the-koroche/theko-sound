@@ -186,7 +186,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
 
             for (int y = 0; y < getHeight(); y++) {
                 float currentAmplitude = MathUtilities.clamp(interpolatedSpectrum[y], 0.0f, 1.0f);
-                int color = volumeColorProcessor.getColor(currentAmplitude);
+                int color = volumeColorProcessor.getColor(1f - currentAmplitude);
                 line.setRGB(0, getHeight() - y - 1, color);
             }
 
