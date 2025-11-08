@@ -24,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.JPanel;
 
@@ -47,43 +48,18 @@ public class SpectrogramVisualizer extends AudioVisualizer {
     
     protected final FloatControl gainControl = new FloatControl("Gain", 0.0f, 2.0f, 1.0f);
 
-    public static final VolumeColorProcessor GRAYSCALE_COLOR_MAP = v -> {
-        float norm = MathUtilities.clamp(v, 0.0f, 1.0f);
-        int intensity = (int) (norm * 255.0f);
+    private float frequencyScale = 1.0f;
+    private float updateTime = 0.01f;
+    private VolumeColorProcessor volumeColorProcessor = ColorGradient.INFERNO_COLOR_MAP.getVolumeColorProcessor();
 
-        return (intensity << 16) | (intensity << 8) | intensity;
-    };
+    private int channelToShow = 0;
+    private WindowType windowType = WindowType.BLACKMAN_HARRIS;
+    private int fftWindowSize = 8192;
+    private float minAmplitudeNormalizer = 1.0f;
+    private float amplitudeExponent = 2.0f;
 
-    private static final ColorGradient INFERNO_COLOR_GRADIENT = ColorGradient.fromColors(
-        List.of(
-            new Color(250, 253, 161), // Light yellow
-            new Color(251, 182, 26),  // Orange
-            new Color(237, 105, 37),  // Red
-            new Color(188, 55, 84),   // Dark pink
-            new Color(120, 28, 109),  // Purple
-            new Color(50, 10, 94),    // Dark purple
-            new Color(0, 0, 0)        // Black
-        )
-    );
-
-    public static final VolumeColorProcessor INFERNO_COLOR_MAP = v -> {
-        float norm = MathUtilities.clamp(v, 0.0f, 1.0f);
-        return INFERNO_COLOR_GRADIENT.getColorFromNormalizedValue(1.0f - norm);
-    };
-
-    protected float frequencyScale = 1.0f;
-    protected float updateTime = 0.01f;
-    protected VolumeColorProcessor volumeColorProcessor = INFERNO_COLOR_MAP;
-
-    protected int channelToShow = 0;
-    protected WindowType windowType = WindowType.BLACKMAN_HARRIS;
-    protected int fftWindowSize = 8192;
-    protected float minAmplitudeNormalizer = 1.0f;
-    protected float amplitudeExponent = 2.0f;
-
-    protected float normalizerRecoverySpeed = 0.1f;
-    protected float currentAmplitudeNormalizer = minAmplitudeNormalizer;
-    protected float normalizerDecaySpeed = 0.0f;
+    private float currentAmplitudeNormalizer = minAmplitudeNormalizer;
+    private float normalizerDecaySpeed = 0.0f;
 
     protected static final float MIN_SCALE = 0.5f;
     protected static final float MAX_SCALE = 4.0f;
@@ -210,9 +186,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
 
             for (int y = 0; y < getHeight(); y++) {
                 float currentAmplitude = MathUtilities.clamp(interpolatedSpectrum[y], 0.0f, 1.0f);
-                int color = (volumeColorProcessor == null) ? 
-                    GRAYSCALE_COLOR_MAP.getColor(currentAmplitude) : 
-                    volumeColorProcessor.getColor(currentAmplitude);
+                int color = volumeColorProcessor.getColor(currentAmplitude);
                 line.setRGB(0, getHeight() - y - 1, color);
             }
 
@@ -334,55 +308,170 @@ public class SpectrogramVisualizer extends AudioVisualizer {
         }
     }
 
-    public SpectrogramVisualizer (float frameRate) {
+    /**
+     * Creates a new spectogram visualizer with the given frame rate.
+     * @param frameRate The frame rate of the spectogram visualizer
+     */
+    public SpectrogramVisualizer(float frameRate) {
         super(Type.REALTIME, frameRate);
         addControls(visualizerControls);
     }
 
-    public FloatControl getGainControl () {
+    /**
+     * Returns the gain control of the spectogram visualizer.
+     * The gain control allows adjusting the overall amplitude of the spectogram.
+     * A value of 1.0f will not change the amplitude of the spectogram, while a value of 0.0f will mute it.
+     * 
+     * @return The gain control of the spectrogram visualizer.
+     */
+    public FloatControl getGainControl() {
         return gainControl;
     }
 
-    public void setFrequencyScale (float frequencyScale) {
+    /**
+     * Sets the frequency scale of the spectogram visualizer.
+     * The frequency scale is used to determine the frequency range of the
+     * spectogram that is displayed. The frequency scale is relative to the
+     * sampling rate of the audio signal, with a frequency scale of 1.0f
+     * representing the full frequency range of the sampling rate and a
+     * frequency scale of 0.5f representing half of the full frequency range.
+     * A frequency scale of 2.0f would represent twice the full frequency range
+     * of the sampling rate.
+     * 
+     * @param frequencyScale The frequency scale of the spectrogram visualizer.
+     */
+    public void setFrequencyScale(float frequencyScale) {
         this.frequencyScale = MathUtilities.clamp(frequencyScale, MIN_SCALE, MAX_SCALE);
     }
 
-    public float getFrequencyScale () {
+    /**
+     * Returns the frequency scale of the spectogram visualizer.
+     * 
+     * @return The frequency scale of the spectogram visualizer.
+     */
+    public float getFrequencyScale() {
         return frequencyScale;
     }
 
-    public void setUpdateTime (float updateTime) {
+    /**
+     * Sets the update time of the visualizer in milliseconds.
+     * The update time is the time interval between consecutive updates of the
+     * visualizer. The update time is used to control how often the visualizer
+     * is updated.
+     * 
+     * @param updateTime The update time of the visualizer in milliseconds.
+     * @see #getUpdateTime()
+     */
+    public void setUpdateTime(float updateTime) {
         this.updateTime = MathUtilities.clamp(updateTime, MIN_UPDATE_TIME, MAX_UPDATE_TIME);
     }
 
-    public float getUpdateTime () {
+    /**
+     * Returns the update time of the visualizer in milliseconds.
+     * 
+     * @return The update time of the visualizer in milliseconds.
+     */
+    public float getUpdateTime() {
         return updateTime;
     }
 
-    public void setMinAmplitudeNormalizer (float divider) {
+    /**
+     * Sets the volume color processor used by the visualizer.
+     * 
+     * @param volumeColorProcessor The volume color processor used by the visualizer
+     * @throws NullPointerException if the volume color processor is null
+     * @see ColorGradient
+     * @see VolumeColorProcessor
+     */
+    public void setVolumeColorProcessor(VolumeColorProcessor volumeColorProcessor) {
+        Objects.requireNonNull(volumeColorProcessor);
+        this.volumeColorProcessor = volumeColorProcessor;
+    }
+
+    /**
+     * Returns the volume color processor used by the visualizer.
+     * 
+     * @return The volume color processor used by the visualizer
+     */
+    public VolumeColorProcessor getVolumeColorProcessor() {
+        return volumeColorProcessor;
+    }
+
+    /**
+     * Sets the minimum amplitude normalizer of the visualizer.
+     * The minimum amplitude normalizer is used to scale the amplitude of the
+     * spectrum before it is displayed. The amplitude normalizer is calculated
+     * as follows: amplitude = Math.max(minNormalizerRoot, maxAmplitude) * 1.25f;
+     * where minNormalizerRoot is the square root of the minimum amplitude normalizer
+     * and maxAmplitude is the maximum amplitude of the spectrum.
+     * 
+     * @param divider The minimum amplitude normalizer of the visualizer.
+     */
+    public void setMinAmplitudeNormalizer(float divider) {
         this.minAmplitudeNormalizer = MathUtilities.clamp(divider, MIN_DIVIDER, MAX_DIVIDER);
     }
 
-    public float getMinAmplitudeNormalizer () {
+    /**
+     * Returns the minimum amplitude normalizer of the visualizer.
+     * 
+     * @return The minimum amplitude normalizer of the visualizer.
+     */
+    public float getMinAmplitudeNormalizer() {
         return minAmplitudeNormalizer;
     }
 
-    public void setAmplitudeExponent (float power) {
+    /**
+     * Sets the amplitude exponent of the visualizer.
+     * The amplitude exponent is used to scale the amplitude of the spectrum before it is
+     * displayed. The amplitude exponent is applied as follows: amplitude =
+     * Math.pow(amplitude, amplitudeExponent).
+     * A higher amplitude exponent will result in a more dramatic amplitude scaling.
+     * A lower amplitude exponent will result in a less dramatic amplitude scaling.
+     * 
+     * @param power The amplitude exponent of the visualizer.
+     */
+    public void setAmplitudeExponent(float power) {
         this.amplitudeExponent = MathUtilities.clamp(power, MIN_AMPLITUDE_POWER, MAX_AMPLITUDE_POWER);
     }
 
-    public float getAmplitudeExponent () {
+    /**
+     * Returns the amplitude exponent of the visualizer.
+     * 
+     * @return the amplitude exponent of the visualizer.
+     */
+    public float getAmplitudeExponent() {
         return amplitudeExponent;
     }
 
-    public void setNormalizerDecaySpeed (float speed) {
+    /**
+     * Sets the decay speed of the amplitude normalizer.
+     * A decay speed of 0.0f will cause the amplitude normalizer to recover
+     * instantly, while a decay speed of 1.0f will cause the amplitude normalizer
+     * to recover very slowly.
+     * 
+     * @param speed The decay speed of the amplitude normalizer.
+     */
+    public void setNormalizerDecaySpeed(float speed) {
         this.normalizerDecaySpeed = MathUtilities.clamp(speed, MIN_DIVIDER_DECAY_SPEED, MAX_DIVIDER_DECAY_SPEED);
     }
 
-    public float getNormalizerDecaySpeed () {
+    /**
+     * Returns the decay speed of the amplitude normalizer.
+     * 
+     * @return The decay speed of the amplitude normalizer.
+     */
+    public float getNormalizerDecaySpeed() {
         return normalizerDecaySpeed;
     }
 
+    /**
+     * Sets the size of the FFT used to generate the spectrogram.
+     * A larger FFT size will provide a more detailed spectrogram, but will also
+     * increase the computational cost of generating the spectrogram, and may cause
+     * lower time resolution.
+     * 
+     * @param size The size of the FFT to use.
+     */
     public void setFftWindowSize(int size) {
         this.fftWindowSize = MathUtilities.clamp(size, MIN_FFT_SIZE, MAX_FFT_SIZE);
         if (getPanel() != null) {
@@ -390,24 +479,56 @@ public class SpectrogramVisualizer extends AudioVisualizer {
         }
     }
 
-    public int getFftWindowSize () {
+    /**
+     * Returns the size of the FFT used to generate the spectrogram.
+     * 
+     * @return the size of the FFT used.
+     */
+    public int getFftWindowSize() {
         return fftWindowSize;
     }
 
-    public void setWindowType (WindowType type) {
+    /**
+     * Sets the window type used before the FFT is applied.
+     * 
+     * @param type the type of window function to apply
+     * @throws NullPointerException if the window type is null
+     */
+    public void setWindowType(WindowType type) {
+        Objects.requireNonNull(type);
         this.windowType = type;
     }
 
-    public WindowType getWindowType () {
+    /**
+     * Returns the window type used before the FFT is applied.
+     * 
+     * @return The window type used.
+     */
+    public WindowType getWindowType() {
         return windowType;
     }
 
-    public void setChannelToShow (int channel) {
-        if (channel < 0 || channel > getSamplesBuffer().length) return;
+    /**
+     * Sets the channel to show in the spectrogram visualizer.
+     * 
+     * @param channel The channel to show (0-based index)
+     * @throws IllegalArgumentException if the channel is out of range (less than 0 or greater than the number of channels in the samples buffer)
+     */
+    public void setChannelToShow(int channel) {
+        if (channel < 0 || channel > getSamplesBuffer().length) {
+            throw new IllegalArgumentException("Channel must be between 0 and the number of channels in the samples buffer.");
+        }
         this.channelToShow = channel;
     }
 
-    public int getChannelToShow () {
+
+    /**
+     * Returns the channel to show in the spectrogram visualizer.
+     * 
+     * @return The channel to show (0-based index)
+     * @see #setChannelToShow(int)
+     */
+    public int getChannelToShow() {
         return channelToShow;
     }
 
@@ -420,12 +541,12 @@ public class SpectrogramVisualizer extends AudioVisualizer {
     }
 
     @Override
-    protected void repaint () {
+    protected void repaint() {
         getPanel().repaint();
     }
     
     @Override
-    protected void onBufferUpdate () {
+    protected void onBufferUpdate() {
         float[] newSamples = getSamplesBuffer()[channelToShow];
         audioBuffers.add(newSamples);
 
@@ -458,7 +579,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
     }
 
     @Override
-    protected int getSamplesOffset () {
+    protected int getSamplesOffset() {
         if (recentAudioWindow == null || recentAudioWindow.length <= fftWindowSize)
             return 0;
 
