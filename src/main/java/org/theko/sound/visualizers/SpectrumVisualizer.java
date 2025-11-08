@@ -23,6 +23,7 @@ import java.awt.RenderingHints;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.JPanel;
 
@@ -55,25 +56,25 @@ import org.theko.sound.utility.MathUtilities;
 public class SpectrumVisualizer extends AudioVisualizer {
     
     protected final FloatControl gainControl = new FloatControl("Gain", 0.0f, 2.0f, 1.0f);
+    private float frequencyScale = 1.0f;
+    private Color upperBarColor = Color.LIGHT_GRAY;
+    private Color lowerBarColor = Color.GRAY;
+    private VolumeColorProcessor volumeColorProcessor = ColorGradient.BRIGHT_INFERNO_COLOR_MAP.getVolumeColorProcessor();
+    protected boolean useColorProcessor = true;
+    protected boolean drawDoubleBars = false;
 
-    protected float frequencyScale = 1.0f;
-    protected Color upperBarColor = Color.LIGHT_GRAY;
-    protected Color lowerBarColor = Color.GRAY;
-    protected boolean drawDoubleBars = true;
+    private InterpolationMode spectrumInterpolationMode = InterpolationMode.EASING;
 
-    protected InterpolationMode spectrumInterpolationMode = InterpolationMode.EASING;
+    private int channelToShow = 0;
+    private WindowType windowType = WindowType.HANN;
+    private int fftWindowSize = 2048;
+    private float minAmplitudeNormalizer = 1.0f;
+    private float amplitudeExponent = 2.0f;
 
-    protected int channelToShow = 0;
-    protected WindowType windowType = WindowType.HANN;
-    protected int fftWindowSize = 1024;
-    protected float minAmplitudeNormalizer = 1.0f;
-    protected float amplitudeExponent = 2.0f;
+    private float currentAmplitudeNormalizer = minAmplitudeNormalizer;
+    private float normalizerDecaySpeed = 0.0f;
 
-    protected float normalizerRecoverySpeed = 0.1f;
-    protected float currentAmplitudeNormalizer = minAmplitudeNormalizer;
-    protected float normalizerDecaySpeed = 0.0f;
-
-    protected float spectrumDecayFactor = 0.8f;
+    private float spectrumDecayFactor = 0.8f;
 
     protected static final float MIN_SCALE = 0.5f;
     protected static final float MAX_SCALE = 4.0f;
@@ -193,17 +194,25 @@ public class SpectrumVisualizer extends AudioVisualizer {
 
                 int xPosition = x;
 
+                Color targetUpperColor = (useColorProcessor ?
+                        new Color(volumeColorProcessor.getColor(maxBinAmplitude), true) :
+                        upperBarColor);
+
                 if (drawDoubleBars) {
+                    Color targetLowerColor = (useColorProcessor ?
+                            new Color(volumeColorProcessor.getColor(maxBinAmplitude), true).darker() :
+                            lowerBarColor);
+
                     // Upper bar
-                    g2d.setColor(upperBarColor);
+                    g2d.setColor(targetUpperColor);
                     g2d.fillRect(xPosition, centerY - halfAmplitudePixels, 1, halfAmplitudePixels);
 
                     // Lower bar
-                    g2d.setColor(lowerBarColor);
+                    g2d.setColor(targetLowerColor);
                     g2d.fillRect(xPosition, centerY, 1, halfAmplitudePixels);
                 } else {
                     int yPosition = getHeight() - amplitudePixels;
-                    g2d.setColor(upperBarColor);
+                    g2d.setColor(targetUpperColor);
                     g2d.fillRect(xPosition, yPosition, 1, amplitudePixels);
                 }
             }
@@ -359,9 +368,12 @@ public class SpectrumVisualizer extends AudioVisualizer {
      * and lower channel of the audio signal.
      * 
      * @param color The color used to draw the upper bar
+     * @throws NullPointerException if the color is null
      */
     public void setUpperBarColor(Color color) {
+        Objects.requireNonNull(color);
         this.upperBarColor = color;
+        this.useColorProcessor = false;
     }
 
     /**
@@ -381,9 +393,26 @@ public class SpectrumVisualizer extends AudioVisualizer {
      * and lower channel of the audio signal.
      *
      * @param color The color used to draw the lower bar
+     * @throws NullPointerException if the color is null
      */
     public void setLowerBarColor(Color color) {
+        Objects.requireNonNull(color);
         this.lowerBarColor = color;
+        this.useColorProcessor = false;
+    }
+
+    /**
+     * Sets the volume color processor used by the visualizer.
+     * 
+     * @param volumeColorProcessor The volume color processor used by the visualizer
+     * @throws NullPointerException if the volume color processor is null
+     * @see ColorGradient
+     * @see VolumeColorProcessor
+     */
+    public void setVolumeColorProcessor(VolumeColorProcessor volumeColorProcessor) {
+        Objects.requireNonNull(volumeColorProcessor);
+        this.volumeColorProcessor = volumeColorProcessor;
+        this.useColorProcessor = true;
     }
 
     /**
@@ -536,9 +565,11 @@ public class SpectrumVisualizer extends AudioVisualizer {
      * bin value until next bin.
      * 
      * @param mode The interpolation mode used to generate the spectrum.
+     * @throws NullPointerException if the interpolation mode is null
      * @see InterpolationMode
      */
     public void setSpectrumInterpolationMode(InterpolationMode mode) {
+        Objects.requireNonNull(mode);
         this.spectrumInterpolationMode = mode;
     }
 
@@ -582,9 +613,10 @@ public class SpectrumVisualizer extends AudioVisualizer {
      * trade-off between main lobe width and side lobe attenuation.
      * 
      * @param type the type of window function to apply before the FFT
+     * @throws NullPointerException if the window type is null
      */
     public void setWindowType(WindowType type) {
-        if (type == null) return;
+        Objects.requireNonNull(type);
         this.windowType = type;
     }
 
