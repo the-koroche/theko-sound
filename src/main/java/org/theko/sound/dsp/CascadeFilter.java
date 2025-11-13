@@ -25,31 +25,22 @@ import org.theko.sound.control.FloatControl;
 /**
  * AudioFilter is a digital audio filter that processes mono channel audio samples using a configurable
  * cascade of biquad filter stages. The filter supports adjustable cutoff frequency, bandwidth, and gain,
- * and can be configured as different filter types (e.g., low-pass, high-pass) via the FilterType parameter.
+ * and can be created with different filter types (e.g., low-pass, high-pass) via the FilterType argument.
  * 
  * <p>
  * The filter order must be an even number between 2 and 8, corresponding to the number of biquad stages used.
  * Each stage processes the output of the previous stage, allowing for higher-order filtering.
  * 
- * 
  * <p>
  * The filter exposes controls for cutoff, bandwidth, and gain, which can be accessed and modified
  * at runtime. Coefficients are updated based on the current control values and the provided sample rate.
  * 
- * 
- * <p>
- * Implements {@link MonoChannelSamplesProcessable} for sample-by-sample and block processing,
- * and {@link Controllable} for exposing filter parameter controls.
- * 
- * 
  * <p>
  * For multi-channel audio processing, use {@link MultiChannelAudioFilter}.
- * 
  * 
  * @see MultiChannelAudioFilter
  * @see BiquadStage
  * @see FilterType
- * @see MonoChannelSamplesProcessable
  * 
  * @since 2.3.2
  * @author Theko
