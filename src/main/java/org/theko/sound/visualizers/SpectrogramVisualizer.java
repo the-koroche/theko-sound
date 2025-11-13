@@ -33,6 +33,7 @@ import org.theko.sound.control.FloatControl;
 import org.theko.sound.dsp.FFT;
 import org.theko.sound.dsp.WindowFunction;
 import org.theko.sound.dsp.WindowType;
+import static org.theko.sound.visualizers.SpectrumVisualizationUtilities.*;
 import org.theko.sound.utility.MathUtilities;
 
 /**
@@ -93,6 +94,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
         private float[] mappingPositions;
         private float[] interpolatedSpectrum;
         private float[] real, imag;
+        private float lastFrequencyScale = -1;
         private BufferedImage line;
         private Graphics2D lineGraphics;
 
@@ -170,10 +172,15 @@ public class SpectrogramVisualizer extends AudioVisualizer {
             
             if (mappingPositions == null || mappingPositions.length != fftSpectrum.length) {
                 mappingPositions = new float[fftSpectrum.length];
+                lastFrequencyScale = frequencyScale;
+                getScaledPositions(mappingPositions, getWidth(), frequencyScale);
             }
             
-            calculatePositions(mappingPositions, getHeight(), frequencyScale);
-            mapSpectrum(fftSpectrum, mappingPositions, interpolatedSpectrum);
+            if (lastFrequencyScale != frequencyScale) {
+                lastFrequencyScale = frequencyScale;
+                getScaledPositions(mappingPositions, getHeight(), frequencyScale);
+            }
+            mapSpectrumInterpolate(fftSpectrum, mappingPositions, false, interpolatedSpectrum);
 
             if (line == null || line.getHeight() != getHeight()) {
                 if (lineGraphics != null) lineGraphics.dispose();
@@ -268,42 +275,6 @@ public class SpectrogramVisualizer extends AudioVisualizer {
 
             for (int i = 0; i < spectrumLength; i++) {
                 outputSpectrum[i] = MathUtilities.clamp(outputSpectrum[i] / currentAmplitudeNormalizer, 0.0f, 1.0f);
-            }
-        }
-
-        private void calculatePositions(float[] outPositions, int height, float scale) {
-            for (int i = 0; i < outPositions.length; i++) {
-                double normalized = Math.log10(1 + i) / Math.log10(1 + outPositions.length);
-                double scaled = Math.pow(normalized, scale);
-                outPositions[i] = (float) (scaled * (height - 1));
-            }
-        }
-
-        private void mapSpectrum(float[] inputSpectrum, float[] positions, float[] interpolatedSpectrumOut) {
-            Arrays.fill(interpolatedSpectrumOut, 0.0f);
-            
-            for (int i = 0; i < positions.length - 1; i++) {
-                int startX = (int) positions[i];
-                int endX = (int) positions[i + 1];
-
-                if (startX >= interpolatedSpectrumOut.length || endX >= interpolatedSpectrumOut.length) {
-                    continue;
-                }
-
-                float startValue = inputSpectrum[i];
-                float endValue = inputSpectrum[i + 1];
-
-                for (int x = startX; x <= endX; x++) {
-                    if (x >= interpolatedSpectrumOut.length) break;
-                    
-                    float t = (x - positions[i]) / (positions[i + 1] - positions[i] + 1e-6f);
-                    t = MathUtilities.clamp(t, 0, 1);
-                    float value = MathUtilities.lerp(startValue, endValue, t);
-                    
-                    if (value > interpolatedSpectrumOut[x]) {
-                        interpolatedSpectrumOut[x] = value;
-                    }
-                }
             }
         }
     }
