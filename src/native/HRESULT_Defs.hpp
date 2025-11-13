@@ -39,7 +39,7 @@
  */
 static const char* GetHRESULTConstantName(HRESULT hr) {
     static const std::unordered_map<HRESULT, const char*> hr_names = {
-        //  General — winerror.h
+        //  General - winerror.h
         {S_OK, "S_OK"},
         {S_FALSE, "S_FALSE"},
         {E_UNEXPECTED, "E_UNEXPECTED"},
