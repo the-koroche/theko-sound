@@ -41,7 +41,8 @@ public final class MathUtilities {
      * @return The remapped value.
      */
     public static float remapUnclamped(float x, float inMin, float inMax, float outMin, float outMax) {
-        return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+        if (inMax == inMin) return outMin;
+        return ((x - inMin) / (inMax - inMin)) * (outMax - outMin) + outMin;
     }
 
     /**
@@ -55,7 +56,8 @@ public final class MathUtilities {
      * @return The remapped value.
      */
     public static double remapUnclamped(double x, double inMin, double inMax, double outMin, double outMax) {
-        return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+        if (inMax == inMin) return outMin;
+        return ((x - inMin) / (inMax - inMin)) * (outMax - outMin) + outMin;
     }
 
     /**
@@ -83,7 +85,10 @@ public final class MathUtilities {
      * @return The remapped value, clamped to the output range.
      */
     public static double remapClamped(double x, double inMin, double inMax, double outMin, double outMax) {
-        return Math.min(outMax, Math.max(outMin, remapUnclamped(x, inMin, inMax, outMin, outMax)));
+        double result = remapUnclamped(x, inMin, inMax, outMin, outMax);
+        if (result < outMin) return outMin;
+        if (result > outMax) return outMax;
+        return result;
     }
 
     /**
