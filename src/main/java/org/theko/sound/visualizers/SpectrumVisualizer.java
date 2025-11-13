@@ -32,6 +32,7 @@ import org.theko.sound.control.FloatControl;
 import org.theko.sound.dsp.FFT;
 import org.theko.sound.dsp.WindowFunction;
 import org.theko.sound.dsp.WindowType;
+import static org.theko.sound.visualizers.SpectrumVisualizationUtilities.*;
 import org.theko.sound.utility.MathUtilities;
 
 /**
@@ -63,7 +64,9 @@ public class SpectrumVisualizer extends AudioVisualizer {
     protected boolean useColorProcessor = true;
     protected boolean drawDoubleBars = false;
 
-    private InterpolationMode spectrumInterpolationMode = InterpolationMode.EASING;
+    private InterpolationMode spectrumInterpolationMode = InterpolationMode.FIXED_WIDTH;
+    private int fixedWidthBarCount = 24;
+    private float fixedWidthBarWidth = 0.75f;
 
     private int channelToShow = 0;
     private WindowType windowType = WindowType.HANN;
@@ -78,10 +81,10 @@ public class SpectrumVisualizer extends AudioVisualizer {
 
     protected static final float MIN_SCALE = 0.5f;
     protected static final float MAX_SCALE = 4.0f;
-    protected static final float MIN_WEIGHT = 0.1f;
-    protected static final float MAX_WEIGHT = 10.0f;
     protected static final float MIN_DECAY = 0.0f;
     protected static final float MAX_DECAY = 1.0f;
+    protected static final float MIN_BAR_WIDTH = 0.0f;
+    protected static final float MAX_BAR_WIDTH = 1.0f;
 
     protected static final int MIN_FFT_SIZE = 64;
     protected static final int MAX_FFT_SIZE = 16384;
@@ -106,9 +109,10 @@ public class SpectrumVisualizer extends AudioVisualizer {
      * An enum that represents the interpolation mode, between bins.
      */
     public enum InterpolationMode {
-        NONE,
+        NEAREST,
         LINEAR,
-        EASING
+        EASING,
+        FIXED_WIDTH
     }
 
     /**
@@ -121,6 +125,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
         private float[] mappingPositions;
         private float[] interpolatedSpectrum;
         private float[] real, imag;
+        private float lastFrequencyScale = -1;
 
         @Override
         public void invalidate() {
@@ -165,10 +170,15 @@ public class SpectrumVisualizer extends AudioVisualizer {
             
             if (mappingPositions == null || mappingPositions.length != fftSpectrum.length) {
                 mappingPositions = new float[fftSpectrum.length];
+                lastFrequencyScale = frequencyScale;
+                getScaledPositions(mappingPositions, getWidth(), frequencyScale);
             }
             
-            calculatePositions(mappingPositions, getWidth(), frequencyScale);
-            mapSpectrum(fftSpectrum, mappingPositions, interpolatedSpectrum);
+            if (lastFrequencyScale != frequencyScale) {
+                lastFrequencyScale = frequencyScale;
+                getScaledPositions(mappingPositions, getWidth(), frequencyScale);
+            }
+            mapSpectrum(fftSpectrum, mappingPositions, getWidth(), interpolatedSpectrum);
 
             // Process after mapping
             for (int i = 0; i < interpolatedSpectrum.length; i++) {
@@ -271,50 +281,12 @@ public class SpectrumVisualizer extends AudioVisualizer {
             }
         }
 
-        private void calculatePositions(float[] outPositions, int height, float scale) {
-            for (int i = 0; i < outPositions.length; i++) {
-                double normalized = Math.log10(1 + i) / Math.log10(1 + outPositions.length);
-                double scaled = Math.pow(normalized, scale);
-                outPositions[i] = (float) (scaled * (height - 1));
-            }
-        }
-
-        private void mapSpectrum(float[] inputSpectrum, float[] positions, float[] interpolatedSpectrumOut) {
-            boolean isEasing = spectrumInterpolationMode == InterpolationMode.EASING;
-            boolean needToInterpolate = spectrumInterpolationMode == InterpolationMode.LINEAR || isEasing;
-            
-            for (int i = 0; i < positions.length - 1; i++) {
-                int startX = (int) positions[i];
-                int endX = (int) positions[i + 1];
-
-                if (startX >= interpolatedSpectrumOut.length || endX >= interpolatedSpectrumOut.length) {
-                    continue;
-                }
-
-                float startValue = inputSpectrum[i];
-                float endValue = inputSpectrum[i + 1];
-
-                for (int x = startX; x <= endX; x++) {
-                    if (needToInterpolate) {
-                        float t = (x - positions[i]) / (positions[i + 1] - positions[i] + 1e-6f); // Add epsilon to avoid division by zero
-                        t = Math.max(0, Math.min(1, t)); // clamp
-                        
-                        // Ease In-Out
-                        if (isEasing) {
-                            t = t * t * (3 - 2 * t);
-                        }
-
-                        // Lerp
-                        float value = startValue * (1 - t) + endValue * t;
-                        if (value > interpolatedSpectrumOut[x]) {
-                            interpolatedSpectrumOut[x] = value;
-                        }
-                    } else {
-                        if (startValue > interpolatedSpectrumOut[x]) {
-                            interpolatedSpectrumOut[x] = startValue;
-                        }
-                    }
-                }
+        private void mapSpectrum(float[] inputSpectrum, float[] positions, int width, float[] interpolatedSpectrumOut) {
+            switch (spectrumInterpolationMode) {
+                case LINEAR -> mapSpectrumInterpolate(fftSpectrum, mappingPositions, false, interpolatedSpectrum);
+                case EASING -> mapSpectrumInterpolate(fftSpectrum, mappingPositions, true, interpolatedSpectrum);
+                case FIXED_WIDTH -> mapSpectrumFixedWidth(fftSpectrum, mappingPositions, getWidth(), fixedWidthBarCount, fixedWidthBarWidth, interpolatedSpectrum);
+                case NEAREST -> mapSpectrumNearest(fftSpectrum, mappingPositions, interpolatedSpectrum);
             }
         }
     }
@@ -465,6 +437,50 @@ public class SpectrumVisualizer extends AudioVisualizer {
     }
 
     /**
+     * Sets the number of fixed width bars to divide the window into for the fixed width
+     * interpolation mode.
+     * 
+     * @param count The number of fixed width bars to divide the window into
+     * @throws IllegalArgumentException if the count is less than or equal to 0
+     */
+    public void setFixedWidthBarCount(int count) {
+        if (count <= 0) {
+            throw new IllegalArgumentException("Fixed width bar count must be greater than 0.");
+        }
+        this.fixedWidthBarCount = count;
+    }
+
+    /**
+     * Returns the number of fixed width bars to divide the window into for the fixed width
+     * interpolation mode.
+     * 
+     * @return The number of fixed width bars to divide the window into
+     */
+    public int getFixedWidthBarCount() {
+        return fixedWidthBarCount;
+    }
+
+    /**
+     * Sets the width of the fixed width bars as a fraction of the window width.
+     * The width is clamped to the range [0.0, 1.0] if it is outside this range.
+     * 
+     * @param width The width of the fixed width bars as a fraction of the window width
+     */
+    public void setFixedWidthBarWidth(float width) {
+        this.fixedWidthBarWidth = MathUtilities.clamp(width, MIN_BAR_WIDTH, MAX_BAR_WIDTH);
+    }
+
+    /**
+     * Returns the width of the fixed width bars as a fraction of the window width.
+     * This value is clamped to the range [0.0, 1.0] if it is outside this range.
+     * 
+     * @return The width of the fixed width bars as a fraction of the window width
+     */
+    public float getFixedWidthBarWidth() {
+        return fixedWidthBarWidth;
+    }
+
+    /**
      * Sets the spectrum decay factor of the visualizer.
      * This value controls how quickly the spectrum decays back to zero.
      * 
@@ -553,19 +569,36 @@ public class SpectrumVisualizer extends AudioVisualizer {
     /**
      * Sets the interpolation mode used to generate the spectrum.
      * 
-     * <p>
-     * The interpolation mode determines how the spectrum is generated from the
-     * input samples. If the interpolation mode is set to
-     * {@link InterpolationMode#LINEAR}, the spectrum is generated by
-     * linearly interpolating between the input samples. If the interpolation
-     * mode is set to {@link InterpolationMode#EASING}, the spectrum is
-     * generated by applying an easing function to the input samples.
-     * Otherwise, if the interpolation mode is set to
-     * {@link InterpolationMode#NONE}, the spectrum is generated by copying the
-     * bin value until next bin.
+     * <p>The interpolation mode determines how the spectrum values are calculated
+     * from the input samples. Different modes affect the smoothness and sharpness 
+     * of the resulting spectrum, as well as the risk of aliasing.
      * 
-     * @param mode The interpolation mode used to generate the spectrum.
-     * @throws NullPointerException if the interpolation mode is null
+     * <h3>Interpolation Modes</h3>
+     * <ul>
+     *   <li>
+     *     <b>{@link InterpolationMode#FIXED_WIDTH}</b>: Uses a fixed-width window
+     *     for interpolation. Produces a generally smooth spectrum, but may introduce
+     *     aliasing artifacts at high frequencies. Recommended for continuous spectra.
+     *   </li>
+     *   <li>
+     *     <b>{@link InterpolationMode#NEAREST}</b>: Uses the nearest neighbor method
+     *     for interpolation. Produces a sharp, pixelated spectrum. Can introduce
+     *     aliasing. Useful when exact sample positions are important.
+     *   </li>
+     *   <li>
+     *     <b>{@link InterpolationMode#LINEAR}</b>: Performs linear interpolation
+     *     between samples. Produces a spectrum that is smooth but preserves some
+     *     sharp transitions. Good general-purpose choice.
+     *   </li>
+     *   <li>
+     *     <b>{@link InterpolationMode#EASING}</b>: Uses an easing function to interpolate
+     *     between samples. Produces very smooth spectra with minimal harsh edges.
+     *     Best when visual smoothness is prioritized over exact sample representation.
+     *   </li>
+     * </ul>
+     * 
+     * @param mode the interpolation mode to use; must not be {@code null}
+     * @throws NullPointerException if {@code mode} is {@code null}
      * @see InterpolationMode
      */
     public void setSpectrumInterpolationMode(InterpolationMode mode) {
