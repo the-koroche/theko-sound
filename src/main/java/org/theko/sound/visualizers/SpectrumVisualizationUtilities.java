@@ -147,7 +147,7 @@ public final class SpectrumVisualizationUtilities {
                 
                 // Ease In-Out
                 if (easing) {
-                    t = t * t * (3 - 2 * t);
+                    t = t * t * t * (t * (t * 6 - 15) + 10);
                 }
 
                 // Lerp
