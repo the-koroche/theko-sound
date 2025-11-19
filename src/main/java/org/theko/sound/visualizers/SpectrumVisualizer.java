@@ -58,13 +58,13 @@ public class SpectrumVisualizer extends AudioVisualizer {
     
     protected final FloatControl gainControl = new FloatControl("Gain", 0.0f, 2.0f, 1.0f);
     private float frequencyScale = 1.0f;
-    private Color upperBarColor = Color.LIGHT_GRAY;
-    private Color lowerBarColor = Color.GRAY;
+    private Color upperBarColor = Color.WHITE;
+    private Color lowerBarColor = Color.LIGHT_GRAY;
     private VolumeColorProcessor volumeColorProcessor = ColorGradient.BRIGHT_INFERNO_COLOR_MAP.getVolumeColorProcessor();
     protected boolean useColorProcessor = true;
     protected boolean drawDoubleBars = false;
 
-    private InterpolationMode spectrumInterpolationMode = InterpolationMode.FIXED_WIDTH;
+    private InterpolationMode spectrumInterpolationMode = InterpolationMode.EASING;
     private int fixedWidthBarCount = 24;
     private float fixedWidthBarWidth = 0.75f;
 
@@ -77,7 +77,8 @@ public class SpectrumVisualizer extends AudioVisualizer {
     private float currentAmplitudeNormalizer = minAmplitudeNormalizer;
     private float normalizerDecaySpeed = 0.0f;
 
-    private float spectrumDecayFactor = 0.8f;
+    private float spectrumDecayFactor = 0.86f;
+    private DecayMode spectrumDecayMode = DecayMode.MULTIPLY;
 
     protected static final float MIN_SCALE = 0.5f;
     protected static final float MAX_SCALE = 4.0f;
@@ -103,8 +104,6 @@ public class SpectrumVisualizer extends AudioVisualizer {
     protected float[] recentAudioWindow = new float[channelToShow];
     private float[] window = null;
 
-    protected float[] displayedSpectrum = new float[channelToShow];
-
     /**
      * An enum that represents the interpolation mode, between bins.
      */
@@ -116,6 +115,14 @@ public class SpectrumVisualizer extends AudioVisualizer {
     }
 
     /**
+     * An enum that represents the decay mode, between bins.
+     */
+    public enum DecayMode {
+        MULTIPLY,
+        INTERPOLATE
+    }
+
+    /**
      * A class that represents a spectrum panel.
      */
     protected class SpectrumPanel extends JPanel {
@@ -124,6 +131,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
         private float[] fftSpectrum;
         private float[] mappingPositions;
         private float[] interpolatedSpectrum;
+        private float[] drawnSpectrum;
         private float[] real, imag;
         private float lastFrequencyScale = -1;
 
@@ -180,9 +188,21 @@ public class SpectrumVisualizer extends AudioVisualizer {
             }
             mapSpectrum(fftSpectrum, mappingPositions, getWidth(), interpolatedSpectrum);
 
-            // Process after mapping
-            for (int i = 0; i < interpolatedSpectrum.length; i++) {
-                interpolatedSpectrum[i] *= spectrumDecayFactor;
+            if (drawnSpectrum == null || drawnSpectrum.length != interpolatedSpectrum.length) {
+                drawnSpectrum = new float[interpolatedSpectrum.length];
+            }
+
+            switch (spectrumDecayMode) {
+                case MULTIPLY -> {
+                    for (int i = 0; i < drawnSpectrum.length; i++) {
+                        drawnSpectrum[i] = Math.max(drawnSpectrum[i] * spectrumDecayFactor, interpolatedSpectrum[i]);
+                    }
+                }
+                case INTERPOLATE -> {
+                    for (int i = 0; i < drawnSpectrum.length; i++) {
+                        drawnSpectrum[i] = MathUtilities.lerp(interpolatedSpectrum[i], drawnSpectrum[i], spectrumDecayFactor);
+                    }
+                }
             }
 
             int binsPerPixel = (int) (interpolatedSpectrum.length / getWidth());
@@ -192,10 +212,10 @@ public class SpectrumVisualizer extends AudioVisualizer {
                 float maxBinAmplitude = 0f;
 
                 int binStart = (int) (x * binsPerPixel);
-                int binEnd = Math.min((int) ((x + 1) * binsPerPixel), interpolatedSpectrum.length);
+                int binEnd = Math.min((int) ((x + 1) * binsPerPixel), drawnSpectrum.length);
 
                 for (int j = binStart; j < binEnd; j++) {
-                    maxBinAmplitude = Math.max(maxBinAmplitude, interpolatedSpectrum[j]);
+                    maxBinAmplitude = Math.max(maxBinAmplitude, drawnSpectrum[j]);
                 }
 
                 int amplitudePixels = (int) (maxBinAmplitude * getHeight());
@@ -597,8 +617,8 @@ public class SpectrumVisualizer extends AudioVisualizer {
      *   </li>
      * </ul>
      * 
-     * @param mode the interpolation mode to use; must not be {@code null}
-     * @throws NullPointerException if {@code mode} is {@code null}
+     * @param mode the interpolation mode to use
+     * @throws NullPointerException if mode is null
      * @see InterpolationMode
      */
     public void setSpectrumInterpolationMode(InterpolationMode mode) {
@@ -614,6 +634,30 @@ public class SpectrumVisualizer extends AudioVisualizer {
      */
     public InterpolationMode getSpectrumInterpolationMode() {
         return spectrumInterpolationMode;
+    }
+
+    /**
+     * Defines how the spectrum falls off when the audio signal decreases.
+     * This controls how quickly the visualized bars drop back down
+     * when the input level goes down or disappears.
+     *
+     * @param decayMode the decay behavior to apply
+     * @throws NullPointerException if decayMode is null
+     * @see DecayMode
+     */
+    public void setSpectrumDecayMode(DecayMode decayMode) {
+        Objects.requireNonNull(decayMode);
+        this.spectrumDecayMode = decayMode;
+    }
+
+    /**
+     * Returns the current decay mode used by the spectrum visualizer.
+     * 
+     * @return The current decay mode used.
+     * @see DecayMode
+     */
+    public DecayMode getSpectrumDecayMode() {
+        return spectrumDecayMode;
     }
 
     /**
