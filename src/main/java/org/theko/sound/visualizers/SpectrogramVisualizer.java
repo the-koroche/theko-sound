@@ -85,7 +85,6 @@ public class SpectrogramVisualizer extends AudioVisualizer {
     private float[] window = null;
     
     protected SpectrumPanel spectrumPanel;
-    protected BufferedImage spectrumImage;
 
     protected class SpectrumPanel extends JPanel {
 
@@ -95,8 +94,8 @@ public class SpectrogramVisualizer extends AudioVisualizer {
         private float[] interpolatedSpectrum;
         private float[] real, imag;
         private float lastFrequencyScale = -1;
-        private BufferedImage line;
-        private Graphics2D lineGraphics;
+        private BufferedImage line, spectrumImage;
+        private Graphics2D lineGraphics, spectrumGraphics;
 
         private float timeSinceLastShift = 0f;
         private long lastRenderTime = System.nanoTime();
@@ -150,6 +149,19 @@ public class SpectrogramVisualizer extends AudioVisualizer {
                 return;
             }
 
+            if (spectrumImage == null || spectrumImage.getWidth() != getWidth() || spectrumImage.getHeight() != getHeight()) {
+                if (spectrumImage != null) spectrumImage.flush();
+                spectrumImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+                spectrumGraphics = spectrumImage.createGraphics();
+            }
+
+            if (line == null || line.getHeight() != getHeight()) {
+                if (line != null) line.flush();
+                line = new BufferedImage(1, getHeight(), BufferedImage.TYPE_INT_ARGB);
+                if (lineGraphics != null) lineGraphics.dispose();
+                lineGraphics = line.createGraphics();
+            }
+
             Graphics2D g2d = (Graphics2D) g;
             setupG2D(g2d);
 
@@ -181,12 +193,6 @@ public class SpectrogramVisualizer extends AudioVisualizer {
                 getScaledPositions(mappingPositions, getHeight(), frequencyScale);
             }
             mapSpectrumInterpolate(fftSpectrum, mappingPositions, false, interpolatedSpectrum);
-
-            if (line == null || line.getHeight() != getHeight()) {
-                if (lineGraphics != null) lineGraphics.dispose();
-                line = new BufferedImage(1, getHeight(), BufferedImage.TYPE_INT_ARGB);
-                lineGraphics = line.createGraphics();
-            }
             
             lineGraphics.setColor(Color.BLACK);
             lineGraphics.fillRect(0, 0, 1, getHeight());
@@ -197,31 +203,21 @@ public class SpectrogramVisualizer extends AudioVisualizer {
                 line.setRGB(0, getHeight() - y - 1, color);
             }
 
-            if (spectrumImage == null || 
-                spectrumImage.getWidth() != getWidth() || 
-                spectrumImage.getHeight() != getHeight()) {
-                spectrumImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
-            }
-
-            Graphics2D g2dImage = spectrumImage.createGraphics();
-            setupG2D(g2dImage);
-
             if (shiftPixels < getWidth()) {
-                g2dImage.copyArea(shiftPixels, 0, getWidth() - shiftPixels, getHeight(), -shiftPixels, 0);
-                g2dImage.setColor(Color.BLACK);
-                g2dImage.fillRect(getWidth() - shiftPixels, 0, shiftPixels, getHeight());
+                spectrumGraphics.copyArea(shiftPixels, 0, getWidth() - shiftPixels, getHeight(), -shiftPixels, 0);
+                spectrumGraphics.setColor(Color.BLACK);
+                spectrumGraphics.fillRect(getWidth() - shiftPixels, 0, shiftPixels, getHeight());
             } else {
-                g2dImage.clearRect(0, 0, getWidth(), getHeight());
+                spectrumGraphics.clearRect(0, 0, getWidth(), getHeight());
             }
 
             for (int i = 0; i < shiftPixels; i++) {
                 int x = getWidth() - shiftPixels + i;
                 if (x >= 0 && x < getWidth()) {
-                    g2dImage.drawImage(line, x, 0, null);
+                    spectrumGraphics.drawImage(line, x, 0, null);
                 }
             }
 
-            g2dImage.dispose();
             g2d.drawImage(spectrumImage, 0, 0, null);
         }
 
