@@ -143,8 +143,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
             fftSpectrum = null;
             mappingPositions = null;
             interpolatedSpectrum = null;
-            real = null;
-            imag = null;
+            real = null; imag = null;
         }
         
         @Override
@@ -154,8 +153,8 @@ public class SpectrumVisualizer extends AudioVisualizer {
             Graphics2D g2d = (Graphics2D) g;
             setupG2D(g2d);
 
-            // Return if there is not enough samples
-            if (recentAudioWindow == null) {
+            // Do nothing if there is not enough samples
+            if (recentAudioWindow == null || recentAudioWindow.length == 0) {
                 return;
             }
 
@@ -205,14 +204,12 @@ public class SpectrumVisualizer extends AudioVisualizer {
                 }
             }
 
-            int binsPerPixel = (int) (interpolatedSpectrum.length / getWidth());
-
             g2d.setColor(upperBarColor);
             for (int x = 0; x < getWidth(); x++) {
                 float maxBinAmplitude = 0f;
 
-                int binStart = (int) (x * binsPerPixel);
-                int binEnd = Math.min((int) ((x + 1) * binsPerPixel), drawnSpectrum.length);
+                int binStart = x;
+                int binEnd = Math.min((int) (x + 1), drawnSpectrum.length);
 
                 for (int j = binStart; j < binEnd; j++) {
                     maxBinAmplitude = Math.max(maxBinAmplitude, drawnSpectrum[j]);
