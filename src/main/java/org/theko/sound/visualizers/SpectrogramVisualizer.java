@@ -173,7 +173,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
             if (mappingPositions == null || mappingPositions.length != fftSpectrum.length) {
                 mappingPositions = new float[fftSpectrum.length];
                 lastFrequencyScale = frequencyScale;
-                getScaledPositions(mappingPositions, getWidth(), frequencyScale);
+                getScaledPositions(mappingPositions, getHeight(), frequencyScale);
             }
             
             if (lastFrequencyScale != frequencyScale) {
@@ -193,7 +193,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
 
             for (int y = 0; y < getHeight(); y++) {
                 float currentAmplitude = MathUtilities.clamp(interpolatedSpectrum[y], 0.0f, 1.0f);
-                int color = volumeColorProcessor.getColor(1f - currentAmplitude);
+                int color = volumeColorProcessor.getColor(currentAmplitude);
                 line.setRGB(0, getHeight() - y - 1, color);
             }
 
