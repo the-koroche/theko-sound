@@ -23,15 +23,28 @@ import org.slf4j.LoggerFactory;
 import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.FloatControl;
 import org.theko.sound.effects.AudioEffect;
+import org.theko.sound.utility.ArrayUtilities;
 import org.theko.sound.utility.SamplesUtilities;
 
 /**
- * Represents an audio effect that sends audio samples from an {@link AudioMixer} to a target {@link AudioNode}.
+ * Sends processed audio samples from its position in an {@link AudioMixer} effect chain
+ * to a target {@link AudioMixer}.
  * <p>
- * It provides controls for gain and pan, and allows for applying a chain of effects to the audio samples before sending them to the target node.
+ * This effect acts as a bridge between two mixers: it receives the audio samples
+ * from the point in the current mixer's effect chain where it is inserted,
+ * applies gain and pan adjustments, and then forwards the samples to the target mixer.
+ * <p>
+ * Example usage:
+ * <pre>
+ * AudioMixer sourceMixer = new AudioMixer();
+ * AudioMixer targetMixer = new AudioMixer();
+ * 
+ * sourceMixer.addEffect(new AudioEffect()); // This effect's output will be included in MixerSender
+ * sourceMixer.addEffect(new MixerSender(targetMixer)); // MixerSender forwards current chain samples to targetMixer
+ * sourceMixer.addEffect(new AudioEffect()); // This effect's output will NOT be included in MixerSender
+ * </pre>
  * 
  * @see AudioMixer
- * @see AudioNode
  * @see AudioEffect
  * 
  * @author Theko
@@ -41,9 +54,9 @@ public class MixerSender extends AudioEffect {
 
     private static final Logger logger = LoggerFactory.getLogger(MixerSender.class);
     
-    protected AudioMixer mixer;
+    protected AudioMixer targetMixer;
     protected AudioNode senderInputNode = new SenderPlayback();
-    protected float[][] effectSamples;
+    protected volatile float[][] effectSamples;
 
     protected final FloatControl gain = new FloatControl("Gain", 0.0f, 2.0f, 1.0f);
     protected final FloatControl pan = new FloatControl("Pan", -1.0f, 1.0f, 0.0f);
@@ -67,13 +80,13 @@ public class MixerSender extends AudioEffect {
     
     /**
      * Constructs a new {@code MixerSender} with the specified {@link AudioMixer}.
-     * @param mixer The audio mixer to send audio samples to.
+     * @param mixer The audio mixer to get audio samples from.
      */
     public MixerSender(AudioMixer mixer) {
         super(Type.REALTIME);
         addControls(mixerControls);
 
-        setMixer(mixer);
+        setTargetMixer(mixer);
     }
 
     /**
@@ -88,7 +101,10 @@ public class MixerSender extends AudioEffect {
         if (effectSamples == null || effectSamples.length != samples.length || effectSamples[0].length != samples[0].length) {
             effectSamples = new float[samples.length][samples[0].length];
         }
-        effectSamples = samples;
+        try {
+            ArrayUtilities.copyArray(samples, effectSamples);
+        } catch (LengthMismatchException | ChannelsCountMismatchException ignored) {
+        }
     }
 
     /**
@@ -97,15 +113,15 @@ public class MixerSender extends AudioEffect {
      * If the new mixer is not null, adds the sender node to the new mixer.
      * @param mixer The audio mixer to send audio samples to.
      */
-    public void setMixer(AudioMixer mixer) {
-        if (this.mixer != null) {
-            this.mixer.removeInput(senderInputNode);
+    public void setTargetMixer(AudioMixer mixer) {
+        if (this.targetMixer != null) {
+            this.targetMixer.removeInput(senderInputNode);
         }
-        this.mixer = mixer;
-        if (this.mixer == null) {
+        this.targetMixer = mixer;
+        if (this.targetMixer == null) {
             return;
         }
-        this.mixer.addInput(senderInputNode);
+        this.targetMixer.addInput(senderInputNode);
     }
 
     /**
@@ -151,13 +167,11 @@ public class MixerSender extends AudioEffect {
     }
 
     /**
-     * Returns the audio mixer that is currently being used by the mixer sender.
-     * This mixer is responsible for processing the audio samples sent by the sender node,
-     * and is the destination of the audio samples that are processed by the mixer sender.
+     * Returns the audio mixer that receives the audio samples from this mixer sender.
      * 
-     * @return The audio mixer currently being used by the mixer sender.
+     * @return The destination audio mixer where processed samples are sent.
      */
-    public AudioMixer getMixer() {
-        return mixer;
+    public AudioMixer getTargetMixer() {
+        return targetMixer;
     }
 }
