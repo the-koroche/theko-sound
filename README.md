@@ -43,7 +43,7 @@ The library will be available on **Maven Central**:
 <dependency>
     <groupId>org.theko.sound</groupId>
     <artifactId>theko-sound</artifactId>
-    <version>2.4.0</version>
+    <version>2.4.1</version>
 </dependency>
 ```
 
@@ -112,12 +112,13 @@ frame.dispose();
 
 Main modules of the library:
 
-* `backend` — audio backends (JavaSound, WASAPI, etc.)
-* `codec` — codecs (WAV, AIFF, AU)
-* `controls` — controls for dynamic parameter changes
+* `backend` — audio backend declarations and implementations (JavaSound, WASAPI, etc.)
+* `codec` — codec implementations (WAV)
+* `control` — controls for dynamic parameter changes
 * `event` — event model
-* `utils` — utilities (DSP, filters, windows, etc.)
-* `visualizers` — spectrum and waveform visualization
+* `dsp` — FFT, window functions, filters
+* `utility` — utilities (resources, formatting, math, arrays, etc.)
+* `visualizers` — built-in visualizers and helper utilities
 
 ---
 
