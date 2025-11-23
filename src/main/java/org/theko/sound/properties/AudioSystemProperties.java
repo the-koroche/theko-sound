@@ -19,8 +19,6 @@ package org.theko.sound.properties;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -278,48 +276,13 @@ public final class AudioSystemProperties {
         if (value == null || value.isBlank()) {
             return defaultValue;
         }
-
-        value = value.trim().toLowerCase(Locale.US);
-
-        Pattern pattern = Pattern.compile("([0-9]+(?:\\.[0-9]+)?)([a-z]*)");
-        Matcher matcher = pattern.matcher(value);
-        if (!matcher.matches()) {
-            logger.warn("Invalid format '{}' for '{}'. Using default {}", value, key, defaultValue);
-            return defaultValue;
-        }
-
-        String valueStr = matcher.group(1);
-        String unitStr = matcher.group(2);
-
-        Number numericValue;
+        
         try {
-            if (valueStr.contains(".")) {
-                numericValue = Double.parseDouble(valueStr);
-                if (numericValue.doubleValue() <= 0.0) throw new NumberFormatException();
-            } else {
-                numericValue = Long.parseLong(valueStr);
-                if (numericValue.longValue() <= 0) throw new NumberFormatException();
-            }
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid numeric value '{}' for '{}'. Using default {}", valueStr, key, defaultValue);
+            return AudioMeasure.of(value);
+        } catch (NumberFormatException ex) {
+            logger.warn("Invalid audio measure value for '{}'. Using default {}", key, defaultValue);
             return defaultValue;
         }
-
-        AudioMeasure.Unit unit = switch (unitStr) {
-            case "", "f", "frms", "frame", "frames" -> AudioMeasure.Unit.FRAMES;
-            case "smp", "samples", "sample" -> AudioMeasure.Unit.SAMPLES;
-            case "b", "byte", "bytes" -> AudioMeasure.Unit.BYTES;
-            case "s", "sec", "second", "seconds" -> AudioMeasure.Unit.SECONDS;
-            default -> {
-                logger.warn("Invalid unit '{}' for '{}'. Using default {}", unitStr, key, AudioMeasure.Unit.FRAMES.name());
-                yield AudioMeasure.Unit.FRAMES;
-            }
-        };
-
-        return switch (unit) {
-            case FRAMES, SAMPLES, BYTES -> AudioMeasure.of(numericValue.longValue(), unit);
-            case SECONDS -> AudioMeasure.of(numericValue.doubleValue(), unit);
-        };
     }
 
     private static AudioResamplerConfiguration getAudioResamplerConfig(String key, AudioResamplerConfiguration defaultValue) {

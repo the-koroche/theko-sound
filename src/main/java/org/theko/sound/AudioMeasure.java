@@ -16,6 +16,10 @@
 
  package org.theko.sound;
 
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.theko.sound.utility.FormatUtilities;
 
 /**
@@ -27,6 +31,9 @@ import org.theko.sound.utility.FormatUtilities;
  * @author Theko
  */
 public class AudioMeasure {
+
+    private static final Pattern VALUE_PATTERN =
+        Pattern.compile("([0-9]+(?:\\.[0-9]+)?)([a-z]*)", Pattern.CASE_INSENSITIVE);
 
     private final long longVal; // for frames, samples, bytes
     private final double timeVal; // for seconds
@@ -107,6 +114,41 @@ public class AudioMeasure {
      */
     public static AudioMeasure ofSeconds(double seconds) {
         return new AudioMeasure(0, seconds, Unit.SECONDS, null);
+    }
+
+    public static AudioMeasure of(String value) {
+        if (value == null || value.isBlank()) throw new IllegalArgumentException("Value must not be null or empty.");
+
+        value = value.trim();
+
+        Matcher matcher = VALUE_PATTERN.matcher(value);
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("Invalid format '" + value + "'.");
+        }
+
+        String valueStr = matcher.group(1);
+        String unitStr = matcher.group(2).toLowerCase(Locale.US);
+
+        double numericValue;
+        try {
+            numericValue = Double.parseDouble(valueStr);
+            if (numericValue < 0.0) throw new NumberFormatException();
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException("Invalid numeric value '" + valueStr + "'.");
+        }
+
+        AudioMeasure.Unit unit = switch (unitStr) {
+            case "", "f", "frm", "frms", "frame", "frames" -> AudioMeasure.Unit.FRAMES;
+            case "smp", "samples", "sample" -> AudioMeasure.Unit.SAMPLES;
+            case "b", "byte", "bytes" -> AudioMeasure.Unit.BYTES;
+            case "s", "sec", "second", "seconds" -> AudioMeasure.Unit.SECONDS;
+            default -> throw new IllegalArgumentException("Invalid unit '" + unitStr + "'.");
+        };
+
+        return switch (unit) {
+            case FRAMES, SAMPLES, BYTES -> AudioMeasure.of((long)numericValue, unit);
+            case SECONDS -> AudioMeasure.of(numericValue, unit);
+        };
     }
 
     public static AudioMeasure of(long value, Unit unit) {
