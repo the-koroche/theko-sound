@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.backend.AudioBackend;
 import org.theko.sound.backend.AudioBackends;
+import org.theko.sound.backend.dummy.DummyAudioBackend;
 import org.theko.sound.backend.javasound.JavaSoundBackend;
 import org.theko.sound.backend.wasapi.WASAPISharedBackend;
 import org.theko.sound.codec.AudioCodec;
@@ -31,7 +32,6 @@ import org.theko.sound.codec.formats.WAVECodec;
 
 /**
  * The AudioClassRegister class is responsible for registering audio backend and codec classes.
- * 
  *
  * @since 2.0.0
  * @author Theko
@@ -49,15 +49,16 @@ public final class AudioClassRegister {
 
     private static final Set<Class<? extends AudioBackend>> definedBackends = Set.of(
         JavaSoundBackend.class,
-        WASAPISharedBackend.class
+        WASAPISharedBackend.class,
+        DummyAudioBackend.class
     );
 
     private static final Set<Class<? extends AudioCodec>> definedCodecs = Set.of(
         WAVECodec.class
     );
 
-    private static Set<Class<? extends AudioBackend>> scannedBackends;
-    private static Set<Class<? extends AudioCodec>> scannedCodecs;
+    private static Set<Class<? extends AudioBackend>> registeredBackends;
+    private static Set<Class<? extends AudioCodec>> registeredCodecs;
 
     /**
      * Adds a new audio backend class to the scanned backends set.
@@ -66,11 +67,11 @@ public final class AudioClassRegister {
      * @param backend The class of the audio backend to add.
      */
     public static void addBackend(Class<? extends AudioBackend> backend) {
-        if (scannedBackends.contains(backend)) {
+        if (registeredBackends.contains(backend)) {
             logger.warn("Duplicate audio backend: {}", backend.getSimpleName());
             return;
         }
-        scannedBackends.add(backend);
+        registeredBackends.add(backend);
     }
 
     /**
@@ -80,13 +81,18 @@ public final class AudioClassRegister {
      * @param codec The class of the audio codec to add.
      */
     public static void addCodec(Class<? extends AudioCodec> codec) {
-        if (scannedCodecs.contains(codec)) {
+        if (registeredCodecs.contains(codec)) {
             logger.warn("Duplicate audio codec: {}", codec.getSimpleName());
             return;
         }
-        scannedCodecs.add(codec);
+        registeredCodecs.add(codec);
     }
 
+    /**
+     * Registers all available audio backends and codecs using reflection. It calls {@link AudioBackends#registerBackends()} and {@link AudioCodecs#registerCodecs()}.
+     * <p>
+     * If class scanning is enabled, it will include both predefined and scanned backends and codecs. Otherwise, it will return only the predefined backends and codecs.
+     */
     public static void registerClasses() {
         AudioBackends.registerBackends();
         AudioCodecs.registerCodecs();
@@ -100,7 +106,7 @@ public final class AudioClassRegister {
      * @return A set of audio backend classes.
      */
     public static Set<Class<? extends AudioBackend>> getBackendClasses() {
-        return scannedBackends != null ? Collections.unmodifiableSet(scannedBackends) : definedBackends;
+        return registeredBackends != null ? Collections.unmodifiableSet(registeredBackends) : definedBackends;
     }
 
     /**
@@ -111,6 +117,6 @@ public final class AudioClassRegister {
      * @return A set of audio codec classes.
      */
     public static Set<Class<? extends AudioCodec>> getCodecClasses() {
-        return scannedCodecs != null ? Collections.unmodifiableSet(scannedCodecs) : definedCodecs;
+        return registeredCodecs != null ? Collections.unmodifiableSet(registeredCodecs) : definedCodecs;
     }
 }
