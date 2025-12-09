@@ -18,6 +18,7 @@ package org.theko.sound.backend.wasapi;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +54,6 @@ import org.theko.sound.utility.PlatformUtilities.Platform;
  * 
  * <p>
  * Note: Input backend functionality is not realized and will throw {@link UnsupportedOperationException}.
- * 
  *
  * @author Theko
  * @since 2.3.2
@@ -70,7 +70,7 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISh
 
     private static final File lib32, lib64;
     private long backendContextPtr = 0;
-    private boolean isOpen = false;
+    private boolean isInitialized = false;
 
     private static final boolean isSupported;
 
@@ -144,30 +144,43 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISh
 
     @Override
     public void initialize() throws AudioBackendException {
-        if (isOpen) return;
+        if (isInitialized) return;
         nInit();
-        isOpen = true;
+        isInitialized = true;
     }
 
     @Override
     public void shutdown() throws AudioBackendException {
-        if (!isOpen) return;
+        if (!isInitialized) return;
         nShutdown();
-        isOpen = false;
+        isInitialized = false;
     }
 
     @Override
     public Collection<AudioPort> getAllPorts() throws BackendNotOpenException {
-        if (!isOpen) throw new BackendNotOpenException("Backend is not initialized.");
-        AudioPort[] ports = nGetAllPorts();
-        if (ports == null) return List.of();
-        return List.of(ports);
+        boolean initBefore = false;
+        if (!isInitialized()) {
+            initBefore = true;
+            initialize();
+        }
+        try {
+            AudioPort[] ports = nGetAllPorts();
+            if (ports == null || ports.length == 0) {
+                return List.of();
+            }
+
+            return Arrays.asList(ports);
+        } finally {
+            if (initBefore) {
+                shutdown();
+            }
+        }
     }
 
     @Override
     public Collection<AudioPort> getAvailablePorts(AudioFlow flow) throws BackendNotOpenException {
-        if (!isOpen) throw new BackendNotOpenException("Backend is not initialized.");
         if (flow == null) return List.of();
+
         return getAllPorts().stream()
                 .filter(port -> port.getFlow() == flow)
                 .collect(Collectors.toList());
@@ -175,34 +188,66 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISh
 
     @Override
     public Collection<AudioPort> getAvailablePorts(AudioFlow flow, AudioFormat audioFormat) throws BackendNotOpenException {
-        if (!isOpen) throw new BackendNotOpenException("Backend is not initialized.");
         if (flow == null || audioFormat == null) return List.of();
-        return getAllPorts().stream()
-                .filter(port -> port.getFlow() == flow && isFormatSupported(port, audioFormat))
-                .collect(Collectors.toList());
+
+        boolean initBefore = false;
+        if (!isInitialized()) {
+            initBefore = true;
+            initialize();
+        }
+        try {
+            return getAllPorts().stream()
+                    .filter(port -> port.getFlow() == flow && isFormatSupported(port, audioFormat))
+                    .collect(Collectors.toList());
+        } finally {
+            if (initBefore) {
+                shutdown();
+            }
+        }
     }
 
     @Override
     public Optional<AudioPort> getDefaultPort(AudioFlow flow) throws BackendNotOpenException {
-        if (!isOpen) throw new BackendNotOpenException("Backend is not initialized.");
         if (flow == null) return Optional.empty();
-        return Optional.ofNullable(nGetDefaultPort(flow));
+
+        boolean initBefore = false;
+        if (!isInitialized()) {
+            initBefore = true;
+            initialize();
+        }
+        try {
+            return Optional.ofNullable(nGetDefaultPort(flow));
+        } finally {
+            if (initBefore) {
+                shutdown();
+            }
+        }
     }
 
     @Override
     public Optional<AudioPort> getPort(AudioFlow flow, AudioFormat audioFormat) throws BackendNotOpenException {
-        if (!isOpen) throw new BackendNotOpenException("Backend is not initialized.");
         if (flow == null || audioFormat == null) return Optional.empty();
         return getAvailablePorts(flow, audioFormat).stream().findFirst();
     }
 
     @Override
     public boolean isFormatSupported(AudioPort port, AudioFormat audioFormat, AtomicReference<AudioFormat> closestFormat) throws BackendNotOpenException {
-        if (!isOpen) throw new BackendNotOpenException("Backend is not initialized.");
         if (port == null || !isAudioPortSupported(port)) return false;
         if (audioFormat == null) return false;
-        logger.debug("Checking if audio format: {} is supported for port: {}", audioFormat, port);
-        return nIsFormatSupported(port, audioFormat, closestFormat);
+
+        boolean initBefore = false;
+        if (!isInitialized()) {
+            initBefore = true;
+            initialize();
+        }
+        try {
+            logger.trace("Checking if audio format: {} is supported for port: {}", audioFormat, port);
+            return nIsFormatSupported(port, audioFormat, closestFormat);
+        } finally {
+            if (initBefore) {
+                shutdown();
+            }
+        }
     }
 
     @Override
@@ -222,7 +267,7 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISh
 
     @Override
     public boolean isInitialized() {
-        return isOpen;
+        return isInitialized;
     }
 
     public boolean isAudioPortSupported(AudioPort port) {
