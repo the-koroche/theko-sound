@@ -307,14 +307,19 @@ public class AudioBackends {
         for (Map.Entry<Platform, List<String>> entry : platformBackends.entrySet()) {
             if (entry.getKey().equals(platform)) {
                 for (String backendName : entry.getValue()) {
-                    AudioBackendInfo backendInfo = fromName(backendName);
-                    logger.info("Found compatible audio backend for this platform '{}': {}", System.getProperty("os.name"), backendName);
-                    AudioBackend backend = getBackend(backendInfo);
-                    if (!backend.isAvailableOnThisPlatform()) {
-                        logger.info("Audio backend '{}' is not available on this platform '{}'.", backendInfo.getName(), System.getProperty("os.name"));
+                    try {
+                        AudioBackendInfo backendInfo = fromName(backendName);
+                        logger.info("Found compatible audio backend for this platform '{}': {}", System.getProperty("os.name"), backendName);
+                        AudioBackend backend = getBackend(backendInfo);
+                        if (!backend.isAvailableOnThisPlatform()) {
+                            logger.info("Audio backend '{}' is not available on this platform '{}'.", backendName, System.getProperty("os.name"));
+                            continue;
+                        }
+                        return backendInfo;
+                    } catch (AudioBackendNotFoundException ex) {
+                        logger.info("Audio backend '{}' is not available on this platform '{}'.", backendName, System.getProperty("os.name"));
                         continue;
                     }
-                    return backendInfo;
                 }
             }
         }
@@ -322,7 +327,7 @@ public class AudioBackends {
         // Fallback to JavaSound if no platform-specific backend is found.
         String fallbackBackendName = "JavaSound";
         AudioBackendInfo fallbackBackendInfo = fromName(fallbackBackendName);
-        logger.info("No compatible audio backends for this platform '{}'' founded. Using fallback: {}",
+        logger.warn("No compatible audio backends for this platform '{}'' founded. Using fallback: {}",
                 System.getProperty("os.name"), fallbackBackendInfo.getName());
         return fallbackBackendInfo;
     }
