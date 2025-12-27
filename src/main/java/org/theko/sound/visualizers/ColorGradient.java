@@ -188,29 +188,6 @@ public class ColorGradient {
     }
 
     /**
-     * Creates a color gradient based on a single color.
-     * The gradient includes the input color, as well as darker and lighter variants.
-     * The darker variant is created by reducing the lightness of the color by 20%,
-     * while the lighter variant is created by increasing the lightness by 10%.
-     * A warmer variant of the color is also included in the gradient.
-     * This warmer variant is created by increasing the saturation of the color by 10%.
-     * @param color The color to base the gradient on.
-     * @return A color gradient based on the input color.
-     */
-    public static ColorGradient fromColor(Color color) {
-        float[] hsl = ColorUtilities.rgbToHsl(color);
-        float h = hsl[0], s = hsl[1], l = hsl[2];
-        
-        Color dark1 = ColorUtilities.hslToRgb(h, s * 0.7f, l * 0.4f);
-        Color dark2 = ColorUtilities.hslToRgb(h, s, l * 0.8f);
-        Color original = color;
-        Color light1 = ColorUtilities.hslToRgb(h, s * 1.05f, l * 1.1f);
-        Color light2 = ColorUtilities.hslToRgb(h - 0.05f, s * 1.1f, l * 1.3f);
-        
-        return fromColors(List.of(dark1, dark2, original, light1, light2));
-    }
-
-    /**
      * Returns a new color gradient that is the reverse of the current one.
      * The order of the colors in the returned gradient is the same as the order of the colors in the current gradient, but in reverse.
      * @return A new reversed color gradient
