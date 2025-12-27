@@ -16,17 +16,14 @@
 
 package org.theko.sound.visualizers;
 
-import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
-import javax.swing.JPanel;
 
 import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.FloatControl;
@@ -84,9 +81,9 @@ public class SpectrogramVisualizer extends AudioVisualizer {
     protected float[] recentAudioWindow = new float[channelToShow];
     private float[] window = null;
     
-    protected SpectrumPanel spectrumPanel;
+    protected SpectrogramRender spectrogramRender;
 
-    protected class SpectrumPanel extends JPanel {
+    protected class SpectrogramRender extends AudioVisualizer.Render {
 
         private float[] fftInputBuffer;
         private float[] fftSpectrum;
@@ -94,40 +91,26 @@ public class SpectrogramVisualizer extends AudioVisualizer {
         private float[] interpolatedSpectrum;
         private float[] real, imag;
         private float lastFrequencyScale = -1;
-        private BufferedImage line, spectrumImage;
-        private Graphics2D lineGraphics, spectrumGraphics;
 
         private float timeSinceLastShift = 0f;
         private long lastRenderTime = System.nanoTime();
+        
+        public SpectrogramRender(int width, int height) {
+            super(width, height, BufferedImage.TYPE_INT_ARGB);
+        }
 
         @Override
-        public void invalidate() {
+        protected void invalidate() {
             super.invalidate();
-            // Recreate on paintComponent
             fftInputBuffer = null;
             fftSpectrum = null;
             mappingPositions = null;
             interpolatedSpectrum = null;
-            real = null;
-            imag = null;
-            line = null;
-        }
-
-        @Override
-        public void removeNotify() {
-            super.removeNotify();
-            if (lineGraphics != null) {
-                lineGraphics.dispose();
-                lineGraphics = null;
-            }
-            
-            line = null;
+            real = null; imag = null;
         }
         
         @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-
+        protected void paint(Graphics2D g2d) {
             long now = System.nanoTime();
             float deltaTime = (now - lastRenderTime) / 1_000_000_000f;
             lastRenderTime = now;
@@ -143,27 +126,8 @@ public class SpectrogramVisualizer extends AudioVisualizer {
 
             // Return if there is not enough samples
             if (recentAudioWindow == null) {
-                if (spectrumImage != null) {
-                    g.drawImage(spectrumImage, 0, 0, null);
-                }
                 return;
             }
-
-            if (spectrumImage == null || spectrumImage.getWidth() != getWidth() || spectrumImage.getHeight() != getHeight()) {
-                if (spectrumImage != null) spectrumImage.flush();
-                spectrumImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
-                spectrumGraphics = spectrumImage.createGraphics();
-            }
-
-            if (line == null || line.getHeight() != getHeight()) {
-                if (line != null) line.flush();
-                line = new BufferedImage(1, getHeight(), BufferedImage.TYPE_INT_ARGB);
-                if (lineGraphics != null) lineGraphics.dispose();
-                lineGraphics = line.createGraphics();
-            }
-
-            Graphics2D g2d = (Graphics2D) g;
-            setupG2D(g2d);
 
             int offset = getSamplesOffset();
             offset = Math.max(0, Math.min(offset, recentAudioWindow.length - fftWindowSize));
@@ -193,37 +157,31 @@ public class SpectrogramVisualizer extends AudioVisualizer {
                 getScaledPositions(mappingPositions, getHeight(), frequencyScale);
             }
             mapSpectrumInterpolate(fftSpectrum, mappingPositions, false, interpolatedSpectrum);
-            
-            lineGraphics.setColor(Color.BLACK);
-            lineGraphics.fillRect(0, 0, 1, getHeight());
 
+            DataBufferInt db = (DataBufferInt) getRenderImage().getRaster().getDataBuffer();
+            int[] pixels = db.getData();
+
+            if (shiftPixels > 0) {
+                int w = getWidth();
+                int h = getHeight();
+                int shift = Math.min(shiftPixels, w);
+
+                for (int y = 0; y < h; y++) {
+                    int rowStart = y * w;
+
+                    System.arraycopy(
+                        pixels, rowStart + shift,
+                        pixels, rowStart,
+                        w - shift
+                    );
+                }
+            }
             for (int y = 0; y < getHeight(); y++) {
                 float currentAmplitude = MathUtilities.clamp(interpolatedSpectrum[y], 0.0f, 1.0f);
                 int color = volumeColorProcessor.getColor(currentAmplitude);
-                line.setRGB(0, getHeight() - y - 1, color);
+                int index = (getHeight() - y - 1) * getWidth() + (getWidth() - 1);
+                pixels[index] = color;
             }
-
-            if (shiftPixels < getWidth()) {
-                spectrumGraphics.copyArea(shiftPixels, 0, getWidth() - shiftPixels, getHeight(), -shiftPixels, 0);
-                spectrumGraphics.setColor(Color.BLACK);
-                spectrumGraphics.fillRect(getWidth() - shiftPixels, 0, shiftPixels, getHeight());
-            } else {
-                spectrumGraphics.clearRect(0, 0, getWidth(), getHeight());
-            }
-
-            for (int i = 0; i < shiftPixels; i++) {
-                int x = getWidth() - shiftPixels + i;
-                if (x >= 0 && x < getWidth()) {
-                    spectrumGraphics.drawImage(line, x, 0, null);
-                }
-            }
-
-            g2d.drawImage(spectrumImage, 0, 0, null);
-        }
-
-        private void setupG2D(Graphics2D g2d) {
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
         }
 
         private void getSpectrum(float[] inputSamples, float[] outputSpectrum) {
@@ -501,10 +459,9 @@ public class SpectrogramVisualizer extends AudioVisualizer {
 
     @Override
     protected void initialize() {
-        SpectrumPanel panel = new SpectrumPanel();
-        panel.setOpaque(false);
-        panel.setBackground(new Color(0, 0, 0, 0));
-        setPanel(panel);
+        JPanel panel = getPanel();
+        spectrogramRender = new SpectrogramRender(panel.getWidth(), panel.getHeight());
+        setRender(spectrogramRender);
     }
 
     @Override

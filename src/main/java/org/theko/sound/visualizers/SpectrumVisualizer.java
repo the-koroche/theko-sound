@@ -17,9 +17,9 @@
 package org.theko.sound.visualizers;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,15 +38,6 @@ import org.theko.sound.utility.MathUtilities;
 /**
  * Real-time audio spectrum visualizer that displays frequency content using FFT analysis.
  * Supports multiple interpolation modes, customizable coloring, and various spectrum processing options.
- * 
- * <p><b>Key Features:</b>
- * <ul>
- *   <li>Real-time FFT-based frequency analysis</li>
- *   <li>Multiple interpolation modes for smooth visualization</li>
- *   <li>Configurable window functions and FFT sizes</li>
- *   <li>Dynamic amplitude normalization with decay</li>
- *   <li>Dual/single bar display modes</li>
- * </ul>
  * 
  * @see AudioVisualizer
  * @see #setFrequencyScale(float)
@@ -125,7 +116,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
     /**
      * A class that represents a spectrum panel.
      */
-    protected class SpectrumPanel extends JPanel {
+    protected class SpectrumRender extends AudioVisualizer.Render {
 
         private float[] fftInputBuffer;
         private float[] fftSpectrum;
@@ -135,23 +126,25 @@ public class SpectrumVisualizer extends AudioVisualizer {
         private float[] real, imag;
         private float lastFrequencyScale = -1;
 
+        public SpectrumRender(int width, int height) {
+            super(width, height, BufferedImage.TYPE_INT_ARGB);
+        }
+
         @Override
-        public void invalidate() {
+        protected void invalidate() {
             super.invalidate();
-            // Recreate on paintComponent
+            lastFrequencyScale = -1;
             fftInputBuffer = null;
             fftSpectrum = null;
             mappingPositions = null;
             interpolatedSpectrum = null;
+            drawnSpectrum = null;
             real = null; imag = null;
         }
         
         @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-
-            Graphics2D g2d = (Graphics2D) g;
-            setupG2D(g2d);
+        protected void paint(Graphics2D g2d) {
+            g2d.clearRect(0, 0, getWidth(), getHeight());
 
             // Do nothing if there is not enough samples
             if (recentAudioWindow == null || recentAudioWindow.length == 0) {
@@ -187,7 +180,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
             }
             mapSpectrum(fftSpectrum, mappingPositions, getWidth(), interpolatedSpectrum);
 
-            if (drawnSpectrum == null || drawnSpectrum.length != interpolatedSpectrum.length) {
+            if (drawnSpectrum == null) {
                 drawnSpectrum = new float[interpolatedSpectrum.length];
             }
 
@@ -204,7 +197,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
                 }
             }
 
-            g2d.setColor(upperBarColor);
+            int[] pixels = ((DataBufferInt) getRenderImage().getRaster().getDataBuffer()).getData();
             for (int x = 0; x < getWidth(); x++) {
                 float maxBinAmplitude = 0f;
 
@@ -219,35 +212,34 @@ public class SpectrumVisualizer extends AudioVisualizer {
                 int halfAmplitudePixels = amplitudePixels / 2;
                 int centerY = getHeight() / 2;
 
-                int xPosition = x;
-
-                Color targetUpperColor = (useColorProcessor ?
-                        new Color(volumeColorProcessor.getColor(maxBinAmplitude), true) :
-                        upperBarColor);
+                int targetUpperColor = (useColorProcessor ?
+                        volumeColorProcessor.getColor(maxBinAmplitude) :
+                        upperBarColor.getRGB());
 
                 if (drawDoubleBars) {
-                    Color targetLowerColor = (useColorProcessor ?
-                            new Color(volumeColorProcessor.getColor(maxBinAmplitude), true).darker() :
-                            lowerBarColor);
+                    int targetLowerColor = (useColorProcessor ?
+                            volumeColorProcessor.getColor(maxBinAmplitude) :
+                            lowerBarColor.getRGB());
 
                     // Upper bar
-                    g2d.setColor(targetUpperColor);
-                    g2d.fillRect(xPosition, centerY - halfAmplitudePixels, 1, halfAmplitudePixels);
+                    fillRect(x, centerY - halfAmplitudePixels, 1, halfAmplitudePixels, targetUpperColor, pixels);
 
                     // Lower bar
-                    g2d.setColor(targetLowerColor);
-                    g2d.fillRect(xPosition, centerY, 1, halfAmplitudePixels);
+                    fillRect(x, centerY, 1, halfAmplitudePixels, targetLowerColor, pixels);
                 } else {
                     int yPosition = getHeight() - amplitudePixels;
-                    g2d.setColor(targetUpperColor);
-                    g2d.fillRect(xPosition, yPosition, 1, amplitudePixels);
+                    fillRect(x, yPosition, 1, amplitudePixels, targetUpperColor, pixels);
                 }
             }
         }
 
-        private void setupG2D(Graphics2D g2d) {
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+        private void fillRect(int x, int y, int w, int h, int argb, int[] pixels) {
+            if (x < 0 || y < 0 || x + w > getWidth() || y + h > getHeight()) return;
+            int start = y * getWidth() + x;
+            for (int row = 0; row < h; row++) {
+                int rowStart = start + row * getWidth();
+                Arrays.fill(pixels, rowStart, rowStart + w, argb);
+            }
         }
 
         private void getSpectrum(float[] inputSamples, float[] outputSpectrum) {
@@ -728,10 +720,10 @@ public class SpectrumVisualizer extends AudioVisualizer {
 
     @Override
     protected void initialize() {
-        SpectrumPanel panel = new SpectrumPanel();
-        panel.setOpaque(false);
-        panel.setBackground(new Color(0, 0, 0, 0));
-        setPanel(panel);
+        JPanel panel = getPanel();
+
+        SpectrumRender render = new SpectrumRender(panel.getWidth(), panel.getHeight());
+        setRender(render);
     }
 
     @Override

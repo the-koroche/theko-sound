@@ -18,9 +18,8 @@ package org.theko.sound.visualizers;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,26 +73,24 @@ public class WaveformVisualizer extends AudioVisualizer {
      * A class that represents a waveform panel.
      * It can be used to display the waveform of an audio stream.
      */
-    protected class WaveformPanel extends JPanel {
+    protected class WaveformRender extends Render {
 
         private BasicStroke stroke = null;
         private float[] interpolatedSamples = null;
 
+        public WaveformRender(int width, int height) {
+            super(width, height, BufferedImage.TYPE_INT_ARGB);
+        }
+
         @Override
         public void invalidate() {
             super.invalidate();
-            logger.trace("Invalidated.");
             stroke = null;
             interpolatedSamples = null;
         }
 
         @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-
-            Graphics2D g2d = (Graphics2D) g;
-            setupG2D(g2d);
-
+        protected void paint(Graphics2D g2d) {
             if (audioBuffers.isEmpty()) {
                 if (drawIdleLine)
                     drawIdleLine(g2d);
@@ -157,11 +154,6 @@ public class WaveformVisualizer extends AudioVisualizer {
                     drawMonoWaveform(g2d, samples[1], samplesPerPixel, sampleCount, sampleOffset, lowerY, width, scaleY);
                 }
             }
-        }
-
-        private void setupG2D (Graphics2D g2d) {
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
         }
 
         private void drawMonoWaveform(
@@ -276,10 +268,9 @@ public class WaveformVisualizer extends AudioVisualizer {
 
     @Override
     protected void initialize() {
-        WaveformPanel panel = new WaveformPanel();
-        panel.setOpaque(false);
-        panel.setBackground(new Color(0, 0, 0, 0));
-        setPanel(panel);
+        JPanel panel = getPanel();
+        WaveformRender waveformRender = new WaveformRender(panel.getWidth(), panel.getHeight());
+        setRender(waveformRender);
     }
 
     public FloatControl getGainControl() {
