@@ -211,6 +211,29 @@ public class ColorGradient {
     }
 
     /**
+     * Returns a new color gradient that is the reverse of the current one.
+     * The order of the colors in the returned gradient is the same as the order of the colors in the current gradient, but in reverse.
+     * @return A new reversed color gradient
+     */
+    public ColorGradient reverse() {
+        int len = colors.length;
+        int[] reversedColors = new int[len];
+        for (int i = 0; i < len; i++) {
+            reversedColors[i] = colors[len - 1 - i];
+        }
+        return fromIntColors(reversedColors);
+    }
+
+    /**
+     * Returns a copy of the color gradient.
+     *
+     * @return A copy of the color gradient.
+     */
+    public ColorGradient copy() {
+        return fromIntColors(colors);
+    }
+
+    /**
      * Returns a volume color processor that maps a volume value to a color from the gradient.
      * @return A volume color processor.
      */
