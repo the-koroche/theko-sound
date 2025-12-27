@@ -7,7 +7,7 @@ import org.theko.sound.backend.AudioBackendException;
 import org.theko.sound.backend.AudioBackendNotFoundException;
 import org.theko.sound.backend.AudioBackends;
 import org.theko.sound.backend.AudioInputBackend;
-import org.theko.sound.samples.SampleConverter;
+import org.theko.sound.samples.SamplesConverter;
 import org.theko.sound.utility.ArrayUtilities;
 
 /**
@@ -45,7 +45,7 @@ public class AudioInputLine implements AudioNode {
      */
     public void open (AudioPort port, AudioFormat audioFormat, int bufferSizeInSamples) throws AudioBackendException {
         try {
-            AudioPort targetPort = (port == null ? aib.getDefaultPort(AudioFlow.IN, audioFormat).get() : port);
+            AudioPort targetPort = (port == null ? aib.getPort(AudioFlow.IN, audioFormat).get() : port);
             aib.open(targetPort, audioFormat, bufferSizeInSamples * audioFormat.getFrameSize());
             this.audioFormat = audioFormat;
             this.bufferSize = bufferSizeInSamples;
@@ -132,7 +132,7 @@ public class AudioInputLine implements AudioNode {
         int buffLength = length * audioFormat.getFrameSize();
         byte[] buffer = new byte[buffLength];
         aib.read(buffer, 0, buffLength);
-        float[][] bufferSamp = SampleConverter.toSamples(buffer, audioFormat);
+        float[][] bufferSamp = SamplesConverter.toSamples(buffer, audioFormat);
         try {
             ArrayUtilities.copyArray(bufferSamp, samples);
         } catch (LengthMismatchException | ChannelsCountMismatchException e) {
