@@ -171,6 +171,21 @@ public final class MathUtilities {
     }
 
     /**
+     * Maps a tension value (t) from the range [-1..1] to a power value
+     * (pow) in the range [0.2..5]. The mapping is linear for positive t values
+     * and scales the negative t values to fit within the range.
+     * @param t The tension value to map.
+     * @return The mapped power value.
+     */
+    public static float mapTension(float t) {
+        // -1..1 -> 0.2..5
+        t = clamp(t, -1f, 1f);
+        return (t >= 0f)
+            ? (1f + t * 4f)      // 1..5
+            : (1f + t * 0.8f);   // 0.2..1
+    }
+
+    /**
      * Returns the cotangent of a given angle in radians.
      *
      * @param x The angle in radians.
