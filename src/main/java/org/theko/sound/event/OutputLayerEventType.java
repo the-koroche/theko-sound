@@ -16,8 +16,10 @@
 
 package org.theko.sound.event;
 
+import org.theko.sound.AudioOutputLayer;
+
 /**
- * Event types for {@link OutputLayer} events.
+ * Event types for {@link AudioOutputLayer} events.
  * 
  * @since 2.4.0
  * @author Theko

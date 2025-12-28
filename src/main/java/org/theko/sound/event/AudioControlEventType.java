@@ -16,6 +16,8 @@
 
 package org.theko.sound.event;
 
+import org.theko.sound.control.AudioControl;
+
 /**
  * Event types for {@link AudioControl} events.
  * 

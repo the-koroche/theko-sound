@@ -16,6 +16,8 @@
 
 package org.theko.sound.event;
 
+import org.theko.sound.SoundSource;
+
 /**
  * Event types for {@link SoundSource} events.
  * 

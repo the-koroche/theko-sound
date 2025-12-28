@@ -21,16 +21,6 @@ package org.theko.sound.codec;
  * codec details such as name, file extensions, and version from the provided
  * codec class, which must be annotated with {@link AudioCodecType}.
  * 
- * <p>
- * The metadata includes:
- * <ul>
- *   <li>Name of the codec</li>
- *   <li>File extensions associated with the codec</li>
- *   <li>Version of the codec</li>
- *   <li>The codec class itself</li>
- * </ul>
- * 
- * 
  * If the provided codec class is not annotated with {@link AudioCodecType},
  * an {@link IllegalArgumentException} is thrown.
  * 
@@ -44,7 +34,13 @@ public class AudioCodecInfo {
     private final String version;
     private final Class<? extends AudioCodec> codecClass;
 
-    public AudioCodecInfo(Class<? extends AudioCodec> codecClass) {
+    /**
+     * Creates an instance of {@link AudioCodecInfo} based on the provided codec class.
+     * 
+     * @param codecClass The codec class to extract information from.
+     * @throws IllegalArgumentException If the provided codec class is not annotated with {@link AudioCodecType}.
+     */
+    public AudioCodecInfo(Class<? extends AudioCodec> codecClass) throws IllegalArgumentException {
                 if (codecClass.isAnnotationPresent(AudioCodecType.class)) {
             AudioCodecType audioCodecType = codecClass.getAnnotation(AudioCodecType.class);
             this.name = audioCodecType.name();
@@ -56,22 +52,38 @@ public class AudioCodecInfo {
         }
     }
 
+    /**
+     * @return The name of the audio codec.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * @return An array of file extensions associated with this audio codec.
+     */
     public String[] getExtensions() {
         return extensions;
     }
 
+    /**
+     * Returns the primary file extension for this audio codec.
+     * @return The primary file extension.
+     */
     public String getExtension() {
         return extensions[0];
     }
 
+    /**
+     * @return The version of the audio codec.
+     */
     public String getVersion() {
         return version;
     }
 
+    /**
+     * @return The class of the audio codec that this info is associated with.
+     */
     public Class<? extends AudioCodec> getCodecClass() {
         return codecClass;
     }

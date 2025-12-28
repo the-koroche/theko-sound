@@ -60,7 +60,6 @@ import org.theko.sound.utility.TimeUtilities;
  * audio playback, and retrieve information about the audio line, such as buffer size,
  * frame position, and latency.
  * <p>
- * <p>
  * Also, this class adds a shutdown hook to close the audio output when the
  * JVM is shut down, ensuring proper cleanup.
  * <p>

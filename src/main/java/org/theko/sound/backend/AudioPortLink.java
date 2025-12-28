@@ -16,6 +16,8 @@
 
 package org.theko.sound.backend;
 
+import org.theko.sound.AudioPort;
+
 /**
  * Marker interface for audio ports links.
  * 

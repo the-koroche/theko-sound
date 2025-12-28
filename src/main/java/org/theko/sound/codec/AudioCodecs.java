@@ -34,23 +34,6 @@ import org.theko.sound.AudioClassRegister;
  * <p>This class uses reflection to discover and register all available audio codecs that are annotated
  * with {@code AudioCodecType}. It ensures thread-safe access to the collection of codecs.
  * 
- * <p>Key functionalities include:
- * <ul>
- *   <li>Registering all available audio codecs annotated with {@code AudioCodecType}.</li>
- *   <li>Retrieving codec information by name or file extension.</li>
- *   <li>Instantiating codec objects from their respective {@code AudioCodecInfo}.</li>
- *   <li>Providing access to all registered codecs.</li>
- * </ul>
- * 
- * <p>Usage of this class requires the presence of the following components:
- * <ul>
- *   <li>{@code AudioCodec}: The interface or base class for audio codecs.</li>
- *   <li>{@code AudioCodecType}: Annotation used to mark audio codec classes.</li>
- *   <li>{@code AudioCodecInfo}: A class encapsulating metadata about an audio codec.</li>
- *   <li>{@code AudioClassScanner}: A utility class for discovering available codecs.</li>
- *   <li>Custom exceptions such as {@code AudioCodecNotFoundException} and {@code AudioCodecCreationException}.</li>
- * </ul>
- * 
  * <p>This class is not meant to be instantiated and provides all its functionality through static methods.
  * 
  * <p><strong>Thread Safety:</strong> The collection of codecs is synchronized to ensure thread-safe access.
@@ -93,8 +76,13 @@ public final class AudioCodecs {
         }
     }
 
+    
     /**
-     * Get an AudioCodecInfo by its name
+     * Retrieve an AudioCodecInfo by its name. The name is case-insensitive.
+     *
+     * @param name The name of the audio codec to retrieve.
+     * @return An instance of {@link AudioCodecInfo} containing the audio codec's information.
+     * @throws AudioCodecNotFoundException If no audio codecs are found with the given name.
      */
     public static AudioCodecInfo fromName(String name) throws AudioCodecNotFoundException {
         for (AudioCodecInfo audioCodec : audioCodecs) {
@@ -107,8 +95,10 @@ public final class AudioCodecs {
     }
 
     /**
-     * Get an AudioCodecInfo by its exception
+     * Get an AudioCodecInfo by its file extension
      * @param name File extension without a dot or an asterisk.
+     * @return An instance of {@link AudioCodecInfo} containing the audio codec's information.
+     * @throws AudioCodecNotFoundException If no audio codecs are found with the given extension
      */
     public static AudioCodecInfo fromExtension(String extension) throws AudioCodecNotFoundException {
         if (extension.startsWith(".")) {
@@ -126,6 +116,17 @@ public final class AudioCodecs {
         throw new AudioCodecNotFoundException("No audio codecs found by extension: '" + extension + "'.");
     }
 
+    /**
+     * Instantiate an audio codec from its respective metadata.
+     * 
+     * <p>This method takes an instance of {@link AudioCodecInfo} as an argument and returns an instance of
+     * the corresponding audio codec class. If any errors occur during the instantiation process, an
+     * {@link AudioCodecCreationException} is thrown.
+     * 
+     * @param codecInfo the metadata of the audio codec to instantiate
+     * @return an instance of the audio codec class
+     * @throws AudioCodecCreationException if there is an error instantiating the codec
+     */
     public static AudioCodec getCodec(AudioCodecInfo codecInfo) throws AudioCodecCreationException {
         try {
             return codecInfo.getCodecClass().getConstructor().newInstance();
@@ -138,6 +139,7 @@ public final class AudioCodecs {
 
     /**
      * Get all registered audio codecs
+     * @return a collection of all registered audio codecs
      */
     public static Collection<AudioCodecInfo> getAllCodecs() {
         return audioCodecs;

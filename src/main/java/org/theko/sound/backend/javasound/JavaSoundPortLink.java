@@ -23,7 +23,6 @@ import org.theko.sound.backend.AudioPortLink;
 /**
  * An audio port link for Java Sound backend.
  * 
- * @see AudioPort
  * @see AudioPortLink
  * 
  * @since 2.4.0

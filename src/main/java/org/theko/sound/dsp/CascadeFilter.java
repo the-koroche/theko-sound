@@ -23,7 +23,7 @@ import org.theko.sound.control.Controllable;
 import org.theko.sound.control.FloatControl;
 
 /**
- * AudioFilter is a digital audio filter that processes mono channel audio samples using a configurable
+ * Cascade is a digital audio filter that processes mono channel audio samples using a configurable
  * cascade of biquad filter stages. The filter supports adjustable cutoff frequency, bandwidth, and gain,
  * and can be created with different filter types (e.g., low-pass, high-pass) via the FilterType argument.
  * 
@@ -35,10 +35,7 @@ import org.theko.sound.control.FloatControl;
  * The filter exposes controls for cutoff, bandwidth, and gain, which can be accessed and modified
  * at runtime. Coefficients are updated based on the current control values and the provided sample rate.
  * 
- * <p>
- * For multi-channel audio processing, use {@link MultiChannelAudioFilter}.
- * 
- * @see MultiChannelAudioFilter
+ * @see ChannelSplittedFilter
  * @see BiquadStage
  * @see FilterType
  * 

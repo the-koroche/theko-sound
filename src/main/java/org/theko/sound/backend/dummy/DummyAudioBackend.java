@@ -43,11 +43,11 @@ import org.theko.sound.backend.AudioOutputBackend;
  * It provides one dummy input port and one dummy output port, both supporting the
  * standard {@link AudioFormat#NORMAL_QUALITY_FORMAT}. Format checks always succeed
  * as long as the port is not null.
- * </p>
+ * 
  * <p>
  * Note: Input backend functionality is not implemented yet and will throw
  * {@link UnsupportedOperationException}.
- * </p>
+ * 
  * 
  * @author Theko
  * @since 2.4.1

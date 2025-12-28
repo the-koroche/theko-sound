@@ -27,6 +27,7 @@ import org.theko.sound.samples.SamplesValidation;
  * A channel splintered filter is an wrapper around a list of audio filters.
  * <p>
  * It designed to process multiple audio channels at the same time, without the need to create a new filter for each channel.
+ * @param <T> the type of audio filter used for each channel
  * 
  * @see AudioFilter
  * @see CascadeFilter

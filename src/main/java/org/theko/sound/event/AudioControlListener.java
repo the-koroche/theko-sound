@@ -18,6 +18,8 @@ package org.theko.sound.event;
 
 import org.theko.events.Listener;
 
+import org.theko.sound.control.AudioControl;
+
 /**
  * Listener for {@link AudioControl} events.
  * 

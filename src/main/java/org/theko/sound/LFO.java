@@ -31,19 +31,8 @@ import org.theko.sound.control.FloatControl;
  * <p>
  * An LFO generates periodic waveforms that can be applied to any {@link AudioControl} 
  * or group of controls in an audio system. This allows dynamic modulation of parameters 
- * such as volume, filter cutoff, pitch, or any custom effect parameter.
- * </p>
- * <p>
- * Features:
- * <ul>
- *   <li>Supports configurable waveform type via {@link WaveformType}.</li>
- *   <li>Controls include <b>amount</b>, <b>phase</b>, <b>speed</b>, <b>attack</b>, and <b>base</b>.</li>
- *   <li>Runs in a background thread and continuously updates associated controls.</li>
- *   <li>Supports dynamic addition and removal of controls at runtime.</li>
- * </ul>
- * </p>
- * 
- * <p><b>Example usage:</b></p>
+ * such as volume, filter cutoff, pitch, or any custom effect parameter. 
+ * <p><b>Example usage:</b>
  * <pre>{@code
  * // Create an LFO that modulates a specific control
  * FloatControl cutoff = new FloatControl("Filter Cutoff", 20f, 20000f, 1000f);
@@ -162,7 +151,7 @@ public class LFO implements Controllable {
      * Background process that continuously updates control values.
      * <p>
      * Should only be called internally by the automation system.
-     * </p>
+     * 
      */
     protected void process() {
         long startTime = System.nanoTime();

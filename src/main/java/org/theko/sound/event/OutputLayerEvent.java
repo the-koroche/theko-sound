@@ -18,9 +18,10 @@ package org.theko.sound.event;
 
 import org.theko.events.Event;
 import org.theko.sound.AudioFormat;
+import org.theko.sound.AudioOutputLayer;
 
 /**
- * Event object for {@link OutputLayer} events.
+ * Event object for {@link AudioOutputLayer} events.
  * It contains the audio formats and the buffer sizes of the output layer.
  * 
  * @since 2.4.0
