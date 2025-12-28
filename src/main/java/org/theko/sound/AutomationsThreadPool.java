@@ -21,6 +21,7 @@ import static org.theko.sound.properties.AudioSystemProperties.AUTOMATIONS_THREA
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
@@ -41,11 +42,11 @@ class AutomationsThreadPool {
     private static final Logger logger = LoggerFactory.getLogger(AutomationsThreadPool.class);
 
     private static final AtomicReference<ExecutorService> executorRef = new AtomicReference<>();
-    private static boolean isShuttingDown = false;
+    private static final AtomicBoolean isShuttingDown = new AtomicBoolean(false);
 
     private static final Runnable poolShutdownHook = () -> {
-        if (!isShuttingDown) {
-            isShuttingDown = true;
+        if (!isShuttingDown.get()) {
+            isShuttingDown.set(true);
             shutdown();
         }
     };
@@ -78,8 +79,9 @@ class AutomationsThreadPool {
      */
     public static void submit(Runnable task) {
         if (task == null) return;
-        if (isShuttingDown) {
-            logger.warn("Automations pool is shutting down by shutdown hook. Ignoring task.");
+
+        if (isShuttingDown.get()) {
+            logger.warn("Automations pool is shutting down. Ignoring task.");
             return;
         }
 
