@@ -10,7 +10,7 @@
 
     <name>Theko-Sound</name>
     <description>A high-performance audio library for sound processing, supporting popular platforms. Includes support for audio backends, format conversion, mixing, effects application, and codec management. Provides a flexible interface for audio playback, recording, and processing with high performance and extensibility.</description>
-    <url>https://github.com/the-koro/theko-sound</url>
+    <url>https://github.com/the-koroche/theko-sound</url>
 
     <licenses>
         <license>
@@ -22,7 +22,7 @@
 
     <developers>
         <developer>
-            <id>the-koro</id>
+            <id>the-koroche</id>
             <name>Alex Soloviov</name>
             <email>thekoroche@gmail.com</email>
             <roles>
@@ -32,15 +32,15 @@
     </developers>
 
     <scm>
-        <url>https://github.com/the-koro/theko-sound</url>
-        <connection>scm:git:git://github.com/the-koro/theko-sound.git</connection>
-        <developerConnection>scm:git:git://github.com/the-koro/theko-sound.git</developerConnection>
+        <url>https://github.com/the-koroche/theko-sound</url>
+        <connection>scm:git:git://github.com/the-koroche/theko-sound.git</connection>
+        <developerConnection>scm:git:git://github.com/the-koroche/theko-sound.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>scm:git:git://github.com/the-koro/theko-sound/issues</url>
+        <url>scm:git:git://github.com/the-koroche/theko-sound/issues</url>
     </issueManagement>
 
     <dependencies>
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>io.github.the-koroche</groupId>
             <artifactId>theko-events</artifactId>
-            <version>1.2</version>
+            <version>1.2.2</version>
         </dependency>
     </dependencies>
 
