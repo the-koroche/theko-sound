@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.FloatControl;
-import org.theko.sound.envelope.ASREnvelope;
 
 /**
  * The AudioLimiter class is a real-time audio effect that applies dynamic range compression
@@ -31,14 +30,6 @@ import org.theko.sound.envelope.ASREnvelope;
  * dynamically, ensuring a natural-sounding compression effect. The limiter has configurable
  * parameters for gain, soft saturation threshold, limiter ceiling, and envelope timing.
  * 
- * <p>Key features:
- * <ul>
- *   <li>Gain control: Adjusts the overall input gain in decibels (dB).</li>
- *   <li>Soft saturation threshold: Defines the level at which soft saturation begins.</li>
- *   <li>Limiter ceiling: Sets the maximum output level to prevent clipping.</li>
- *   <li>ASR envelope: Configurable attack, sustain, and release times for dynamic control.</li>
- * </ul>
- * 
  * <p>Usage:
  * <pre>
  * AudioFormat format = new AudioFormat(44100, 16, 2, true, false);
@@ -48,12 +39,8 @@ import org.theko.sound.envelope.ASREnvelope;
  * float[][] processedSamples = limiter.process(inputSamples);
  * </pre>
  * 
- * <p>Note: The limiter processes audio in real-time and is designed for multi-channel audio.
- * It ensures that all channels are processed consistently to maintain stereo or surround sound integrity.
- * 
  * @see AudioEffect
  * @see FloatControl
- * @see ASREnvelope
  * 
  * @since 1.4.1
  * @author Theko
@@ -65,16 +52,20 @@ public class AudioLimiter extends AudioEffect {
             new FloatControl("Soft Saturation Threshold", -12.0f, 0.0f, -6.0f); // dB
     protected final FloatControl limiterCeiling = 
             new FloatControl("Limiter Ceiling", -20.0f, 0.0f, -0.1f); // dB
-    protected final ASREnvelope envelope = 
-            new ASREnvelope(0.005f, 0.2f, 0.05f); // 5 ms attack, 200 ms release, 50 ms sustain
+    protected final FloatControl envelopeAttack = 
+            new FloatControl("Envelope Attack", 0.001f, 1.0f, 0.01f); // seconds
+    protected final FloatControl envelopeRelease = 
+            new FloatControl("Envelope Release", 0.01f, 3.0f, 0.1f); // seconds
+    protected final FloatControl envelopeSustain = 
+            new FloatControl("Envelope Sustain", 0.0f, 1.0f, 0.0f); // seconds
 
     protected final List<AudioControl> limiterControls = List.of(
         gain,
         softSaturationThreshold,
         limiterCeiling,
-        envelope.getAttack(),
-        envelope.getRelease(),
-        envelope.getSustain()
+        envelopeAttack,
+        envelopeSustain,
+        envelopeRelease
     );
 
     public AudioLimiter() {
@@ -94,21 +85,17 @@ public class AudioLimiter extends AudioEffect {
     public FloatControl getLimiterCeiling() {
         return limiterCeiling;
     }
-
-    public ASREnvelope getEnvelope() {
-        return envelope;
-    }
-
+    
     public FloatControl getAttack() {
-        return envelope.getAttack();
-    }
-
-    public FloatControl getRelease() {
-        return envelope.getRelease();
+        return envelopeAttack;
     }
 
     public FloatControl getSustain() {
-        return envelope.getSustain();
+        return envelopeSustain;
+    }
+
+    public FloatControl getRelease() {
+        return envelopeRelease;
     }
 
     @Override
