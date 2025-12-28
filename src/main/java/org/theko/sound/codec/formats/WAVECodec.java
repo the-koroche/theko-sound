@@ -53,22 +53,6 @@ import org.theko.sound.utility.FormatUtilities;
  * with various audio formats, including PCM (signed/unsigned), IEEE Float, ALAW,
  * and ULAW. The class also handles metadata stored in the WAVE INFO chunk.
  * 
- * <p>Features:
- * <ul>
- *   <li>Decoding WAVE files to extract audio data, format, and metadata.</li>
- *   <li>Encoding audio data into WAVE format with optional metadata.</li>
- *   <li>Support for common audio encodings such as PCM, IEEE Float, ALAW, and ULAW.</li>
- *   <li>Parsing and mapping metadata tags from WAVE INFO chunks.</li>
- *   <li>Validation of WAVE file structure and error handling for unsupported formats.</li>
- * </ul>
- * 
- * <p>Usage:
- * <ul>
- *   <li>To decode a WAVE file, use the {@link #innerDecode(InputStream)} method.</li>
- *   <li>To encode audio data into a WAVE file, use the {@link #innerEncode(byte[], AudioFormat, List)} method.</li>
- *   <li>To retrieve codec information, use the {@link #getInfo()} method.</li>
- * </ul>
- * 
  * <p>Example:
  * <pre>
  * {@code
@@ -88,7 +72,6 @@ import org.theko.sound.utility.FormatUtilities;
  * <ul>
  *   <li>The class assumes that the input WAVE file conforms to the RIFF specification.</li>
  *   <li>Unsupported audio formats or encodings will result in an {@link AudioCodecException}.</li>
- *   <li>Metadata tags are cleaned and normalized to ensure compatibility.</li>
  * </ul>
  * 
  * @see AudioCodec
@@ -147,7 +130,7 @@ public class WAVECodec extends AudioCodec {
      * @throws AudioCodecException if the input stream is not a valid WAVE file
      */
     @Override
-    public AudioDecodeResult innerDecode(InputStream is) throws AudioCodecException {
+    public AudioDecodeResult decode(InputStream is) throws AudioCodecException {
         try {
             DataInputStream dis = new DataInputStream(is);
 
@@ -544,7 +527,7 @@ public class WAVECodec extends AudioCodec {
      * @throws AudioCodecException if an error occurs during encoding, such as an I/O issue
      */
     @Override
-    public AudioEncodeResult innerEncode(byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException {
+    public AudioEncodeResult encode(byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException {
         try {
             // Check supported encodings
             int audioFormatCode = getAudioFormatCode(format.getEncoding());
