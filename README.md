@@ -165,6 +165,11 @@ Main modules of the library:
         <artifactId>slf4j-simple</artifactId>
         <version>2.0.13</version>
     </dependency>
+    <dependency>
+        <groupId>io.github.the-koroche</groupId>
+        <artifactId>theko-events</artifactId>
+        <version>1.2.2</version>
+    </dependency>
 </dependencies>
 ```
 
