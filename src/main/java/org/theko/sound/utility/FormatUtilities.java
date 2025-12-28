@@ -248,8 +248,8 @@ public final class FormatUtilities {
      * @param threadConfig The thread config to format
      * @return The formatted string.
      */
-    public static String formatThreadInfo(ThreadConfiguration threadCnofig) {
-        return String.format("(%s, %d)", threadCnofig.threadType.toString(), threadCnofig.priority);
+    public static String formatThreadInfo(ThreadConfiguration threadConfig) {
+        return String.format("(%s, %d)", threadConfig.threadType.toString(), threadConfig.priority);
     }
 
     /**

@@ -137,7 +137,7 @@ public class ControlVisualizer extends JPanel {
      * {@link #historyMinValue} and {@link #historyMaxValue} accordingly.
      * 
      * <p>Called automatically by the timer at the frame rate set in the constructor.
-     * <p>If the range is very small (< 0.001f), it is artificially expanded to
+     * <p>If the range is very small (less than 0.001f), it is artificially expanded to
      * be centered around the midpoint of the range, with a range of 1.0f.
      */
     protected void getRange() {
@@ -229,8 +229,6 @@ public class ControlVisualizer extends JPanel {
      * @param w the width of the component.
      * @param h the height of the component.
      * @param actualMin the minimum y value of the component.
-     * @param actualMax the maximum y value of the component.
-     * @param range the range of y values (actualMax - actualMin).
      * @param scaleX the scale factor for the x axis.
      * @param scaleY the scale factor for the y axis.
      */

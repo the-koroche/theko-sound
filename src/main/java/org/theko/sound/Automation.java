@@ -210,6 +210,15 @@ public class Automation {
     }
 
     /**
+     * Returns whether the automation is currently playing.
+     * 
+     * @return true if the automation is playing, false otherwise.
+     */
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
+    /**
      * Sets the automation to loop indefinitely when it reaches the end.
      * This method doesn't start the playback of the automation.
      * 
@@ -328,11 +337,11 @@ public class Automation {
      * It also handles looping and stopping the automation when the end is reached.
      * This method is called by the automation's thread and should not be called directly by the user.
      * 
-     * @see #start()
+     * @see #play()
      * @see #stop()
      * @see #isPlaying()
      * @see #getTimeScale()
-     * @see #getCurrentTime()
+     * @see #getTime()
      */
     protected void process() {
         long lastTime = System.nanoTime();

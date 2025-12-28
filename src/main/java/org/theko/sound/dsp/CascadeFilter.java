@@ -174,7 +174,7 @@ public class CascadeFilter implements AudioFilter, Controllable {
     /**
      * Sets the parameters of the filter for each channel separately.
      * This method does not update the filter coefficients.
-     * Use the {@link #updateCoefficients(int)} method to update the filter coefficients.
+     * Use the {@link #update(int)} method to update the filter coefficients.
      * 
      * @param cutoff the cutoff frequency in Hz
      * @param bandwidth the bandwidth in Hz

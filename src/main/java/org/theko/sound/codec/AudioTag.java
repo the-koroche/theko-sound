@@ -28,28 +28,6 @@ import java.util.List;
  * represents the metadata field (e.g., "Title") and the value represents the
  * corresponding data (e.g., "Song Name").
  * 
- * <p>Predefined constants include:
- * <ul>
- *   <li>{@link #TITLE} - Represents the title of the audio.</li>
- *   <li>{@link #ALBUM} - Represents the album name.</li>
- *   <li>{@link #ARTIST} - Represents the artist name.</li>
- *   <li>{@link #YEAR} - Represents the release year.</li>
- *   <li>{@link #TRACK} - Represents the track number.</li>
- *   <li>{@link #COMMENT} - Represents comments or notes.</li>
- *   <li>{@link #GENRE} - Represents the genre of the audio.</li>
- *   <li>{@link #ENGINEER} - Represents the audio engineer.</li>
- *   <li>{@link #WEBSITE} - Represents the source website.</li>
- *   <li>{@link #SOURCE} - Represents the source of the audio.</li>
- *   <li>{@link #SOFTWARE} - Represents the software used.</li>
- *   <li>{@link #TECHNICIAN} - Represents the technician involved.</li>
- * </ul>
- * 
- * <p>Example usage:
- * <pre>
- *     AudioTag tag = new AudioTag(AudioTag.TITLE, "My Song");
- *     System.out.println(tag); // Output: Title: My Song
- * </pre>
- * 
  * @since 1.3.1
  * @author Theko
  */
@@ -76,18 +54,40 @@ public class AudioTag {
         this.value = value;
     }
 
+    /**
+     * Retrieves the key of the audio metadata tag.
+     * 
+     * @return Key of the audio metadata tag.
+     */
     public String getKey() {
         return key;
     }
 
+    /**
+     * Retrieves the value associated with the audio metadata tag.
+     * 
+     * @return Value associated with the audio metadata tag.
+     */
     public String getValue() {
         return value;
     }
 
+    /**
+     * Sets the value associated with the audio metadata tag.
+     * 
+     * @param value New value to associate with the audio metadata tag.
+     */
     public void setValue(String value) {
         this.value = value;
     }
 
+    /**
+     * Retrieves the value associated with the given tag name from the list of tags.
+     * 
+     * @param tags List of audio tags to search through.
+     * @param name Name of the tag to search for.
+     * @return Value associated with the tag with the given name, or null if no such tag is found.
+     */
     public static String getValue(List<AudioTag> tags, String name) {
         for (AudioTag tag : tags) {
             if (tag.getKey().equalsIgnoreCase(name)) {

@@ -56,13 +56,12 @@ public interface Controllable {
     /**
      * Returns all {@link AudioControl} objects declared as fields in the implementing class.
      *
-     * @implSpec
-     * The default implementation uses reflection to:
+     * <p>Default implementation:
      * <ul>
-     *   <li>Access all declared fields of the implementing class (excluding inherited ones).</li>
-     *   <li>Collect those that are instances of {@code AudioControl} or its subclasses.</li>
-     *   <li>Ignore fields that are inaccessible due to security restrictions.</li>
-     *   <li>Return an unmodifiable list of the collected controls.</li>
+     *   <li>Uses reflection to access all declared fields of the implementing class (excluding inherited ones).</li>
+     *   <li>Collects those that are instances of {@code AudioControl} or its subclasses.</li>
+     *   <li>Ignores fields inaccessible due to security restrictions.</li>
+     *   <li>Returns an unmodifiable list of the collected controls.</li>
      * </ul>
      *
      * <p>It is recommended to override this method in performance-critical implementations

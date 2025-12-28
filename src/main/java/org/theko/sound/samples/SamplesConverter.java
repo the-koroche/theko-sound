@@ -36,18 +36,11 @@ import org.theko.sound.AudioFormat;
  *
  * <p>The conversion methods support the following audio encodings:
  * <ul>
- *   <li>{@link org.theko.sound.AudioFormat.Encoding#PCM_UNSIGNED}</li>
- *   <li>{@link org.theko.sound.AudioFormat.Encoding#PCM_SIGNED}</li>
- *   <li>{@link org.theko.sound.AudioFormat.Encoding#PCM_FLOAT}</li>
- *   <li>{@link org.theko.sound.AudioFormat.Encoding#ULAW}</li>
- *   <li>{@link org.theko.sound.AudioFormat.Encoding#ALAW}</li>
- * </ul>
- *
- * <p><b>Volume Multipliers:</b>
- * <ul>
- *   <li>The {@code volumes} array is optional.</li>
- *   <li>If provided, it must have either 0, 1, or the same number of elements as the number of channels.</li>
- *   <li>If fewer multipliers than channels are provided, remaining channels default to 1.0 (no scaling).</li>
+ *   <li>{@link AudioFormat.Encoding#PCM_UNSIGNED}</li>
+ *   <li>{@link AudioFormat.Encoding#PCM_SIGNED}</li>
+ *   <li>{@link AudioFormat.Encoding#PCM_FLOAT}</li>
+ *   <li>{@link AudioFormat.Encoding#ULAW}</li>
+ *   <li>{@link AudioFormat.Encoding#ALAW}</li>
  * </ul>
  *
  * <p><b>Important Notes:</b>
@@ -82,7 +75,7 @@ public final class SamplesConverter {
     /**
      * Converts raw PCM byte data into a newly allocated 2D array of normalized floating-point samples.
      *
-     * <p>This is a convenience wrapper around {@link #toSamples(byte[], float[][], AudioFormat, float...)},
+     * <p>This is a convenience wrapper around {@link #toSamples(byte[], float[][], AudioFormat)},
      * which allocates the output array automatically.
      *
      * <p>The returned array is organized as {@code [channels][frames]}, where the first
@@ -91,7 +84,6 @@ public final class SamplesConverter {
      *
      * @param data the raw PCM audio data (must not be null).
      * @param audioFormat the format of the input data (must not be null).
-     * @param volumes optional per-channel volume multipliers (defaults to 1.0).
      * @return a newly allocated 2D array of normalized floating-point samples [channels][frames].
      * @throws IllegalArgumentException if data or audioFormat is null, or data length is inconsistent with channels/sample size.
      */
@@ -111,7 +103,7 @@ public final class SamplesConverter {
     /**
      * Converts a 2D array of normalized floating-point samples into a newly allocated PCM byte array.
      *
-     * <p>This is a convenience wrapper around {@link #fromSamples(float[][], byte[], AudioFormat, float...)},
+     * <p>This is a convenience wrapper around {@link #fromSamples(float[][], byte[], AudioFormat)},
      * which allocates the output array automatically.
      *
      * <p>The input samples are expected in the range [-1.0, 1.0] and organized as [channels][frames].

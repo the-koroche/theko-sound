@@ -96,7 +96,7 @@ public final class AudioCodecs {
 
     /**
      * Get an AudioCodecInfo by its file extension
-     * @param name File extension without a dot or an asterisk.
+     * @param extension File extension without a dot or an asterisk.
      * @return An instance of {@link AudioCodecInfo} containing the audio codec's information.
      * @throws AudioCodecNotFoundException If no audio codecs are found with the given extension
      */

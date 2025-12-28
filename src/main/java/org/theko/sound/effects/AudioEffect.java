@@ -105,14 +105,6 @@ public abstract class AudioEffect implements AudioNode, Controllable {
         return enable;
     }
 
-    /**
-     * Renders the audio effect on the provided samples.
-     * This method must be implemented by subclasses to apply the effect to the audio samples.
-     * 
-     * @param samples The audio samples to process.
-     * @param sampleRate The sample rate of the audio.
-     * @param length The length of the audio samples.
-     */
     @Override
     public final void render(float[][] samples, int sampleRate) throws IllegalArgumentException {
         if (sampleRate <= 0) {
@@ -128,6 +120,14 @@ public abstract class AudioEffect implements AudioNode, Controllable {
         effectRender(samples, sampleRate);
     }
 
+    /**
+     * Applies the specific audio effect to the provided samples.
+     * This method is called by the {@link #render(float[][], int)} method after validating the input samples.
+     * Subclasses must implement this method to define the actual effect processing logic.
+     * 
+     * @param samples The audio samples to process.
+     * @param sampleRate The sample rate of the audio.
+     */
     protected abstract void effectRender(float[][] samples, int sampleRate);
 
     /**

@@ -321,10 +321,9 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
     }
 
     /**
-     * Clones the audio samples buffer and updates the sample rate and length.
+     * Clones the audio samples buffer and updates the sample rate.
      * @param samples The audio samples
      * @param sampleRate The sample rate of the audio samples
-     * @param length The length of the audio samples
      */
     @Override
     public void effectRender(float[][] samples, int sampleRate) {
@@ -357,7 +356,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
 
     /**
      * Repaint task. Executes by the 'repaintTimer'.
-     * @implNote By default, it repaints the panel obtained by {@link #getPanel()}.
+     * By default, it just repaints the panel returned by {@link #getPanel()}.
      */
     protected void repaint() {
         getPanel().repaint();

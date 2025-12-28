@@ -37,6 +37,14 @@ public class AudioDecodeResult {
     private final List<AudioTag> tags;
     private final AudioCodecInfo codecInfo;
 
+    /**
+     * Constructs an AudioDecodeResult with the specified codec information, decoded samples,
+     * audio format, and tags.
+     * @param codecInfo Information about the audio codec used for decoding.
+     * @param pcm The decoded audio samples as a 2D float array (channels x samples).
+     * @param format The format of the decoded audio.
+     * @param tags The list of audio tags associated with the decoded audio.
+     */
     public AudioDecodeResult(AudioCodecInfo codecInfo, float[][] pcm, AudioFormat format, List<AudioTag> tags) {
         this.codecInfo = codecInfo;
         this.pcm = pcm;
@@ -44,29 +52,41 @@ public class AudioDecodeResult {
         this.tags = tags;
     }
 
+    /**
+     * Returns the decoded audio samples as a 2D float array (channels x samples).
+     *
+     * @return The decoded audio samples.
+     */
     public float[][] getSamples() {
         return pcm;
     }
 
+    /**
+     * Returns the audio format of the decoded audio data.
+     * 
+     * @return The audio format of the decoded audio data.
+     */
     public AudioFormat getAudioFormat() {
         return format;
     }
 
+    /**
+     * Returns the list of audio tags associated with the decoded audio. The returned list is
+     * unmodifiable.
+     * 
+     * @return The list of audio tags associated with the decoded audio.
+     */
     public List<AudioTag> getTags() {
         return Collections.unmodifiableList(tags);
     }
 
-    public String getInfo() {
-        StringBuilder outString = new StringBuilder();
-        String tab = "  ";
-        outString.append("--- ").append(codecInfo.getName() + " CODEC").append(" ---\n");
-        outString.append(tab).append("--- AUDIO FORMAT ---\n");
-        outString.append(tab).append(format.toString()).append('\n');
-        outString.append(tab).append("--- TAGS ---\n");
-        for (AudioTag tag : tags) {
-            outString.append(tab).append(tag.getKey() + ": " + tag.getValue()).append("\n");
-        }
-        return outString.toString();
+    /**
+     * Returns information about the audio codec used for decoding.
+     * 
+     * @return Information about the audio codec used for decoding.
+     */
+    public AudioCodecInfo getCodecInfo() {
+        return codecInfo;
     }
 
     @Override

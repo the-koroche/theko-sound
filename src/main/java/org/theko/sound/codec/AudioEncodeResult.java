@@ -33,41 +33,59 @@ import org.theko.sound.AudioFormat;
  */
 public class AudioEncodeResult {
 
-    private final byte[] fileData;
+    private final byte[] encoded;
     private final AudioFormat format;
     private final List<AudioTag> tags;
     private final AudioCodecInfo codecInfo;
 
-    public AudioEncodeResult(AudioCodecInfo codecInfo, byte[] fileData, AudioFormat format, List<AudioTag> tags) {
+    /**
+     * Constructs an AudioEncodeResult with the specified codec information, encoded data,
+     * audio format, and tags.
+     * @param codecInfo Information about the audio codec used for encoding.
+     * @param encoded The encoded audio data as a byte array.
+     * @param format The format of the encoded audio.
+     * @param tags The list of audio tags associated with the encoded audio.
+     */
+    public AudioEncodeResult(AudioCodecInfo codecInfo, byte[] encoded, AudioFormat format, List<AudioTag> tags) {
         this.codecInfo = codecInfo;
-        this.fileData = fileData;
+        this.encoded = encoded;
         this.format = format;
         this.tags = tags;
     }
 
-    public byte[] getFileData() {
-        return fileData;
+    /**
+     * Returns the encoded audio data as a byte array.
+     * 
+     * @return the encoded audio data
+     */
+    public byte[] getEncodedData() {
+        return encoded;
     }
 
+    /**
+     * Returns the audio format associated with the encoded audio data.
+     * 
+     * @return The audio format of the encoded audio data.
+     */
     public AudioFormat getAudioFormat() {
         return format;
     }
 
+    /**
+     * Returns an unmodifiable list of audio tags associated with the encoded audio data.
+     * 
+     * @return an unmodifiable list of audio tags
+     */
     public List<AudioTag> getTags() {
         return Collections.unmodifiableList(tags);
     }
 
-    public String getInfo() {
-        StringBuilder outString = new StringBuilder();
-        String tab = "  ";
-        outString.append("--- ").append(codecInfo.getName() + " CODEC").append(" ---\n");
-        outString.append(tab).append("--- AUDIO FORMAT ---\n");
-        outString.append(tab).append(format.toString()).append('\n');
-        outString.append(tab).append("--- TAGS ---\n");
-        for (AudioTag tag : tags) {
-            outString.append(tab).append(tag.getKey() + ": " + tag.getValue()).append("\n");
-        }
-        return outString.toString();
+    /**
+     * Returns information about the audio codec used for encoding.
+     * 
+     * @return Information about the audio codec used for encoding.
+     */    public AudioCodecInfo getCodecInfo() {
+        return codecInfo;
     }
 
     @Override

@@ -114,7 +114,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
     }
 
     /**
-     * A class that represents a spectrum panel.
+     * A class that represents a spectrum render.
      */
     protected class SpectrumRender extends AudioVisualizer.Render {
 
@@ -582,7 +582,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
      * from the input samples. Different modes affect the smoothness and sharpness 
      * of the resulting spectrum, as well as the risk of aliasing.
      * 
-     * <h3>Interpolation Modes</h3>
+     * <p><b>Interpolation Modes</b>:
      * <ul>
      *   <li>
      *     <b>{@link InterpolationMode#FIXED_WIDTH}</b>: Uses a fixed-width window

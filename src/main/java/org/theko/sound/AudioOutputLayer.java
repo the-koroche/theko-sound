@@ -151,10 +151,10 @@ public class AudioOutputLayer implements AutoCloseable {
     }
 
     /**
-     * Constructs an {@code AudioOutputLayer} with the specified {@link AudioOutputBackend} backend.
+     * Constructs an {@code AudioOutputLayer} with the specified audio output backend.
      * 
-     * @param aob The audio output backend to use.
-     * @throws IllegalArgumentException If the audio output backend is null.
+     * @param aobInfo The {@link AudioBackendInfo} of the audio output backend to use.
+     * @throws IllegalArgumentException If the audio output backend info is null.
      * @throws AudioBackendCreationException If an error occurs while creating the audio output backend.
      * @throws AudioBackendNotFoundException If the specified audio output backend is not found.
      */
@@ -213,9 +213,9 @@ public class AudioOutputLayer implements AutoCloseable {
     }
     
     /**
-     * Constructs an {@code AudioOutputLayer} with the specified {@link AudioOutputBackend} backend.
+     * Constructs an {@code AudioOutputLayer} with the default audio output backend for the platform.
      * 
-     * @param aob The audio output backend to use.
+     * @throws IllegalArgumentException If the default audio output backend is null.
      * @throws AudioBackendCreationException If an error occurs while creating the audio output backend.
      * @throws AudioBackendNotFoundException If the specified audio output backend is not found.
      */
