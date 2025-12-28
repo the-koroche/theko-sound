@@ -25,13 +25,6 @@ import java.util.Arrays;
  * The {@code EnumControl} class represents a control that manages a value from an enumeration.
  * Useful for selecting filter types, waveform types, etc.
  * 
- * <p>Features:
- * <ul>
- *   <li>Set and retrieve enum value.</li>
- *   <li>Supports normalized float (0.0 to 1.0) mapping to enum constants.</li>
- *   <li>Notifies listeners on value change.</li>
- * </ul>
- * 
  * <p>Example usage:
  * <pre>
  * EnumControl bandTypeControl = new EnumControl("FilterType", BandType.PEAKING);

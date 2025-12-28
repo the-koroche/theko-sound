@@ -28,13 +28,6 @@ import org.theko.sound.utility.MathUtilities;
  * <p>This class is useful for controlling parameters such as volume, pitch, or other
  * audio-related properties that require a floating-point range.
  * 
- * <p>Features:
- * <ul>
- *   <li>Set and retrieve the current value within the specified range.</li>
- *   <li>Retrieve the minimum and maximum bounds of the range.</li>
- *   <li>Normalize the value to a range of 0.0 to 1.0.</li>
- * </ul>
- * 
  * <p>Example usage:
  * <pre>
  * FloatControl volumeControl = new FloatControl("Volume", 0.0f, 1.0f, 0.5f);

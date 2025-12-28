@@ -29,13 +29,6 @@ import org.theko.sound.event.AudioControlListener;
  * <p>This class is intended to be extended by specific types of audio controls.
  * Subclasses must implement additional functionality as required.
  * 
- * <p>Key Features:
- * <ul>
- *   <li>Stores a name for the audio control.</li>
- *   <li>Provides a method to retrieve the name.</li>
- *   <li>Overrides {@code toString()} to provide a string representation of the audio control.</li>
- * </ul>
- * 
  * @see BooleanControl
  * @see FloatControl
  * @see Controllable
