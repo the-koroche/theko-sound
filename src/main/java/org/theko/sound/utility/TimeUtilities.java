@@ -43,8 +43,9 @@ public final class TimeUtilities {
      * It uses busy waiting and {@link LockSupport#parkNanos(long)} to wait for the specified amount of time.
      * 
      * @param micros The amount of time to wait in microseconds.
+     * @throws InterruptedException when the thread is interrupted while waiting.
      */
-    public static void waitMicrosPrecise(long micros) {
+    public static void waitMicrosPrecise(long micros) throws InterruptedException {
         long nanos = Math.multiplyExact(micros, 1000);
         waitNanosPrecise(nanos);
     }
@@ -55,23 +56,29 @@ public final class TimeUtilities {
      * It uses busy waiting and {@link LockSupport#parkNanos(long)} to wait for the specified amount of time.
      * 
      * @param nanos The amount of time to wait in nanoseconds.
+     * @throws InterruptedException when the thread is interrupted while waiting.
      */
-    public static void waitNanosPrecise(long nanos) {
+    public static void waitNanosPrecise(long nanos) throws InterruptedException {
         if (nanos <= 0) return;
+
         final long deadline = System.nanoTime() + nanos;
         long remaining;
 
         while ((remaining = deadline - System.nanoTime()) > 0) {
-            if (remaining > 100_000) { 
+            // Immediate interrupt check
+            if (Thread.currentThread().isInterrupted()) {
+                throw new InterruptedException();
+            }
+
+            if (remaining > 100_000) {
                 LockSupport.parkNanos(remaining - 50_000);
-            } else if (remaining > 10_000) { 
-                Thread.onSpinWait();
-            } else if (remaining > 0) {
-                long target = System.nanoTime() + remaining;
-                while (System.nanoTime() < target) {
-                    Thread.onSpinWait();
+
+                // if parkNanos was interrupted, check
+                if (Thread.currentThread().isInterrupted()) {
+                    throw new InterruptedException();
                 }
-                break;
+            } else {
+                Thread.onSpinWait();
             }
         }
     }
@@ -82,11 +89,15 @@ public final class TimeUtilities {
      * It uses busy waiting and {@link Thread#onSpinWait()} to wait for the specified amount of time.
      * 
      * @param nanos The amount of time to wait in nanoseconds.
+     * @throws InterruptedException when the thread is interrupted while waiting.
      */
-    public static void waitNanosBusy(long nanos) {
+    public static void waitNanosBusy(long nanos) throws InterruptedException {
         if (nanos <= 0) return;
         final long deadline = System.nanoTime() + nanos;
         while (System.nanoTime() < deadline) {
+            if (Thread.currentThread().isInterrupted()) {
+                throw new InterruptedException();
+            }
             Thread.onSpinWait();
         }
     }
