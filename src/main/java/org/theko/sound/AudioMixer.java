@@ -154,7 +154,7 @@ public class AudioMixer implements AudioNode {
         }
         if (effect.getType() == AudioEffect.Type.OFFLINE_PROCESSING) {
             logger.error("Attempted to add an offline processing effect ({}) to AudioMixer", effect.getClass().getSimpleName());
-            throw new IncompatibleEffectTypeException();
+            throw new IncompatibleEffectTypeException("Offline processing effect cannot be added to AudioMixer");
         }
         if (effect instanceof VaryingSizeEffect && hasVaryingSizeEffect()) {
             logger.error("Attempted to add multiple varying size effects to AudioMixer");
@@ -344,6 +344,8 @@ public class AudioMixer implements AudioNode {
 
         int channels = samples.length;
         float[][] mixed = null;
+
+        // Skip input collection and mixing if the varying-size effect requires zero-length input.
         if (inputLength > 0) {
             CollectedInputs collectedInputs = collectInputs(sampleRate, inputLength, channels);
             try {
@@ -357,12 +359,12 @@ public class AudioMixer implements AudioNode {
             SamplesUtilities.adjustGainAndPan(mixed, mixed, preGainControl.getValue(), 0.0f);
 
             if (enableEffects) {
-                int preVaryingEffectEnd = varyingSizeEffectIndex == -1 ? effects.size() : varyingSizeEffectIndex;
-                processEffectChain(mixed, sampleRate, 0, preVaryingEffectEnd);
+                int firstEffectsEnd = varyingSizeEffectIndex == -1 ? effects.size() : varyingSizeEffectIndex;
+                processEffectChain(mixed, sampleRate, 0, firstEffectsEnd);
 
-                if (varyingSizeEffectIndex != -1 || inputLength != outputLength) {
+                if (varyingSizeEffectIndex != -1) {
                     if (inputLength < outputLength) {
-                        mixed = ArrayUtilities.padArray(mixed, channels, outputLength);
+                        mixed = ArrayUtilities.padArrayWithLast(mixed, channels, outputLength);
                     }
                     effects.get(varyingSizeEffectIndex).render(mixed, sampleRate);
                     if (inputLength > outputLength) {

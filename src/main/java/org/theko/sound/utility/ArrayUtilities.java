@@ -107,6 +107,53 @@ public final class ArrayUtilities {
     }
 
     /**
+     * Pads a 2D float array to a new specified length in both dimensions.
+     * If the original array is smaller than the new dimensions, it will be padded
+     * by repeating the last available element in each row instead of zeros.
+     *
+     * @param original The original 2D float array to pad.
+     * @param newLengthD1 The new length for the first dimension (rows).
+     * @param newLengthD2 The new length for the second dimension (columns).
+     * @return A new 2D float array padded to the specified dimensions.
+     * @throws IllegalArgumentException if the original array is null or if the new lengths are less than or equal to zero.
+     */
+    public static float[][] padArrayWithLast(float[][] original, int newLengthD1, int newLengthD2) {
+        if (original == null) {
+            throw new IllegalArgumentException("Original array cannot be null.");
+        }
+        if (newLengthD1 <= 0 || newLengthD2 <= 0) {
+            throw new IllegalArgumentException("New lengths must be greater than zero.");
+        }
+
+        float[][] padded = new float[newLengthD1][newLengthD2];
+
+        for (int i = 0; i < Math.min(original.length, newLengthD1); i++) {
+            int copyLength = Math.min(original[i].length, newLengthD2);
+            System.arraycopy(original[i], 0, padded[i], 0, copyLength);
+
+            if (copyLength < newLengthD2) {
+                float lastValue = original[i].length > 0 ? original[i][original[i].length - 1] : 0.0f;
+                for (int j = copyLength; j < newLengthD2; j++) {
+                    padded[i][j] = lastValue;
+                }
+            }
+        }
+
+        for (int i = original.length; i < newLengthD1; i++) {
+            float[] newRow = new float[newLengthD2];
+            float lastValue = original.length > 0 && original[original.length - 1].length > 0
+                    ? original[original.length - 1][original[original.length - 1].length - 1]
+                    : 0.0f;
+            for (int j = 0; j < newLengthD2; j++) {
+                newRow[j] = lastValue;
+            }
+            padded[i] = newRow;
+        }
+
+        return padded;
+    }
+
+    /**
      * Copies a 2D float array (matrix) from source to target.
      * The source and target arrays must have the same number of channels (rows).
      * Each channel can have a different length, the target length will be minimum of the two.
@@ -148,25 +195,5 @@ public final class ArrayUtilities {
         for (int ch = 0; ch < samples.length; ch++) {
             Arrays.fill(samples[ch], 0.0f);
         }
-    }
-
-    /**
-     * Creates a 2D float array (matrix) with the specified number of channels and frame count.
-     * Each channel is initialized with zeros.
-     *
-     * @param channels The number of channels (rows) in the array.
-     * @param frameCount The number of frames (columns) in each channel.
-     * @return A 2D float array initialized with zeros.
-     * @throws IllegalArgumentException if channels or frameCount is less than or equal to zero.
-     */
-    public static float[][] createSamples(int channels, int frameCount) {
-        if (channels <= 0 || frameCount <= 0) {
-            throw new IllegalArgumentException("Channels and frameCount must be greater than zero.");
-        }
-        float[][] array = new float[channels][frameCount];
-        for (int i = 0; i < channels; i++) {
-            Arrays.fill(array[i], 0.0f);
-        }
-        return array;
     }
 }
