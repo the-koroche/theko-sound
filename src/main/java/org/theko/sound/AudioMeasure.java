@@ -116,6 +116,45 @@ public class AudioMeasure {
         return new AudioMeasure(0, seconds, Unit.SECONDS, null);
     }
 
+    /**
+     * Creates an {@code AudioMeasure} from a string value.
+     * <p>
+     * The input must match the format:
+     * <pre>
+
+     * [number][unit]
+     * </pre>
+     * where:
+     * <ul>
+     * <li><b>number</b> - a non-negative integer or decimal value (e.g. {@code 123}, {@code 12.5})</li>
+     * <li><b>unit</b> - an optional sequence of letters without spaces</li>
+     * </ul>
+     * There must be no space between the number and the unit.
+     *
+     * <p>Examples of valid inputs:
+     * <ul>
+     * <li>{@code "123"} (interpreted as {@code 123 frames})</li>
+     * <li>{@code "123frames"}</li>
+     * <li>{@code "12.5smp"}</li>
+     * <li>{@code "2048bytes"}</li>
+     * <li>{@code "3.0seconds"}</li>
+     * </ul>
+     *
+     * <p>The following units are recognized (case-insensitive):
+     * <ul>
+     * <li>{@code frames}: {@code f}, {@code frm}, {@code frms}, {@code frame}, {@code frames}</li>
+     * <li>{@code samples}: {@code smp}, {@code sample}, {@code samples}</li>
+     * <li>{@code bytes}: {@code b}, {@code byte}, {@code bytes}</li>
+     * <li>{@code seconds}: {@code s}, {@code sec}, {@code second}, {@code seconds}</li>
+     * </ul>
+     *
+     * <p>If the string does not match the expected format or contains an invalid
+     * number or unit, an {@link IllegalArgumentException} is thrown.
+     *
+     * @param value the string to parse
+     * @return a corresponding {@code AudioMeasure}
+     * @throws IllegalArgumentException if the value cannot be parsed
+     */
     public static AudioMeasure of(String value) {
         if (value == null || value.isBlank()) throw new IllegalArgumentException("Value must not be null or empty.");
 
