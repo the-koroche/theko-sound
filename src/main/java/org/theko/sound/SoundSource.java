@@ -31,7 +31,7 @@ import org.theko.sound.codec.AudioCodecInfo;
 import org.theko.sound.codec.AudioCodecNotFoundException;
 import org.theko.sound.codec.AudioCodecs;
 import org.theko.sound.codec.AudioDecodeResult;
-import org.theko.sound.codec.AudioTag;
+import org.theko.sound.codec.AudioTags;
 import org.theko.sound.control.Controllable;
 import org.theko.sound.control.FloatControl;
 import org.theko.sound.effects.AudioEffect;
@@ -87,7 +87,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
 
     private float[][] samplesData;
     private AudioFormat audioFormat;
-    private List<AudioTag> tags;
+    private AudioTags tags;
     
     protected AudioMixer innerMixer;
     protected ResamplerEffect resamplerEffect;
@@ -414,7 +414,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
      * Returns the metadata tags of the sound source.
      * @return The metadata tags of the sound source.
      */
-    public List<AudioTag> getTags() {
+    public AudioTags getTags() {
         return tags;
     }
 

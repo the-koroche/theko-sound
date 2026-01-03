@@ -16,8 +16,6 @@
 
 package org.theko.sound.codec;
 
-import java.util.List;
-
 /**
  * The {@code AudioTag} class represents a key-value pair for audio metadata tags.
  * It provides predefined constants for common audio metadata fields such as title,
@@ -33,8 +31,8 @@ import java.util.List;
  */
 public class AudioTag {
 
-    protected String key;
-    protected String value;
+    protected final String key;
+    protected final String value;
 
     public static final String TITLE = "Title";
     public static final String ALBUM = "Album";
@@ -44,7 +42,6 @@ public class AudioTag {
     public static final String COMMENT = "Comment";
     public static final String GENRE = "Genre";
     public static final String ENGINEER = "Engineer";
-    public static final String WEBSITE = "SRC";
     public static final String SOURCE = "SRC";
     public static final String SOFTWARE = "Software";
     public static final String TECHNICIAN = "Technician";
@@ -70,31 +67,6 @@ public class AudioTag {
      */
     public String getValue() {
         return value;
-    }
-
-    /**
-     * Sets the value associated with the audio metadata tag.
-     * 
-     * @param value New value to associate with the audio metadata tag.
-     */
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    /**
-     * Retrieves the value associated with the given tag name from the list of tags.
-     * 
-     * @param tags List of audio tags to search through.
-     * @param name Name of the tag to search for.
-     * @return Value associated with the tag with the given name, or null if no such tag is found.
-     */
-    public static String getValue(List<AudioTag> tags, String name) {
-        for (AudioTag tag : tags) {
-            if (tag.getKey().equalsIgnoreCase(name)) {
-                return tag.getValue();
-            }
-        }
-        return null;
     }
 
     @Override

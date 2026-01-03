@@ -53,7 +53,7 @@ public class AudioDecodeResult {
     }
 
     /**
-     * Returns the decoded audio samples as a 2D float array (channels x samples).
+     * Returns the decoded audio samples as a 2D float array ([channels][samples]).
      *
      * @return The decoded audio samples.
      */
@@ -62,8 +62,6 @@ public class AudioDecodeResult {
     }
 
     /**
-     * Returns the audio format of the decoded audio data.
-     * 
      * @return The audio format of the decoded audio data.
      */
     public AudioFormat getAudioFormat() {
@@ -71,18 +69,20 @@ public class AudioDecodeResult {
     }
 
     /**
-     * Returns the list of audio tags associated with the decoded audio. The returned list is
-     * unmodifiable.
-     * 
-     * @return The list of audio tags associated with the decoded audio.
+     * @return The unmodifiable list of audio tags associated with the decoded audio.
      */
-    public List<AudioTag> getTags() {
+    public List<AudioTag> getTagsList() {
         return Collections.unmodifiableList(tags);
     }
 
     /**
-     * Returns information about the audio codec used for decoding.
-     * 
+     * @return The list of audio tags as {@link AudioTags}.
+     */
+    public AudioTags getTags() {
+        return new AudioTags(tags);
+    }
+
+    /**
      * @return Information about the audio codec used for decoding.
      */
     public AudioCodecInfo getCodecInfo() {

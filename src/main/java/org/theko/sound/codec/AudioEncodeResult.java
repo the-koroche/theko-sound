@@ -54,17 +54,13 @@ public class AudioEncodeResult {
     }
 
     /**
-     * Returns the encoded audio data as a byte array.
-     * 
-     * @return the encoded audio data
+     * @return the encoded audio data as a byte array.
      */
     public byte[] getEncodedData() {
         return encoded;
     }
 
     /**
-     * Returns the audio format associated with the encoded audio data.
-     * 
      * @return The audio format of the encoded audio data.
      */
     public AudioFormat getAudioFormat() {
@@ -72,19 +68,23 @@ public class AudioEncodeResult {
     }
 
     /**
-     * Returns an unmodifiable list of audio tags associated with the encoded audio data.
-     * 
-     * @return an unmodifiable list of audio tags
+     * @return an unmodifiable list of audio tags associated with the encoded audio.
      */
-    public List<AudioTag> getTags() {
+    public List<AudioTag> getTagsList() {
         return Collections.unmodifiableList(tags);
     }
 
     /**
-     * Returns information about the audio codec used for encoding.
-     * 
+     * @return The list of audio tags as {@link AudioTags}.
+     */
+    public AudioTags getTags() {
+        return new AudioTags(tags);
+    }
+
+    /**
      * @return Information about the audio codec used for encoding.
-     */    public AudioCodecInfo getCodecInfo() {
+     */
+    public AudioCodecInfo getCodecInfo() {
         return codecInfo;
     }
 

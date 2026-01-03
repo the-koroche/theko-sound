@@ -55,8 +55,8 @@ public class SoundPlayback {
     }
 
     private static String getTrackInfo(SoundPlayer player) {
-        String title = AudioTag.getValue(player.getTags(), AudioTag.TITLE);
-        String artist = AudioTag.getValue(player.getTags(), AudioTag.ARTIST);
+        String title = player.getTags().getValue(AudioTag.TITLE);
+        String artist = player.getTags().getValue(AudioTag.ARTIST);
         return "%s - %s".formatted(
             artist != null ? artist : "Unknown Artist",
             title != null ? title : "Unknown Title");
