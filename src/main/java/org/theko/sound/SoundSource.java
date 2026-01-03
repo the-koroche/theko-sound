@@ -93,7 +93,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
     protected ResamplerEffect resamplerEffect;
 
     private Playback playback;
-    protected int playedSamples = 0;
+    protected int playedFrames = 0;
     protected boolean isPlaying = false;
     protected boolean loop = false;
 
@@ -111,17 +111,17 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
 
             int length = samples[0].length;
 
-            int available = samplesData[0].length - playedSamples;
+            int available = samplesData[0].length - playedFrames;
             int safeLength = Math.min(length, available);
 
             if (safeLength <= 0) {
                 if (loop) {
-                    playedSamples = 0;
+                    playedFrames = 0;
                     safeLength = Math.min(length, samplesData[0].length);
                     eventDispatcher.dispatch(SoundSourceEventType.LOOP, new SoundSourceEvent(SoundSource.this));
                 } else {
                     isPlaying = false;
-                    playedSamples = 0;
+                    playedFrames = 0;
                     ArrayUtilities.fillZeros(samples);
                     eventDispatcher.dispatch(SoundSourceEventType.DATA_ENDED, new SoundSourceEvent(SoundSource.this));
                     return;
@@ -132,14 +132,14 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
                 float[] src = (ch < samplesData.length) ? samplesData[ch] : null;
                 for (int i = 0; i < length; i++) {
                     if (i < safeLength && src != null) {
-                        samples[ch][i] = src[playedSamples + i];
+                        samples[ch][i] = src[playedFrames + i];
                     } else {
                         samples[ch][i] = 0.0f;
                     }
                 }
             }
 
-            playedSamples += safeLength;
+            playedFrames += safeLength;
         }
     }
 
@@ -251,7 +251,6 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
     public void start() {
         if (isPlaying) return;
         isPlaying = true;
-        playedSamples = 0;
         logger.debug("Playback started.");
         eventDispatcher.dispatch(SoundSourceEventType.STARTED, new SoundSourceEvent(this));
     }
@@ -262,7 +261,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
     public void stop() {
         if (!isPlaying) return;
         isPlaying = false;
-        playedSamples = 0;
+        playedFrames = 0;
         logger.debug("Playback stopped.");
         eventDispatcher.dispatch(SoundSourceEventType.STOPPED, new SoundSourceEvent(this));
     }
@@ -275,8 +274,6 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
     @Override
     public void close() {
         stop();
-        samplesData = null;
-        audioFormat = null;
 
         logger.debug("Closed.");
         eventDispatcher.dispatch(SoundSourceEventType.CLOSED, new SoundSourceEvent(this));
@@ -286,7 +283,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
      * Resets the playback state of the sound source.
      */
     public void reset() {
-        playedSamples = 0;
+        playedFrames = 0;
     }
 
     /**
@@ -354,24 +351,24 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
     }
 
     /**
-     * Sets the sample position of the sound source.
-     * @param position The sample position to set.
+     * Sets the frame position of the sound source.
+     * @param position The frame position to set.
      */
-    public void setSamplePosition(int position) {
+    public void setFramePosition(int position) {
         if (position < 0 || position > samplesData[0].length) {
             logger.error("Position must be between 0 and {}", samplesData[0].length);
             throw new IllegalArgumentException("Position must be between 0 and " + samplesData[0].length);
         }
-        playedSamples = position;
+        playedFrames = position;
         eventDispatcher.dispatch(SoundSourceEventType.POSITION_CHANGE, new SoundSourceEvent(this));
     }
 
     /**
-     * Returns the sample position of the sound source.
-     * @return The sample position.
+     * Returns the frame position of the sound source.
+     * @return The frame position.
      */
-    public int getSamplePosition() {
-        return playedSamples;
+    public int getFramePosition() {
+        return playedFrames;
     }
 
     /**
@@ -380,7 +377,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
      */
     public void setSecondsPosition(double seconds) {
         int samples = (int)AudioUnitsConverter.microsecondsToFrames((long)(seconds * 1_000_000.0), audioFormat.getSampleRate());
-        setSamplePosition(samples);
+        setFramePosition(samples);
     }
 
     /**
@@ -388,7 +385,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
      * @return The seconds position.
      */
     public double getSecondsPosition() {
-        return AudioUnitsConverter.framesToMicroseconds(playedSamples, audioFormat.getSampleRate()) / 1_000_000.0;
+        return AudioUnitsConverter.framesToMicroseconds(playedFrames, audioFormat.getSampleRate()) / 1_000_000.0;
     }
 
     /**
