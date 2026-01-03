@@ -91,7 +91,7 @@ public class AudioOutputLayer implements AutoCloseable {
 
     /* Processing and output threads */
     private Thread playbackThread;
-    private int processingPriority = AOL_PROCESSING_THREAD.priority;
+    private int processingPriority = AOL_PLAYBACK_THREAD.priority;
 
     /* Audio output backend and buffers */
     private final AudioOutputBackend aob;
@@ -438,7 +438,7 @@ public class AudioOutputLayer implements AutoCloseable {
         
         playbackThread = ThreadUtilities.startThread(
             "AudioOutputLayer-Playback",
-            AOL_PROCESSING_THREAD.threadType,
+            AOL_PLAYBACK_THREAD.threadType,
             processingPriority,
             this::playback
             // Do not catch exceptions here, they will be caught in playback().
@@ -468,7 +468,7 @@ public class AudioOutputLayer implements AutoCloseable {
         try {
             if (playbackThread != null && playbackThread.isAlive()) {
                 logger.debug("Waiting for playback thread to stop.");
-                playbackThread.join(AOL_PROCESSING_STOP_TIMEOUT);
+                playbackThread.join(AOL_PLAYBACK_STOP_TIMEOUT);
             }
         } catch (InterruptedException ex) {
             logger.error("Interrupted while joining output thread.", ex);

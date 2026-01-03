@@ -97,12 +97,9 @@ public final class AudioSystemProperties {
     * === Audio Output Layer ===
     * Property                                           | Type                   | Description / Default
     * ---------------------------------------------------|------------------------|-------------------------------------------
-    * org.theko.sound.outputLayer.processing.thread      | ThreadConfig           | Processing thread configuration
-    * org.theko.sound.outputLayer.processing.timeout     | int                    | Default timeout in milliseconds for stopping the processing thread and waiting for its termination.
-    * org.theko.sound.outputLayer.output.thread          | ThreadConfig           | Output thread configuration
-    * org.theko.sound.outputLayer.output.timeout         | int                    | Default timeout in milliseconds for stopping the output thread and waiting for its termination.
+    * org.theko.sound.outputLayer.thread                 | ThreadConfig           | Playback thread configuration
+    * org.theko.sound.outputLayer.timeout                | int                    | Default timeout in milliseconds for stopping the playback thread and waiting for its termination.
     * org.theko.sound.outputLayer.defaultBuffer          | AudioMeasure           | Default audio buffer size
-    * org.theko.sound.outputLayer.defaultRingBuffers     | int (>= 1)             | Ring buffers count, used if not specified in open()
     * org.theko.sound.outputLayer.resampler              | AudioResamplerConfig   | Resampler method and quality
     * org.theko.sound.outputLayer.maxLengthMismatches    | int (>= 0)             | Maximum number of render length mismatches to ignore
     * org.theko.sound.outputLayer.resetLengthMismatches  | boolean                | Reset length mismatches counter after successful render
@@ -125,7 +122,7 @@ public final class AudioSystemProperties {
     * === Codecs ===
     * Codec     | Property                                           | Type                   | Description / Default
     * ----------|----------------------------------------------------|------------------------|-------------------------------------------
-    * WAVE      | org.theko.sound.waveCodec.cleanTagText             | boolean                | Cleans every tag from 'LIST' chunk
+    * WAVE      | org.theko.sound.waveCodec.cleanTagText             | boolean                | Cleans tag text obtained from 'LIST' chunk
     *
     * === Miscellaneous ===
     * Property                                           | Type                       | Description / Default
@@ -345,17 +342,11 @@ public final class AudioSystemProperties {
     public static final long TOTAL_MEMORY = Runtime.getRuntime().totalMemory();
     public static final long MAX_MEMORY = Runtime.getRuntime().maxMemory();
 
-    public static final ThreadConfiguration AOL_PROCESSING_THREAD = getThreadConfig(
+    public static final ThreadConfiguration AOL_PLAYBACK_THREAD = getThreadConfig(
         "org.theko.sound.outputLayer.processing.thread", new ThreadConfiguration(ThreadType.PLATFORM, 7));
 
-    public static final int AOL_PROCESSING_STOP_TIMEOUT = getIntInRange(
+    public static final int AOL_PLAYBACK_STOP_TIMEOUT = getIntInRange(
         "org.theko.sound.outputLayer.processing.timeout", 10, 60000, true /* clamp */, 1000);
-
-    public static final ThreadConfiguration AOL_OUTPUT_THREAD = getThreadConfig(
-        "org.theko.sound.outputLayer.output.thread", new ThreadConfiguration(ThreadType.PLATFORM, 8));
-
-    public static final int AOL_OUTPUT_STOP_TIMEOUT = getIntInRange(
-        "org.theko.sound.outputLayer.output.timeout", 10, 60000, true /* clamp */, 1000);
 
     public static final int AOL_MAX_LENGTH_MISMATCHES = getIntInRange(
         "org.theko.sound.outputLayer.maxLengthMismatches", 1, Integer.MAX_VALUE, false /* use default */, 10
@@ -445,9 +436,8 @@ public final class AudioSystemProperties {
 
         builder.append("Audio system properties:\n");
         builder.append("  Threads:")
-            .append(" OutputLayer: {")
-            .append("Processing").append(FormatUtilities.formatThreadInfo(AOL_PROCESSING_THREAD))
-            .append(", Output").append(FormatUtilities.formatThreadInfo(AOL_OUTPUT_THREAD))
+            .append(" OutputLayer: { ")
+            .append("Playback ").append(FormatUtilities.formatThreadInfo(AOL_PLAYBACK_THREAD))
             .append("}, Automations pool threads count: ").append(AUTOMATIONS_THREADS)
             .append(", Cleaner").append(FormatUtilities.formatThreadInfo(CLEANERS_THREAD))
             .append("\n");
@@ -455,8 +445,7 @@ public final class AudioSystemProperties {
         builder.append("  Default OutputLayer Ring Buffers Count=").append(AOL_DEFAULT_RING_BUFFERS).append("\n");
         builder.append("  OutputLayer resampler: ")
             .append(AOL_RESAMPLER).append("\n");
-        builder.append("  OutputLayer output stop timeout: ").append(AOL_OUTPUT_STOP_TIMEOUT).append(" ms,\n");
-        builder.append("  OutputLayer processing stop timeout: ").append(AOL_PROCESSING_STOP_TIMEOUT).append(" ms.\n");
+        builder.append("  OutputLayer playback thread stop timeout: ").append(AOL_PLAYBACK_STOP_TIMEOUT).append(" ms.\n");
         builder.append("  OutputLayer max length mismatches: ").append(AOL_MAX_LENGTH_MISMATCHES)
             .append(", reset after valid render: ").append(AOL_RESET_LENGTH_MISMATCHES).append(".\n");
         builder.append("  OutputLayer max write errors: ").append(AOL_MAX_WRITE_ERRORS)
