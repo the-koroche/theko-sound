@@ -3,9 +3,9 @@
 *.so
 *.dylib
 
-dependency-reduced-pom.xml
-compile_natives.ps1
-
 \.vscode
 \target
 \logs
+
+dependency-reduced-pom.xml
+COMPILE_NATIVES
