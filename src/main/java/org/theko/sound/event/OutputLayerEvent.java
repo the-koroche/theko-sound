@@ -17,7 +17,6 @@
 package org.theko.sound.event;
 
 import org.theko.events.Event;
-import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioOutputLayer;
 
 /**
@@ -29,53 +28,30 @@ import org.theko.sound.AudioOutputLayer;
  */
 public class OutputLayerEvent extends Event {
     
-    private final AudioFormat sourceFormat, targetFormat;
-    private final int renderBufferSize, outBufferSize;
-    private final int buffersCount;
+    private final AudioOutputLayer aol;
+    private final int outBufferSize;
     
     /**
      * Constructor for the OutputLayerEvent class.
-     * @param sourceFormat The audio format of the source.
-     * @param targetFormat The audio format of the target.
-     * @param renderBufferSize The size of the render buffer.
+     * @param aol The audio output layer.
      * @param outBufferSize The size of the output buffer.
-     * @param buffersCount The number of audio ring buffers.
      */
-    public OutputLayerEvent(AudioFormat sourceFormat, AudioFormat targetFormat, int renderBufferSize, int outBufferSize, int buffersCount) {
-        this.sourceFormat = sourceFormat;
-        this.targetFormat = targetFormat;
-        this.renderBufferSize = renderBufferSize;
+    public OutputLayerEvent(AudioOutputLayer aol, int outBufferSize) {
+        this.aol = aol;
         this.outBufferSize = outBufferSize;
-        this.buffersCount = buffersCount;
     }
 
     /**
-     * Returns the audio format of the source.
-     * @return the source format
+     * @return the audio output layer associated with this event.
      */
-    public AudioFormat getSourceFormat() { return sourceFormat; }
+    public AudioOutputLayer getAudioOutputLayer() {
+        return aol;
+    }
 
     /**
-     * Returns the audio format of the opened line.
-     * @return the opened format
+     * @return The size of the output buffer associated with this event.
      */
-    public AudioFormat getTargetFormat() { return targetFormat; }
-
-    /**
-     * Returns the size of the render buffer.
-     * @return the render buffer size
-     */
-    public int getRenderBufferSize() { return renderBufferSize; }
-
-    /**
-     * Returns the size of the output line buffer.
-     * @return the output buffer size
-     */
-    public int getOutBufferSize() { return outBufferSize; }
-
-    /**
-     * Returns the number of audio ring buffers.
-     * @return the number of buffers
-     */
-    public int getBuffersCount() { return buffersCount; }
+    public int getOutBufferSize() {
+        return outBufferSize;
+    }
 }
