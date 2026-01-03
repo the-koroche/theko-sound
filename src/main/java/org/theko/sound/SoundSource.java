@@ -34,9 +34,11 @@ import org.theko.sound.codec.AudioDecodeResult;
 import org.theko.sound.codec.AudioTag;
 import org.theko.sound.control.Controllable;
 import org.theko.sound.control.FloatControl;
+import org.theko.sound.effects.AudioEffect;
 import org.theko.sound.effects.IncompatibleEffectTypeException;
 import org.theko.sound.effects.MultipleVaryingSizeEffectsException;
 import org.theko.sound.effects.ResamplerEffect;
+import org.theko.sound.effects.VaryingSizeEffect;
 import org.theko.sound.event.AudioControlEventType;
 import org.theko.sound.event.SoundSourceEvent;
 import org.theko.sound.event.SoundSourceEventType;
@@ -414,6 +416,46 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
      */
     public List<AudioTag> getTags() {
         return tags;
+    }
+
+    /**
+     * Applies an audio effect to the sound source samples.
+     * <p>
+     * The sound source must not be playing. If the effect is a {@link VaryingSizeEffect},
+     * the internal sample arrays may be resized to accommodate the effect's requirements.
+     *
+     * @param effect The audio effect to apply.
+     * @throws IllegalArgumentException if the effect is null.
+     * @throws IllegalStateException if the sound source is not initialized or is currently playing.
+     */
+    public void applyEffect(AudioEffect effect) {
+        if (samplesData == null || audioFormat == null) {
+            throw new IllegalStateException("Sound source is not initialized.");
+        }
+        if (isPlaying) {
+            throw new IllegalStateException("Sound source is playing.");
+        }
+        if (effect == null) {
+            throw new IllegalArgumentException("Effect cannot be null.");
+        }
+        boolean varyingSizeEffect = effect instanceof VaryingSizeEffect;
+        int targetLength = samplesData[0].length;
+        if (varyingSizeEffect) {
+            targetLength = ((VaryingSizeEffect) effect).getInputLength(samplesData[0].length);
+        }
+        if (targetLength != samplesData[0].length) {
+            if (targetLength > samplesData[0].length) {
+                logger.debug("Resizing samples data from {} to {}.", samplesData[0].length, targetLength);
+                samplesData = ArrayUtilities.padArray(samplesData, samplesData.length, targetLength);
+            }
+        }
+        effect.render(samplesData, audioFormat.getSampleRate());
+        if (targetLength != samplesData[0].length) {
+            if (targetLength < samplesData[0].length) {
+                logger.debug("Resizing samples data from {} to {}.", samplesData[0].length, targetLength);
+                samplesData = ArrayUtilities.cutArray(samplesData, 0, samplesData.length, 0, targetLength);
+            }
+        }
     }
 
     public void addListener(SoundSourceListener listener) {
