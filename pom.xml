@@ -6,7 +6,7 @@
 
     <groupId>io.github.the-koroche</groupId>
     <artifactId>theko-sound</artifactId>
-    <version>2.4.1</version>
+    <version>2.5.0</version>
 
     <name>Theko-Sound</name>
     <description>A high-performance audio library for sound processing, supporting popular platforms. Includes support for audio backends, format conversion, mixing, effects application, and codec management. Provides a flexible interface for audio playback, recording, and processing with high performance and extensibility.</description>
@@ -120,10 +120,26 @@
                 <version>3.8.0</version>
                 <executions>
                     <execution>
-                        <id>generate-javadocs</id>
-                        <phase>prepare-package</phase>
+                        <id>attach-javadocs</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>javadoc</goal>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnError>true</failOnError>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.4.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
