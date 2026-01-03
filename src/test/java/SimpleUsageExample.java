@@ -10,6 +10,8 @@ import org.theko.sound.codec.AudioCodecNotFoundException;
 import org.theko.sound.codec.AudioTag;
 import org.theko.sound.effects.BitcrusherEffect;
 
+import helpers.FileChooserHelper;
+
 public class SimpleUsageExample {
     public static void main(String[] args) {
         AudioOutputLayer out = null;
@@ -32,7 +34,7 @@ public class SimpleUsageExample {
 
             // Open an audio file using a file chooser
             try {
-                sound.open(SharedFunctions.chooseAudioFile());
+                sound.open(FileChooserHelper.chooseAudioFile());
             } catch (FileNotFoundException | AudioCodecNotFoundException e) {
                 System.err.println("File or Audio codec not found.");
                 return;
