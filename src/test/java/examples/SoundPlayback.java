@@ -11,9 +11,6 @@ import helpers.FileChooserHelper;
 
 public class SoundPlayback {
     public static void main(String[] args) {
-        System.setProperty("org.theko.sound.effects.resampler", "CubicResampleMethod:5");
-        System.out.println("Simple Sound Playback Example");
-        System.out.println("Use Ctrl+C to stop playback.");
         SoundPlayer player = new SoundPlayer();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -28,6 +25,8 @@ public class SoundPlayback {
                 return;
             }
             player.open(audioFile);
+            System.out.println("Simple Sound Playback Example");
+            System.out.println("Use Ctrl+C to stop playback.");
             player.start();
 
             String info = getTrackInfo(player);
