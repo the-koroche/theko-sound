@@ -79,7 +79,12 @@ public class ResamplerEffect extends AudioEffect implements VaryingSizeEffect{
     }
 
     @Override
-    public int getTargetLength(int length) {
-        return (int) Math.ceil(length * speedControl.getValue());
+    public int getInputLength(int outputLength) {
+        return (int) Math.ceil(outputLength / speedControl.getValue());
+    }
+
+    @Override
+    public int getTargetLength(int inputLength) {
+        return (int) Math.ceil(inputLength * speedControl.getValue());
     }
 }

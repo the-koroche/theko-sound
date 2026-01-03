@@ -18,7 +18,7 @@ package org.theko.sound.effects;
 
 /**
  * VaryingSizeEffect is an interface for effects that can change their output size
- * based on the required length of the input samples.
+ * based on the required length of the input frames.
  * 
  * Implementations should provide a method to determine the target length
  * based on the required length.
@@ -32,10 +32,17 @@ package org.theko.sound.effects;
 public interface VaryingSizeEffect {
 
     /**
-     * Returns the target length for the effect based on the required length.
-     * 
-     * @param requiredLength The length of the input samples that the effect will process.
-     * @return The target length for the output samples after applying the effect.
+     * Returns the target length of the input frames based on the required
+     * length of the output frames.
+     * @param outputLength The required length of the output frames
+     * @return The target length of the input frames
      */
-    public int getTargetLength (int requiredLength);
+    public int getInputLength(int outputLength);
+
+    /**
+     * Returns the processed output length based on the input length.
+     * @param inputLength The input length
+     * @return The processed output length
+     */
+    public int getTargetLength(int inputLength);
 }
