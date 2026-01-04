@@ -119,7 +119,11 @@ public class DummyOutputBackend extends DummyAudioBackend implements AudioOutput
     @Override
     public void drain() throws AudioBackendException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot drain. Backend is not open.");
-        sleepWrite(available());
+        try {
+            sleepWrite(available());
+        } catch (AudioBackendException | InterruptedException e) {
+            throw new AudioBackendException("Error while draining.", e);
+        }
         framePosition += available() / format.getFrameSize();
     }
 
@@ -136,14 +140,18 @@ public class DummyOutputBackend extends DummyAudioBackend implements AudioOutput
             int bytesToWrite = Math.min(bufferSize - (int)(framePosition % bufferSize), length - bytesWritten);
             framePosition += bytesToWrite / format.getFrameSize();
             bytesWritten += bytesToWrite;
-            sleepWrite(bytesToWrite);
+            try {
+                sleepWrite(bytesToWrite);
+            } catch (InterruptedException e) {
+                return bytesWritten;
+            }
         }
         isWriting = false;
 
         return bytesWritten;
     }
 
-    private void sleepWrite(int dataLength) {
+    private void sleepWrite(int dataLength) throws InterruptedException {
         long frames = dataLength / format.getFrameSize();
         long mcs = AudioUnitsConverter.framesToMicroseconds(frames, format.getSampleRate());
         TimeUtilities.waitMicrosPrecise(mcs);
