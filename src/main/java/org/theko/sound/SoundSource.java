@@ -91,6 +91,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
     
     protected AudioMixer innerMixer;
     protected ResamplerEffect resamplerEffect;
+    protected final FloatControl speedControl = new FloatControl("Speed", 0.0f, 50f, 1.0f);
 
     private Playback playback;
     protected int playedFrames = 0;
@@ -184,6 +185,14 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
         eventMap.put(SoundSourceEventType.LOOP, SoundSourceListener::onLoop);
         eventMap.put(SoundSourceEventType.DATA_ENDED, SoundSourceListener::onDataEnded);
         eventDispatcher.setEventMap(eventMap);
+
+        speedControl.getListenerManager().addConsumer(AudioControlEventType.VALUE_CHANGED, event -> {
+            ResamplerEffect resampler = this.resamplerEffect;
+            if (resampler != null) {
+                resampler.getSpeedControl().setValue(speedControl.getValue());
+                eventDispatcher.dispatch(SoundSourceEventType.SPEED_CHANGE, new SoundSourceEvent(this));
+            }
+        });
     }
 
     /**
@@ -224,8 +233,6 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
         resamplerEffect = new ResamplerEffect();
         try {
             innerMixer.addEffect(resamplerEffect);
-            resamplerEffect.getSpeedControl().getListenerManager().addConsumer(AudioControlEventType.VALUE_CHANGED, event -> 
-                    eventDispatcher.dispatch(SoundSourceEventType.SPEED_CHANGE, new SoundSourceEvent(SoundSource.this)));
         } catch (IncompatibleEffectTypeException | MultipleVaryingSizeEffectsException e) {
             logger.error("Failed to add resampler effect to inner mixer", e);
             throw new RuntimeException(e);
@@ -247,22 +254,23 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
 
     /**
      * Starts the playback of the sound source.
+     * This method doesn't reset the played position, use {@link #reset()} for that.
      */
     public void start() {
         if (isPlaying) return;
+        if (playedFrames >= samplesData[0].length) playedFrames = 0;
         isPlaying = true;
-        logger.debug("Playback started.");
+        logger.trace("Playback started.");
         eventDispatcher.dispatch(SoundSourceEventType.STARTED, new SoundSourceEvent(this));
     }
 
     /**
-     * Stops the playback of the sound source.
+     * Stops the playback of the sound source, without resetting the played position.
      */
     public void stop() {
         if (!isPlaying) return;
         isPlaying = false;
-        playedFrames = 0;
-        logger.debug("Playback stopped.");
+        logger.trace("Playback stopped.");
         eventDispatcher.dispatch(SoundSourceEventType.STOPPED, new SoundSourceEvent(this));
     }
 
@@ -274,13 +282,12 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
     @Override
     public void close() {
         stop();
-
         logger.debug("Closed.");
         eventDispatcher.dispatch(SoundSourceEventType.CLOSED, new SoundSourceEvent(this));
     }
 
     /**
-     * Resets the playback state of the sound source.
+     * Resets the playback position of the sound source.
      */
     public void reset() {
         playedFrames = 0;
@@ -316,6 +323,35 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
      */
     public ResamplerEffect getResamplerEffect() {
         return resamplerEffect;
+    }
+
+    /**
+     * Sets the resampler effect of the sound source, sets the speed control value, and returns {@code true} if successful.
+     * If the old resampler effect is the same as the new resampler effect, nothing is done, and {@code true} is returned.
+     * If the new resampler effect cannot be added to the inner mixer, {@code false} is returned.
+     * 
+     * @param newResamplerEffect The resampler effect to set, cannot be null.
+     * @throws IllegalArgumentException if the new resampler effect is null.
+     */
+    public boolean setResamplerEffect(ResamplerEffect newResamplerEffect) {
+        if (newResamplerEffect == null)
+            throw new IllegalArgumentException("Resampler effect cannot be null.");
+        if (this.resamplerEffect == newResamplerEffect) 
+            return true;
+
+        if (this.resamplerEffect != null) {
+            innerMixer.removeEffect(this.resamplerEffect);
+        }
+        try {
+            innerMixer.addEffect(newResamplerEffect);
+            this.resamplerEffect = newResamplerEffect;
+            this.resamplerEffect.getSpeedControl().setValue(this.speedControl.getValue());
+            logger.debug("Resampler effect changed.");
+            return true;
+        } catch (IncompatibleEffectTypeException | MultipleVaryingSizeEffectsException e) {
+            logger.error("Failed to add resampler effect to inner mixer", e);
+            return false;
+        }
     }
 
     /**
