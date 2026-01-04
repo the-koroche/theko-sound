@@ -3,5 +3,5 @@
 This project includes the following third-party libraries:
 
 - **SLF4J** (`org.slf4j:slf4j-api`, `org.slf4j:slf4j-simple`)
-  Licensed under the [MIT License](https://mit-license.org/)
-  Copyright © 2004–2022 SLF4J Authors.
+  [License](https://www.slf4j.org/license.html)
+  Copyright © 2004-2025 SLF4J Authors.
