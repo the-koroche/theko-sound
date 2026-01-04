@@ -104,7 +104,7 @@ public final class SpectrumVisualizationUtilities {
     }
 
     /**
-     * Maps the input spectrum to the output spectrum using linear interpolation with optional easing.
+     * Maps the input spectrum to the output spectrum using linear interpolation.
      * The mapping is done by iterating over the positions array and setting the value of the output
      * spectrum at the corresponding position to the interpolated value of the input spectrum at the same index.
      * If the output spectrum value at the position is already greater than the input spectrum value,
@@ -112,12 +112,11 @@ public final class SpectrumVisualizationUtilities {
      *
      * @param inputSpectrum the input spectrum to map
      * @param positions the positions array to use for mapping
-     * @param easing whether to apply easing to the interpolation
      * @param interpolatedSpectrumOut the output spectrum to map to
      * 
      * @throws IllegalArgumentException if the input spectrum, positions array, or output spectrum is null or empty
      */
-    public static void mapSpectrumInterpolate(float[] inputSpectrum, float[] positions, boolean easing, float[] interpolatedSpectrumOut) {
+    public static void mapSpectrumLinear(float[] inputSpectrum, float[] positions, float[] interpolatedSpectrumOut) {
         if (inputSpectrum == null || inputSpectrum.length == 0) {
             throw new IllegalArgumentException("Input spectrum cannot be null or empty.");
         }
@@ -144,11 +143,6 @@ public final class SpectrumVisualizationUtilities {
             for (int x = startX; x <= endX; x++) {
                 float t = (x - positions[i]) / (positions[i + 1] - positions[i] + 1e-6f); // Add epsilon to avoid division by zero
                 t = Math.max(0, Math.min(1, t)); // clamp
-                
-                // Ease In-Out
-                if (easing) {
-                    t = t * t * t * (t * (t * 6 - 15) + 10);
-                }
 
                 // Lerp
                 float value = startValue * (1 - t) + endValue * t;
@@ -157,6 +151,76 @@ public final class SpectrumVisualizationUtilities {
                 }
             }
         }
+    }
+
+    /**
+     * Maps the input spectrum to the output spectrum using smooth catmull-Rom interpolation.
+     * The mapping is done by iterating over the positions array and setting the value of the output
+     * spectrum at the corresponding position to the interpolated value of the input spectrum at the same index.
+     * If the output spectrum value at the position is already greater than the input spectrum value,
+     * it is left unchanged.
+     *
+     * @param inputSpectrum the input spectrum to map
+     * @param positions the positions array to use for mapping
+     * @param out the output spectrum to map to
+     * 
+     * @throws IllegalArgumentException if the input spectrum, positions array, or output spectrum is null or empty
+     */
+    public static void mapSpectrumCubic(
+        float[] inputSpectrum,
+        float[] positions,
+        float[] out)
+    {
+        if (inputSpectrum == null || inputSpectrum.length == 0)
+            throw new IllegalArgumentException("Input spectrum cannot be null or empty.");
+        if (positions == null || positions.length == 0)
+            throw new IllegalArgumentException("Positions array cannot be null or empty.");
+        if (out == null || out.length == 0)
+            throw new IllegalArgumentException("Output spectrum cannot be null or empty.");
+
+        Arrays.fill(out, 0f);
+
+        for (int i = 0; i < positions.length - 1; i++) {
+
+            int startX = (int) positions[i];
+            int endX   = (int) positions[i + 1];
+
+            if (startX >= out.length || endX >= out.length)
+                continue;
+            if (endX < startX)
+                continue;
+
+            float p0 = inputSpectrum[Math.max(i - 1, 0)];
+            float p1 = inputSpectrum[i];
+            float p2 = inputSpectrum[i + 1];
+            float p3 = inputSpectrum[Math.min(i + 2, inputSpectrum.length - 1)];
+
+            float dx = (positions[i + 1] - positions[i]);
+            if (dx <= 0) dx = 1;
+
+            for (int x = startX; x <= endX; x++) {
+                float t = (x - positions[i]) / dx;
+                if (t < 0) t = 0;
+                if (t > 1) t = 1;
+
+                float value = catmullRom(p0, p1, p2, p3, t);
+
+                if (value > out[x])
+                    out[x] = value;
+            }
+        }
+    }
+
+    private static float catmullRom(float p0, float p1, float p2, float p3, float t) {
+        float t2 = t * t;
+        float t3 = t2 * t;
+
+        return 0.5f * (
+                2f * p1 +
+                (-p0 + p2) * t +
+                (2f*p0 - 5f*p1 + 4f*p2 - p3) * t2 +
+                (-p0 + 3f*p1 - 3f*p2 + p3) * t3
+        );
     }
 
     /**
@@ -201,7 +265,7 @@ public final class SpectrumVisualizationUtilities {
         if (fixedWidthBarCount <= 0) {
             throw new IllegalArgumentException("Fixed width bar count must be greater than 0.");
         }
-        mapSpectrumInterpolate(inputSpectrum, positions, false, interpolatedSpectrumOut);
+        mapSpectrumLinear(inputSpectrum, positions, interpolatedSpectrumOut);
 
         int barCount = Math.min(fixedWidthBarCount, windowWidth);
         float step = Math.max(1, windowWidth / (float) barCount);

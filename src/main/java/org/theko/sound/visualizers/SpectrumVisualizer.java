@@ -292,8 +292,8 @@ public class SpectrumVisualizer extends AudioVisualizer {
 
         private void mapSpectrum(float[] inputSpectrum, float[] positions, int width, float[] interpolatedSpectrumOut) {
             switch (spectrumInterpolationMode) {
-                case LINEAR -> mapSpectrumInterpolate(fftSpectrum, mappingPositions, false, interpolatedSpectrum);
-                case EASING -> mapSpectrumInterpolate(fftSpectrum, mappingPositions, true, interpolatedSpectrum);
+                case LINEAR -> mapSpectrumLinear(fftSpectrum, mappingPositions, interpolatedSpectrum);
+                case EASING -> mapSpectrumCubic(fftSpectrum, mappingPositions, interpolatedSpectrum);
                 case FIXED_WIDTH -> mapSpectrumFixedWidth(fftSpectrum, mappingPositions, getWidth(), fixedWidthBarCount, fixedWidthBarWidth, interpolatedSpectrum);
                 case NEAREST -> mapSpectrumNearest(fftSpectrum, mappingPositions, interpolatedSpectrum);
             }
