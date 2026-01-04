@@ -17,13 +17,15 @@
 package org.theko.sound.visualizers;
 
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+import javax.swing.JPanel;
 
 import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.FloatControl;
@@ -85,16 +87,19 @@ public class SpectrogramVisualizer extends AudioVisualizer {
 
     protected class SpectrogramRender extends AudioVisualizer.Render {
 
+        private BufferedImage spectrogramBuffer;
+        private int[] specPixels;
+
         private float[] fftInputBuffer;
         private float[] fftSpectrum;
         private float[] mappingPositions;
         private float[] interpolatedSpectrum;
         private float[] real, imag;
-        private float lastFrequencyScale = -1;
 
+        private float lastFrequencyScale = -1;
         private float timeSinceLastShift = 0f;
         private long lastRenderTime = System.nanoTime();
-        
+
         public SpectrogramRender(int width, int height) {
             super(width, height, BufferedImage.TYPE_INT_ARGB);
         }
@@ -108,80 +113,115 @@ public class SpectrogramVisualizer extends AudioVisualizer {
             interpolatedSpectrum = null;
             real = null; imag = null;
         }
-        
+
+        private void ensureSpectrogramBuffer() {
+            int w = getWidth();
+            int h = getHeight();
+
+            if (w <= 0 || h <= 0)
+                return;
+
+            if (spectrogramBuffer == null) {
+                spectrogramBuffer = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+                specPixels = ((DataBufferInt) spectrogramBuffer.getRaster().getDataBuffer()).getData();
+                return;
+            }
+
+            if (spectrogramBuffer.getWidth() != w || spectrogramBuffer.getHeight() != h) {
+
+                BufferedImage old = spectrogramBuffer;
+                BufferedImage newBuf = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+
+                Graphics2D g = newBuf.createGraphics();
+                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                g.drawImage(old, 0, 0, w, h, null);
+                g.dispose();
+
+                spectrogramBuffer = newBuf;
+                specPixels = ((DataBufferInt) newBuf.getRaster().getDataBuffer()).getData();
+            }
+        }
+
         @Override
         protected void paint(Graphics2D g2d) {
             long now = System.nanoTime();
-            float deltaTime = (now - lastRenderTime) / 1_000_000_000f;
+            float deltaTime = (now - lastRenderTime) * 1e-9f;
             lastRenderTime = now;
 
             timeSinceLastShift += deltaTime;
 
-            // Adaptive pixels shift
             int shiftPixels = 0;
             while (timeSinceLastShift >= updateTime) {
                 timeSinceLastShift -= updateTime;
                 shiftPixels++;
             }
 
-            // Return if there is not enough samples
             if (recentAudioWindow == null) {
                 return;
             }
 
+            ensureSpectrogramBuffer();
+
+            int w = getWidth();
+            int h = getHeight();
+
+            if (w <= 0 || h <= 0) return;
+
             int offset = getSamplesOffset();
             offset = Math.max(0, Math.min(offset, recentAudioWindow.length - fftWindowSize));
-            
+
             if (fftInputBuffer == null || fftInputBuffer.length != fftWindowSize) {
                 fftInputBuffer = new float[fftWindowSize];
             }
-            System.arraycopy(recentAudioWindow, offset, fftInputBuffer, 0, Math.min(recentAudioWindow.length - offset, fftWindowSize));
+            System.arraycopy(recentAudioWindow, offset, fftInputBuffer, 0, fftWindowSize);
 
-            if (fftSpectrum == null || fftSpectrum.length != fftWindowSize / 2) {
+            if (fftSpectrum == null || fftSpectrum.length != fftWindowSize / 2)
                 fftSpectrum = new float[fftWindowSize / 2];
-            }
+
             getSpectrum(fftInputBuffer, fftSpectrum);
 
-            if (interpolatedSpectrum == null || interpolatedSpectrum.length != getHeight()) {
-                interpolatedSpectrum = new float[getHeight()];
-            }
-            
+            if (interpolatedSpectrum == null || interpolatedSpectrum.length != h)
+                interpolatedSpectrum = new float[h];
+
             if (mappingPositions == null || mappingPositions.length != fftSpectrum.length) {
                 mappingPositions = new float[fftSpectrum.length];
+                getScaledPositions(mappingPositions, h, frequencyScale);
                 lastFrequencyScale = frequencyScale;
-                getScaledPositions(mappingPositions, getHeight(), frequencyScale);
             }
-            
-            if (lastFrequencyScale != frequencyScale) {
-                lastFrequencyScale = frequencyScale;
-                getScaledPositions(mappingPositions, getHeight(), frequencyScale);
-            }
-            mapSpectrumInterpolate(fftSpectrum, mappingPositions, false, interpolatedSpectrum);
 
-            DataBufferInt db = (DataBufferInt) getRenderImage().getRaster().getDataBuffer();
-            int[] pixels = db.getData();
+            if (lastFrequencyScale != frequencyScale) {
+                getScaledPositions(mappingPositions, h, frequencyScale);
+                lastFrequencyScale = frequencyScale;
+            }
+
+            mapSpectrumCubic(fftSpectrum, mappingPositions, interpolatedSpectrum);
+
+            int[] pixels = specPixels;
 
             if (shiftPixels > 0) {
-                int w = getWidth();
-                int h = getHeight();
                 int shift = Math.min(shiftPixels, w);
 
                 for (int y = 0; y < h; y++) {
-                    int rowStart = y * w;
+                    int base = y * w;
 
                     System.arraycopy(
-                        pixels, rowStart + shift,
-                        pixels, rowStart,
+                        pixels, base + shift,
+                        pixels, base,
                         w - shift
                     );
                 }
             }
-            for (int y = 0; y < getHeight(); y++) {
-                float currentAmplitude = MathUtilities.clamp(interpolatedSpectrum[y], 0.0f, 1.0f);
-                int color = volumeColorProcessor.getColor(currentAmplitude);
-                int index = (getHeight() - y - 1) * getWidth() + (getWidth() - 1);
-                pixels[index] = color;
+
+            int lastX = w - 1;
+            for (int y = 0; y < h; y++) {
+                float amp = MathUtilities.clamp(interpolatedSpectrum[y], 0f, 1f);
+                int col = volumeColorProcessor.getColor(amp);
+
+                int row = (h - y - 1);
+                pixels[row * w + lastX] = col;
             }
+
+            g2d.drawImage(spectrogramBuffer, 0, 0, null);
         }
 
         private void getSpectrum(float[] inputSamples, float[] outputSpectrum) {
