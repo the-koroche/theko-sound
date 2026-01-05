@@ -12,7 +12,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -32,67 +31,101 @@ import org.theko.sound.visualizers.SpectrumVisualizer;
 import helpers.FileChooserHelper;
 
 public class VisualizerPlayback {
-    public static void main(String[] args) {
-        SoundPlayer player = new SoundPlayer();
-        SpectrumVisualizer spectrum = new SpectrumVisualizer(120.0f);
-        JFrame frame = new JFrame("Spectrum");
-        AtomicBoolean isStopped = new AtomicBoolean(false);
+    private SoundPlayer player = new SoundPlayer();
+    private String trackInfo = "";
+    private static final int messageDisplayDuration = 2000;
+    private String message = "";
+    private long messageTimestamp = 0;
 
+    private JFrame frame;
+    private SpectrumVisualizer spectrum;
+    private BitcrusherEffect bitcrusher;
+
+    private class OverlayPanel extends JPanel {
+        Font font = new Font("Monospaced", Font.BOLD, 14);
+        
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            g2d.setColor(Color.WHITE);
+            g2d.setFont(font);
+            drawMultilineText(g2d, trackInfo + "\n" + getPlaybackInfo(player), 10, 20, 16);
+            drawMessage(g2d);
+        }
+
+        private void drawMultilineText(Graphics2D g2d, String text, int x, int y, int lineHeight) {
+            String[] lines = text.split("\n");
+            for (int i = 0; i < lines.length; i++) {
+                g2d.drawString(lines[i], x, y + i * lineHeight);
+            }
+        }
+
+        private void drawMessage(Graphics2D g2d) {
+            if (!message.isEmpty() && System.currentTimeMillis() - messageTimestamp < messageDisplayDuration) {
+                int msgWidth = g2d.getFontMetrics().stringWidth(message);
+                int msgHeight = g2d.getFontMetrics().getHeight();
+
+                int w = (getParent() != null ? getParent().getWidth() : getWidth());
+                int h = (getParent() != null ? getParent().getHeight() : getHeight());
+                int x = (w - msgWidth) / 2;
+                int y = (h - msgHeight) / 2;
+
+                float alpha = getAlpha();
+
+                g2d.setColor(new Color(0, 0, 0, (int) (150 * alpha)));
+                g2d.fillRoundRect(x - 10, y - 20, msgWidth + 20, 30, 10, 10);
+                g2d.setColor(new Color(255, 255, 255, (int) (255 * alpha)));
+                g2d.drawString(message, x, y);
+            }
+        }
+
+        private float getAlpha() {
+            if (message.isEmpty()) return 0f;
+            float alpha = 1.0f - (float)(System.currentTimeMillis() - messageTimestamp) / messageDisplayDuration;
+            return Math.max(0f, Math.min(1f, alpha));
+        }
+    }
+
+    private VisualizerPlayback() {
         try {
-            File audioFile = FileChooserHelper.chooseAudioFile();
-            if (audioFile == null) {
-                System.out.println("No audio file selected.");
+            if (!openAudio()) {
                 return;
             }
-            player.open(audioFile);
-            String info = getTrackInfo(player);
 
             ResamplerEffect resampler = new ResamplerEffect(new LanczosResampleMethod(), 2);
             player.setResamplerEffect(resampler);
             
             AudioMixer mixer = player.getInnerMixer();
             
-            BitcrusherEffect bitcrusher = new BitcrusherEffect();
+            bitcrusher = new BitcrusherEffect();
             bitcrusher.getBitdepth().setValue(6);
             bitcrusher.getSampleRateReduction().setValue(4000f);
             bitcrusher.getEnableControl().setValue(false);
             mixer.addEffect(bitcrusher);
 
+            spectrum = new SpectrumVisualizer(120.0f);
             //spectrum.setVolumeColorProcessor(ColorGradient.VIRIDIS_COLOR_MAP.getVolumeColorProcessor());
             spectrum.setFftWindowSize(8192);
             spectrum.setFrequencyScale(1.5f);
             mixer.addEffect(spectrum);
 
             SwingUtilities.invokeLater(() -> {
+                frame = new JFrame("Spectrum");
                 frame.setSize(800, 400);
                 frame.setMinimumSize(new Dimension(150, 100));
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 spectrum.getPanel().setDoubleBuffered(true);
                 spectrum.getPanel().setBackground(Color.BLACK);
                 spectrum.getPanel().setOpaque(true);
+
                 JPanel spectrumPanel = spectrum.getPanel();
                 spectrumPanel.setLayout(new OverlayLayout(spectrumPanel));
 
-                JPanel overlay = new JPanel() {
-                    Font font = new Font("Monospaced", Font.BOLD, 14);
-
-                    @Override
-                    protected void paintComponent(Graphics g) {
-                        super.paintComponent(g);
-                        Graphics2D g2d = (Graphics2D) g;
-                        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-                        g.setColor(Color.WHITE);
-                        g.setFont(font);
-                        drawMultilineText(g, info + "\n" + getPlaybackInfo(player), 10, 20, 16);
-                    }
-
-                    private void drawMultilineText(Graphics g, String text, int x, int y, int lineHeight) {
-                        String[] lines = text.split("\n");
-                        for (int i = 0; i < lines.length; i++) {
-                            g.drawString(lines[i], x, y + i * lineHeight);
-                        }
-                    }
-                };
+                JPanel overlay = new OverlayPanel();
                 overlay.setOpaque(false);
                 spectrumPanel.add(overlay);
 
@@ -104,85 +137,45 @@ public class VisualizerPlayback {
                         spectrum.close();
                     }
                 });
-                frame.addKeyListener(new KeyAdapter() {
-                    @Override
-                    public void keyPressed(KeyEvent e) {
-                        switch (e.getKeyCode()) {
-                            case KeyEvent.VK_SPACE:
-                                if (player.isPlaying()) {
-                                    isStopped.set(true);
-                                    player.stop();
-                                } else {
-                                    player.start();
-                                    isStopped.set(false);
-                                }
-                                break;
-                            case KeyEvent.VK_A:
-                                player.getSpeedControl().setValue(0.5f);
-                                break;
-                            case KeyEvent.VK_D:
-                                player.getSpeedControl().setValue(2.0f);
-                                break;
-                            case KeyEvent.VK_S:
-                                player.getSpeedControl().setValue(player.getSpeedControl().getValue() - 0.01f);
-                                break;
-                            case KeyEvent.VK_W:
-                                player.getSpeedControl().setValue(player.getSpeedControl().getValue() + 0.01f);
-                                break;
-                            
-                            case KeyEvent.VK_R:
-                                player.setFramePosition(0);
-                                break;
-                            
-                            case KeyEvent.VK_B:
-                                bitcrusher.getEnableControl().setValue(!bitcrusher.getEnableControl().isEnabled());
-                                break;
-                        }
-                    }
-
-                    @Override public void keyReleased(KeyEvent e) {
-                        switch (e.getKeyCode()) {
-                            case KeyEvent.VK_A: case KeyEvent.VK_D:
-                                player.getSpeedControl().setValue(1.0f);
-                                break;
-                        }
-                    }
-                });
+                addKeyListeners();
+                frame.setFocusable(true);
+                frame.requestFocusInWindow();
                 frame.setVisible(true);
             });
 
             player.start();
-            while (player.isOpen() && (player.isPlaying() || isStopped.get())) {
-                Thread.sleep(1000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean openAudio() {
+        try {
+            File audioFile = FileChooserHelper.chooseAudioFile();
+            if (audioFile == null) {
+                System.out.println("No audio file selected.");
+                return false;
             }
-            System.out.println();
+            player.open(audioFile);
+            trackInfo = getTrackInfo(player);
+            return true;
         } catch (FileNotFoundException e) {
             System.err.println("File not found.");
+            return false;
         } catch (AudioCodecNotFoundException e) {
             // AudioCodecNotFoundException used to handle an unsupported audio extensions
             System.err.println("Provided audio file is unsupported.");
-        } catch (InterruptedException e) {
-            // When the playback is interrupted
-            Thread.currentThread().interrupt();
-            System.err.println("Playback interrupted.");
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            System.out.println("Shutting down...");
-            if (player != null && player.isOpen()) {
-                player.close();
-            }
-            spectrum.close();
-            frame.dispose();
+            return false;
         }
     }
 
     private static String getTrackInfo(SoundPlayer player) {
         String title = player.getTags().getValue(AudioTag.TITLE);
         String artist = player.getTags().getValue(AudioTag.ARTIST);
-        return "%s - %s".formatted(
-            artist != null ? artist : "Unknown Artist",
-            title != null ? title : "Unknown Title");
+        return "%s\n%s".formatted(
+            title != null ? title : "Unknown Title",
+            artist != null ? artist : "Unknown Artist"
+        );
     }
 
     private static String getPlaybackInfo(SoundPlayer player) {
@@ -198,8 +191,67 @@ public class VisualizerPlayback {
         float speed = player.getSpeedControl().getValue();
 
         return "%02d:%02d / %02d:%02d %s%s".formatted(posMin, posRemSec, durMin, durRemSec,
-            player.isPlaying() ? "" : "[Paused]",
+            player.isPlaying() ? "" : "[Stopped]",
             speed != 1f ? "\nSpeed: x%.2f".formatted(speed) : ""
         );
+    }
+
+    private void addKeyListeners() {
+        frame.addKeyListener(new KeyAdapter() {
+        @Override
+        public void keyPressed(KeyEvent e) {
+            var speed = player.getSpeedControl();
+            switch (e.getKeyCode()) {
+                // Play / Pause toggle
+                case KeyEvent.VK_SPACE, KeyEvent.VK_PAUSE, KeyEvent.VK_P -> {
+                    if (player.isPlaying()) player.stop();
+                    else player.start();
+                }
+                // Speed controls
+                case KeyEvent.VK_A, KeyEvent.VK_LEFT ->     speed.setValue(0.5f);
+                case KeyEvent.VK_D, KeyEvent.VK_RIGHT ->    speed.setValue(2.0f);
+                case KeyEvent.VK_S, KeyEvent.VK_DOWN ->     speed.setValue(speed.getValue() - 0.01f);
+                case KeyEvent.VK_W, KeyEvent.VK_UP ->       speed.setValue(speed.getValue() + 0.01f);
+                // Reset position
+                case KeyEvent.VK_R, KeyEvent.VK_HOME, KeyEvent.VK_BACK_SPACE -> {
+                    player.setFramePosition(0);
+                    message("Restarted track");
+                }
+                // Loop toggle
+                case KeyEvent.VK_L -> {
+                    player.setLoop(!player.isLooping());
+                    message("Looping %s".formatted(player.isLooping() ? "enabled" : "disabled"));
+                }
+                // Bitcrusher toggle
+                case KeyEvent.VK_B -> {
+                    bitcrusher.getEnableControl().setValue(!bitcrusher.getEnableControl().isEnabled());
+                    message("Bitcrusher %s".formatted(bitcrusher.getEnableControl().isEnabled() ? "enabled" : "disabled"));
+                }
+                // Open new audio track
+                case KeyEvent.VK_O -> {
+                    if (openAudio()) message("Opened new audio track");
+                    else message("Failed to open audio track");
+                }
+            }
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+            var speed = player.getSpeedControl();
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT ->
+                    speed.setValue(1.0f);
+            }
+        }
+    });
+    }
+
+    private void message(String msg) {
+        message = msg;
+        messageTimestamp = System.currentTimeMillis();   
+    }
+
+    public static void main(String[] args) {
+        new VisualizerPlayback();
     }
 }
