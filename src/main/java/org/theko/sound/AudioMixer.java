@@ -16,6 +16,10 @@
 
 package org.theko.sound;
 
+import static org.theko.sound.properties.AudioSystemProperties.MIXER_DEFAULT_ENABLE_EFFECTS;
+import static org.theko.sound.properties.AudioSystemProperties.MIXER_DEFAULT_REVERSE_POLARITY;
+import static org.theko.sound.properties.AudioSystemProperties.MIXER_DEFAULT_SWAP_CHANNELS;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,8 +34,6 @@ import org.theko.sound.effects.IncompatibleEffectTypeException;
 import org.theko.sound.effects.MultipleVaryingSizeEffectsException;
 import org.theko.sound.effects.VaryingSizeEffect;
 import org.theko.sound.samples.SamplesValidation;
-
-import static org.theko.sound.properties.AudioSystemProperties.*;
 import org.theko.sound.utility.ArrayUtilities;
 import org.theko.sound.utility.MathUtilities;
 import org.theko.sound.utility.SamplesUtilities;
@@ -99,6 +101,7 @@ public class AudioMixer implements AudioNode {
      * Adds an audio input to the mixer.
      * 
      * @param input The audio input to add.
+     * @throws IllegalArgumentException If the input is null, an effect, this mixer itself, or a circular reference.
      */
     public void addInput(AudioNode input) {
         if (input == null) {
@@ -146,6 +149,8 @@ public class AudioMixer implements AudioNode {
      * Adds an audio effect to the mixer.
      * 
      * @param effect The audio effect to add.
+     * @throws IncompatibleEffectTypeException if the effect is an offline processing effect.
+     * @throws MultipleVaryingSizeEffectsException if the effect is a varying size effect and the mixer already has a varying size effect.
      */
     public void addEffect(AudioEffect effect) throws IncompatibleEffectTypeException, MultipleVaryingSizeEffectsException {
         if (effect == null) {
@@ -190,26 +195,28 @@ public class AudioMixer implements AudioNode {
      * Removes an audio input from the mixer.
      * 
      * @param input The audio input to remove.
+     * @throws IllegalArgumentException If the input is null.
      */
-    public void removeInput(AudioNode input) {
+    public boolean removeInput(AudioNode input) {
         if (input == null) {
             logger.error("Attempted to remove null input from AudioMixer");
             throw new IllegalArgumentException("Input cannot be null");
         }
-        inputs.remove(input);
+        return inputs.remove(input);
     }
 
     /**
      * Removes an audio effect from the mixer.
      * 
      * @param effect The audio effect to remove.
+     * @throws IllegalArgumentException If the effect is null.
      */
-    public void removeEffect(AudioEffect effect) {
+    public boolean removeEffect(AudioEffect effect) {
         if (effect == null) {
             logger.error("Attempted to remove null effect from AudioMixer");
             throw new IllegalArgumentException("Effect cannot be null");
         }
-        effects.remove(effect);
+        return effects.remove(effect);
     }
 
     /**
