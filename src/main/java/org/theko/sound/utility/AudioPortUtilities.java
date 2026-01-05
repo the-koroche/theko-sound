@@ -19,6 +19,8 @@ package org.theko.sound.utility;
 import java.util.HashMap;
 
 import org.theko.sound.backend.AudioBackend;
+import org.theko.sound.backend.dummy.DummyAudioBackend;
+import org.theko.sound.backend.dummy.DummyPortLink;
 import org.theko.sound.backend.javasound.JavaSoundBackend;
 import org.theko.sound.backend.javasound.JavaSoundPortLink;
 import org.theko.sound.backend.wasapi.WASAPIPortHandle;
@@ -37,6 +39,7 @@ public final class AudioPortUtilities {
     static {
         backends.put(JavaSoundPortLink.class, JavaSoundBackend.class);
         backends.put(WASAPIPortHandle.class, WASAPISharedBackend.class);
+        backends.put(DummyPortLink.class, DummyAudioBackend.class);
     }
     
     private AudioPortUtilities() {
