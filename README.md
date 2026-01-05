@@ -41,13 +41,13 @@ The library will be available on **Maven Central**:
 
 ```xml
 <dependency>
-    <groupId>org.theko.sound</groupId>
+    <groupId>io.github.the-koroche</groupId>
     <artifactId>theko-sound</artifactId>
-    <version>2.4.1</version>
+    <version>2.5.0</version>
 </dependency>
 ```
 
-Or download JAR from the [Releases](https://github.com/the-koro/theko-sound/releases).
+Download JAR from the [Releases](https://github.com/the-koroche/theko-sound/releases).
 
 ---
 
