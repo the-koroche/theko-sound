@@ -10,9 +10,9 @@ extern "C" {
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedBackend
  * Method:    nInit
- * Signature: ()V
+ * Signature: ()J
  */
-JNIEXPORT void JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nInit
+JNIEXPORT jlong JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nInit
   (JNIEnv *, jobject);
 
 /*

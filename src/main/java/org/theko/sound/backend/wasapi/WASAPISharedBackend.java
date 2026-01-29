@@ -145,7 +145,10 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISh
     @Override
     public void initialize() throws AudioBackendException {
         if (isInitialized) return;
-        nInit();
+        this.backendContextPtr = nInit();
+        if (backendContextPtr == 0) {
+            throw new AudioBackendException("Failed to initialize WASAPI backend.");
+        }
         isInitialized = true;
     }
 
@@ -257,7 +260,7 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISh
 
     @Override
     public AudioInputBackend getInputBackend() {
-        throw new UnsupportedOperationException("WASAPISharedInput is not implemented yet.");
+        return new WASAPISharedInput();
     }
 
     @Override
@@ -274,7 +277,7 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISh
         return port != null && port.getLink().getClass().equals(WASAPIPortHandle.class);
     }
 
-    private synchronized native void nInit();
+    private synchronized native long nInit();
     private synchronized native void nShutdown();
     private synchronized native AudioPort[] nGetAllPorts();
     private synchronized native AudioPort nGetDefaultPort(AudioFlow flow);

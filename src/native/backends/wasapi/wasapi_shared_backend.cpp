@@ -34,15 +34,19 @@
 #include <functiondiscoverykeys.h>
 #include <Functiondiscoverykeys_devpkey.h>
 
+EXTERN_C const IID IID_IUnknown = {0x00000000, 0x0000, 0x0000, {0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46}};
+
 #include "wasapi_utils.hpp"
 #include "wasapi_bridge.hpp"
+
+namespace org_theko_sound_backend_wasapi {
 
 typedef struct {
     IMMDeviceEnumerator* deviceEnumerator;
 } BackendContext;
 
 extern "C" {
-    JNIEXPORT void JNICALL 
+    JNIEXPORT jlong JNICALL 
     Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nInit
     (JNIEnv* env, jobject obj) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedBackend.nInit");
@@ -55,7 +59,7 @@ extern "C" {
             const char* msg = format("Failed to initialize COM. (%s)", hr_msg).c_str();
             logger->error(env, msg);
             env->ThrowNew(exceptionsCache->audioBackendException, msg);
-            return;
+            return 0;
         }
 
         auto* ctx = new BackendContext{ nullptr };
@@ -72,11 +76,12 @@ extern "C" {
             logger->error(env, msg);
             env->ThrowNew(exceptionsCache->audioBackendException, msg);
             CoUninitialize();
-            return;
+            return 0;
         }
-        env->SetLongField(obj, WASAPIBackendCache::get(env)->backendContextPtr, (jlong)ctx);
 
         logger->debug(env, "Initialized WASAPI backend. ContextPtr: %s", FORMAT_PTR(ctx));
+
+        return (jlong)ctx;
     }
 
     JNIEXPORT void JNICALL 
@@ -316,3 +321,4 @@ extern "C" {
     }
 }
 #endif // end of !_WIN32
+}

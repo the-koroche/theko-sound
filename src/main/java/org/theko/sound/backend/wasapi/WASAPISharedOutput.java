@@ -16,6 +16,8 @@
 
 package org.theko.sound.backend.wasapi;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.AudioFlow;
@@ -65,15 +67,17 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
             logger.debug("Initializing WASAPI.");
             initialize();
         }
-        logger.debug("Opening output port: {}, audio format: {}, buffer size: {}", port, audioFormat, bufferSize);
-        AudioFormat result = nOpen(port, audioFormat, bufferSize);
+        AtomicReference<AudioFormat> openedFormat = new AtomicReference<>();
+        logger.debug("Opening output, port: {}, audio format: {}, buffer size: {}", port, audioFormat, bufferSize);
+        this.outputContextPtr = nOpen(port, audioFormat, bufferSize, openedFormat);
+        if (this.outputContextPtr == 0) throw new AudioBackendException("Failed to open output.");
 
         this.bufferSize = bufferSize;
         this.audioFormat = audioFormat;
         this.port = port;
         isOpen = true;
 
-        return result;
+        return openedFormat.get();
     }
 
     @Override
@@ -150,7 +154,7 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
 
     @Override
     public int available() throws AudioBackendException, BackendNotOpenException {
-        if (!isOpen()) throw new BackendNotOpenException("Cannot write. Backend is not open.");
+        if (!isOpen()) throw new BackendNotOpenException("Cannot get available. Backend is not open.");
         return nAvailable();
     }
 
@@ -214,7 +218,7 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
         }
     }
     
-    private synchronized native AudioFormat nOpen(AudioPort port, AudioFormat audioFormat, int bufferSize);
+    private synchronized native long nOpen(AudioPort port, AudioFormat audioFormat, int bufferSize, AtomicReference<AudioFormat> audioFormatRef);
     private synchronized native void nClose();
     private synchronized native void nStart();
     private synchronized native void nStop();

@@ -43,10 +43,10 @@
 #include "wasapi_utils.hpp"
 #include "wasapi_bridge.hpp"
 
-EXTERN_C const IID IID_IUnknown = {0x00000000, 0x0000, 0x0000, {0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46}};
-
 #define EVENT_AUDIO_BUFFER_READY 0
 #define EVENT_STOP_REQUEST 1
+
+namespace theko::sound::backend::wasapi::output {
 
 class OutputContext {
 private:
@@ -115,14 +115,14 @@ public:
     }
 };
 
-class DeviceChangeNotifier : public IMMNotificationClient {
+class OutputDeviceChangeNotifier : public IMMNotificationClient {
 private:
     std::atomic<ULONG> refCount;
     OutputContext* context;
     HANDLE hStopEvent;
 
 public:
-    DeviceChangeNotifier(OutputContext* ctx)
+    OutputDeviceChangeNotifier(OutputContext* ctx)
         : refCount(1), context(ctx), hStopEvent(ctx->events[EVENT_STOP_REQUEST]) {}
 
     ULONG STDMETHODCALLTYPE AddRef() override {
@@ -237,12 +237,12 @@ extern "C" {
         }
     }
 
-    JNIEXPORT jobject JNICALL 
+    JNIEXPORT jlong JNICALL 
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nOpen
-    (JNIEnv* env, jobject obj, jobject jport, jobject jformat, jint bufferSize /* in bytes */) {
+    (JNIEnv* env, jobject obj, jobject jport, jobject jformat, jint bufferSize /* in bytes */, jobject jAtomicRefFormat) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nOpen");
 
-        if (!jport || !jformat) return nullptr;
+        if (!jport || !jformat || !jAtomicRefFormat) return 0;
 
         OutputContext* context = new OutputContext();
         logger->trace(env, "OutputContext allocated. Pointer: %s", FORMAT_PTR(context));
@@ -250,7 +250,7 @@ extern "C" {
         IMMDevice* device = AudioPort_to_IMMDevice(env, jport);
         if (!device) {
             cleanupAndThrowError(env, logger, context, E_FAIL, "Failed to get IMMDevice.");
-            return nullptr;
+            return 0;
         }
         context->outputDevice = device;
         logger->trace(env, "IMMDevice pointer: %s", FORMAT_PTR(device));
@@ -258,7 +258,7 @@ extern "C" {
         WAVEFORMATEX* format = AudioFormat_to_WAVEFORMATEX(env, jformat);
         if (!format) {
             cleanupAndThrowError(env, logger, context, E_FAIL, "Failed to get WAVEFORMATEX.");
-            return nullptr;
+            return 0;
         }
         logger->trace(env, "WAVEFORMATEX (Request): %s. Pointer: %s", WAVEFORMATEX_toText(format), FORMAT_PTR(format));
 
@@ -266,7 +266,7 @@ extern "C" {
         HRESULT hr = context->outputDevice->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr, (void**)&context->audioClient);
         if (FAILED(hr) || !context->audioClient) {
             cleanupAndThrowError(env, logger, context, hr, "Failed to get IAudioClient.");
-            return nullptr;
+            return 0;
         }
         logger->trace(env, "IAudioClient pointer: %s", FORMAT_PTR(context->audioClient));
 
@@ -274,7 +274,7 @@ extern "C" {
         hr = context->audioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, format, &closestFormat);
         if (FAILED(hr)) {
             cleanupAndThrowError(env, logger, context, hr, "Failed to check format support.");
-            return nullptr;
+            return 0;
         }
 
         if (hr == S_OK) {
@@ -289,7 +289,7 @@ extern "C" {
             CoTaskMemFree(closestFormat);
             CoTaskMemFree(format);
             cleanupAndThrowError(env, logger, context, hr, "Failed to check format support.");
-            return nullptr;
+            return 0;
         }
         context->format = format;
 
@@ -308,7 +308,7 @@ extern "C" {
             format, nullptr);
         if (FAILED(hr)) {
             cleanupAndThrowError(env, logger, context, hr, "Failed to initialize IAudioClient.");
-            return nullptr;
+            return 0;
         }
         logger->trace(env, "IAudioClient initialized.");
 
@@ -316,7 +316,7 @@ extern "C" {
         hr = context->audioClient->GetService(__uuidof(IAudioRenderClient), (void**)&context->renderClient);
         if (FAILED(hr) || !context->renderClient) {
             cleanupAndThrowError(env, logger, context, hr, "Failed to get IAudioRenderClient.");
-            return nullptr;
+            return 0;
         }
         logger->trace(env, "IAudioRenderClient pointer: %s", FORMAT_PTR(context->renderClient));
 
@@ -324,14 +324,14 @@ extern "C" {
         hr = context->audioClient->GetService(__uuidof(IAudioClock), (void**)&context->audioClock);
         if (FAILED(hr) || !context->audioClock) {
             cleanupAndThrowError(env, logger, context, hr, "Failed to get IAudioClock.");
-            return nullptr;
+            return 0;
         }
         logger->trace(env, "IAudioClock pointer: %s", FORMAT_PTR(context->audioClock));
 
         context->events[EVENT_AUDIO_BUFFER_READY] = CreateEvent(NULL, TRUE, FALSE, NULL);
         if (!context->events[EVENT_AUDIO_BUFFER_READY]) {
             cleanupAndThrowError(env, logger, context, E_FAIL, "Failed to create audio callback event.");
-            return nullptr;
+            return 0;
         }
         context->audioClient->SetEventHandle(context->events[EVENT_AUDIO_BUFFER_READY]);
         logger->trace(env, "Event handle: %s", FORMAT_PTR(context->events[EVENT_AUDIO_BUFFER_READY]));
@@ -339,7 +339,7 @@ extern "C" {
         context->events[EVENT_STOP_REQUEST] = CreateEvent(NULL, TRUE, FALSE, NULL);
         if (!context->events[EVENT_STOP_REQUEST]) {
             cleanupAndThrowError(env, logger, context, E_FAIL, "Failed to create stop event.");
-            return nullptr;
+            return 0;
         }
         logger->trace(env, "Stop event handle: %s", FORMAT_PTR(context->events[EVENT_STOP_REQUEST]));
 
@@ -355,7 +355,7 @@ extern "C" {
             (void**)&context->deviceEnumerator);
     
         if (SUCCEEDED(hr)) {
-            DeviceChangeNotifier* notifier = new DeviceChangeNotifier(context);
+            OutputDeviceChangeNotifier* notifier = new OutputDeviceChangeNotifier(context);
             hr = context->deviceEnumerator->RegisterEndpointNotificationCallback(notifier);
             
             if (SUCCEEDED(hr)) {
@@ -370,15 +370,17 @@ extern "C" {
             logger->warn(env, "Failed to create device enumerator");
         }
 
-        env->SetLongField(obj, WASAPIOutputCache::get(env)->outputContextPtr, (jlong)context);
-        logger->debug(env, "Opened WASAPI output. ContextPtr: %s", FORMAT_PTR(context));
-
         jobject jAudioFormat = JNIUtil_CreateGlobal(env, WAVEFORMATEX_to_AudioFormat(env, context->format));
         if (!jAudioFormat) {
             cleanupAndThrowError(env, logger, context, E_FAIL, "Failed to create audio format.");
-            return nullptr;
+            return 0;
         }
-        return jAudioFormat;
+        AtomicReferenceCache* audioFormatCache = AtomicReferenceCache::get(env);
+        env->CallVoidMethod(jAtomicRefFormat, audioFormatCache->setMethod, jAudioFormat);
+
+        logger->debug(env, "Opened WASAPI output. ContextPtr: %s", FORMAT_PTR(context));
+
+        return (jlong)context;
     }
 
     JNIEXPORT void JNICALL
@@ -905,3 +907,4 @@ extern "C" {
     }
 }
 #endif // end of !_WIN32
+}
