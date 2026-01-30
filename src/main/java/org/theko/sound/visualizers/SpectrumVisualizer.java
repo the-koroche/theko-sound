@@ -16,6 +16,12 @@
 
 package org.theko.sound.visualizers;
 
+import static org.theko.sound.visualizers.SpectrumVisualizationUtilities.getScaledPositions;
+import static org.theko.sound.visualizers.SpectrumVisualizationUtilities.mapSpectrumCubic;
+import static org.theko.sound.visualizers.SpectrumVisualizationUtilities.mapSpectrumFixedWidth;
+import static org.theko.sound.visualizers.SpectrumVisualizationUtilities.mapSpectrumLinear;
+import static org.theko.sound.visualizers.SpectrumVisualizationUtilities.mapSpectrumNearest;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -32,7 +38,6 @@ import org.theko.sound.control.FloatControl;
 import org.theko.sound.dsp.FFT;
 import org.theko.sound.dsp.WindowFunction;
 import org.theko.sound.dsp.WindowType;
-import static org.theko.sound.visualizers.SpectrumVisualizationUtilities.*;
 import org.theko.sound.utility.MathUtilities;
 
 /**
@@ -70,6 +75,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
 
     private float spectrumDecayFactor = 0.86f;
     private DecayMode spectrumDecayMode = DecayMode.MULTIPLY;
+    private float finalSpectrumSmoothness = 0.6f;
 
     protected static final float MIN_SCALE = 0.5f;
     protected static final float MAX_SCALE = 4.0f;
@@ -197,6 +203,8 @@ public class SpectrumVisualizer extends AudioVisualizer {
                 }
             }
 
+            smoothSpectrum(drawnSpectrum, finalSpectrumSmoothness);
+
             int[] pixels = ((DataBufferInt) getRenderImage().getRaster().getDataBuffer()).getData();
             for (int x = 0; x < getWidth(); x++) {
                 float maxBinAmplitude = 0f;
@@ -296,6 +304,18 @@ public class SpectrumVisualizer extends AudioVisualizer {
                 case EASING -> mapSpectrumCubic(fftSpectrum, mappingPositions, interpolatedSpectrum);
                 case FIXED_WIDTH -> mapSpectrumFixedWidth(fftSpectrum, mappingPositions, getWidth(), fixedWidthBarCount, fixedWidthBarWidth, interpolatedSpectrum);
                 case NEAREST -> mapSpectrumNearest(fftSpectrum, mappingPositions, interpolatedSpectrum);
+            }
+        }
+
+        private void smoothSpectrum(float[] data, float smooth) {
+            if (smooth <= 0.0f) return;
+            // forward pass
+            for (int i = 1; i < data.length; i++) {
+                data[i] = data[i - 1] * smooth + data[i] * (1f - smooth);
+            }
+            // backward pass
+            for (int i = data.length - 2; i >= 0; i--) {
+                data[i] = data[i + 1] * smooth + data[i] * (1f - smooth);
             }
         }
     }
@@ -508,6 +528,29 @@ public class SpectrumVisualizer extends AudioVisualizer {
      */
     public float getSpectrumDecayFactor() {
         return spectrumDecayFactor;
+    }
+
+    /**
+     * Controls the final smoothing of the spectrum using a bidirectional IIR filter.
+     * <p>0.0 – no smoothing (sharp, noisy spectrum)</p>
+     * <p>1.0 – heavy smoothing (soft, blurred peaks)</p>
+     * <p>Recommended values: 0.5–0.8</p>
+     *
+     * @param smoothness Smoothing strength in range [0..1]
+     */
+    public void setSpectrumSmoothness(float smoothness) {
+        this.finalSpectrumSmoothness = MathUtilities.clamp(smoothness, 0, 1);
+    }
+
+    /**
+     * Gets the final smoothing of the spectrum using a bidirectional IIR filter.
+     * <p>0.0 – no smoothing (sharp, noisy spectrum)</p>
+     * <p>1.0 – heavy smoothing (soft, blurred peaks)</p>
+     *
+     * @return Smoothing strength in range [0..1]
+     */
+    public float getSpectrumSmoothness() {
+        return finalSpectrumSmoothness;
     }
 
     /**
