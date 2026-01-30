@@ -2,6 +2,7 @@
 *.dll
 *.so
 *.dylib
+*.offr
 
 \.vscode
 \target
