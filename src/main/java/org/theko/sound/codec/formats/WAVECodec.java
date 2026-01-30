@@ -42,7 +42,6 @@ import org.theko.sound.codec.AudioCodecType;
 import org.theko.sound.codec.AudioDecodeResult;
 import org.theko.sound.codec.AudioEncodeResult;
 import org.theko.sound.codec.AudioTag;
-//import org.theko.sound.codec.converters.ImaAdpcmConverter;
 import org.theko.sound.properties.AudioSystemProperties;
 import org.theko.sound.samples.SamplesConverter;
 import org.theko.sound.utility.FormatUtilities;
@@ -242,23 +241,6 @@ public class WAVECodec extends AudioCodec {
                     format = format.convertTo(Encoding.ALAW);
                     pcm = SamplesConverter.toSamples(audioData, format);
                     break;
-                case IMA_ADPCM:/*
-                    format = format.convertTo(Encoding.PCM_SIGNED);
-                    pcm = ImaAdpcmConverter.toSamples(audioData, format);
-                    format = new AudioFormat(
-                            format.getSampleRate(),
-                            8,
-                            format.getChannels(),
-                            Encoding.PCM_SIGNED,
-                            false
-                    );
-                    break;*/
-                case MS_ADPCM:
-                    //pcm = MsAdpcmConverter.toSamples(audioData, format);
-                    //break;
-                case GSM_610:
-                    //pcm = Gsm610Converter.toSamples(audioData, format);
-                    //break;
                 default:
                     logger.error("Invalid Audio Encoding");
                     throw new AudioCodecException("Invalid Audio Encoding");
@@ -275,13 +257,14 @@ public class WAVECodec extends AudioCodec {
             String toPcmConvertFormatted = FormatUtilities.formatTime(toPcmConvertNs, 3);
 
             StringBuilder elapsedTime = new StringBuilder();
-            elapsedTime.append("Elapsed time:").append(" signatures=").append(signatureCheckFormatted).append(", ");
+            elapsedTime.append("Elapsed time {").append("signatures=").append(signatureCheckFormatted).append(", ");
             for (Map.Entry<String, String> entry : chunkDecodingTimesFormatted.entrySet()) {
                 elapsedTime.append("chunk '").append(entry.getKey()).append("'")
                            .append("=").append(entry.getValue()).append(", ");
             }
-            elapsedTime.append("WaveStructRead=").append(totalDecodingFormatted).append(", ");
-            elapsedTime.append("ToPcmConvert=").append(toPcmConvertFormatted);
+            elapsedTime.append("chunks_sum=").append(totalDecodingFormatted).append(", ");
+            elapsedTime.append("pcm_conversion=").append(toPcmConvertFormatted);
+            elapsedTime.append("}");
             logger.debug(elapsedTime.toString());
 
             int ms = (int)((audioData.length / (float)(format.getFrameSize() * format.getSampleRate())) * 1000);
@@ -289,8 +272,9 @@ public class WAVECodec extends AudioCodec {
             StringBuilder decoded = new StringBuilder();
             decoded.append("Decoded WAVE:\n");
             decoded.append("  format=").append(format.toString()).append(",\n");
-            decoded.append("  metadata=").append(tags).append(",\n");
-            decoded.append("  duration=").append(FormatUtilities.formatTimeMillis(ms, 3));
+            decoded.append("  samples=").append(audioData.length / format.getFrameSize()).append(" frames,\n");
+            decoded.append("  duration=").append(FormatUtilities.formatTimeMillis(ms, 3)).append("\n");
+            decoded.append("  metadata=").append(tags).append("");
             logger.debug(decoded.toString());
 
             return new AudioDecodeResult(CODEC_INFO, pcm, format, Collections.unmodifiableList(tags));
@@ -358,15 +342,15 @@ public class WAVECodec extends AudioCodec {
                 encoding = WaveEncoding.ULAW;
                 break;
 
-            case 0x0011: // IMA ADPCM
+            case 0x0011: // IMA ADPCM (Unimplemented)
                 encoding = WaveEncoding.IMA_ADPCM;
                 break;
 
-            case 0x0002: // MS ADPCM
+            case 0x0002: // MS ADPCM (Unimplemented)
                 encoding = WaveEncoding.MS_ADPCM;
                 break;
 
-            case 0x0031: // GSM 6.10
+            case 0x0031: // GSM 6.10 (Unimplemented)
                 encoding = WaveEncoding.GSM_610;
                 break;
 
