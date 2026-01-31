@@ -39,9 +39,9 @@ public class Vector3Control extends AudioControl {
         xControl = new FloatControl(name + " X", xMin, xMax, 0.0f);
         yControl = new FloatControl(name + " Y", yMin, yMax, 0.0f);
         zControl = new FloatControl(name + " Z", zMin, zMax, 0.0f);
-        xControl.getListenerManager().addListener(ListenerPriority.HIGHEST, valueChangeListener);
-        yControl.getListenerManager().addListener(ListenerPriority.HIGHEST, valueChangeListener);
-        zControl.getListenerManager().addListener(ListenerPriority.HIGHEST, valueChangeListener);
+        xControl.getListenersManager().addListener(ListenerPriority.HIGHEST, valueChangeListener);
+        yControl.getListenersManager().addListener(ListenerPriority.HIGHEST, valueChangeListener);
+        zControl.getListenersManager().addListener(ListenerPriority.HIGHEST, valueChangeListener);
     }
 
     public Vector3Control(String name, float min, float max) {

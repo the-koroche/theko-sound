@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.events.EventDispatcher;
 import org.theko.events.ListenersManager;
+import org.theko.events.ListenersManagerProvider;
 import org.theko.sound.backend.AudioBackendCreationException;
 import org.theko.sound.backend.AudioBackendException;
 import org.theko.sound.backend.AudioBackendInfo;
@@ -83,7 +84,8 @@ import org.theko.sound.utility.TimeUtilities;
  * @since 2.0.0
  * @author Theko
  */
-public class AudioOutputLayer implements AutoCloseable {
+public class AudioOutputLayer implements AutoCloseable,
+        ListenersManagerProvider<OutputLayerEvent, OutputLayerListener, OutputLayerEventType> {
     
     private static final Logger logger = LoggerFactory.getLogger(AudioOutputLayer.class);
 
@@ -644,15 +646,7 @@ public class AudioOutputLayer implements AutoCloseable {
         return aob.getCurrentAudioPort();
     }
 
-    /**
-     * Returns a listeners manager, to add/remove listeners for this output layer events.
-     * The listeners manager returned by this method can be used to register and unregister
-     * listeners for output layer events, such as opened, closed, started, stopped, flushed, drained,
-     * underrun, overrun, length mismatch, unchecked close, output interrupted, and processing
-     * interrupted events.
-     * 
-     * @return The listeners manager for this output layer events.
-     */
+    @Override
     public ListenersManager<OutputLayerEvent, OutputLayerListener, OutputLayerEventType> getListenersManager() {
         return eventDispatcher.getListenersManager();
     }

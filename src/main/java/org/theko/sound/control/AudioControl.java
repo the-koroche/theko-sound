@@ -18,6 +18,7 @@ package org.theko.sound.control;
 
 import org.theko.events.EventDispatcher;
 import org.theko.events.ListenersManager;
+import org.theko.events.ListenersManagerProvider;
 import org.theko.sound.event.AudioControlEvent;
 import org.theko.sound.event.AudioControlEventType;
 import org.theko.sound.event.AudioControlListener;
@@ -36,7 +37,7 @@ import org.theko.sound.event.AudioControlListener;
  * @since 1.2.0
  * @author Theko
  */
-public abstract class AudioControl {
+public abstract class AudioControl implements ListenersManagerProvider<AudioControlEvent, AudioControlListener, AudioControlEventType> {
 
     protected final String name;
     protected final EventDispatcher<AudioControlEvent, AudioControlListener, AudioControlEventType> eventDispatcher = new EventDispatcher<>();
@@ -54,12 +55,8 @@ public abstract class AudioControl {
     }
 
 
-    /**
-     * Returns a listeners manager, to add/remove listeners.
-     * 
-     * @return The listeners manager.
-     */
-    public ListenersManager<AudioControlEvent, AudioControlListener, AudioControlEventType> getListenerManager() {
+    @Override
+    public ListenersManager<AudioControlEvent, AudioControlListener, AudioControlEventType> getListenersManager() {
         return eventDispatcher.getListenersManager();
     }
 

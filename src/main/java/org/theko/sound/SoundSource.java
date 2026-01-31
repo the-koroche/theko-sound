@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.events.EventDispatcher;
 import org.theko.events.ListenersManager;
+import org.theko.events.ListenersManagerProvider;
 import org.theko.sound.codec.AudioCodec;
 import org.theko.sound.codec.AudioCodecException;
 import org.theko.sound.codec.AudioCodecInfo;
@@ -80,7 +81,8 @@ import org.theko.sound.utility.ArrayUtilities;
  * @since 2.0.0
  * @author Theko
  */
-public class SoundSource implements AudioNode, Controllable, AutoCloseable {
+public class SoundSource implements AudioNode, Controllable, AutoCloseable,
+        ListenersManagerProvider<SoundSourceEvent, SoundSourceListener, SoundSourceEventType> {
 
     private static final Logger logger = LoggerFactory.getLogger(SoundSource.class);
     private final EventDispatcher<SoundSourceEvent, SoundSourceListener, SoundSourceEventType> eventDispatcher = new EventDispatcher<>();
@@ -188,7 +190,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
         eventMap.put(SoundSourceEventType.DATA_ENDED, SoundSourceListener::onDataEnded);
         eventDispatcher.setEventMap(eventMap);
 
-        speedControl.getListenerManager().addConsumer(AudioControlEventType.VALUE_CHANGED, event -> {
+        speedControl.getListenersManager().addConsumer(AudioControlEventType.VALUE_CHANGED, event -> {
             ResamplerEffect resampler = this.resamplerEffect;
             if (resampler != null) {
                 resampler.getSpeedControl().setValue(speedControl.getValue());
@@ -225,10 +227,10 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
         if (innerMixer == null) {
             innerMixer = new AudioMixer();
 
-            innerMixer.getPostGainControl().getListenerManager().addConsumer(AudioControlEventType.VALUE_CHANGED, event -> 
+            innerMixer.getPostGainControl().getListenersManager().addConsumer(AudioControlEventType.VALUE_CHANGED, event -> 
                     dispatch(SoundSourceEventType.VOLUME_CHANGE));
 
-            innerMixer.getPanControl().getListenerManager().addConsumer(AudioControlEventType.VALUE_CHANGED, event -> 
+            innerMixer.getPanControl().getListenersManager().addConsumer(AudioControlEventType.VALUE_CHANGED, event -> 
                     dispatch(SoundSourceEventType.PAN_CHANGE));
         } else if (playback != null) {
             innerMixer.removeInput(playback);
@@ -497,9 +499,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable {
         }
     }
 
-    /**
-     * @return The listeners manager for the sound source events.
-     */
+    @Override
     public ListenersManager<SoundSourceEvent, SoundSourceListener, SoundSourceEventType> getListenersManager() {
         return eventDispatcher.getListenersManager();
     }

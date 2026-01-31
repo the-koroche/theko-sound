@@ -37,8 +37,8 @@ public class Vector2Control extends AudioControl {
         super(name);
         xControl = new FloatControl(name + " X", xMin, xMax, 0.0f);
         yControl = new FloatControl(name + " Y", yMin, yMax, 0.0f);
-        xControl.getListenerManager().addListener(ListenerPriority.HIGHEST, valueChangeListener);
-        yControl.getListenerManager().addListener(ListenerPriority.HIGHEST, valueChangeListener);
+        xControl.getListenersManager().addListener(ListenerPriority.HIGHEST, valueChangeListener);
+        yControl.getListenersManager().addListener(ListenerPriority.HIGHEST, valueChangeListener);
     }
 
     public Vector2Control(String name, float min, float max) {
