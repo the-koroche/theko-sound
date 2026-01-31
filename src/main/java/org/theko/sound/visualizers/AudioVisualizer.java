@@ -49,6 +49,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
     private Render render;
     private boolean pendingResize = false;
     private long lastResizeTime = 0;
+    private final int resizeDelayMs;
     private final float frameRate;
 
     /** The audio samples buffer */
@@ -66,9 +67,11 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             BufferedImage ready = render.getReadyImage();
             if (ready != null) {
-                g.drawImage(ready, 0, 0, getWidth(), getHeight(), null);
+                g2d.drawImage(ready, 0, 0, getWidth(), getHeight(), null);
             }
         }
     }
@@ -94,27 +97,16 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
          * @param imageType the type of the buffered image
          */
         protected Render(int width, int height, int imageType) {
-            this.width = Math.max(width, 1);
-            this.height = Math.max(height, 1);
             this.imageType = imageType;
-            renderImage = new BufferedImage(this.width, this.height, imageType);
-            readyImage = new BufferedImage(this.width, this.height, imageType);
-            g = renderImage.createGraphics();
-            readyG = readyImage.createGraphics();
-            setupGraphics(g);
-            setupGraphics(readyG);
+            this.resize(width, height);
         }
 
-        /**
-         * Sets up the rendering hints for the given graphics context.
-         * <p>By default, the graphics context is set to use anti-aliasing
-         * and render at high speed.
-         * 
-         * @param g2d the graphics context to set up
-         */
         private void setupGraphics(Graphics2D g2d) {
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
         }
 
         /**
@@ -281,10 +273,12 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
      * Creates a new audio visualizer with the specified type and frame rate.
      * @param type The type of the audio visualizer (REALTIME or OFFLINE_PROCESSING)
      * @param frameRate The frame rate of the audio visualizer
+     * @param resizeDelayMs The delay in milliseconds at which the render area is resized
      */
-    public AudioVisualizer(Type type, float frameRate) {
+    public AudioVisualizer(Type type, float frameRate, int resizeDelayMs) {
         super(type);
         this.frameRate = frameRate;
+        this.resizeDelayMs = resizeDelayMs;
         this.render = new Render(640, 480, BufferedImage.TYPE_INT_ARGB);
         this.panel = new RenderPanel();
         this.panel.addComponentListener(new ComponentAdapter() {
@@ -297,10 +291,27 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
         initializeTimer();
     }
 
+    /**
+     * Creates a new audio visualizer with the specified type and frame rate, using a default resize delay of 500ms.
+     * @param type The type of the audio visualizer (REALTIME or OFFLINE_PROCESSING)
+     * @param frameRate The frame rate of the audio visualizer
+     */
+    public AudioVisualizer(Type type, float frameRate) {
+        this(type, frameRate, 500);
+    }
+
+    /**
+     * Creates a new audio visualizer with the specified type and default frame rate of 60.
+     * @param type The type of the audio visualizer (REALTIME or OFFLINE_PROCESSING)
+     */
+    public AudioVisualizer(Type type) {
+        this(type, 60);
+    }
+
     private void initializeTimer() {
         executor.scheduleAtFixedRate(() -> {
             try {
-                if (pendingResize && System.currentTimeMillis() - lastResizeTime > 500) {
+                if (pendingResize && System.currentTimeMillis() - lastResizeTime > resizeDelayMs) {
                     render.resize(panel.getWidth(), panel.getHeight());
                     pendingResize = false;
                     lastResizeTime = System.currentTimeMillis();
