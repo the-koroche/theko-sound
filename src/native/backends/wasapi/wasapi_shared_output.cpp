@@ -85,15 +85,21 @@ public:
     OutputContext& operator=(const OutputContext&) = delete;
 
     ~OutputContext() {
-        if (notificationClient) notificationClient->Release();
-        if (deviceEnumerator) deviceEnumerator->Release();
-        if (format) CoTaskMemFree(format);
+        if (audioClient) {
+            audioClient->Stop();
+        }
+
         if (renderClient) renderClient->Release();
         if (audioClock) audioClock->Release();
         if (audioClient) audioClient->Release();
         if (outputDevice) outputDevice->Release();
+
         if (events[0]) CloseHandle(events[0]);
         if (events[1]) CloseHandle(events[1]);
+
+        if (format) CoTaskMemFree(format);
+        if (deviceEnumerator) deviceEnumerator->Release();
+        if (notificationClient) notificationClient->Release();
     }
 
     void pushLog(const std::string& message) {
@@ -209,22 +215,26 @@ public:
 };
 
 extern "C" {
-    inline void cleanupAndThrowError(JNIEnv* env, Logger* logger, OutputContext* ctx, HRESULT hr, const char* msg) {
+    void cleanupContext(JNIEnv* env, Logger* logger, OutputContext* ctx) {
         if(ctx) {
-            if(ctx->notificationClient) ctx->notificationClient->Release();
-            if(ctx->deviceEnumerator) ctx->deviceEnumerator->Release();
-            if(ctx->renderClient) ctx->renderClient->Release();
-            if(ctx->audioClock) ctx->audioClock->Release();
-            if(ctx->audioClient) ctx->audioClient->Release();
-            if(ctx->outputDevice) ctx->outputDevice->Release();
-            if(ctx->format) CoTaskMemFree(ctx->format);
-            if(ctx->events[EVENT_AUDIO_BUFFER_READY]) CloseHandle(ctx->events[EVENT_AUDIO_BUFFER_READY]);
-            if(ctx->events[EVENT_STOP_REQUEST]) CloseHandle(ctx->events[EVENT_STOP_REQUEST]);
             delete ctx;
         }
-        
+    }
+    
+    inline void cleanupAndThrowError(
+        JNIEnv* env,
+        Logger* logger,
+        OutputContext* ctx,
+        HRESULT hr,
+        const char* msg
+        ) {
         const char* hr_msg = formatHRMessage(hr).c_str();
         logger->error(env, "%s (%s)", msg, hr_msg);
+
+        logger->trace(env, "Cleaning up output context...");
+        cleanupContext(env, logger, ctx);
+        logger->trace(env, "Output context cleaned up, throwing exception...");
+
         env->ThrowNew(ExceptionClassesCache::get(env)->audioBackendException, msg);
     }
 
@@ -299,14 +309,18 @@ extern "C" {
 
         REFERENCE_TIME hnsBufferDuration = (REFERENCE_TIME)((double)bufferSizeInFrames / format->nSamplesPerSec * 1e7);
         logger->debug(env, "hnsBufferDuration (in 100-ns): %lld", hnsBufferDuration);
-
+        
+        logger->trace(env, "Trying to initialize IAudioClient...");
         hr = context->audioClient->Initialize(
-            AUDCLNT_SHAREMODE_SHARED, 
+            AUDCLNT_SHAREMODE_SHARED,
             AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
             hnsBufferDuration,
             0,
-            format, nullptr);
-        if (FAILED(hr)) {
+            format,
+            nullptr 
+        );
+        logger->trace(env, "IAudioClient::Initialize called. Result: %s", formatHRMessage(hr).c_str());
+        if (FAILED(hr) || hr == AUDCLNT_E_DEVICE_IN_USE) {
             cleanupAndThrowError(env, logger, context, hr, "Failed to initialize IAudioClient.");
             return 0;
         }
