@@ -23,12 +23,12 @@ High-performance modular audio library for Java (17+). Provides tools for workin
 
 ## ✨ Features
 
-* Multiple **audio backends** (JavaSound, WASAPI, ALSA, etc.)
+* Multiple **audio backends** (currently JavaSound, WASAPI)
 * **Fallback** to JavaSound if no native backend is available
 * **Routing through mixers** with effect support
 * **Effects** (e.g., Bitcrusher) with dynamic parameter control
 * **Visualization** (spectrum, waveform, etc.)
-* **Codecs**: WAV (read/write), AIFF and AU planned
+* **Codecs**: currently WAV (read/write), AIFF and AU planned
 * **DSP Utilities**: FFT, window functions, filters
 * **Audio metadata** (tags in supported formats)
 * Extendable with custom backends/codecs/effects
@@ -37,7 +37,9 @@ High-performance modular audio library for Java (17+). Provides tools for workin
 
 ## ⚡ Installation
 
-The library will be available on **Maven Central**:
+Download JAR from the [Releases](https://github.com/the-koroche/theko-sound/releases).
+
+The library will be available on **Maven Central** soon:
 
 ```xml
 <dependency>
@@ -46,8 +48,6 @@ The library will be available on **Maven Central**:
     <version>2.5.0</version>
 </dependency>
 ```
-
-Download JAR from the [Releases](https://github.com/the-koroche/theko-sound/releases).
 
 ---
 
