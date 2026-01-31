@@ -413,7 +413,7 @@ public class AudioOutputLayer implements AutoCloseable,
 
     public void reopen() throws UnsupportedAudioFormatException, AudioBackendException, AudioPortsNotFoundException {
         // Using sourceFormat to get correct resampling factor
-        this.open(openedPort, sourceFormat, AudioMeasure.ofFrames(outputBufferSize), true /* reopen */);
+        this.open(openedPort, sourceFormat, AudioMeasure.ofFrames(renderBufferSize), true /* reopen */);
     }
 
     /**
