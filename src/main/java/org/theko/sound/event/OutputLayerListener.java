@@ -34,6 +34,12 @@ public interface OutputLayerListener extends Listener<OutputLayerEvent, OutputLa
     default void onOpened(OutputLayerEvent event) { }
 
     /**
+     * Called when an output layer is re-opened.
+     * @param event the event carrying an immutable snapshot of the output layer state
+     */
+    default void onReopened(OutputLayerEvent event) { }
+
+    /**
      * Called when an output layer is closed.
      * @param event the event carrying an immutable snapshot of the output layer state
      */

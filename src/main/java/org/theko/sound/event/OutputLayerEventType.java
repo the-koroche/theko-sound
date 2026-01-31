@@ -27,6 +27,7 @@ import org.theko.sound.AudioOutputLayer;
 public enum OutputLayerEventType {
     
     OPENED,
+    REOPENED,
     CLOSED,
     STARTED,
     STOPPED,

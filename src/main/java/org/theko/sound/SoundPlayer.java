@@ -21,33 +21,52 @@ import java.io.FileNotFoundException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.theko.events.ListenersManager;
 import org.theko.sound.backend.AudioBackendCreationException;
 import org.theko.sound.backend.AudioBackendException;
 import org.theko.sound.backend.AudioBackendNotFoundException;
 import org.theko.sound.codec.AudioCodecNotFoundException;
+import org.theko.sound.event.OutputLayerEvent;
+import org.theko.sound.event.OutputLayerEventType;
+import org.theko.sound.event.OutputLayerListener;
 
 public class SoundPlayer extends SoundSource {
 
     private static final Logger logger = LoggerFactory.getLogger(SoundPlayer.class);
 
-    private final AudioOutputLayer outputLine;
+    private final AudioOutputLayer outputLayer;
 
+    /**
+     * Creates a new SoundPlayer with the specified audio output layer.
+     * 
+     * @param outputLine The audio output layer to use.
+     */
     public SoundPlayer(AudioOutputLayer outputLine) {
         super();
-        this.outputLine = outputLine;
-        this.outputLine.setRootNode(this);
+        if (outputLine == null)
+            throw new IllegalArgumentException("Audio output line cannot be null.");
+        this.outputLayer = outputLine;
+        this.outputLayer.setRootNode(this);
     }
 
+    /**
+     * Creates a new SoundPlayer with the default audio output layer.
+     */
     public SoundPlayer() {
         super();
         try {
-            this.outputLine = new AudioOutputLayer();
-            this.outputLine.setRootNode(this);
+            this.outputLayer = new AudioOutputLayer();
+            this.outputLayer.setRootNode(this);
         } catch (AudioBackendCreationException | AudioBackendNotFoundException ex) {
             throw new RuntimeException("Audio backend creation failed.", ex);
         }
     }
 
+    /**
+     * Creates a new SoundPlayer with the default audio output layer and opens the specified audio file.
+     * 
+     * @param file The audio file to open.
+     */
     public SoundPlayer(File file) {
         this();
         try {
@@ -57,6 +76,11 @@ public class SoundPlayer extends SoundSource {
         }
     }
 
+    /**
+     * Creates a new SoundPlayer with the default audio output layer and opens the specified audio file path.
+     * 
+     * @param file The audio file to open.
+     */
     public SoundPlayer(String file) {
         this();
         try {
@@ -66,25 +90,19 @@ public class SoundPlayer extends SoundSource {
         }
     }
 
+    /**
+     * Opens the specified audio file and configures the audio output layer to use the specified audio port and buffer size.
+     * 
+     * @param file The audio file to open.
+     * @param port The audio port to use.
+     * @param bufferSize The buffer size to use.
+     * @throws FileNotFoundException If the specified audio file is not found.
+     * @throws AudioCodecNotFoundException If the specified audio file is not supported.
+     */
     public void open(File file, AudioPort port, AudioMeasure bufferSize) throws FileNotFoundException, AudioCodecNotFoundException {
         super.open(file);
         try {
-            this.outputLine.open(port, getAudioFormat(), bufferSize);
-        } catch (AudioBackendException e) {
-            throw new RuntimeException("Audio backend creation failed.", e);
-        } catch (UnsupportedAudioFormatException ex) {
-            logger.error("Unsupported audio format.", ex);
-            throw new RuntimeException(ex);
-        } catch (AudioPortsNotFoundException ex) {
-            logger.error("Default output audio port not found.", ex);
-            throw new RuntimeException(ex);
-        }
-    }
-
-    public void open(File file, AudioPort port) throws FileNotFoundException, AudioCodecNotFoundException {
-        super.open(file);
-        try {
-            this.outputLine.open(port, getAudioFormat());
+            this.outputLayer.open(port, getAudioFormat(), bufferSize);
         } catch (AudioBackendException e) {
             throw new RuntimeException("Audio backend creation failed.", e);
         } catch (UnsupportedAudioFormatException ex) {
@@ -97,8 +115,43 @@ public class SoundPlayer extends SoundSource {
     }
 
     /**
+     * Opens the specified audio file and configures the audio output layer to use the specified audio port.
+     * 
+     * @param file The audio file to open.
+     * @param port The audio port to use.
+     * @throws FileNotFoundException If the specified audio file is not found.
+     * @throws AudioCodecNotFoundException If the specified audio file is not supported.
+     */
+    public void open(File file, AudioPort port) throws FileNotFoundException, AudioCodecNotFoundException {
+        super.open(file);
+        try {
+            this.outputLayer.open(port, getAudioFormat());
+        } catch (AudioBackendException e) {
+            throw new RuntimeException("Audio backend creation failed.", e);
+        } catch (UnsupportedAudioFormatException ex) {
+            logger.error("Unsupported audio format.", ex);
+            throw new RuntimeException(ex);
+        } catch (AudioPortsNotFoundException ex) {
+            logger.error("Default output audio port not found.", ex);
+            throw new RuntimeException(ex);
+        }
+    }
+
+    /**
+     * Reopens the audio output layer with the same port and format as before.
+     * 
+     * @throws AudioBackendException If an error occurs while reopening the backend.
+     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output.
+     * @throws UnsupportedAudioFormatException If the specified audio format is not supported.
+     * @throws IllegalArgumentException If the buffer size is less than or equal to zero.
+     */
+    public void reopen() throws AudioBackendException, AudioPortsNotFoundException, UnsupportedAudioFormatException, IllegalArgumentException {
+        this.outputLayer.reopen();
+    }
+
+    /**
      * Opens an audio file and decodes it into samples data.
-     * Opens the audio output line with the specified format.
+     * Opens the audio output layer with the specified format.
      * 
      * @param file The audio file to open.
      * @throws FileNotFoundException If the audio file is not found.
@@ -107,7 +160,7 @@ public class SoundPlayer extends SoundSource {
     @Override public void open(File file) throws FileNotFoundException, AudioCodecNotFoundException {
         super.open(file);
         try {
-            this.outputLine.open(null, getAudioFormat());
+            this.outputLayer.open(null, getAudioFormat());
         } catch (AudioBackendException e) {
             throw new RuntimeException("Audio backend creation failed.", e);
         } catch (UnsupportedAudioFormatException ex) {
@@ -120,7 +173,7 @@ public class SoundPlayer extends SoundSource {
     }
     /**
      * Opens an audio file and decodes it into samples data.
-     * Opens the audio output line with the specified format.
+     * Opens the audio output layer with the specified format.
      * 
      * @param file The audio file path to open.
      * @throws FileNotFoundException If the audio file is not found.
@@ -131,13 +184,18 @@ public class SoundPlayer extends SoundSource {
         this.open(new File(file));
     }
 
+    /**
+     * Checks if the audio output layer is open.
+     * 
+     * @return True if the audio output layer is open, false otherwise.
+     */
     public boolean isOpen() {
-        return outputLine.isOpen();
+        return outputLayer.isOpen();
     }
 
     @Override
     public void start() {
-        outputLine.start();
+        outputLayer.start();
         super.start();
     }
 
@@ -162,9 +220,9 @@ public class SoundPlayer extends SoundSource {
     public void stop() {
         super.stop();
         try {
-            outputLine.stop();
+            outputLayer.stop();
         } catch (AudioBackendException | InterruptedException e) {
-            throw new RuntimeException("Failed to stop audio output line.", e);
+            throw new RuntimeException("Failed to stop audio output layer.", e);
         }
     }
     
@@ -172,10 +230,14 @@ public class SoundPlayer extends SoundSource {
     public void close() {
         super.close();
         try {
-            outputLine.close();
+            outputLayer.close();
         } catch (AudioBackendException | InterruptedException e) {
-            throw new RuntimeException("Failed to close audio output line.", e);
+            throw new RuntimeException("Failed to close audio output layer.", e);
         }
         logger.info("SoundPlayer closed.");
+    }
+
+    public ListenersManager<OutputLayerEvent, OutputLayerListener, OutputLayerEventType> getOutputLayerListenersManager() {
+        return outputLayer.getListenersManager();
     }
 }

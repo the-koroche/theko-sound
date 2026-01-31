@@ -18,12 +18,14 @@ package org.theko.sound;
 
 import static org.theko.sound.properties.AudioSystemProperties.*;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.events.EventDispatcher;
+import org.theko.events.ListenersManager;
 import org.theko.sound.backend.AudioBackendCreationException;
 import org.theko.sound.backend.AudioBackendException;
 import org.theko.sound.backend.AudioBackendInfo;
@@ -88,6 +90,7 @@ public class AudioOutputLayer implements AutoCloseable {
     private static final int TIME_FORMAT_PRECISION = 4;
     
     private boolean isOpened = false;
+    private final AtomicBoolean reopenInProgress = new AtomicBoolean(false);
 
     /* Processing and output threads */
     private Thread playbackThread;
@@ -158,6 +161,7 @@ public class AudioOutputLayer implements AutoCloseable {
         eventDispatcher = new EventDispatcher<>();
         var eventMap = eventDispatcher.createEventMap();
         eventMap.put(OutputLayerEventType.OPENED, OutputLayerListener::onOpened);
+        eventMap.put(OutputLayerEventType.REOPENED, OutputLayerListener::onReopened);
         eventMap.put(OutputLayerEventType.CLOSED, OutputLayerListener::onClosed);
         eventMap.put(OutputLayerEventType.STARTED, OutputLayerListener::onStarted);
         eventMap.put(OutputLayerEventType.STOPPED, OutputLayerListener::onStopped);
@@ -200,19 +204,33 @@ public class AudioOutputLayer implements AutoCloseable {
      * @param port The {@link AudioPort} to be used.
      * @param audioFormat The {@link AudioFormat} for audio data.
      * @param bufferSize The size of the buffer for audio data, defined by {@link AudioMeasure}.
+     * @param reopen If true, the audio output will be reopened if it is already open.
      * @throws UnsupportedAudioFormatException If the specified audio format is not supported.
      * @throws IllegalArgumentException If the audio port, audio format, buffer size, or buffer count are invalid.
      * @throws AudioBackendException If an error occurs while opening the backend.
      * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output.
      */
-    public void open(AudioPort port, AudioFormat audioFormat, AudioMeasure bufferSize) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioPortsNotFoundException, AudioBackendException {
-        if (isOpened) {
+    public void open(AudioPort port, AudioFormat audioFormat, AudioMeasure bufferSize, boolean reopen) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioPortsNotFoundException, AudioBackendException {
+        if (isOpened && !reopen) {
             logger.warn("Audio output layer is already open.");
             return;
         }
 
-        if (!aob.isInitialized()) {
+        if (!aob.isInitialized())
             aob.initialize();
+
+        final boolean wasPlaying = this.isPlaying;
+
+        if (isOpened) {
+            if (reopen)
+                logger.debug("Reopen flag is set. Closing previous backend...");
+            try {
+                close();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                logger.warn("Interrupted while closing previous backend", e);
+                throw new AudioBackendException("Interrupted while closing previous backend", e);
+            }
         }
 
         if (audioFormat == null) throw new IllegalArgumentException("Audio format cannot be null.");
@@ -260,7 +278,6 @@ public class AudioOutputLayer implements AutoCloseable {
         try {
             this.openedFormat = aob.open(targetPort, selectedFormat, rawLength);
             if (openedFormat == null) {
-                logger.error("Failed to open audio output. {}", outputLog.toString());
                 throw new AudioBackendException("Failed to open audio output. Port: " + targetPort + ", format: " + openedFormat);
             }
         } catch (Exception e) {
@@ -294,6 +311,14 @@ public class AudioOutputLayer implements AutoCloseable {
 
         isOpened = true;
         eventDispatcher.dispatch(OutputLayerEventType.OPENED, getEvent());
+
+        if (reopen) {
+            eventDispatcher.dispatch(OutputLayerEventType.REOPENED, getEvent());
+            if (wasPlaying) {
+                logger.debug("Starting playback after re-opening.");
+                start();
+            }
+        }
     }
 
     private AudioFormat findFormat(AudioPort port, AudioFormat sourceFormat) throws UnsupportedAudioFormatException {
@@ -343,6 +368,21 @@ public class AudioOutputLayer implements AutoCloseable {
     }
 
     /**
+     * Opens the audio output with the specified port, format, and buffer size.
+     * 
+     * @param port The {@link AudioPort} to be used.
+     * @param audioFormat The {@link AudioFormat} for audio data.
+     * @param bufferSize The {@link AudioMeasure} representing the buffer size.
+     * @throws UnsupportedAudioFormatException If the specified audio format is not supported.
+     * @throws IllegalArgumentException If the audio format is null.
+     * @throws AudioBackendException If an error occurs while opening the backend.
+     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output.
+     */
+    public void open(AudioPort port, AudioFormat audioFormat, AudioMeasure bufferSize) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException, AudioPortsNotFoundException {
+        this.open(port, audioFormat, bufferSize, false /* don't reopen */);
+    }
+
+    /**
      * Opens the audio output with the specified port and format.
      * 
      * @param port The {@link AudioPort} to be used.
@@ -366,7 +406,12 @@ public class AudioOutputLayer implements AutoCloseable {
      * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output.
      */
     public void open(AudioFormat audioFormat) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException, AudioPortsNotFoundException {
-        this.open(null, audioFormat);
+        this.open(null /* default output port */, audioFormat);
+    }
+
+    public void reopen() throws UnsupportedAudioFormatException, AudioBackendException, AudioPortsNotFoundException {
+        // Using sourceFormat to get correct resampling factor
+        this.open(openedPort, sourceFormat, AudioMeasure.ofFrames(outputBufferSize), true /* reopen */);
     }
 
     /**
@@ -376,49 +421,6 @@ public class AudioOutputLayer implements AutoCloseable {
      */
     public boolean isOpen() {
         return aob.isOpen() && isOpened;
-    }
-
-    /** Re-opens the audio output (may be unstable) */
-    private void reOpen() throws AudioBackendException, IllegalArgumentException, 
-            UnsupportedAudioFormatException, AudioPortsNotFoundException {
-        
-        if (!isOpen()) {
-            throw new IllegalStateException("Backend is not open.");
-        }
-        
-        final AudioPort port = this.openedPort;
-        final AudioFormat audioFormat = this.sourceFormat;
-        final AudioMeasure bufferSize = AudioMeasure.ofFrames(this.renderBufferSize);
-        final boolean wasPlaying = this.isPlaying;
-
-        logger.debug("Re-opening audio output. Port: {}, audio format: {}, buffer size: {}, buffers count: {}",
-                port, audioFormat, bufferSize);
-        
-        try {
-            this.close();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            logger.warn("Interrupted during audio backend re-opening");
-            throw new AudioBackendException("Re-opening interrupted", e);
-        } catch (AudioBackendException e) {
-            logger.error("Failed to close audio backend during re-opening", e);
-            throw e;
-        }
-        
-        logger.debug("Closed audio backend.");
-        
-        try {
-            this.open(port, audioFormat, bufferSize);
-            logger.debug("Opened audio backend.");
-
-            if (wasPlaying) {
-                this.start();
-            }
-        } catch (Exception e) {
-            logger.error("Failed to re-open audio backend", e);
-            this.isOpened = false;
-            throw e;
-        }
     }
 
     /**
@@ -432,7 +434,7 @@ public class AudioOutputLayer implements AutoCloseable {
     public void start() throws AudioBackendException {
         if (isPlaying) return;
         if (!isOpened) {
-            throw new IllegalStateException("Audio output layer is not open.");
+            throw new BackendNotOpenException("Audio output layer is not open.");
         }
         aob.start();
         
@@ -642,6 +644,19 @@ public class AudioOutputLayer implements AutoCloseable {
         return aob.getCurrentAudioPort();
     }
 
+    /**
+     * Returns a listeners manager, to add/remove listeners for this output layer events.
+     * The listeners manager returned by this method can be used to register and unregister
+     * listeners for output layer events, such as opened, closed, started, stopped, flushed, drained,
+     * underrun, overrun, length mismatch, unchecked close, output interrupted, and processing
+     * interrupted events.
+     * 
+     * @return The listeners manager for this output layer events.
+     */
+    public ListenersManager<OutputLayerEvent, OutputLayerListener, OutputLayerEventType> getListenersManager() {
+        return eventDispatcher.getListenersManager();
+    }
+
     private static class ProcessingException extends RuntimeException {
         
         public ProcessingException(String message, Throwable cause) {
@@ -660,7 +675,6 @@ public class AudioOutputLayer implements AutoCloseable {
 
         int lengthMismatchCounter = 0;
 
-        // Use shorter buffer to prevent underruns
         long bufferNsWait = Math.min(bufferTimeMicros - 1000, 100) * 1000L;
 
         while (!Thread.currentThread().isInterrupted() && !isPlaybackInterrupted) {
@@ -726,21 +740,26 @@ public class AudioOutputLayer implements AutoCloseable {
                 return;  
             } catch (DeviceInvalidatedException | DeviceInactiveException ex) {
                 logger.error("Device is invalidated or inactive.", ex);
-                eventDispatcher.dispatch(OutputLayerEventType.RENDER_EXCEPTION, getEvent());
+                eventDispatcher.dispatch(OutputLayerEventType.DEVICE_INVALIDATED, getEvent());
                 
-                Thread reopenThread = new Thread(() -> {
-                    logger.info("Trying to reopen device.");
-                    try {
-                        reOpen();
-                    } catch (Exception ex2) {
-                        logger.error("Error reopening device.", ex2);
-                        eventDispatcher.dispatch(OutputLayerEventType.RENDER_EXCEPTION, getEvent());
-                        throw new RuntimeException("Error reopening device.", ex2);
-                    }
-                });
-                reopenThread.setName("Reopen Thread");
-                reopenThread.setDaemon(true);
-                reopenThread.start();
+                if (reopenInProgress.compareAndSet(false, true)) {
+                    Thread reopenThread = new Thread(() -> {
+                        try {
+                            logger.warn("Trying to reopen audio device...");
+                            reopen();
+                        } catch (Exception ex2) {
+                            logger.error("Error reopening device.", ex2);
+                            eventDispatcher.dispatch(OutputLayerEventType.RENDER_EXCEPTION, getEvent());
+                        } finally {
+                            reopenInProgress.set(false);
+                        }
+                    });
+                    reopenThread.setName("AudioOutputLayer-ReopenThread");
+                    reopenThread.setDaemon(true);
+                    reopenThread.start();
+                } else {
+                    logger.warn("Reopen already in progress, skipping...");
+                }
                 return;
             } catch (AudioBackendException ex) {
                 logger.error("Error writing to audio backend.", ex);
