@@ -153,10 +153,6 @@ public class VisualizerPlayback {
             player.start();
         } catch (Exception ex) {
             ex.printStackTrace();
-        } finally {
-            try { if (player != null)   player.close();     } catch (Exception ignored) {}
-            try { if (spectrum != null) spectrum.close();   } catch (Exception ignored) {}
-            try { if (frame != null)    frame.dispose();    } catch (Exception ignored) {}
         }
     }
 
