@@ -55,10 +55,8 @@ extern "C" {
 
         HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
         if (FAILED(hr)) {
-            const char* hr_msg = formatHRMessage(hr).c_str();
-            const char* msg = format("Failed to initialize COM. (%s)", hr_msg).c_str();
-            logger->error(env, msg);
-            env->ThrowNew(exceptionsCache->audioBackendException, msg);
+            logger->error(env, "Failed to initialize COM in multithreaded mode (%s).", fmtHR(hr));
+            env->ThrowNew(exceptionsCache->audioBackendException, "Failed to initialize COM.");
             return 0;
         }
 
@@ -71,10 +69,8 @@ extern "C" {
             (void**)&ctx->deviceEnumerator
         );
         if (FAILED(hr)) {
-            const char* hr_msg = formatHRMessage(hr).c_str();
-            const char* msg = format("Failed to create IMMDeviceEnumerator. (%s)", hr_msg).c_str();
-            logger->error(env, msg);
-            env->ThrowNew(exceptionsCache->audioBackendException, msg);
+            logger->error(env, "Failed to create IMMDeviceEnumerator (%s).", fmtHR(hr));
+            env->ThrowNew(exceptionsCache->audioBackendException, "Failed to create IMMDeviceEnumerator.");
             CoUninitialize();
             return 0;
         }
@@ -111,7 +107,7 @@ extern "C" {
         IMMDeviceEnumerator* deviceEnumerator = ctx->deviceEnumerator;
 
         if (!deviceEnumerator) {
-            logger->warn(env, "No device enumerator.");
+            logger->warn(env, "No device enumerator found in context.");
             return nullptr;
         }
 
@@ -126,7 +122,7 @@ extern "C" {
         captureDevices->GetCount(&captureCount);
         UINT totalCount = renderCount + captureCount;
 
-        logger->debug(env, "Found %d render ports and %d capture ports. Total %d ports.", renderCount, captureCount, totalCount);
+        logger->trace(env, "Found %d render ports and %d capture ports. Total %d ports.", renderCount, captureCount, totalCount);
 
         jobjectArray result = env->NewObjectArray(totalCount, AudioPortCache::get(env)->clazz, nullptr);
         if (!result) {
@@ -169,7 +165,7 @@ extern "C" {
         IMMDeviceEnumerator* deviceEnumerator = ctx->deviceEnumerator;
 
         if (!deviceEnumerator) {
-            logger->warn(env, "No device enumerator.");
+            logger->warn(env, "No device enumerator found in context.");
             return nullptr;
         }
 
@@ -188,7 +184,7 @@ extern "C" {
         IMMDevice* pDevice = nullptr;
         HRESULT hr = deviceEnumerator->GetDefaultAudioEndpoint(flow, eConsole, &pDevice);
         if (FAILED(hr)) {
-            logger->warn(env, "Failed to get default audio endpoint.");
+            logger->warn(env, "Failed to get default audio endpoint for flow %d (%s).", flow == eRender ? "Render" : "Capture", fmtHR(hr));
             return nullptr;
         }
 
@@ -202,12 +198,10 @@ extern "C" {
         wchar_t* idName = nullptr;
         hr = pDevice->GetId(&idName);
         if (FAILED(hr)) {
-            const char* hr_msg = formatHRMessage(hr).c_str();
-            logger->debug(env, "Failed to get default audio endpoint ID. %s", hr_msg);
-            logger->debug(env, "Default audio endpoint flow: %s", flow == eRender ? "Render" : "Capture");
+            logger->debug(env, "Failed to get default audio endpoint ID for flow %d. %s", flow == eRender ? "Render" : "Capture", fmtHR(hr));
         } else {
             const char* utf8_idName = utf16_to_utf8(idName).c_str();
-            logger->debug(env, "Default audio endpoint: %s. Flow: %s", utf8_idName, flow == eRender ? "Render" : "Capture");
+            logger->trace(env, "Default audio endpoint: %s. Flow: %s", utf8_idName, flow == eRender ? "Render" : "Capture");
         }
 
         if (idName) {
@@ -226,7 +220,7 @@ extern "C" {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedBackend.nIsFormatSupported");
 
         if (!jport || !jformat) {
-            logger->warn(env, "AudioPort or AudioFormat is null.");
+            logger->info(env, "AudioPort or AudioFormat is null.");
             return JNI_FALSE;
         }
 
@@ -251,8 +245,7 @@ extern "C" {
         device->Release();
         if (FAILED(hr) || audioClient == nullptr) {
             CoTaskMemFree(format);
-            const char* hr_msg = formatHRMessage(hr).c_str();
-            logger->warn(env, "Failed to get or activate IAudioClient. (%s)", hr_msg);
+            logger->warn(env, "Failed to get or activate IAudioClient (%s).", fmtHR(hr));
             return JNI_FALSE;
         }
 

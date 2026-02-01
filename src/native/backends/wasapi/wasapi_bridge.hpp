@@ -232,8 +232,7 @@ static wchar_t* getAudioDeviceProperty(JNIEnv* env, IPropertyStore* pProps, IMMD
     }
     PropVariantClear(&var);
 
-    const char* hr_msg = formatHRMessage(hr).c_str();
-    logger->info(env, "Failed to get audio device property. (%s)", hr_msg);
+    logger->debug(env, "Failed to get audio device property (%s).", fmtHR(hr));
 
     return nullptr;
 }
@@ -259,10 +258,8 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     IPropertyStore *pProps = nullptr;
     HRESULT hr = pDevice->OpenPropertyStore(STGM_READ, &pProps);
     if (FAILED(hr)) {
-        const char* hr_msg = formatHRMessage(hr).c_str();
-        const char* msg = format("Failed to open property store. (%s)", hr_msg).c_str();
-        logger->warn(env, msg);
-        env->ThrowNew(exceptionsCache->audioBackendException, msg);
+        logger->warn(env, "Failed to open property store (%s).", fmtHR(hr));
+        env->ThrowNew(exceptionsCache->audioBackendException, "Failed to open property store.");
         return nullptr;
     }
 
@@ -272,7 +269,7 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     wchar_t* name = getAudioDeviceProperty(env, pProps, pDevice, PKEY_Device_FriendlyName);
     wchar_t* manufacturer = getAudioDeviceProperty(env, pProps, pDevice, PKEY_Device_Manufacturer);
     if (manufacturer == nullptr) {
-        logger->info(env, "Failed to get audio device manufacturer. Using device description.");
+        logger->debug(env, "Failed to get audio device manufacturer. Using device description instead.");
         manufacturer = getAudioDeviceProperty(env, pProps, pDevice, PKEY_Device_DeviceDesc); // fallback
     }
     // TODO: get accurate version
@@ -343,10 +340,8 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
         }
         logger->trace(env, "Obtained audio flow. Flow: %s, Pointer: %s", flow == eRender ? "Render" : "Capture", FORMAT_PTR(jFlowObj));
     } else {
-        const char* hr_msg = formatHRMessage(hr).c_str();
-        const char* msg = format("Failed to get flow. (%s)", hr_msg).c_str();
-        logger->error(env, msg);
-        env->ThrowNew(exceptionsCache->audioBackendException, msg);
+        logger->error(env, "Failed to get flow (%s).", fmtHR(hr));
+        env->ThrowNew(exceptionsCache->audioBackendException, "Failed to get flow.");
         return nullptr;
     }
     
@@ -354,16 +349,14 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     DWORD state = 0;
     hr = pDevice->GetState(&state);
     if (FAILED(hr)) {
-        const char* hr_msg = formatHRMessage(hr).c_str();
-        const char* msg = format("Failed to get device state. (%s)", hr_msg).c_str();
-        logger->error(env, msg);
-        env->ThrowNew(exceptionsCache->audioBackendException, msg);
+        logger->error(env, "Failed to get device state (%s).", fmtHR(hr));
+        env->ThrowNew(exceptionsCache->audioBackendException, "Failed to get device state.");
         return nullptr;
     }
 
     bool isActive = (state & DEVICE_STATE_ACTIVE) != 0;
     jboolean jIsActive = isActive ? JNI_TRUE : JNI_FALSE;
-    logger->trace(env, "Obtained is active flag: %d", isActive);
+    logger->trace(env, "Obtained isActive flag: %d", isActive);
 
     // Get mix format
     WAVEFORMATEX* mixFormat = getMixFormat(pDevice);
@@ -373,7 +366,7 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
         env->ThrowNew(exceptionsCache->audioBackendException, msg);
         return nullptr;
     } else if (!mixFormat && !isActive) {
-        logger->info(env, "Device is not active, and mix format is not available.");
+        logger->debug(env, "Device is not active, and mix format is not available.");
     }
     logger->trace(env, "Obtained WAVEFORMATEX: %s.Pointer: %s", (mixFormat ? WAVEFORMATEX_toText(mixFormat) : "NULL"), FORMAT_PTR(mixFormat));
 
@@ -448,10 +441,8 @@ static IMMDevice* AudioPort_to_IMMDevice(JNIEnv* env, jobject jAudioPort) {
         pEnum->Release();
 
         if (!SUCCEEDED(hr)) {
-            const char* hr_msg = formatHRMessage(hr).c_str();
-            const char* msg = format("Failed to get audio device. (%s)", hr_msg).c_str();
-            logger->error(env, msg);
-            env->ThrowNew(exceptionsCache->audioBackendException, msg);
+            logger->error(env, "Failed to get audio device (%s).", fmtHR(hr));
+            env->ThrowNew(exceptionsCache->audioBackendException, "Failed to get audio device.");
             pDevice = nullptr;
         } else {
             logger->debug(env, "Obtained IMMDevice. Handle: %ls", wHandle);
@@ -459,7 +450,7 @@ static IMMDevice* AudioPort_to_IMMDevice(JNIEnv* env, jobject jAudioPort) {
 
         free((void*)wHandle);
     } else {
-        logger->warn(env, "Failed to convert handle to UTF-16 string.");
+        logger->warn(env, "Failed to convert wHandle to UTF-16 string.");
     }
 
     env->ReleaseStringUTFChars(jHandle, handle);

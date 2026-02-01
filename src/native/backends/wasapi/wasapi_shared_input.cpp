@@ -223,8 +223,8 @@ extern "C" {
             delete ctx;
         }
         
-        const char* hr_msg = formatHRMessage(hr).c_str();
-        logger->error(env, "%s (%s)", msg, hr_msg);
+        const char* hr_msg = fmtHR(hr);
+        logger->error(env, "%s (%s).", msg, hr_msg);
         env->ThrowNew(ExceptionClassesCache::get(env)->audioBackendException, msg);
     }
 
@@ -720,7 +720,7 @@ Java_org_theko_sound_backend_wasapi_WASAPISharedInput_nRead
         if (hr == AUDCLNT_S_BUFFER_EMPTY) {
             return 0;
         } else if (FAILED(hr)) {
-            const char* hr_msg = formatHRMessage(hr).c_str();
+            const char* hr_msg = fmtHR(hr);
             logger->error(env, "Failed to get available data: %s", hr_msg);
             return -1;
         }
@@ -765,8 +765,8 @@ Java_org_theko_sound_backend_wasapi_WASAPISharedInput_nRead
         HRESULT hr = context->audioClock->GetPosition(&position, &qpc);
 
         if (FAILED(hr)) {
-            const char* hr_msg = formatHRMessage(hr).c_str();
-            logger->error(env, "Failed to get WASAPI input position. (%s)", hr_msg);
+            const char* hr_msg = fmtHR(hr);
+            logger->error(env, "Failed to get WASAPI input position (%s).", hr_msg);
             return -1;
         }
 
@@ -789,8 +789,8 @@ Java_org_theko_sound_backend_wasapi_WASAPISharedInput_nRead
         REFERENCE_TIME latency = 0;
         HRESULT hr = context->audioClient->GetStreamLatency(&latency);
         if (FAILED(hr)) {
-            const char* hr_msg = formatHRMessage(hr).c_str();
-            const char* fmsg = format("Failed to get WASAPI input latency. (%s)", hr_msg).c_str();
+            const char* hr_msg = fmtHR(hr);
+            const char* fmsg = format("Failed to get WASAPI input latency (%s).", hr_msg).c_str();
             logger->error(env, fmsg);
             env->ThrowNew(ExceptionClassesCache::get(env)->audioBackendException, fmsg);
             return -1;

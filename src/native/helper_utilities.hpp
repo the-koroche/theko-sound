@@ -206,6 +206,10 @@ static wchar_t* com_memalloc_literal_utf16(const wchar_t* str) {
  */
 static std::string formatHRMessage(HRESULT hr) {
     const char* msgBuf = GetHRESULTConstantName(hr);
-    return format("%s (HRESULT: 0x%08X)", msgBuf, hr);
-} 
+    return format("%s, HRESULT: 0x%08X", msgBuf, hr);
+}
+
+inline const char* fmtHR(HRESULT hr) {
+    return formatHRMessage(hr).c_str();
+}
 #endif

@@ -230,8 +230,8 @@ extern "C" {
         HRESULT hr,
         const char* msg
         ) {
-        const char* hr_msg = formatHRMessage(hr).c_str();
-        logger->error(env, "%s (%s)", msg, hr_msg);
+        const char* hr_msg = fmtHR(hr);
+        logger->error(env, "%s (%s).", msg, hr_msg);
 
         logger->trace(env, "Cleaning up output context...");
         cleanupContext(env, logger, ctx);
@@ -292,7 +292,7 @@ extern "C" {
         if (hr == S_OK) {
             logger->trace(env, "Format is supported.");
         } else if (hr == S_FALSE && closestFormat) {
-            logger->info(env, "Format is not supported, using closest match: %s" , WAVEFORMATEX_toText(closestFormat));
+            logger->debug(env, "Format is not supported, using closest match: %s" , WAVEFORMATEX_toText(closestFormat));
             logger->trace(env, "Closest format pointer: %s", FORMAT_PTR(closestFormat));
             
             CoTaskMemFree(format);
@@ -321,7 +321,7 @@ extern "C" {
             format,
             nullptr 
         );
-        logger->trace(env, "IAudioClient::Initialize called. Result: %s", formatHRMessage(hr).c_str());
+        logger->trace(env, "IAudioClient::Initialize called. Result: %s", fmtHR(hr));
         if (FAILED(hr) || hr == AUDCLNT_E_DEVICE_IN_USE) {
             cleanupAndThrowError(env, logger, context, hr, "Failed to initialize IAudioClient.");
             return 0;
@@ -377,7 +377,7 @@ extern "C" {
             if (SUCCEEDED(hr)) {
                 context->notificationClient = notifier;
                 notifier->AddRef();
-                logger->debug(env, "Device change notification registered");
+                logger->trace(env, "Device change notification registered");
             } else {
                 notifier->Release();
                 logger->warn(env, "Failed to register device notifications");
@@ -403,9 +403,7 @@ extern "C" {
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nClose
     (JNIEnv* env, jobject obj) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nClose");
-
         WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-
         OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
 
         if (!context) {
@@ -484,9 +482,7 @@ extern "C" {
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nStart
     (JNIEnv* env, jobject obj) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nStart");
-
         WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-
         OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
         
         if (context) {
@@ -494,9 +490,9 @@ extern "C" {
 
             HRESULT hr = context->audioClient->Start();
             if (FAILED(hr)) {
-                logger->error(env, "Failed to start WASAPI output.");
+                logger->error(env, "Failed to start WASAPI output (%s).", fmtHR(hr));
             } else {
-                logger->debug(env, "Started WASAPI output.");
+                logger->trace(env, "Started WASAPI output.");
             }
         }
     }
@@ -505,54 +501,69 @@ extern "C" {
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nStop
     (JNIEnv* env, jobject obj) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nStop");
-
         WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-
         OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
-        
-        if (context) {
-            logNotifierMessages(env, logger, context);
-            SetEvent(context->events[EVENT_STOP_REQUEST]);
-            HRESULT hr = context->audioClient->Stop();
-            if (FAILED(hr)) {
-                logger->error(env, "Failed to stop WASAPI output.");
-            } else {
-                logger->debug(env, "Stopped WASAPI render client.");
-            }
-            BYTE* pBuffer;
-            hr = context->renderClient->GetBuffer(context->bufferFrameCount, &pBuffer);
-            if (SUCCEEDED(hr)) {
-                context->renderClient->ReleaseBuffer(
-                    context->bufferFrameCount, 
-                    AUDCLNT_BUFFERFLAGS_SILENT
-                );
-            } else {
-                logger->error(env, "Failed to get WASAPI buffer.");
-            }
-            context->pendingFrames = 0;
-            logger->debug(env, "Flushed WASAPI buffer.");
-        } else {
-            logger->trace(env, "WASAPI output not opened.");
+
+        if (!context) {
+            logger->info(env, "WASAPI output not opened.");
+            return;
         }
+        
+        logNotifierMessages(env, logger, context);
+        SetEvent(context->events[EVENT_STOP_REQUEST]);
+        HRESULT hr = context->audioClient->Stop();
+        if (FAILED(hr)) {
+            logger->warn(env, "Failed to stop WASAPI output.");
+        } else {
+            logger->trace(env, "Stopped WASAPI render client.");
+        }
+        BYTE* pBuffer;
+        hr = context->renderClient->GetBuffer(context->bufferFrameCount, &pBuffer);
+        if (SUCCEEDED(hr)) {
+            context->renderClient->ReleaseBuffer(
+                context->bufferFrameCount, 
+                AUDCLNT_BUFFERFLAGS_SILENT
+            );
+        } else {
+            logger->debug(env, "Failed to get WASAPI buffer for flushing (%s).", fmtHR(hr));
+        }
+        context->pendingFrames = 0;
+        logger->trace(env, "Flushed WASAPI buffer.");
     }
 
     JNIEXPORT void JNICALL
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nFlush
     (JNIEnv* env, jobject obj) {
-        env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
+        Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nFlush");
+        WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
+        OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
+
+        if (!context) {
+            logger->info(env, "WASAPI output not opened.");
+            return;
+        }
+
+        BYTE* pBuffer;
+        HRESULT hr = context->renderClient->GetBuffer(context->bufferFrameCount, &pBuffer);
+        if (SUCCEEDED(hr)) {
+            context->renderClient->ReleaseBuffer(context->bufferFrameCount, AUDCLNT_BUFFERFLAGS_SILENT);
+            logger->trace(env, "Flushed WASAPI buffer.");
+        } else {
+            logger->debug(env, "Flush buffer failed (%s).", fmtHR(hr));
+        }
+
+        context->pendingFrames = 0;
     }
 
     JNIEXPORT void JNICALL
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nDrain
     (JNIEnv* env, jobject obj) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nDrain");
-
         WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-
         OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
         
         if (!context) {
-            logger->error(env, "WASAPI output not opened.");
+            logger->info(env, "WASAPI output not opened.");
             return;
         }
 
@@ -562,8 +573,8 @@ extern "C" {
             HRESULT hr = context->outputDevice->GetState(&deviceState);
             if (FAILED(hr) || deviceState != DEVICE_STATE_ACTIVE) {
                 logNotifierMessages(env, logger, context);
-                logger->error(env, "Device invalid during drain: hr=%lx, state=%lu", hr, deviceState);
-                env->ThrowNew(ExceptionClassesCache::get(env)->deviceInvalidatedException, "Device invalid during drain");
+                logger->warn(env, "Device invalidated during drain, state=%lu (%s).", deviceState, fmtHR(hr));
+                env->ThrowNew(ExceptionClassesCache::get(env)->deviceInvalidatedException, "Device invalidated during drain");
                 break;
             }
             
@@ -571,11 +582,11 @@ extern "C" {
             if (FAILED(hr)) {
                 logNotifierMessages(env, logger, context);
                 if (hr == AUDCLNT_E_DEVICE_INVALIDATED) {
-                    logger->error(env, "Device invalidated during drain");
+                    logger->error(env, "Device invalidated during drain (%s).", fmtHR(hr));
                     env->ThrowNew(ExceptionClassesCache::get(env)->deviceInvalidatedException, "Device invalidated during drain");
                     break;
                 }
-                logger->error(env, "GetCurrentPadding failed during drain: hr=%lx", hr);
+                logger->error(env, "GetCurrentPadding failed during drain (%s).", fmtHR(hr));
                 break;
             }
             
@@ -596,19 +607,17 @@ extern "C" {
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nWrite
     (JNIEnv* env, jobject obj, jbyteArray buffer, jint offset, jint length) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nWrite");
-
         WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-
         OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
         
         if (!context) {
-            logger->error(env, "WASAPI output not opened.");
+            logger->info(env, "WASAPI output not opened.");
             return -1;
         }
 
         jbyte* src = env->GetByteArrayElements(buffer, NULL);
         if (!src) {
-            logger->error(env, "Failed to get array elements");
+            logger->error(env, "Failed to get array elements from byte array.");
             return -1;
         }
         UINT32 totalFrames = length / context->bytesPerFrame;
@@ -620,17 +629,18 @@ extern "C" {
             if (FAILED(hr)) {
                 logNotifierMessages(env, logger, context);
                 if (hr == AUDCLNT_E_DEVICE_INVALIDATED) {
-                    logger->error(env, "Audio device invalidated (format changed?)");
+                    logger->error(env, "Audio device invalidated during write, in GetState (%s).", fmtHR(hr));
                     env->ReleaseByteArrayElements(buffer, src, JNI_ABORT);
                     return -1;
                 }
+                logger->warn(env, "Audio device GetState failed (%s).", fmtHR(hr));
                 env->ReleaseByteArrayElements(buffer, src, JNI_ABORT);
                 return -1;
             }
             
             if (deviceState != DEVICE_STATE_ACTIVE) {
                 logNotifierMessages(env, logger, context);
-                logger->error(env, "Audio device not active: state=%lu", deviceState);
+                logger->error(env, "Audio device not active, state=%lu", deviceState);
                 env->ReleaseByteArrayElements(buffer, src, JNI_ABORT);
                 env->ThrowNew(ExceptionClassesCache::get(env)->deviceInactiveException, "Audio device not active.");
                 return -1;
@@ -642,13 +652,12 @@ extern "C" {
             if (FAILED(hr)) {
                 logNotifierMessages(env, logger, context);
                 if (hr == AUDCLNT_E_DEVICE_INVALIDATED) {
-                    logger->error(env, "Device invalidated during GetCurrentPadding");
+                    logger->error(env, "Device invalidated during write, in GetCurrentPadding (%s).", fmtHR(hr));
                     env->ReleaseByteArrayElements(buffer, src, JNI_ABORT);
                     env->ThrowNew(ExceptionClassesCache::get(env)->deviceInvalidatedException, "Device invalidated during write, in GetCurrentPadding.");
                     return -1;
                 }
-                const char* hr_msg = formatHRMessage(hr).c_str();
-                logger->error(env, "GetCurrentPadding failed: %s", hr_msg);
+                logger->error(env, "GetCurrentPadding in write failed (%s).", fmtHR(hr));
                 env->ReleaseByteArrayElements(buffer, src, JNI_ABORT);
                 env->ThrowNew(ExceptionClassesCache::get(env)->audioBackendException, "GetCurrentPadding in write failed.");
                 return -1;
@@ -673,8 +682,7 @@ extern "C" {
             BYTE* dest;
             hr = context->renderClient->GetBuffer(framesToWrite, &dest);
             if (FAILED(hr)) { 
-                const char* hr_msg = formatHRMessage(hr).c_str();
-                logger->error(env, "Failed to get WASAPI output buffer. (%s)", hr_msg);
+                logger->error(env, "Failed to get WASAPI output buffer (%s).", fmtHR(hr));
                 return -1;
             }
 
@@ -685,8 +693,7 @@ extern "C" {
             
             hr = context->renderClient->ReleaseBuffer(framesToWrite, 0);
             if (FAILED(hr)) {
-                const char* hr_msg = formatHRMessage(hr).c_str();
-                logger->error(env, "Failed to release WASAPI output buffer. (%s)", hr_msg);
+                logger->error(env, "Failed to release WASAPI output buffer (%s).", fmtHR(hr));
                 return -1;
             }
             framesWritten += framesToWrite;
@@ -694,20 +701,21 @@ extern "C" {
         }
 
         env->ReleaseByteArrayElements(buffer, src, JNI_ABORT);
-        return framesWritten * context->bytesPerFrame;
+        int32_t result = (int32_t)framesWritten * context->bytesPerFrame;
+        if (result != length)
+            logger->trace(env, "Wrote %d bytes of %d.", result, length);
+        return result;
     }
 
     JNIEXPORT jint JNICALL 
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nAvailable
     (JNIEnv* env, jobject obj) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nAvailable");
-
         WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-
         OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
 
         if (!context) {
-            logger->error(env, "WASAPI output not opened.");
+            logger->info(env, "WASAPI output not opened.");
             return -1;
         }
 
@@ -716,15 +724,14 @@ extern "C" {
         UINT32 padding = 0;
         HRESULT hr = context->audioClient->GetCurrentPadding(&padding);
         if (FAILED(hr)) {
-            const char* hr_msg = formatHRMessage(hr).c_str();
-            const char* fmsg = format("Failed to get WASAPI output buffer. (%s)", hr_msg).c_str();
-            logger->error(env, fmsg);
-            env->ThrowNew(ExceptionClassesCache::get(env)->audioBackendException, fmsg);
+            logger->error(env, "Failed to get WASAPI output buffer (%s).", fmtHR(hr));
+            env->ThrowNew(ExceptionClassesCache::get(env)->audioBackendException, "Failed to get WASAPI output buffer.");
             return -1;
         }
 
         UINT32 availableFrames = context->bufferFrameCount - padding;
         if (availableFrames > INT_MAX) {
+            logger->debug(env, "WASAPI output buffer overflow.");
             return -1; // overflow
         }
         return (jint)availableFrames;
@@ -734,13 +741,11 @@ extern "C" {
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetBufferSize
     (JNIEnv* env, jobject obj) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nGetBufferSize");
-
         WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-
         OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
 
         if (!context) {
-            logger->error(env, "WASAPI output not opened.");
+            logger->info(env, "WASAPI output not opened.");
             return -1;
         }
 
@@ -751,13 +756,11 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetFramePosition
     (JNIEnv* env, jobject obj) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nGetFramePosition");
-
         WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-
         OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
 
         if (!context) {
-            logger->error(env, "WASAPI output not opened.");
+            logger->info(env, "WASAPI output not opened.");
             return -1;
         }
 
@@ -766,8 +769,7 @@ extern "C" {
         HRESULT hr = context->audioClock->GetPosition(&position, &qpc);
 
         if (FAILED(hr)) {
-            const char* hr_msg = formatHRMessage(hr).c_str();
-            logger->error(env, "Failed to get WASAPI output position. (%s)", hr_msg);
+            logger->error(env, "Failed to get WASAPI output position (%s).", fmtHR(hr));
             return -1;
         }
 
@@ -777,23 +779,19 @@ extern "C" {
     JNIEXPORT jlong JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetMicrosecondLatency
     (JNIEnv* env, jobject obj) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nGetMicrosecondLatency");
-
         WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-
         OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
 
         if (!context) {
-            logger->error(env, "WASAPI output not opened.");
+            logger->info(env, "WASAPI output not opened.");
             return -1;
         }
 
         REFERENCE_TIME latency = 0;
         HRESULT hr = context->audioClient->GetStreamLatency(&latency);
         if (FAILED(hr)) {
-            const char* hr_msg = formatHRMessage(hr).c_str();
-            const char* fmsg = format("Failed to get WASAPI output latency. (%s)", hr_msg).c_str();
-            logger->error(env, fmsg);
-            env->ThrowNew(ExceptionClassesCache::get(env)->audioBackendException, fmsg);
+            logger->warn(env, "Failed to get WASAPI output latency (%s).", fmtHR(hr));
+            env->ThrowNew(ExceptionClassesCache::get(env)->audioBackendException, "Failed to get WASAPI output latency.");
             return -1;
         } else if (SUCCEEDED(hr) && latency > 0) {
             // latency in 100-ns (1e-7 sec), converted to microseconds (1e-6 sec)
@@ -819,12 +817,11 @@ extern "C" {
         OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
 
         if (!context) {
-            logger->error(env, "WASAPI output not opened.");
+            logger->info(env, "WASAPI output not opened.");
             return nullptr;
         }
 
         IMMDevice* device = context->outputDevice;
-
         if (!device) {
             logger->error(env, "Failed to get IMMDevice.");
             env->ThrowNew(exceptionsCache->audioBackendException, "Failed to get IMMDevice.");
