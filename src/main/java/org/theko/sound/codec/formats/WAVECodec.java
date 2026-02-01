@@ -242,8 +242,8 @@ public class WAVECodec extends AudioCodec {
                     pcm = SamplesConverter.toSamples(audioData, format);
                     break;
                 default:
-                    logger.error("Invalid Audio Encoding");
-                    throw new AudioCodecException("Invalid Audio Encoding");
+                    logger.error("Invalid audio encoding: " + encoding.name());
+                    throw new AudioCodecException("Invalid audio encoding: " + encoding.name());
             }
 
             long toPcmConvertNs = System.nanoTime() - toPcmConvertStartNs;

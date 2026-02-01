@@ -141,7 +141,7 @@ public final class AudioSystemProperties {
     private static String getString(String key, String defaultValue) {
         String value = System.getProperty(key);
         if (value == null || value.isBlank()) {
-            logger.debug("Value {} is not set.", key);
+            logger.trace("Value {} is not set.", key);
             return defaultValue;
         }
         return value;
@@ -367,9 +367,6 @@ public final class AudioSystemProperties {
     public static final AudioMeasure AOL_DEFAULT_BUFFER = getAudioMeasure(
         "org.theko.sound.outputLayer.defaultBuffer", AudioMeasure.ofFrames(2048));
     
-    public static final int AOL_DEFAULT_RING_BUFFERS = getIntInRange(
-        "org.theko.sound.outputLayer.defaultRingBuffers", 1, Integer.MAX_VALUE, false /* use default */, 1);
-    
     public static final AudioResamplerConfiguration AOL_RESAMPLER = getAudioResamplerConfig(
         "org.theko.sound.outputLayer.resampler", new AudioResamplerConfiguration(new LinearResampleMethod(), 2));
 
@@ -442,7 +439,6 @@ public final class AudioSystemProperties {
             .append(", Cleaner").append(FormatUtilities.formatThreadInfo(CLEANERS_THREAD))
             .append("\n");
         builder.append("  Default Output Buffer Size=").append(AOL_DEFAULT_BUFFER).append("\n");
-        builder.append("  Default OutputLayer Ring Buffers Count=").append(AOL_DEFAULT_RING_BUFFERS).append("\n");
         builder.append("  OutputLayer resampler: ")
             .append(AOL_RESAMPLER).append("\n");
         builder.append("  OutputLayer playback thread stop timeout: ").append(AOL_PLAYBACK_STOP_TIMEOUT).append(" ms.\n");
