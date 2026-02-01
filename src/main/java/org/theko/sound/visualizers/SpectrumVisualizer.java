@@ -320,8 +320,30 @@ public class SpectrumVisualizer extends AudioVisualizer {
         }
     }
 
+    /**
+     * Constructs a new {@code SpectrumVisualizer} with the specified frame rate.
+     * @param frameRate The frame rate of the audio visualizer
+     * @param resizeDelayMs The delay in milliseconds at which the render area is resized
+     */
+    public SpectrumVisualizer(float frameRate, int resizeDelay) {
+        super(Type.REALTIME, frameRate, resizeDelay);
+        addControls(visualizerControls);
+    }
+
+    /**
+     * Constructs a new {@code SpectrumVisualizer} with the specified frame rate.
+     * @param frameRate The frame rate of the audio visualizer
+     */
     public SpectrumVisualizer(float frameRate) {
         super(Type.REALTIME, frameRate);
+        addControls(visualizerControls);
+    }
+
+    /**
+     * Constructs a new {@code SpectrumVisualizer}, with default frame rate.
+     */
+    public SpectrumVisualizer() {
+        super(Type.REALTIME);
         addControls(visualizerControls);
     }
 

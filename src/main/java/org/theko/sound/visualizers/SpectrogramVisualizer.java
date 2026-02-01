@@ -274,11 +274,29 @@ public class SpectrogramVisualizer extends AudioVisualizer {
     }
 
     /**
-     * Creates a new spectogram visualizer with the given frame rate.
-     * @param frameRate The frame rate of the spectogram visualizer
+     * Constructs a new {@code SpectrogramVisualizer} with the specified frame rate.
+     * @param frameRate The frame rate of the audio visualizer
+     * @param resizeDelayMs The delay in milliseconds at which the render area is resized
+     */
+    public SpectrogramVisualizer(float frameRate, int resizeDelay) {
+        super(Type.REALTIME, frameRate, resizeDelay);
+        addControls(visualizerControls);
+    }
+
+    /**
+     * Constructs a new {@code SpectrogramVisualizer} with the specified frame rate.
+     * @param frameRate The frame rate of the audio visualizer
      */
     public SpectrogramVisualizer(float frameRate) {
         super(Type.REALTIME, frameRate);
+        addControls(visualizerControls);
+    }
+
+    /**
+     * Constructs a new {@code SpectrogramVisualizer}, with default frame rate.
+     */
+    public SpectrogramVisualizer() {
+        super(Type.REALTIME);
         addControls(visualizerControls);
     }
 

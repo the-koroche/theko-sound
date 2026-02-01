@@ -258,11 +258,28 @@ public class WaveformVisualizer extends AudioVisualizer {
 
     /**
      * Constructs a new {@code WaveformVisualizer} with the specified frame rate.
-     * @param frameRate The frame rate of the repaint.
+     * @param frameRate The frame rate of the audio visualizer
+     * @param resizeDelayMs The delay in milliseconds at which the render area is resized
+     */
+    public WaveformVisualizer(float frameRate, int resizeDelay) {
+        super(Type.REALTIME, frameRate, resizeDelay);
+        addControls(visualizerControls);
+    }
+
+    /**
+     * Constructs a new {@code WaveformVisualizer} with the specified frame rate.
+     * @param frameRate The frame rate of the audio visualizer
      */
     public WaveformVisualizer(float frameRate) {
         super(Type.REALTIME, frameRate);
+        addControls(visualizerControls);
+    }
 
+    /**
+     * Constructs a new {@code WaveformVisualizer}, with default frame rate.
+     */
+    public WaveformVisualizer() {
+        super(Type.REALTIME);
         addControls(visualizerControls);
     }
 
