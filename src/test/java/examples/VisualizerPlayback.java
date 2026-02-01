@@ -24,8 +24,9 @@ import org.theko.sound.codec.AudioCodecNotFoundException;
 import org.theko.sound.codec.AudioTag;
 import org.theko.sound.effects.BitcrusherEffect;
 import org.theko.sound.effects.ResamplerEffect;
+import org.theko.sound.event.OutputLayerEventType;
 import org.theko.sound.resampling.LanczosResampleMethod;
-//import org.theko.sound.visualizers.ColorGradient;
+import org.theko.sound.visualizers.ColorGradient;
 import org.theko.sound.visualizers.SpectrumVisualizer;
 
 import helpers.FileChooserHelper;
@@ -53,7 +54,7 @@ public class VisualizerPlayback {
 
             g2d.setColor(Color.WHITE);
             g2d.setFont(font);
-            drawMultilineText(g2d, trackInfo + "\n" + getPlaybackInfo(player), 10, 20, 16);
+            drawMultilineText(g2d, trackInfo + "\n" + getPlaybackInfo(player), 10, 20, font.getSize() + 2);
             drawMessage(g2d);
         }
 
@@ -108,8 +109,8 @@ public class VisualizerPlayback {
             mixer.addEffect(bitcrusher);
 
             spectrum = new SpectrumVisualizer(120.0f);
-            //spectrum.setVolumeColorProcessor(ColorGradient.VIRIDIS_COLOR_MAP.getVolumeColorProcessor());
-            spectrum.setFftWindowSize(8192);
+            spectrum.setVolumeColorProcessor(ColorGradient.VIRIDIS_COLOR_MAP.getVolumeColorProcessor());
+            spectrum.setFftWindowSize(4096);
             spectrum.setFrequencyScale(1.5f);
             mixer.addEffect(spectrum);
 
@@ -143,9 +144,19 @@ public class VisualizerPlayback {
                 frame.setVisible(true);
             });
 
+            player.getOutputLayerListenersManager().addConsumer(
+                OutputLayerEventType.DEVICE_INVALIDATED, event -> {
+                    message("Audio device invalidated or inaccessible.");
+                    player.stop();
+                }
+            );
             player.start();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            try { if (player != null)   player.close();     } catch (Exception ignored) {}
+            try { if (spectrum != null) spectrum.close();   } catch (Exception ignored) {}
+            try { if (frame != null)    frame.dispose();    } catch (Exception ignored) {}
         }
     }
 
@@ -196,6 +207,20 @@ public class VisualizerPlayback {
         );
     }
 
+    private boolean ensureOpen() {
+        if (!player.isOpen()) {
+            System.out.println("Reopening output layer...");
+            try {
+                player.reopen();
+                return true;
+            } catch (Exception ex) {
+                message("Failed to open output layer.");
+                return false;
+            }
+        }
+        return true;
+    }
+
     private void addKeyListeners() {
         frame.addKeyListener(new KeyAdapter() {
         @Override
@@ -204,6 +229,7 @@ public class VisualizerPlayback {
             switch (e.getKeyCode()) {
                 // Play / Pause toggle
                 case KeyEvent.VK_SPACE, KeyEvent.VK_PAUSE, KeyEvent.VK_P -> {
+                    if (!ensureOpen()) return;
                     if (player.isPlaying()) player.stop();
                     else player.start();
                 }
