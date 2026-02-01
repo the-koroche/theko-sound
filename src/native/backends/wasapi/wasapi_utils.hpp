@@ -138,7 +138,7 @@ static const char* WAVEFORMATEX_toText(WAVEFORMATEX* waveformat) {
         } else if (ext->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT) {
             enc = "FLOAT (EXT)";
         } else {
-            snprintf(unknown, sizeof(unknown), "EXT_UNKNOWN({%08X})", ext->SubFormat.Data1);
+            snprintf(unknown, sizeof(unknown), "EXT_UNKNOWN({%08lX})", ext->SubFormat.Data1);
             enc = unknown;
         }
     } else {

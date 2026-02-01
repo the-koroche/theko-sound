@@ -23,4 +23,5 @@
 
 #include "WASAPIBackendCache.hpp"
 #include "WASAPIOutputCache.hpp"
+#include "WASAPIInputCache.hpp"
 #include "WASAPIPortHandleCache.hpp"

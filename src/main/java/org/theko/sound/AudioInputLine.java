@@ -40,16 +40,18 @@ public class AudioInputLine implements AudioNode {
      * 
      * @param port The {@link AudioPort} to be used.
      * @param audioFormat The {@link AudioFormat} for audio data.
-     * @param bufferSizeInSamples The size of the buffer for audio data in samples.
+     * @param bufferSize The buffer size as an {@link AudioMeasure}.
      * @throws AudioBackendException If an error occurs while opening the backend.
      */
-    public void open (AudioPort port, AudioFormat audioFormat, int bufferSizeInSamples) throws AudioBackendException {
+    public void open(AudioPort port, AudioFormat audioFormat, AudioMeasure bufferSize) throws AudioBackendException {
         try {
+            int bufferSizInFrames = (int) bufferSize.onFormat(audioFormat).getFrames();
             AudioPort targetPort = (port == null ? aib.getPort(AudioFlow.IN, audioFormat).get() : port);
-            aib.open(targetPort, audioFormat, bufferSizeInSamples * audioFormat.getFrameSize());
+            aib.open(targetPort, audioFormat, (int)bufferSize.getBytes());
             this.audioFormat = audioFormat;
-            this.bufferSize = bufferSizeInSamples;
-            logger.debug("Opened audio input line with {} port, {} format, and {} buffer size", targetPort, audioFormat, bufferSizeInSamples);
+            this.bufferSize = bufferSizInFrames;
+            logger.debug("Opened audio input line with {} port, {} format, and {} buffer size",
+                    targetPort, audioFormat, bufferSize);
         } catch (AudioBackendException | AudioPortsNotFoundException ex) {
             throw new AudioBackendException("Failed to open audio input line.", ex);
         } catch (UnsupportedAudioFormatException ex) {
@@ -65,7 +67,7 @@ public class AudioInputLine implements AudioNode {
      * @throws AudioBackendException If an error occurs while opening the backend.
      */
     public void open (AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
-        this.open(port, audioFormat, 2048);
+        this.open(port, audioFormat, AudioMeasure.ofFrames(2048));
     }
 
     /**

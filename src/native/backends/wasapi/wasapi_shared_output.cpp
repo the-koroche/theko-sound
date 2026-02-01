@@ -131,6 +131,8 @@ public:
     OutputDeviceChangeNotifier(OutputContext* ctx)
         : refCount(1), context(ctx), hStopEvent(ctx->events[EVENT_STOP_REQUEST]) {}
 
+    ~OutputDeviceChangeNotifier() {}
+
     ULONG STDMETHODCALLTYPE AddRef() override {
         return ++refCount;
     }
