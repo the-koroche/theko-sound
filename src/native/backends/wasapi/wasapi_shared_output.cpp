@@ -19,14 +19,12 @@
 #include "helper_utilities.hpp"
 
 #include "DefaultClassesCache.hpp"
-#include "WASAPIClassesCache.hpp"
 
 #include "logger.hpp"
 #include "logger_manager.hpp"
 
 #include "org_theko_sound_backend_wasapi_WASAPISharedOutput.h"
 
-#ifdef _WIN32
 #include <windows.h>
 #include <initguid.h>
 #include <mmdeviceapi.h>
@@ -256,7 +254,7 @@ extern "C" {
 
         if (!jport || !jformat || !jAtomicRefFormat) return 0;
 
-        OutputContext* context = new OutputContext();
+        auto context = new OutputContext();
         logger->trace(env, "OutputContext allocated. Pointer: %s", FORMAT_PTR(context));
 
         IMMDevice* device = AudioPort_to_IMMDevice(env, jport);
@@ -401,11 +399,11 @@ extern "C" {
 
     JNIEXPORT void JNICALL
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nClose
-    (JNIEnv* env, jobject obj) {
+    (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nClose");
-        WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-        OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
-
+        
+        
+        auto context = (OutputContext*)ptr;
         if (!context) {
             logger->debug(env, "WASAPI output already closed.");
             return;
@@ -475,15 +473,17 @@ extern "C" {
         }
 
         delete context;
-        env->SetLongField(obj, outputCache->outputContextPtr, 0);
     }
 
     JNIEXPORT void JNICALL
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nStart
-    (JNIEnv* env, jobject obj) {
+    (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nStart");
-        WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-        OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
+        auto context = (OutputContext*)ptr;
+        if (!context) {
+            logger->info(env, "WASAPI output not opened.");
+            return;
+        }
         
         if (context) {
             logNotifierMessages(env, logger, context);
@@ -499,11 +499,9 @@ extern "C" {
 
     JNIEXPORT void JNICALL
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nStop
-    (JNIEnv* env, jobject obj) {
+    (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nStop");
-        WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-        OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
-
+        auto context = (OutputContext*)ptr;
         if (!context) {
             logger->info(env, "WASAPI output not opened.");
             return;
@@ -533,11 +531,9 @@ extern "C" {
 
     JNIEXPORT void JNICALL
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nFlush
-    (JNIEnv* env, jobject obj) {
+    (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nFlush");
-        WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-        OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
-
+        auto context = (OutputContext*)ptr;
         if (!context) {
             logger->info(env, "WASAPI output not opened.");
             return;
@@ -557,10 +553,10 @@ extern "C" {
 
     JNIEXPORT void JNICALL
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nDrain
-    (JNIEnv* env, jobject obj) {
+    (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nDrain");
-        WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-        OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
+        
+        auto context = (OutputContext*)ptr;
         
         if (!context) {
             logger->info(env, "WASAPI output not opened.");
@@ -605,10 +601,10 @@ extern "C" {
 
     JNIEXPORT jint JNICALL
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nWrite
-    (JNIEnv* env, jobject obj, jbyteArray buffer, jint offset, jint length) {
+    (JNIEnv* env, jobject obj, jlong ptr, jbyteArray buffer, jint offset, jint length) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nWrite");
-        WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-        OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
+        
+        auto context = (OutputContext*)ptr;
         
         if (!context) {
             logger->info(env, "WASAPI output not opened.");
@@ -709,11 +705,9 @@ extern "C" {
 
     JNIEXPORT jint JNICALL 
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nAvailable
-    (JNIEnv* env, jobject obj) {
+    (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nAvailable");
-        WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-        OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
-
+        auto context = (OutputContext*)ptr;
         if (!context) {
             logger->info(env, "WASAPI output not opened.");
             return -1;
@@ -739,11 +733,9 @@ extern "C" {
 
     JNIEXPORT jint JNICALL 
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetBufferSize
-    (JNIEnv* env, jobject obj) {
+    (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nGetBufferSize");
-        WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-        OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
-
+        auto context = (OutputContext*)ptr;
         if (!context) {
             logger->info(env, "WASAPI output not opened.");
             return -1;
@@ -752,13 +744,10 @@ extern "C" {
         return (jint)context->bufferFrameCount;
     }
 
-
     JNIEXPORT jlong JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetFramePosition
-    (JNIEnv* env, jobject obj) {
+    (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nGetFramePosition");
-        WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-        OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
-
+        auto context = (OutputContext*)ptr;
         if (!context) {
             logger->info(env, "WASAPI output not opened.");
             return -1;
@@ -777,11 +766,9 @@ extern "C" {
     }
 
     JNIEXPORT jlong JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetMicrosecondLatency
-    (JNIEnv* env, jobject obj) {
+    (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nGetMicrosecondLatency");
-        WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-        OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
-
+        auto context = (OutputContext*)ptr;
         if (!context) {
             logger->info(env, "WASAPI output not opened.");
             return -1;
@@ -808,18 +795,17 @@ extern "C" {
 
     JNIEXPORT jobject JNICALL
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetCurrentAudioPort
-    (JNIEnv* env, jobject obj) {
+    (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nGetCurrentAudioPort");
-
-        WASAPIOutputCache* outputCache = WASAPIOutputCache::get(env);
-        ExceptionClassesCache* exceptionsCache = ExceptionClassesCache::get(env);
-
-        OutputContext* context = (OutputContext*)env->GetLongField(obj, outputCache->outputContextPtr);
+        auto context = (OutputContext*)ptr;
 
         if (!context) {
             logger->info(env, "WASAPI output not opened.");
             return nullptr;
         }
+
+        
+        ExceptionClassesCache* exceptionsCache = ExceptionClassesCache::get(env);
 
         IMMDevice* device = context->outputDevice;
         if (!device) {
@@ -839,85 +825,4 @@ extern "C" {
         return jAudioPort;
     }
 }
-#else // end of _WIN32
-extern "C" {
-    JNIEXPORT void JNICALL 
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nOpen
-    (JNIEnv* env, jobject obj, jobject jport, jobject jformat, jint bufferSize /* in bytes */) {
-        env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
-    }
-
-    JNIEXPORT void JNICALL 
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nClose
-    (JNIEnv* env, jobject obj) {
-        env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
-    }
-
-    JNIEXPORT void JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nStart
-    (JNIEnv* env, jobject obj) {
-        env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
-    }
-
-    JNIEXPORT void JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nStop
-    (JNIEnv* env, jobject obj) {
-        env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
-    }
-
-    JNIEXPORT void JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nFlush
-    (JNIEnv* env, jobject obj) {
-        env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
-    }
-
-    JNIEXPORT void JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nDrain
-    (JNIEnv* env, jobject obj) {
-        env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
-    }
-
-    JNIEXPORT jint JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nWrite
-    (JNIEnv* env, jobject obj, jbyteArray buffer, jint offset, jint length) {
-        env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
-        return -1;
-    }
-
-    JNIEXPORT jint JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nAvailable
-    (JNIEnv* env, jobject obj) {
-        env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
-        return -1;
-    }
-
-    JNIEXPORT jint JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetBufferSize
-    (JNIEnv* env, jobject obj) {
-        env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
-        return -1;
-    }
-
-    JNIEXPORT jlong JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetFramePosition
-    (JNIEnv* env, jobject obj) {
-        env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
-        return -1;
-    }
-
-    JNIEXPORT jlong JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetMicrosecondLatency
-    (JNIEnv* env, jobject obj) {
-        env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
-        return -1;
-    }
-
-    JNIEXPORT jobject JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetCurrentAudioPort
-    (JNIEnv* env, jobject obj) {
-        env->ThrowNew(ExceptionClassesCache::get(env)->unsupportedOperationException, "Not supported on this platform.");
-        return nullptr;
-    }
-}
-#endif // end of !_WIN32
 }

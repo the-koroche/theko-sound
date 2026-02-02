@@ -155,7 +155,7 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISh
     @Override
     public void shutdown() throws AudioBackendException {
         if (!isInitialized) return;
-        nShutdown();
+        nShutdown(backendContextPtr);
         isInitialized = false;
     }
 
@@ -167,7 +167,7 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISh
             initialize();
         }
         try {
-            AudioPort[] ports = nGetAllPorts();
+            AudioPort[] ports = nGetAllPorts(backendContextPtr);
             if (ports == null || ports.length == 0) {
                 return List.of();
             }
@@ -219,7 +219,7 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISh
             initialize();
         }
         try {
-            return Optional.ofNullable(nGetDefaultPort(flow));
+            return Optional.ofNullable(nGetDefaultPort(backendContextPtr, flow));
         } finally {
             if (initBefore) {
                 shutdown();
@@ -278,8 +278,8 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISh
     }
 
     private synchronized native long nInit();
-    private synchronized native void nShutdown();
-    private synchronized native AudioPort[] nGetAllPorts();
-    private synchronized native AudioPort nGetDefaultPort(AudioFlow flow);
+    private synchronized native void nShutdown(long backendContextPtr);
+    private synchronized native AudioPort[] nGetAllPorts(long backendContextPtr);
+    private synchronized native AudioPort nGetDefaultPort(long backendContextPtr, AudioFlow flow);
     private synchronized native boolean nIsFormatSupported(AudioPort port, AudioFormat audioFormat, AtomicReference<AudioFormat> closestFormat);
 } 

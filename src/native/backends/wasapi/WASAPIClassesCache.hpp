@@ -21,7 +21,5 @@
 #include "IJavaClassCache.hpp"
 #include "JNI_Utility.hpp"
 
-#include "WASAPIBackendCache.hpp"
-#include "WASAPIOutputCache.hpp"
 #include "WASAPIInputCache.hpp"
 #include "WASAPIPortHandleCache.hpp"

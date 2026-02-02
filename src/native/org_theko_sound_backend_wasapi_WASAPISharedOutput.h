@@ -18,90 +18,90 @@ JNIEXPORT jlong JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_n
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedOutput
  * Method:    nClose
- * Signature: ()V
+ * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nClose
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedOutput
  * Method:    nStart
- * Signature: ()V
+ * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nStart
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedOutput
  * Method:    nStop
- * Signature: ()V
+ * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nStop
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedOutput
  * Method:    nFlush
- * Signature: ()V
+ * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nFlush
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedOutput
  * Method:    nDrain
- * Signature: ()V
+ * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nDrain
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedOutput
  * Method:    nWrite
- * Signature: ([BII)I
+ * Signature: (J[BII)I
  */
 JNIEXPORT jint JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nWrite
-  (JNIEnv *, jobject, jbyteArray, jint, jint);
+  (JNIEnv *, jobject, jlong, jbyteArray, jint, jint);
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedOutput
  * Method:    nAvailable
- * Signature: ()I
+ * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nAvailable
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedOutput
  * Method:    nGetBufferSize
- * Signature: ()I
+ * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetBufferSize
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedOutput
  * Method:    nGetFramePosition
- * Signature: ()J
+ * Signature: (J)J
  */
 JNIEXPORT jlong JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetFramePosition
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedOutput
  * Method:    nGetMicrosecondLatency
- * Signature: ()J
+ * Signature: (J)J
  */
 JNIEXPORT jlong JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetMicrosecondLatency
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedOutput
  * Method:    nGetCurrentAudioPort
- * Signature: ()Lorg/theko/sound/AudioPort;
+ * Signature: (J)Lorg/theko/sound/AudioPort;
  */
 JNIEXPORT jobject JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetCurrentAudioPort
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 #ifdef __cplusplus
 }

@@ -18,26 +18,26 @@ JNIEXPORT jlong JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedBackend
  * Method:    nShutdown
- * Signature: ()V
+ * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nShutdown
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedBackend
  * Method:    nGetAllPorts
- * Signature: ()[Lorg/theko/sound/AudioPort;
+ * Signature: (J)[Lorg/theko/sound/AudioPort;
  */
 JNIEXPORT jobjectArray JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nGetAllPorts
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedBackend
  * Method:    nGetDefaultPort
- * Signature: (Lorg/theko/sound/AudioFlow;)Lorg/theko/sound/AudioPort;
+ * Signature: (JLorg/theko/sound/AudioFlow;)Lorg/theko/sound/AudioPort;
  */
 JNIEXPORT jobject JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nGetDefaultPort
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jlong, jobject);
 
 /*
  * Class:     org_theko_sound_backend_wasapi_WASAPISharedBackend

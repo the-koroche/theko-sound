@@ -107,7 +107,7 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
             return;
         }
         if (isStarted) stop();
-        if (isOpen || outputContextPtr != 0) nClose();
+        if (isOpen || outputContextPtr != 0) nClose(outputContextPtr);
         if (super.isInitialized()) super.shutdown();
         isOpen = false;
         isStarted = false;
@@ -122,7 +122,7 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
     public void start() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot start. Backend is not open.");
         if (isStarted) return;
-        nStart();
+        nStart(outputContextPtr);
         isStarted = true;
     }
 
@@ -130,32 +130,32 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
     public void stop() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot stop. Backend is not open.");
         if (!isStarted) return;
-        nStop();
+        nStop(outputContextPtr);
         isStarted = false;
     }
 
     @Override
     public void flush() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot flush. Backend is not open.");
-        nFlush();
+        nFlush(outputContextPtr);
     }
 
     @Override
     public void drain() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot drain. Backend is not open.");
-        nDrain();
+        nDrain(outputContextPtr);
     }
 
     @Override
     public int write(byte[] data, int offset, int length) throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot write. Backend is not open.");
-        return nWrite(data, offset, length);
+        return nWrite(outputContextPtr, data, offset, length);
     }
 
     @Override
     public int available() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot get available. Backend is not open.");
-        return nAvailable();
+        return nAvailable(outputContextPtr);
     }
 
     @Override
@@ -163,7 +163,7 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
         if (!isOpen()) throw new BackendNotOpenException("Cannot get buffer size. Backend is not open.");
         int bufferSize = this.bufferSize;
         try {
-            int nativeBufferSize = nGetBufferSize();
+            int nativeBufferSize = nGetBufferSize(outputContextPtr);
             if (nativeBufferSize == -1) {
                 return bufferSize;
             }
@@ -177,7 +177,7 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
     @Override
     public long getFramePosition() throws AudioBackendException, BackendNotOpenException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot get frame position. Backend is not open.");
-        return nGetFramePosition();
+        return nGetFramePosition(outputContextPtr);
     }
 
     @Override
@@ -191,7 +191,7 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
         if (!isOpen()) throw new BackendNotOpenException("Cannot get latency. Backend is not open.");
         long latency = (long) ((bufferSize / (float) audioFormat.getSampleRate()) * 1000000);
         try {
-            long nativeLatency = nGetMicrosecondLatency();
+            long nativeLatency = nGetMicrosecondLatency(outputContextPtr);
             if (nativeLatency == -1) {
                 return latency;
             }
@@ -207,7 +207,7 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
         if (!isOpen()) throw new BackendNotOpenException("Cannot get current audio port. Backend is not open.");
         AudioPort port = this.port;
         try {
-            AudioPort nativePort = nGetCurrentAudioPort();
+            AudioPort nativePort = nGetCurrentAudioPort(outputContextPtr);
             if (nativePort == null) {
                 return port;
             }
@@ -219,15 +219,15 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
     }
     
     private synchronized native long nOpen(AudioPort port, AudioFormat audioFormat, int bufferSize, AtomicReference<AudioFormat> audioFormatRef);
-    private synchronized native void nClose();
-    private synchronized native void nStart();
-    private synchronized native void nStop();
-    private synchronized native void nFlush();
-    private synchronized native void nDrain();
-    private synchronized native int nWrite(byte[] data, int offset, int length);
-    private synchronized native int nAvailable();
-    private synchronized native int nGetBufferSize();
-    private synchronized native long nGetFramePosition();
-    private synchronized native long nGetMicrosecondLatency();
-    private synchronized native AudioPort nGetCurrentAudioPort();
+    private synchronized native void nClose(long outputContextPtr);
+    private synchronized native void nStart(long outputContextPtr);
+    private synchronized native void nStop(long outputContextPtr);
+    private synchronized native void nFlush(long outputContextPtr);
+    private synchronized native void nDrain(long outputContextPtr);
+    private synchronized native int nWrite(long outputContextPtr, byte[] data, int offset, int length);
+    private synchronized native int nAvailable(long outputContextPtr);
+    private synchronized native int nGetBufferSize(long outputContextPtr);
+    private synchronized native long nGetFramePosition(long outputContextPtr);
+    private synchronized native long nGetMicrosecondLatency(long outputContextPtr);
+    private synchronized native AudioPort nGetCurrentAudioPort(long outputContextPtr);
 }
