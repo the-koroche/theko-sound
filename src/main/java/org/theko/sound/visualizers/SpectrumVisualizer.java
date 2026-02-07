@@ -157,53 +157,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
                 return;
             }
 
-            int offset = getSamplesOffset();
-            offset = Math.max(0, Math.min(offset, recentAudioWindow.length - fftWindowSize));
-            
-            if (fftInputBuffer == null || fftInputBuffer.length != fftWindowSize) {
-                fftInputBuffer = new float[fftWindowSize];
-            }
-            System.arraycopy(recentAudioWindow, offset, fftInputBuffer, 0, Math.min(recentAudioWindow.length - offset, fftWindowSize));
-
-            if (fftSpectrum == null || fftSpectrum.length != fftWindowSize / 2) {
-                fftSpectrum = new float[fftWindowSize / 2];
-            }
-            getSpectrum(fftInputBuffer, fftSpectrum);
-
-            if (interpolatedSpectrum == null || interpolatedSpectrum.length != getWidth()) {
-                interpolatedSpectrum = new float[getWidth()];
-            }
-            
-            if (mappingPositions == null || mappingPositions.length != fftSpectrum.length) {
-                mappingPositions = new float[fftSpectrum.length];
-                lastFrequencyScale = frequencyScale;
-                getScaledPositions(mappingPositions, getWidth(), frequencyScale);
-            }
-            
-            if (lastFrequencyScale != frequencyScale) {
-                lastFrequencyScale = frequencyScale;
-                getScaledPositions(mappingPositions, getWidth(), frequencyScale);
-            }
-            mapSpectrum(fftSpectrum, mappingPositions, getWidth(), interpolatedSpectrum);
-
-            if (drawnSpectrum == null) {
-                drawnSpectrum = new float[interpolatedSpectrum.length];
-            }
-
-            switch (spectrumDecayMode) {
-                case MULTIPLY -> {
-                    for (int i = 0; i < drawnSpectrum.length; i++) {
-                        drawnSpectrum[i] = Math.max(drawnSpectrum[i] * spectrumDecayFactor, interpolatedSpectrum[i]);
-                    }
-                }
-                case INTERPOLATE -> {
-                    for (int i = 0; i < drawnSpectrum.length; i++) {
-                        drawnSpectrum[i] = MathUtilities.lerp(interpolatedSpectrum[i], drawnSpectrum[i], spectrumDecayFactor);
-                    }
-                }
-            }
-
-            smoothSpectrum(drawnSpectrum, finalSpectrumSmoothness);
+            updateBuffers();
 
             int[] pixels = ((DataBufferInt) getRenderImage().getRaster().getDataBuffer()).getData();
             for (int x = 0; x < getWidth(); x++) {
@@ -241,6 +195,50 @@ public class SpectrumVisualizer extends AudioVisualizer {
             }
         }
 
+        private void updateBuffers() {
+            int offset = getSamplesOffset();
+            offset = Math.max(0, Math.min(offset, recentAudioWindow.length - fftWindowSize));
+            
+            fftInputBuffer = ensureBuffer(fftInputBuffer, fftWindowSize);
+            System.arraycopy(recentAudioWindow, offset, fftInputBuffer, 0, Math.min(recentAudioWindow.length - offset, fftWindowSize));
+
+            fftSpectrum = ensureBuffer(fftSpectrum, fftWindowSize / 2);
+            getSpectrum(fftInputBuffer, fftSpectrum);
+
+            interpolatedSpectrum = ensureBuffer(interpolatedSpectrum, getWidth());
+            
+            if (mappingPositions == null || mappingPositions.length != fftSpectrum.length) {
+                mappingPositions = new float[fftSpectrum.length];
+                lastFrequencyScale = frequencyScale;
+                getScaledPositions(mappingPositions, getWidth(), frequencyScale);
+            }
+            
+            if (lastFrequencyScale != frequencyScale) {
+                lastFrequencyScale = frequencyScale;
+                getScaledPositions(mappingPositions, getWidth(), frequencyScale);
+            }
+            mapSpectrum(fftSpectrum, mappingPositions, getWidth(), interpolatedSpectrum);
+
+            drawnSpectrum = ensureBuffer(drawnSpectrum, interpolatedSpectrum.length);
+
+            float targetDecayFactor = spectrumDecayFactor;
+            switch (spectrumDecayMode) {
+                case MULTIPLY -> {
+                    for (int i = 0; i < drawnSpectrum.length; i++) {
+                        drawnSpectrum[i] = Math.max(drawnSpectrum[i] * targetDecayFactor, interpolatedSpectrum[i]);
+                    }
+                }
+                case INTERPOLATE -> {
+                    for (int i = 0; i < drawnSpectrum.length; i++) {
+                        drawnSpectrum[i] = MathUtilities.lerp(
+                            interpolatedSpectrum[i], drawnSpectrum[i], MathUtilities.clamp(targetDecayFactor, 0, 1));
+                    }
+                }
+            }
+
+            smoothSpectrum(drawnSpectrum, finalSpectrumSmoothness);
+        }
+
         private void fillRect(int x, int y, int w, int h, int argb, int[] pixels) {
             if (x < 0 || y < 0 || x + w > getWidth() || y + h > getHeight()) return;
             int start = y * getWidth() + x;
@@ -255,12 +253,8 @@ public class SpectrumVisualizer extends AudioVisualizer {
             
             int fftLength = fftWindowSize;
 
-            if (real == null || real.length != fftLength) {
-                real = new float[fftLength];
-            }
-            if (imag == null || imag.length != fftLength) {
-                imag = new float[fftLength];
-            }
+            real = ensureBuffer(real, fftLength);
+            imag = ensureBuffer(imag, fftLength);
             
             System.arraycopy(inputSamples, 0, real, 0, inputSamples.length);
             Arrays.fill(imag, 0.0f);
@@ -276,7 +270,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
             FFT.fft(real, imag);
             
             float maxAmplitude = 0.0f;
-            float minNormalizerRoot = (float) Math.pow(minAmplitudeNormalizer, 1 / amplitudeExponent);
+            float minNormalizerRoot = (float) Math.pow(minAmplitudeNormalizer, 1.0f / amplitudeExponent);
             
             int spectrumLength = Math.min(real.length / 2, outputSpectrum.length);
             for (int i = 0; i < spectrumLength; i++) {
@@ -309,14 +303,25 @@ public class SpectrumVisualizer extends AudioVisualizer {
 
         private void smoothSpectrum(float[] data, float smooth) {
             if (smooth <= 0.0f) return;
+            int n = data.length;
+            if (n <= 3) return;
+
+            float k = MathUtilities.clamp(smooth, 0.0f, 1.0f);
             // forward pass
-            for (int i = 1; i < data.length; i++) {
-                data[i] = data[i - 1] * smooth + data[i] * (1f - smooth);
+            for (int i = 1; i < n; i++) {
+                data[i] = data[i - 1] * k + data[i] * (1f - k);
             }
             // backward pass
-            for (int i = data.length - 2; i >= 0; i--) {
-                data[i] = data[i + 1] * smooth + data[i] * (1f - smooth);
+            for (int i = n - 2; i >= 0; i--) {
+                data[i] = data[i + 1] * k + data[i] * (1f - k);
             }
+        }
+
+        private float[] ensureBuffer(float[] buffer, int size) {
+            if (buffer == null || buffer.length != size) {
+                buffer = new float[size];
+            }
+            return buffer;
         }
     }
 
@@ -386,67 +391,82 @@ public class SpectrumVisualizer extends AudioVisualizer {
     }
 
     /**
-     * Sets the color used to draw the upper bar when the visualizer is
-     * configured to draw two bars representing the amplitude of the upper
-     * and lower channel of the audio signal.
-     * 
-     * @param color The color used to draw the upper bar
-     * @throws NullPointerException if the color is null
+     * Sets the color used for the upper channel bar.
+     *
+     * @param color the color to use; must not be {@code null}
+     * @throws NullPointerException if {@code color} is {@code null}
      */
     public void setUpperBarColor(Color color) {
-        Objects.requireNonNull(color);
-        this.upperBarColor = color;
-        this.useColorProcessor = false;
+        this.upperBarColor = Objects.requireNonNull(color);
     }
 
     /**
-     * Gets the color used to draw the upper bar when the visualizer is
-     * configured to draw two bars representing the amplitude of the upper
-     * and lower channel of the audio signal.
-     * 
-     * @return The color used to draw the upper bar
+     * Returns the color used for the upper channel bar.
+     *
+     * @return the upper bar color
      */
     public Color getUpperBarColor() {
         return upperBarColor;
     }
 
     /**
-     * Sets the color used to draw the lower bar when the visualizer is
-     * configured to draw two bars representing the amplitude of the upper
-     * and lower channel of the audio signal.
+     * Sets the color used for the lower channel bar.
      *
-     * @param color The color used to draw the lower bar
-     * @throws NullPointerException if the color is null
+     * @param color the color to use; must not be {@code null}
+     * @throws NullPointerException if {@code color} is {@code null}
      */
     public void setLowerBarColor(Color color) {
-        Objects.requireNonNull(color);
-        this.lowerBarColor = color;
-        this.useColorProcessor = false;
+        this.lowerBarColor = Objects.requireNonNull(color);
+    }
+
+    /**
+     * Returns the color used for the lower channel bar.
+     *
+     * @return the lower bar color
+     */
+    public Color getLowerBarColor() {
+        return lowerBarColor;
     }
 
     /**
      * Sets the volume color processor used by the visualizer.
-     * 
-     * @param volumeColorProcessor The volume color processor used by the visualizer
-     * @throws NullPointerException if the volume color processor is null
+     * Enables color processing automatically.
+     *
+     * @param volumeColorProcessor the processor to use; must not be {@code null}
+     * @throws NullPointerException if {@code volumeColorProcessor} is {@code null}
      * @see ColorGradient
      * @see VolumeColorProcessor
      */
     public void setVolumeColorProcessor(VolumeColorProcessor volumeColorProcessor) {
-        Objects.requireNonNull(volumeColorProcessor);
-        this.volumeColorProcessor = volumeColorProcessor;
+        this.volumeColorProcessor = Objects.requireNonNull(volumeColorProcessor);
         this.useColorProcessor = true;
     }
 
     /**
-     * Returns the color used to draw the lower bar when the visualizer is
-     * configured to draw two bars representing the amplitude of the upper
-     * and lower channel of the audio signal.
+     * Returns the volume color processor.
      *
-     * @return the color used to draw the lower bar
+     * @return the current volume color processor
      */
-    public Color getLowerBarColor() {
-        return lowerBarColor;
+    public VolumeColorProcessor getVolumeColorProcessor() {
+        return volumeColorProcessor;
+    }
+
+    /**
+     * Enables or disables the use of a volume color processor.
+     *
+     * @param useColorProcessor {@code true} to use the processor, {@code false} otherwise
+     */
+    public void setUseColorProcessor(boolean useColorProcessor) {
+        this.useColorProcessor = useColorProcessor;
+    }
+
+    /**
+     * Returns the current value of the useColorProcessor flag.
+     * 
+     * @return true if the visualizer is using a color processor, false otherwise
+     */
+    public boolean isUsingColorProcessor() {
+        return useColorProcessor;
     }
 
     /**
@@ -574,46 +594,41 @@ public class SpectrumVisualizer extends AudioVisualizer {
     public float getSpectrumSmoothness() {
         return finalSpectrumSmoothness;
     }
-
+    
     /**
-     * Sets the minimum amplitude normalizer of the visualizer.
-     * This value is used to scale the amplitude of the spectrum before it is
-     * displayed. The amplitude normalizer is calculated as follows:
-     * amplitude = Math.max(minNormalizerRoot, maxAmplitude) * 1.25f;
-     * where minNormalizerRoot is the square root of the minimum amplitude normalizer
-     * and maxAmplitude is the maximum amplitude of the spectrum.
-     * 
-     * @param divider The minimum amplitude normalizer of the visualizer.
-     */
+    * Sets the minimum amplitude normalizer.
+    * This value prevents the spectrum from disappearing when the signal is very quiet.
+    * The actual normalizer used is scaled with the amplitude exponent.
+    *
+    * @param divider minimum amplitude normalizer, clamped between MIN_DIVIDER and MAX_DIVIDER
+    */
     public void setMinAmplitudeNormalizer(float divider) {
         this.minAmplitudeNormalizer = MathUtilities.clamp(divider, MIN_DIVIDER, MAX_DIVIDER);
     }
 
     /**
-     * Returns the minimum amplitude normalizer of the visualizer.
-     * 
-     * @return The minimum amplitude normalizer of the visualizer.
+     * Returns the minimum amplitude normalizer.
+     *
+     * @return minimum amplitude normalizer
      */
     public float getMinAmplitudeNormalizer() {
         return minAmplitudeNormalizer;
     }
 
     /**
-     * Sets the amplitude exponent of the visualizer.
-     * This value is used to scale the amplitude of the spectrum before it is
-     * displayed. The amplitude exponent is applied as follows: amplitude =
-     * Math.pow(amplitude, amplitudeExponent).
-     * 
-     * @param power The amplitude exponent of the visualizer.
+     * Sets the amplitude exponent used to scale the spectrum.
+     * Values > 1 emphasize stronger peaks, values < 1 make quieter components more visible.
+     *
+     * @param power amplitude exponent, clamped between MIN_AMPLITUDE_POWER and MAX_AMPLITUDE_POWER
      */
     public void setAmplitudeExponent(float power) {
         this.amplitudeExponent = MathUtilities.clamp(power, MIN_AMPLITUDE_POWER, MAX_AMPLITUDE_POWER);
     }
 
     /**
-     * Returns the amplitude exponent of the visualizer.
-     * 
-     * @return the amplitude exponent of the visualizer
+     * Returns the amplitude exponent.
+     *
+     * @return amplitude exponent
      */
     public float getAmplitudeExponent() {
         return amplitudeExponent;
@@ -621,11 +636,11 @@ public class SpectrumVisualizer extends AudioVisualizer {
 
     /**
      * Sets the decay speed of the amplitude normalizer.
-     * A decay speed of 0.0f will cause the amplitude normalizer to recover
-     * instantly, while a decay speed of 1.0f will cause the amplitude normalizer
-     * to recover very slowly.
-     * 
-     * @param speed The decay speed of the amplitude normalizer.
+     * Determines how quickly the normalizer decreases over time:
+     * - 0.0f: normalizer adapts instantly to new peaks (no decay)
+     * - 1.0f: normalizer decreases quickly (fast decay)
+     *
+     * @param speed decay speed, clamped between MIN_DIVIDER_DECAY_SPEED and MAX_DIVIDER_DECAY_SPEED
      */
     public void setNormalizerDecaySpeed(float speed) {
         this.normalizerDecaySpeed = MathUtilities.clamp(speed, MIN_DIVIDER_DECAY_SPEED, MAX_DIVIDER_DECAY_SPEED);
@@ -633,57 +648,56 @@ public class SpectrumVisualizer extends AudioVisualizer {
 
     /**
      * Returns the decay speed of the amplitude normalizer.
-     * 
-     * @return The decay speed of the amplitude normalizer.
+     *
+     * @return decay speed
      */
     public float getNormalizerDecaySpeed() {
         return normalizerDecaySpeed;
     }
 
     /**
-     * Sets the interpolation mode used to generate the spectrum.
+     * Sets the interpolation mode used to generate the visual spectrum.
+     * <p>
+     * The interpolation mode determines how the output spectrum values are computed
+     * from the input samples. Different modes produce different visual results in terms of
+     * smoothness, sharpness, and the preservation of peaks.
      * 
-     * <p>The interpolation mode determines how the spectrum values are calculated
-     * from the input samples. Different modes affect the smoothness and sharpness 
-     * of the resulting spectrum, as well as the risk of aliasing.
-     * 
-     * <p><b>Interpolation Modes</b>:
+     * <p><b>Available Interpolation Modes:</b>
      * <ul>
      *   <li>
-     *     <b>{@link InterpolationMode#FIXED_WIDTH}</b>: Uses a fixed-width window
-     *     for interpolation. Produces a generally smooth spectrum, but may introduce
-     *     aliasing artifacts at high frequencies. Recommended for continuous spectra.
+     *     <b>{@link InterpolationMode#FIXED_WIDTH}</b>: Divides the spectrum into fixed-width bars
+     *     and assigns each bar the maximum value found within it. Produces a block-style
+     *     spectrum with clearly defined peaks.
      *   </li>
      *   <li>
-     *     <b>{@link InterpolationMode#NEAREST}</b>: Uses the nearest neighbor method
-     *     for interpolation. Produces a sharp, pixelated spectrum. Can introduce
-     *     aliasing. Useful when exact sample positions are important.
+     *     <b>{@link InterpolationMode#NEAREST}</b>: Uses the nearest-neighbor method to map input
+     *     samples to the output spectrum. Produces sharp, pixelated results with clearly defined peaks.
      *   </li>
      *   <li>
-     *     <b>{@link InterpolationMode#LINEAR}</b>: Performs linear interpolation
-     *     between samples. Produces a spectrum that is smooth but preserves some
-     *     sharp transitions. Good general-purpose choice.
+     *     <b>{@link InterpolationMode#LINEAR}</b>: Performs linear interpolation between neighboring
+     *     samples. Produces a smoother spectrum than nearest-neighbor while preserving some sharp transitions.
+     *     A balanced choice suitable for most real-time visualizations.
      *   </li>
      *   <li>
-     *     <b>{@link InterpolationMode#EASING}</b>: Uses an easing function to interpolate
-     *     between samples. Produces very smooth spectra with minimal harsh edges.
-     *     Best when visual smoothness is prioritized over exact sample representation.
+     *     <b>{@link InterpolationMode#EASING}</b>: Uses a smooth easing function (Catmull-Rom)
+     *     to calculate intermediate values. Produces very smooth spectrum with minimal visual harshness.
+     *     Best used when smoothness and aesthetics are prioritized over exact sample reproduction.
      *   </li>
      * </ul>
-     * 
-     * @param mode the interpolation mode to use
-     * @throws NullPointerException if mode is null
+     *
+     * @param mode the interpolation mode to use; must not be {@code null}
+     * @throws NullPointerException if {@code mode} is {@code null}
      * @see InterpolationMode
      */
     public void setSpectrumInterpolationMode(InterpolationMode mode) {
-        Objects.requireNonNull(mode);
-        this.spectrumInterpolationMode = mode;
+        this.spectrumInterpolationMode = Objects.requireNonNull(mode);
     }
 
     /**
      * Returns the current interpolation mode used to generate the spectrum.
      * 
      * @return The current interpolation mode used.
+     * @see #setSpectrumInterpolationMode(InterpolationMode)
      * @see InterpolationMode
      */
     public InterpolationMode getSpectrumInterpolationMode() {
@@ -700,14 +714,14 @@ public class SpectrumVisualizer extends AudioVisualizer {
      * @see DecayMode
      */
     public void setSpectrumDecayMode(DecayMode decayMode) {
-        Objects.requireNonNull(decayMode);
-        this.spectrumDecayMode = decayMode;
+        this.spectrumDecayMode = Objects.requireNonNull(decayMode);
     }
 
     /**
      * Returns the current decay mode used by the spectrum visualizer.
      * 
      * @return The current decay mode used.
+     * @see #setSpectrumDecayMode(DecayMode)
      * @see DecayMode
      */
     public DecayMode getSpectrumDecayMode() {
@@ -747,8 +761,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
      * @throws NullPointerException if the window type is null
      */
     public void setWindowType(WindowType type) {
-        Objects.requireNonNull(type);
-        this.windowType = type;
+        this.windowType = Objects.requireNonNull(type);
     }
 
     /**
