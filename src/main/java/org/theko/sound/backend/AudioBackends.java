@@ -109,9 +109,7 @@ public class AudioBackends {
         
         try {
             platformBackendInfo = detectPlatformBackend();
-        } catch (AudioBackendNotFoundException e) {
-            logger.error("Failed to detect platform-specific audio backend.", e);
-        } catch (AudioBackendCreationException e) {
+        } catch (AudioBackendNotFoundException | AudioBackendCreationException e) {
             logger.error("Failed to create platform-specific audio backend.", e);
         }
     }
@@ -153,16 +151,7 @@ public class AudioBackends {
         }
         for (AudioBackendInfo backendInfo : audioBackends) {
             if (backendInfo.getBackendClass().equals(audioBackendClass)) {
-                try {
-                    Constructor<? extends AudioBackend> constructor = audioBackendClass.getDeclaredConstructor();
-                    if (!Modifier.isAbstract(audioBackendClass.getModifiers()) && Modifier.isPublic(constructor.getModifiers())) {
-                        return constructor.newInstance();
-                    }
-                } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-                        | NoSuchMethodException | SecurityException ex) {
-                    logger.error("Failed to instantiate backend: " + audioBackendClass.getSimpleName() + ".", ex);
-                    throw new AudioBackendCreationException("Failed to instantiate backend: " + audioBackendClass.getSimpleName(), ex);
-                }
+                return getBackend(backendInfo);
             }
         }
         logger.error("No audio backends found by class: '{}'. (not registered?).", audioBackendClass.getSimpleName());
@@ -182,7 +171,19 @@ public class AudioBackends {
         if (audioBackendInfo == null) {
             throw new IllegalArgumentException("Audio backend info cannot be null.");
         }
-        return getBackend(audioBackendInfo.getBackendClass());
+        
+        try {
+            Constructor<? extends AudioBackend> constructor = audioBackendInfo.getBackendClass().getDeclaredConstructor();
+            if (!Modifier.isAbstract(audioBackendInfo.getBackendClass().getModifiers())
+                && Modifier.isPublic(constructor.getModifiers())) {
+                return constructor.newInstance();
+            }
+        } catch (ReflectiveOperationException | SecurityException ex) {
+            logger.error("Failed to instantiate backend: {}.", audioBackendInfo.getBackendClass().getSimpleName(), ex);
+            throw new AudioBackendCreationException("Failed to instantiate backend: " + audioBackendInfo.getBackendClass().getSimpleName(), ex);
+        }
+
+        throw new AudioBackendNotFoundException("No audio backends found for class: '" + audioBackendInfo.getBackendClass().getSimpleName() + "'.");
     }
 
     /**
@@ -199,17 +200,12 @@ public class AudioBackends {
             throw new IllegalArgumentException("Audio backend class cannot be null.");
         }
         for (AudioBackendInfo backendInfo : audioBackends) {
+            if (backendInfo == null) {
+                logger.debug("Encountered null audio backend info while searching for input backend of class: '{}'. Skipping.", audioBackendClass.getSimpleName());
+                continue;
+            }
             if (backendInfo.getBackendClass().equals(audioBackendClass)) {
-                try {
-                    Constructor<? extends AudioBackend> constructor = audioBackendClass.getDeclaredConstructor();
-                    if (!Modifier.isAbstract(audioBackendClass.getModifiers()) && Modifier.isPublic(constructor.getModifiers())) {
-                        return constructor.newInstance().getInputBackend();
-                    }
-                } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-                        | NoSuchMethodException | SecurityException ex) {
-                    logger.error("Failed to instantiate input backend: " + audioBackendClass.getSimpleName() + ".", ex);
-                    throw new AudioBackendCreationException("Failed to instantiate input backend: " + audioBackendClass.getSimpleName(), ex);
-                }
+                return getInputBackend(backendInfo);
             }
         }
         logger.error("No input backend found for class: '{}'. (not registered?).", audioBackendClass.getSimpleName());
@@ -222,14 +218,31 @@ public class AudioBackends {
      * @param audioBackendInfo The {@link AudioBackendInfo} of the audio backend.
      * @return The instantiated {@link AudioInputBackend}.
      * @throws IllegalArgumentException If the audio backend info is null.
-     * @throws AudioBackendNotFoundException If no backend is found with the given {@link AudioBackendInfo}.
+     * @throws AudioBackendNotFoundException If no backend is found with the given {@link AudioBackendInfo}, or if the backend does not support input.
      * @throws AudioBackendCreationException If the backend cannot be instantiated.
      */
     public static AudioInputBackend getInputBackend(AudioBackendInfo audioBackendInfo) throws AudioBackendCreationException, AudioBackendNotFoundException {
         if (audioBackendInfo == null) {
             throw new IllegalArgumentException("Audio backend info cannot be null.");
         }
-        return getInputBackend(audioBackendInfo.getBackendClass());
+
+        if (!audioBackendInfo.supportsInput()) {
+            logger.error("Audio backend '{}' does not support input.", audioBackendInfo.getBackendClass().getSimpleName());
+            throw new AudioBackendNotFoundException("Audio backend '" + audioBackendInfo.getBackendClass().getSimpleName() + "' does not support input.");
+        }
+
+        try {
+            Constructor<? extends AudioBackend> constructor = audioBackendInfo.getBackendClass().getDeclaredConstructor();
+            if (!Modifier.isAbstract(audioBackendInfo.getBackendClass().getModifiers())
+                && Modifier.isPublic(constructor.getModifiers())) {
+                return constructor.newInstance().getInputBackend();
+            }
+        } catch (ReflectiveOperationException | SecurityException ex) {
+            logger.error("Failed to instantiate input backend: {}.", audioBackendInfo.getBackendClass().getSimpleName(), ex);
+            throw new AudioBackendCreationException("Failed to instantiate input backend: " + audioBackendInfo.getBackendClass().getSimpleName(), ex);
+        }
+
+        throw new AudioBackendNotFoundException("No input backend found for class: " + audioBackendInfo.getBackendClass().getSimpleName());
     }
 
     /**
@@ -241,46 +254,62 @@ public class AudioBackends {
      * @throws AudioBackendCreationException If an error occurs during instantiation.
      */
     public static AudioOutputBackend getOutputBackend(Class<? extends AudioBackend> audioBackendClass) throws AudioBackendNotFoundException, AudioBackendCreationException {
+        if (audioBackendClass == null) {
+            throw new IllegalArgumentException("Audio backend class cannot be null.");
+        }
         for (AudioBackendInfo backendInfo : audioBackends) {
+            if (backendInfo == null) {
+                logger.debug("Encountered null audio backend info while searching for output backend of class: '{}'. Skipping.", audioBackendClass.getSimpleName());
+                continue;
+            }
             if (backendInfo.getBackendClass().equals(audioBackendClass)) {
-                try {
-                    Constructor<? extends AudioBackend> constructor = audioBackendClass.getDeclaredConstructor();
-                    if (!Modifier.isAbstract(audioBackendClass.getModifiers()) && Modifier.isPublic(constructor.getModifiers())) {
-                        return constructor.newInstance().getOutputBackend();
-                    }
-                } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-                        | NoSuchMethodException | SecurityException ex) {
-                    logger.error("Failed to instantiate input backend: " + audioBackendClass.getSimpleName() + ".", ex);
-                    throw new AudioBackendCreationException("Failed to instantiate output backend: " + audioBackendClass.getSimpleName(), ex);
-                }
+                return getOutputBackend(backendInfo);
             }
         }
         logger.error("No output backend found for class: " + audioBackendClass.getSimpleName());
         throw new AudioBackendNotFoundException("No output backend found for class: " + audioBackendClass.getSimpleName());
     }
-/**
+
+    /**
      * Retrieves an {@link AudioOutputBackend} instance by its {@link AudioBackendInfo}.
      *
      * @param audioBackendInfo The {@link AudioBackendInfo} of the audio backend.
      * @return The instantiated {@link AudioOutputBackend}.
      * @throws IllegalArgumentException If the audio backend info is null.
-     * @throws AudioBackendNotFoundException If no backend is found with the given {@link AudioBackendInfo}.
+     * @throws AudioBackendNotFoundException If no backend is found with the given {@link AudioBackendInfo}, or if the backend does not support output.
      * @throws AudioBackendCreationException If the backend cannot be instantiated.
      */
     public static AudioOutputBackend getOutputBackend(AudioBackendInfo audioBackendInfo) throws AudioBackendCreationException, AudioBackendNotFoundException {
         if (audioBackendInfo == null) {
             throw new IllegalArgumentException("Audio backend info cannot be null.");
         }
-        return getOutputBackend(audioBackendInfo.getBackendClass());
+        
+        if (!audioBackendInfo.supportsOutput()) {
+            logger.error("Audio backend '{}' does not support output.", audioBackendInfo.getBackendClass().getSimpleName());
+            throw new AudioBackendNotFoundException("Audio backend '" + audioBackendInfo.getBackendClass().getSimpleName() + "' does not support output.");
+        }
+
+        try {
+            Constructor<? extends AudioBackend> constructor = audioBackendInfo.getBackendClass().getDeclaredConstructor();
+            if (!Modifier.isAbstract(audioBackendInfo.getBackendClass().getModifiers())
+                && Modifier.isPublic(constructor.getModifiers())) {
+                return constructor.newInstance().getOutputBackend();
+            }
+        } catch (ReflectiveOperationException | SecurityException ex) {
+            logger.error("Failed to instantiate output backend: {}.", audioBackendInfo.getBackendClass().getSimpleName(), ex);
+            throw new AudioBackendCreationException("Failed to instantiate output backend: " + audioBackendInfo.getBackendClass().getSimpleName(), ex);
+        }
+
+        throw new AudioBackendNotFoundException("No output backend found for class: " + audioBackendInfo.getBackendClass().getSimpleName());
     }
 
     /**
-     * Returns all registered audio backends.
+     * Returns all registered audio backends as an unmodifiable collection.
      *
      * @return A collection of all registered {@link AudioBackendInfo} instances.
      */
     public static Collection<AudioBackendInfo> getAllBackends() {
-        return audioBackends;
+        return Collections.unmodifiableCollection(audioBackends);
     }
 
     /**
@@ -297,7 +326,9 @@ public class AudioBackends {
         }
 
         Map<Platform, List<String>> platformBackends = Map.of(
-                Platform.WINDOWS, List.of("WASAPI", "DirectSound"),
+                // WASAPIExclusive is not included because it is not supported by default and may cause issues
+                // on some systems, especially if the user is not familiar with it.
+                Platform.WINDOWS, List.of("WASAPIShared", "DirectSound"),
                 Platform.LINUX, List.of("ALSA", "PulseAudio"),
                 Platform.MAC, List.of("CoreAudio"),
                 Platform.OTHER_UNIX, List.of("ALSA", "PulseAudio", "CoreAudio", "JavaSound"),
