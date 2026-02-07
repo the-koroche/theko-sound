@@ -313,54 +313,61 @@ public final class AudioSystemProperties {
     }
 
     private static void logProperties() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Info:\nCurrent environment:\n");
-        builder.append("  JVM: ").append(System.getProperty("java.vm.name"))
-            .append(" ").append(System.getProperty("java.vm.version"))
-            .append(" (").append(System.getProperty("java.vendor")).append(")\n");
-        builder.append("  Runtime: ").append(System.getProperty("java.runtime.name"))
-            .append(" ").append(System.getProperty("java.runtime.version")).append("\n");
-        builder.append("  Memory: total=").append(FormatUtilities.formatBytesBinary(TOTAL_MEMORY, 3))
-            .append(", max=").append(FormatUtilities.formatBytesBinary(MAX_MEMORY, 3)).append("\n");
+        // Current environment
+        logger.info(
+            "Current environment:\n" +
+            "  JVM: {} {} ({})\n" +
+            "  Runtime: {} {}\n" +
+            "  Memory: total={}, max={}\n" +
+            "  OS: {} {} ({})\n" +
+            "  Runtime platform: {}\n" +
+            "  Runtime architecture: {}\n" +
+            "  CPU Cores (logical): {}",
+            System.getProperty("java.vm.name"),
+            System.getProperty("java.vm.version"),
+            System.getProperty("java.vendor"),
+            System.getProperty("java.runtime.name"),
+            System.getProperty("java.runtime.version"),
+            FormatUtilities.formatBytesBinary(TOTAL_MEMORY, 3),
+            FormatUtilities.formatBytesBinary(MAX_MEMORY, 3),
+            System.getProperty("os.name"),
+            System.getProperty("os.version"),
+            System.getProperty("os.arch"),
+            PLATFORM.name(),
+            ARCHITECTURE.name(),
+            CPU_AVAILABLE_CORES
+        );
 
-        // OS info
-        builder.append("  OS: ").append(System.getProperty("os.name"))
-            .append(" ").append(System.getProperty("os.version"))
-            .append(" (").append(System.getProperty("os.arch")).append(")").append("\n");
-        builder.append("  Runtime detected platform: ").append(PLATFORM.name()).append("\n");
-        builder.append("  Runtime detected architecture: ").append(ARCHITECTURE.name()).append("\n");
-
-        // CPU info
-        builder.append("  CPU Cores (logical): ").append(CPU_AVAILABLE_CORES).append("\n");
-
-        builder.append("Audio system properties:\n");
-        builder.append("  Threads:")
-            .append(" OutputLayer: { ")
-            .append("Playback ").append(FormatUtilities.formatThreadInfo(AOL_PLAYBACK_THREAD))
-            .append("}, Automations pool threads count: ").append(AUTOMATIONS_THREADS)
-            .append(", Cleaner").append(FormatUtilities.formatThreadInfo(CLEANERS_THREAD))
-            .append("\n");
-        builder.append("  Default Output Buffer Size=").append(AOL_DEFAULT_BUFFER).append("\n");
-        builder.append("  OutputLayer resampler: ")
-            .append(AOL_RESAMPLER).append("\n");
-        builder.append("  OutputLayer playback thread stop timeout: ").append(AOL_PLAYBACK_STOP_TIMEOUT).append(" ms.\n");
-        builder.append("  OutputLayer max length mismatches: ").append(AOL_MAX_LENGTH_MISMATCHES)
-            .append(", reset after valid render: ").append(AOL_RESET_LENGTH_MISMATCHES).append(".\n");
-        builder.append("  OutputLayer max write errors: ").append(AOL_MAX_WRITE_ERRORS)
-            .append(", reset after successful write: ").append(AOL_RESET_WRITE_ERRORS).append(".\n");
-        builder.append("  Enable OutputLayer shutdown hook: ").append(AOL_ENABLE_SHUTDOWN_HOOK).append("\n");
-        builder.append("  Resampler (Shared): ")
-            .append(SHARED_RESAMPLER).append("\n");
-        builder.append("  Mixer (default):")
-            .append(" Enable effects: ").append(MIXER_DEFAULT_ENABLE_EFFECTS)
-            .append(", Swap channels: ").append(MIXER_DEFAULT_SWAP_CHANNELS)
-            .append(", Reverse polarity: ").append(MIXER_DEFAULT_REVERSE_POLARITY)
-            .append("\n");
-        builder.append("  Effect resampler: ")
-            .append(RESAMPLER_EFFECT).append("\n");
-        builder.append("  Wave Codec:")
-            .append(" Clean Tags Text: ").append(WAVE_CODEC_CLEAN_TAG_TEXT);
-        logger.debug(builder.toString());
+        // Audio system properties
+        logger.info(
+            "Audio system properties:\n" +
+            "  OutputLayer playback thread: {}\n" +
+            "  OutputLayer default buffer: {}\n" +
+            "  OutputLayer resampler: {}\n" +
+            "  OutputLayer playback thread stop timeout: {} ms\n" +
+            "  OutputLayer max length mismatches: {}, reset after valid render: {}\n" +
+            "  OutputLayer max write errors: {}, reset after successful write: {}\n" +
+            "  OutputLayer shutdown hook enabled: {}\n" +
+            "  Resampler (Shared): {}\n" +
+            "  Resampler (Effect, default): {}\n" +
+            "  Automation threads: {}\n" +
+            "  Automation update time: {} ms\n" +
+            "  Mixer (default): Enable effects: {}, Swap channels: {}, Reverse polarity: {}\n" +
+            "  Wave Codec: Clean Tags Text: {}",
+            FormatUtilities.formatThreadInfo(AOL_PLAYBACK_THREAD),
+            AOL_DEFAULT_BUFFER,
+            AOL_RESAMPLER,
+            AOL_PLAYBACK_STOP_TIMEOUT,
+            AOL_MAX_LENGTH_MISMATCHES, AOL_RESET_LENGTH_MISMATCHES,
+            AOL_MAX_WRITE_ERRORS, AOL_RESET_WRITE_ERRORS,
+            AOL_ENABLE_SHUTDOWN_HOOK,
+            SHARED_RESAMPLER,
+            RESAMPLER_EFFECT,
+            AUTOMATIONS_THREADS,
+            AUTOMATIONS_UPDATE_TIME,
+            MIXER_DEFAULT_ENABLE_EFFECTS, MIXER_DEFAULT_SWAP_CHANNELS, MIXER_DEFAULT_REVERSE_POLARITY,
+            WAVE_CODEC_CLEAN_TAG_TEXT
+        );
 
         StringBuilder propertiesLog = new StringBuilder();
 
@@ -373,7 +380,7 @@ public final class AudioSystemProperties {
         for (int i = 0; i < keys.size(); i++) {
             String key = keys.get(i);
             propertiesLog.append(key).append(": ").append(props.getProperty(key));
-            if (i < keys.size() - 1) { // только если не последний элемент
+            if (i < keys.size() - 1) { // only if not the last property, to avoid extra newline at the end
                 propertiesLog.append("\n");
             }
         }
