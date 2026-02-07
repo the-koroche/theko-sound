@@ -54,6 +54,7 @@ public final class AudioControlUtilities {
      * @return The value of the audio control as a float.
      * @throws IllegalArgumentException If the control type is unsupported.
      */
+    @SuppressWarnings("rawtypes")
     public static float getValueAsFloat(AudioControl control) {
         Objects.requireNonNull(control);
         Class<? extends AudioControl> controlClass = control.getClass();
@@ -81,6 +82,7 @@ public final class AudioControlUtilities {
      * @param value The float representing the value to set.
      * @throws IllegalArgumentException If the control type is unsupported.
      */
+    @SuppressWarnings("rawtypes")
     public static void setValueFromFloat(AudioControl control, float value) {
         Objects.requireNonNull(control);
         Class<? extends AudioControl> controlClass = control.getClass();

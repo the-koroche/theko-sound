@@ -165,6 +165,7 @@ public interface Controllable {
      * @return The EnumControl with the specified name, or null if no
      *         such control exists.
      */
+    @SuppressWarnings("rawtypes")
     default EnumControl getEnumControl(String name) {
         for (AudioControl control : getAllControls()) {
             if (control.getName().equals(name) && control instanceof EnumControl) {

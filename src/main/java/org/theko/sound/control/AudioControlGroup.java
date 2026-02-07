@@ -36,6 +36,7 @@ import java.util.stream.Stream;
  * @since 2.1.0
  * @author Theko
  */
+@SuppressWarnings("rawtypes")
 public class AudioControlGroup {
     
     protected final List<FloatControl> floatControls = new CopyOnWriteArrayList<>();

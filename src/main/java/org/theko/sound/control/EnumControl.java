@@ -19,8 +19,6 @@ package org.theko.sound.control;
 import org.theko.sound.event.AudioControlEvent;
 import org.theko.sound.event.AudioControlEventType;
 
-import java.util.Arrays;
-
 /**
  * The {@code EnumControl} class represents a control that manages a value from an enumeration.
  * Useful for selecting filter types, waveform types, etc.
@@ -32,15 +30,17 @@ import java.util.Arrays;
  * BandType current = bandTypeControl.getEnumValue();
  * </pre>
  * 
+ * @param <T> The type of the enum values managed by this control.
+ * 
  * @see AudioControl
  * 
  * @since 2.1.1
  * @author Theko
  */
-public class EnumControl extends AudioControl {
+public class EnumControl<T extends Enum<T>> extends AudioControl {
 
-    private final Enum<?>[] enumValues;
-    private Enum<?> value;
+    private final T[] enumValues;
+    private T value;
 
     /**
      * Constructs an {@code EnumControl} for the specified enum type and default value.
@@ -48,16 +48,17 @@ public class EnumControl extends AudioControl {
      * @param name The name of the control.
      * @param defaultValue The default enum value.
      */
-    public EnumControl(String name, Enum<?> defaultValue) {
+    public EnumControl(String name, T defaultValue) {
         super(name);
         this.enumValues = defaultValue.getDeclaringClass().getEnumConstants();
         this.value = defaultValue;
     }
 
     /**
-     * Sets the enum value by index (clamped).
+     * Sets the enum value to the specified index. If the index is out of range,
+     * it will be clamped to the nearest valid index.
      * 
-     * @param index The index of the enum constant to set.
+     * @param index The index of the enum value to set.
      */
     public void setValue(int index) {
         int clampedIndex = Math.max(0, Math.min(index, enumValues.length - 1));
@@ -68,9 +69,11 @@ public class EnumControl extends AudioControl {
     }
 
     /**
-     * Sets the enum value based on a normalized float from 0.0 to 1.0.
+     * Sets the enum value to the specified normalized value (between 0.0 and 1.0).
+     * The index of the enum value is calculated as follows: {@code (int)(normalizedValue * (enumValues.length - 1) + 0.5f}.
+     * If the index is out of range, it will be clamped to the nearest valid index.
      * 
-     * @param normalizedValue The normalized float representing the enum position.
+     * @param normalizedValue The normalized value to set the enum value from.
      */
     public void setValue(float normalizedValue) {
         int index = (int)(normalizedValue * (enumValues.length - 1) + 0.5f);
@@ -78,11 +81,11 @@ public class EnumControl extends AudioControl {
     }
 
     /**
-     * Sets the enum value directly.
+     * Sets the enum value of this control to the given value.
      * 
-     * @param newValue The new enum value.
+     * @param newValue The new enum value to set.
      */
-    public void setEnumValue(Enum<?> newValue) {
+    public void setEnumValue(T newValue) {
         if (newValue != null && !newValue.equals(value)) {
             this.value = newValue;
             eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGED, new AudioControlEvent(this));
@@ -90,45 +93,40 @@ public class EnumControl extends AudioControl {
     }
 
     /**
-     * Gets the current enum value.
-     * 
-     * @return The current enum value.
+     * @return The current enum value of this control.
      */
-    public Enum<?> getEnumValue() {
+    public T getEnumValue() {
         return value;
     }
 
     /**
-     * Retrieves the index of the current enum value in the array of available enum constants.
-     * 
-     * @return The index of the current enum value.
+     * @return The index of the current enum value in the array of available enum constants.
      */
     public int getEnumIndex() {
-        return Arrays.asList(enumValues).indexOf(value);
+        return value.ordinal();
     }
 
     /**
-     * Gets the current value as normalized float [0.0 – 1.0].
+     * Retrieves the normalized value of this control within the range [0, 1],
+     * where 0 represents the first enum constant and 1 represents the last enum constant.
+     * <p>
+     * The normalized value is calculated as follows: {@code (float)(getEnumIndex()) / (enumValues.length - 1)}.
      * 
-     * @return Normalized float representing enum value.
+     * @return The normalized value of this control.
      */
     public float getNormalized() {
         return (float)(getEnumIndex()) / (enumValues.length - 1);
     }
 
     /**
-     * Gets the array of available enum constants.
-     * 
-     * @return Enum values available for this control.
+     * @return A copy of the array of available enum constants.
      */
-    public Enum<?>[] getEnumValues() {
+    public T[] getEnumValues() {
         return enumValues.clone();
     }
 
     /**
-     * Returns a string representation of this enum control.
-     * 
-     * @return A string describing the current state of the control.
+     * @return A string representation of this control, including its name, current value, and number of options.
      */
     @Override
     public String toString() {
