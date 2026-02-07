@@ -30,17 +30,23 @@ import org.theko.sound.properties.ThreadConfiguration;
  */
 public final class FormatUtilities {
 
-    public static final long KiB = 1024L;
-    public static final long MiB = 1_048_576L;
-    public static final long GiB = 1_073_741_824L;
-    public static final long TiB = 1_099_511_627_776L;
-    public static final long PiB = 1_125_899_906_842_624L;
+    public static final long KiBytes = 1024L;
+    public static final long MiByets = 1_048_576L;
+    public static final long GiByets = 1_073_741_824L;
+    public static final long TiByets = 1_099_511_627_776L;
+    public static final long PiByets = 1_125_899_906_842_624L;
 
-    public static final long KB = 1000L;
-    public static final long MB = 1_000_000L;
-    public static final long GB = 1_000_000_000L;
-    public static final long TB = 1_000_000_000_000L;
-    public static final long PB = 1_000_000_000_000_000L;
+    public static final long KByets = 1000L;
+    public static final long MByets = 1_000_000L;
+    public static final long GByets = 1_000_000_000L;
+    public static final long TByets = 1_000_000_000_000L;
+    public static final long PByets = 1_000_000_000_000_000L;
+
+    public static final long KBits = 1000L;
+    public static final long MBits = 1_000_000L;
+    public static final long GBits = 1_000_000_000L;
+    public static final long TBits = 1_000_000_000_000L;
+    public static final long PBits = 1_000_000_000_000_000L;
 
     public static final long MICROS_NS = 1000;
     public static final long MILLIS_NS = 1_000_000;
@@ -86,12 +92,12 @@ public final class FormatUtilities {
      * @return The formatted string.
      */
     public static String formatBytesBinary(long bytes, int precision) {
-        if (bytes < KiB) return bytes + " B";
-        else if (bytes < MiB) return formatAdaptive(bytes / (double) KiB, precision) + " KiB";
-        else if (bytes < GiB) return formatAdaptive(bytes / (double) MiB, precision) + " MiB";
-        else if (bytes < TiB) return formatAdaptive(bytes / (double) GiB, precision) + " GiB";
-        else if (bytes < PiB) return formatAdaptive(bytes / (double) TiB, precision) + " TiB";
-        else return formatAdaptive(bytes / (double) PiB, precision) + " PiB";
+        if (bytes < KiBytes) return bytes + " B";
+        else if (bytes < MiByets) return formatAdaptive(bytes / (double) KiBytes, precision) + " KiB";
+        else if (bytes < GiByets) return formatAdaptive(bytes / (double) MiByets, precision) + " MiB";
+        else if (bytes < TiByets) return formatAdaptive(bytes / (double) GiByets, precision) + " GiB";
+        else if (bytes < PiByets) return formatAdaptive(bytes / (double) TiByets, precision) + " TiB";
+        else return formatAdaptive(bytes / (double) PiByets, precision) + " PiB";
     }
 
     /**
@@ -102,12 +108,28 @@ public final class FormatUtilities {
      * @return The formatted string.
      */
     public static String formatBytesDecimal(long bytes, int precision) {
-        if (bytes < KB) return bytes + " B";
-        else if (bytes < MB) return formatAdaptive(bytes / (double) KB, precision) + " KB";
-        else if (bytes < GB) return formatAdaptive(bytes / (double) MB, precision) + " MB";
-        else if (bytes < TB) return formatAdaptive(bytes / (double) GB, precision) + " GB";
-        else if (bytes < PB) return formatAdaptive(bytes / (double) TB, precision) + " TB";
-        else return formatAdaptive(bytes / (double) PB, precision) + " PB";
+        if (bytes < KByets) return bytes + " B";
+        else if (bytes < MByets) return formatAdaptive(bytes / (double) KByets, precision) + " KB";
+        else if (bytes < GByets) return formatAdaptive(bytes / (double) MByets, precision) + " MB";
+        else if (bytes < TByets) return formatAdaptive(bytes / (double) GByets, precision) + " GB";
+        else if (bytes < PByets) return formatAdaptive(bytes / (double) TByets, precision) + " TB";
+        else return formatAdaptive(bytes / (double) PByets, precision) + " PB";
+    }
+
+    /**
+     * Formats bits in a human-readable way using decimal units.
+     * 
+     * @param bits The number of bits to format.
+     * @param precision The number of decimal places to use.
+     * @return The formatted string.
+     */
+    public static String formatBits(long bits, int precision) {
+        if (bits < KBits) return bits + " b";
+        else if (bits < MBits) return formatAdaptive(bits / (double) KBits, precision) + " Kb";
+        else if (bits < GBits) return formatAdaptive(bits / (double) MBits, precision) + " Mb";
+        else if (bits < TBits) return formatAdaptive(bits / (double) GBits, precision) + " Gb";
+        else if (bits < PBits) return formatAdaptive(bits / (double) TBits, precision) + " Tb";
+        else return formatAdaptive(bits / (double) PBits, precision) + " Pb";
     }
 
     /**
