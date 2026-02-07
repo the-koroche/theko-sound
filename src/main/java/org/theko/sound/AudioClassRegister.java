@@ -61,7 +61,7 @@ public final class AudioClassRegister {
     private static Set<Class<? extends AudioCodec>> registeredCodecs;
 
     /**
-     * Adds a new audio backend class to the scanned backends set.
+     * Adds a new audio backend class to the backends set.
      * If the class is already in the set, a warning message is logged.
      *
      * @param backend The class of the audio backend to add.
@@ -75,7 +75,7 @@ public final class AudioClassRegister {
     }
 
     /**
-     * Adds a new audio codec class to the scanned codecs set.
+     * Adds a new audio codec class to the codecs set.
      * If the class is already in the set, a warning message is logged.
      *
      * @param codec The class of the audio codec to add.
@@ -89,9 +89,8 @@ public final class AudioClassRegister {
     }
 
     /**
-     * Registers all available audio backends and codecs using reflection. It calls {@link AudioBackends#registerBackends()} and {@link AudioCodecs#registerCodecs()}.
-     * <p>
-     * If class scanning is enabled, it will include both predefined and scanned backends and codecs. Otherwise, it will return only the predefined backends and codecs.
+     * Registers all audio backend and codec classes.
+     * This method should be called during the initialization phase of the application.
      */
     public static void registerClasses() {
         AudioBackends.registerBackends();
@@ -100,8 +99,6 @@ public final class AudioClassRegister {
 
     /**
      * Returns a set of all audio backend classes available in the system.
-     * If class scanning is enabled, it will include both predefined and scanned backends.
-     * Otherwise, it will return only the predefined backends.
      *
      * @return A set of audio backend classes.
      */
@@ -111,8 +108,6 @@ public final class AudioClassRegister {
 
     /**
      * Returns a set of all audio codec classes available in the system.
-     * If class scanning is enabled, it will include both predefined and scanned codecs.
-     * Otherwise, it will return only the predefined codecs.
      *
      * @return A set of audio codec classes.
      */
