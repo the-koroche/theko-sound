@@ -40,100 +40,6 @@ import org.theko.sound.utility.PlatformUtilities.Platform;
  */
 public final class AudioSystemProperties {
 
-    /*
-    * --- STRUCTURES / CLASSES ---
-    * 
-    * === ThreadType ===
-    * Values: [virtual, platform]
-    * Aliases:
-    *   virtual  -> [v]
-    *   platform -> [p]
-    *
-    * === ThreadConfig ===
-    * Format: <type;optional>:<priority; optional>
-    *   type      - Thread type (ThreadType), optional if priority is specified
-    *   priority  - Thread priority (int, 0-10), optional if type is specified
-    * Examples:
-    *   -Dkey=platform:7   // Platform thread with priority 7
-    *   -Dkey=p:10         // Alias for 'platform' with priority 10
-    *   -Dkey=platform     // Platform thread with default priority
-    *   -Dkey=virtual      // Virtual thread with default priority
-    *   -Dkey=v            // Alias for 'virtual'
-    *   -Dkey=4            // Default thread type with priority 4
-    *
-    * === AudioMeasure.Unit ===
-    * Values: [frames, samples, bytes, seconds]
-    * Aliases:
-    *   frames  -> [f, frms, frame]
-    *   samples -> [smp, sample]
-    *   bytes   -> [b, byte]
-    *   seconds -> [s, sec, second]
-    *
-    * === AudioMeasure ===
-    * Format: <value><unit; optional>
-    *   value - Value (long or double)
-    *   unit  - Unit type (AudioMeasure.Unit), optional, default = frames
-    * Examples:
-    *   -Dkey=512frms      // 512 frames (default unit)
-    *   -Dkey=2048bytes    // 2048 bytes
-    *   -Dkey=0.52sec      // 0.52 seconds
-    *   -Dkey=1024smp      // 1024 samples (using alias)
-    *   -Dkey=4096         // 4096 frames (default unit)
-    *   -Dkey=2048b        // 2048 bytes (using alias)
-    *
-    * === AudioResamplerConfig ===
-    * Format: <method>:<quality; optional>
-    *   method  - Resample method (class)
-    *   quality - Quality (int > 0), optional
-    * Examples:
-    *   -Dkey=LinearResampleMethod          // Uses default quality
-    *   -Dkey=LanczosResampleMethod:3       // Quality explicitly specified
-    *   -Dkey=my.package.MyResampleMethod   // Full class name for non-default resampler
-    */
-
-    /*
-    * --- PROPERTIES ---
-    *
-    * === Audio Output Layer ===
-    * Property                                           | Type                   | Description / Default
-    * ---------------------------------------------------|------------------------|-------------------------------------------
-    * org.theko.sound.outputLayer.thread                 | ThreadConfig           | Playback thread configuration
-    * org.theko.sound.outputLayer.timeout                | int                    | Default timeout in milliseconds for stopping the playback thread and waiting for its termination.
-    * org.theko.sound.outputLayer.defaultBuffer          | AudioMeasure           | Default audio buffer size
-    * org.theko.sound.outputLayer.resampler              | AudioResamplerConfig   | Resampler method and quality
-    * org.theko.sound.outputLayer.maxLengthMismatches    | int (>= 0)             | Maximum number of render length mismatches to ignore
-    * org.theko.sound.outputLayer.resetLengthMismatches  | boolean                | Reset length mismatches counter after successful render
-    * org.theko.sound.outputLayer.maxWriteErrors         | int (>= 0)             | Maximum number of write errors to ignore
-    * org.theko.sound.outputLayer.resetWriteErrors       | boolean                | Reset write errors counter after successful write
-    * org.theko.sound.outputLayer.enableShutdownHook     | boolean                | Enables or disables shutdown hook on JVM exit
-    * 
-    * === Shared Resampler ===
-    * Property                                           | Type                   | Description / Default
-    * ---------------------------------------------------|------------------------|-------------------------------------------
-    * org.theko.sound.resampler.shared                   | AudioResamplerConfig   | Resampler method and quality
-    * 
-    * === Audio Mixer ===
-    * Property                                           | Type                   | Description / Default
-    * ---------------------------------------------------|------------------------|-------------------------------------------
-    * org.theko.sound.mixer.default.enableEffects        | boolean                | Enable or disable effects in every mixer by default
-    * org.theko.sound.mixer.default.swapChannels         | boolean                | Swap stereo channels in every mixer by default
-    * org.theko.sound.mixer.default.reversePolarity      | boolean                | Reverse polarity in every mixer by default
-    * 
-    * === Codecs ===
-    * Codec     | Property                                           | Type                   | Description / Default
-    * ----------|----------------------------------------------------|------------------------|-------------------------------------------
-    * WAVE      | org.theko.sound.waveCodec.cleanTagText             | boolean                | Cleans tag text obtained from 'LIST' chunk
-    *
-    * === Miscellaneous ===
-    * Property                                           | Type                       | Description / Default
-    * ---------------------------------------------------|----------------------------|-------------------------------------------
-    * org.theko.sound.automation.threads                 | int (>= 1 & < CPU_CORES*4) | Number of threads pool used for automation and LFO processing
-    * org.theko.sound.automation.updateTime              | int > 0                    | Update time in millis for automation and LFO process updates
-    * org.theko.sound.cleaner.thread                     | ThreadConfig               | Thread config for each Cleaner
-    * org.theko.sound.effects.resampler                  | AudioResamplerConfig       | Default ResamplerEffect resampler
-    * 
-    */
-
     private static final Logger logger = LoggerFactory.getLogger(AudioSystemProperties.class);
 
     /* Primitives parsing */
@@ -343,26 +249,22 @@ public final class AudioSystemProperties {
     public static final long MAX_MEMORY = Runtime.getRuntime().maxMemory();
 
     public static final ThreadConfiguration AOL_PLAYBACK_THREAD = getThreadConfig(
-        "org.theko.sound.outputLayer.processing.thread", new ThreadConfiguration(ThreadType.PLATFORM, 7));
+        "org.theko.sound.outputLayer.thread", new ThreadConfiguration(ThreadType.PLATFORM, 7));
 
     public static final int AOL_PLAYBACK_STOP_TIMEOUT = getIntInRange(
-        "org.theko.sound.outputLayer.processing.timeout", 10, 60000, true /* clamp */, 1000);
+        "org.theko.sound.outputLayer.stopTimeout", 10, 60000, true /* clamp */, 1000);
 
     public static final int AOL_MAX_LENGTH_MISMATCHES = getIntInRange(
-        "org.theko.sound.outputLayer.maxLengthMismatches", 1, Integer.MAX_VALUE, false /* use default */, 10
-    );
+        "org.theko.sound.outputLayer.maxLengthMismatches", 1, Integer.MAX_VALUE, false /* use default */, 10);
 
     public static final boolean AOL_RESET_LENGTH_MISMATCHES = getBoolean(
-        "org.theko.sound.outputLayer.resetLengthMismatches", true
-    );
+        "org.theko.sound.outputLayer.resetLengthMismatches", true);
 
     public static final int AOL_MAX_WRITE_ERRORS = getIntInRange(
-        "org.theko.sound.outputLayer.maxWriteErrors", 1, Integer.MAX_VALUE, false /* use default */, 10
-    );
+        "org.theko.sound.outputLayer.maxWriteErrors", 1, Integer.MAX_VALUE, false /* use default */, 10);
 
     public static final boolean AOL_RESET_WRITE_ERRORS = getBoolean(
-        "org.theko.sound.outputLayer.resetWriteErrors", true
-    );
+        "org.theko.sound.outputLayer.resetWriteErrors", true);
 
     public static final AudioMeasure AOL_DEFAULT_BUFFER = getAudioMeasure(
         "org.theko.sound.outputLayer.defaultBuffer", AudioMeasure.ofFrames(2048));
