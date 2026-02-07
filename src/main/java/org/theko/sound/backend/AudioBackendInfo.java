@@ -17,7 +17,7 @@
 package org.theko.sound.backend;
 
 /**
- * Represents information about an audio backend, including its name, version,
+ * Represents information about an audio backend, including its name, description, supported input/output capabilities,
  * and the class type of the audio backend. This class extracts metadata from 
  * the provided audio backend class, which must be annotated with {@link AudioBackendType}.
  * 
@@ -26,7 +26,8 @@ package org.theko.sound.backend;
  * {@code
  * AudioBackendInfo info = new AudioBackendInfo(MyAudioBackend.class);
  * System.out.println(info.getName());
- * System.out.println(info.getVersion());
+ * System.out.println(info.getDescription());
+ * System.out.println(info); // Prints: AudioBackendInfo{name, description, input/output capabilities}
  * }
  * </pre>
  * 
@@ -35,7 +36,8 @@ package org.theko.sound.backend;
  */
 public class AudioBackendInfo {
 
-    private final String name, version;
+    private final String name, description;
+    private final boolean input, output;
     private final Class<? extends AudioBackend> audioBackend;
 
     /**
@@ -51,7 +53,9 @@ public class AudioBackendInfo {
             // Retrieve the annotation to extract name and version
             AudioBackendType audioBackendType = audioBackend.getAnnotation(AudioBackendType.class);
             this.name = audioBackendType.name();
-            this.version = audioBackendType.version();
+            this.description = audioBackendType.description();
+            this.input = audioBackendType.input();
+            this.output = audioBackendType.output();
             this.audioBackend = audioBackend;
         } else {
             // Throw an exception if the annotation is not present
@@ -59,18 +63,36 @@ public class AudioBackendInfo {
         }
     }
 
+    /**
+     * @return the name of the audio backend, as specified in the {@link AudioBackendType} annotation.
+     */
     public String getName() {
         return name;
     }
 
-    public String getVersion() {
-        return version;
+    /**
+     * @return the description of the audio backend, as specified in the {@link AudioBackendType} annotation.
+     */
+    public String getDescription() {
+        return description;
     }
 
     /**
-     * Returns the class of the audio backend this info object represents.
-     *
-     * @return The class of the audio backend.
+     * @return true if the audio backend supports input, false otherwise.
+     */
+    public boolean supportsInput() {
+        return input;
+    }
+
+    /**
+     * @return true if the audio backend supports output, false otherwise.
+     */
+    public boolean supportsOutput() {
+        return output;
+    }
+
+    /**
+     * @return the class of the audio backend this info object represents.
      */
     public Class<? extends AudioBackend> getBackendClass() {
         return audioBackend;
@@ -78,6 +100,7 @@ public class AudioBackendInfo {
 
     @Override
     public String toString() {
-        return "AudioBackendInfo{Class: " + audioBackend.getSimpleName() + ", Name: " + name + ", Version: " + version + "}";
+        String io = (input && output) ? "Input/Output" : (input ? "Input" : (output ? "Output" : "None"));
+        return "AudioBackendInfo{%s, %s, %s}".formatted(name, description, io);
     }
 }

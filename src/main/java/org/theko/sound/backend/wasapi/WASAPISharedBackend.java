@@ -63,7 +63,9 @@ import org.theko.sound.utility.PlatformUtilities.Platform;
  * @see AudioFlow
  * @see AudioFormat
  */
-@AudioBackendType(name = "WASAPI", version = "1.0")
+@AudioBackendType(name = "WASAPIShared",
+                description = "WASAPI backend in shared mode for Windows",
+                input = false, output = true)
 public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISharedOutput, WASAPISharedInput {
 
     private static final Logger logger = LoggerFactory.getLogger(WASAPISharedBackend.class);

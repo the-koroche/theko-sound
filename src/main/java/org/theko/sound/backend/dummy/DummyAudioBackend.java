@@ -52,7 +52,9 @@ import org.theko.sound.backend.AudioOutputBackend;
  * @author Theko
  * @since 2.4.1
  */
-@AudioBackendType(name = "Dummy", version = "1.0")
+@AudioBackendType(name = "Dummy",
+                description = "A dummy audio backend that does not produce or capture real audio",
+                input = true, output = true)
 public class DummyAudioBackend implements AudioBackend {
 
     /**

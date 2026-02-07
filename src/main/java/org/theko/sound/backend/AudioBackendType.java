@@ -55,6 +55,23 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AudioBackendType {
 
+    /**
+     * Specifies the name of the audio backend type.
+     */
     String name();
-    String version() default "1.0";
+
+    /**
+     * Specifies the description of the audio backend type.
+     */
+    String description() default "";
+
+    /**
+     * Indicates whether the audio backend supports output functionality. Defaults to true.
+     */
+    boolean output() default true;
+
+    /**
+     * Indicates whether the audio backend supports input functionality. Defaults to true.
+     */
+    boolean input() default true;
 }

@@ -60,7 +60,9 @@ import org.theko.sound.backend.UnsupportedPortLinkException;
  * @since 1.0.0
  * @author Theko
  */
-@AudioBackendType (name = "JavaSound", version = "1.1")
+@AudioBackendType(name = "JavaSound",
+                description = "Audio backend using the Java Sound API. Default backend",
+                input = true, output = true)
 public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundInput, JavaSoundOutput {
 
     private static final Logger logger = LoggerFactory.getLogger(JavaSoundBackend.class);
