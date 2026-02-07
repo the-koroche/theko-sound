@@ -84,10 +84,13 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
      */
     protected class Render {
         private BufferedImage renderImage;
-        private volatile BufferedImage readyImage;
         private int imageType;
+        private volatile BufferedImage readyImage;
         private Graphics2D g, readyG;
+        private volatile long prevUpdateTime, lastUpdateTime;
+
         private int width, height;
+
         private final Object lock = new Object();
 
         /**
@@ -188,6 +191,41 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
          */
         protected int getHeight() {
             return height;
+        }
+
+        /**
+         * Returns the image type of the render area.
+         * 
+         * @return the image type
+         */
+        protected int getImageType() {
+            return imageType;
+        }
+
+        /**
+         * Updates the previous and last update times.
+         * 
+         * This method updates the previous and last update times with the current time.
+         * It is thread-safe and should be called before any rendering operations.
+         */
+        protected void updateTime() {
+            prevUpdateTime = lastUpdateTime;
+            lastUpdateTime = System.nanoTime();
+        }
+
+        /**
+         * @return the time difference between the last and previous update in nanoseconds.
+         */
+        protected long getTimeDelta() {
+            return lastUpdateTime - prevUpdateTime;
+        }
+
+        /**
+         * @return the time delta multiplier for frame-independent animations.
+         */
+        protected float getTimeDeltaMult() {
+            float deltaSec = getTimeDelta() / 1_000_000_000f;
+            return deltaSec * frameRate;
         }
 
         /**
@@ -318,6 +356,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
                 }
                 Graphics2D g2d = render.getGraphics();
                 if (g2d != null) {
+                    render.updateTime();
                     g2d.setBackground(panel.getBackground());
                     g2d.clearRect(0, 0, render.getWidth(), render.getHeight());
                     render.paint(g2d);
