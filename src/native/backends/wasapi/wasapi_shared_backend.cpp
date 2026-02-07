@@ -193,12 +193,12 @@ extern "C" {
         } else {
             return nullptr;
         }
-        logger->trace(env, "Flow: %d", flow == eRender ? "Render" : "Capture");
+        logger->trace(env, "Flow: %s", flow == eRender ? "Render" : "Capture");
 
         IMMDevice* pDevice = nullptr;
         HRESULT hr = deviceEnumerator->GetDefaultAudioEndpoint(flow, eConsole, &pDevice);
         if (FAILED(hr)) {
-            logger->warn(env, "Failed to get default audio endpoint for flow %d (%s).", flow == eRender ? "Render" : "Capture", fmtHR(hr));
+            logger->warn(env, "Failed to get default audio endpoint for flow %s (%s).", flow == eRender ? "Render" : "Capture", fmtHR(hr));
             return nullptr;
         }
 
@@ -212,7 +212,7 @@ extern "C" {
         wchar_t* idName = nullptr;
         hr = pDevice->GetId(&idName);
         if (FAILED(hr)) {
-            logger->debug(env, "Failed to get default audio endpoint ID for flow %d. %s", flow == eRender ? "Render" : "Capture", fmtHR(hr));
+            logger->debug(env, "Failed to get default audio endpoint ID for flow %s. %s", flow == eRender ? "Render" : "Capture", fmtHR(hr));
         } else {
             const char* utf8_idName = utf16_to_utf8(idName).c_str();
             logger->trace(env, "Default audio endpoint: %s. Flow: %s", utf8_idName, flow == eRender ? "Render" : "Capture");
