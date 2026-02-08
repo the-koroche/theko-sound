@@ -214,7 +214,7 @@ public class AudioOutputLayer implements AutoCloseable,
      */
     public void open(AudioPort port, AudioFormat audioFormat, AudioMeasure bufferSize, boolean reopen) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioPortsNotFoundException, AudioBackendException {
         if (isOpened && !reopen) {
-            logger.warn("Audio output layer is already open.");
+            logger.info("Audio output layer is already open.");
             return;
         }
 
@@ -511,7 +511,7 @@ public class AudioOutputLayer implements AutoCloseable,
                     logger.warn("Shutdown hook failed to remove (maybe already removed or never registered?).");
                 }
             } catch (IllegalStateException ex) {
-                logger.warn("Shutdown hook is running.", ex);
+                logger.warn("Shutdown hook is running.");
             } catch (SecurityException ex) {
                 logger.error("Cannot remove shutdown hook due to security restrictions.", ex);
             }
