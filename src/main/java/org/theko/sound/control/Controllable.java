@@ -101,7 +101,7 @@ public interface Controllable {
      */
     default AudioControl getControl(String name) {
         for (AudioControl control : getAllControls()) {
-            if (control.getName().equals(name)) {
+            if (control.matchesName(name)) {
                 return control;
             }
         }
@@ -123,7 +123,7 @@ public interface Controllable {
      */
     default FloatControl getFloatControl(String name) {
         for (AudioControl control : getAllControls()) {
-            if (control.getName().equals(name) && control instanceof FloatControl) {
+            if (control.matchesName(name) && control instanceof FloatControl) {
                 return (FloatControl) control;
             }
         }
@@ -145,7 +145,7 @@ public interface Controllable {
      */
     default BooleanControl getBooleanControl(String name) {
         for (AudioControl control : getAllControls()) {
-            if (control.getName().equals(name) && control instanceof BooleanControl) {
+            if (control.matchesName(name) && control instanceof BooleanControl) {
                 return (BooleanControl) control;
             }
         }
@@ -168,7 +168,7 @@ public interface Controllable {
     @SuppressWarnings("rawtypes")
     default EnumControl getEnumControl(String name) {
         for (AudioControl control : getAllControls()) {
-            if (control.getName().equals(name) && control instanceof EnumControl) {
+            if (control.matchesName(name) && control instanceof EnumControl) {
                 return (EnumControl) control;
             }
         }
@@ -190,7 +190,7 @@ public interface Controllable {
      */
     default Vector2Control getVector2Control(String name) {
         for (AudioControl control : getAllControls()) {
-            if (control.getName().equals(name) && control instanceof Vector2Control) {
+            if (control.matchesName(name) && control instanceof Vector2Control) {
                 return (Vector2Control) control;
             }
         }
@@ -212,7 +212,7 @@ public interface Controllable {
      */
     default Vector3Control getVector3Control(String name) {
         for (AudioControl control : getAllControls()) {
-            if (control.getName().equals(name) && control instanceof Vector3Control) {
+            if (control.matchesName(name) && control instanceof Vector3Control) {
                 return (Vector3Control) control;
             }
         }

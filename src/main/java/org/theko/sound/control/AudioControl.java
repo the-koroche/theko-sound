@@ -16,6 +16,8 @@
 
 package org.theko.sound.control;
 
+import java.text.Normalizer;
+
 import org.theko.events.EventDispatcher;
 import org.theko.events.ListenersManager;
 import org.theko.events.ListenersManagerProvider;
@@ -54,6 +56,37 @@ public abstract class AudioControl implements ListenersManagerProvider<AudioCont
         eventDispatcher.setEventMap(eventMap);
     }
 
+    private String normalizeName(String name) {
+        if (name == null) return "";
+        return Normalizer.normalize(name, Normalizer.Form.NFD)
+                        .replaceAll("\\p{M}", "")
+                        .toLowerCase()
+                        .trim()
+                        .replaceAll("\\s+", "");
+    }
+
+    /**
+     * Retrieves a normalized version of the control's name.
+     * This is useful for comparing names without worrying about whitespace, case, or diacritics.
+     * 
+     * <p>Normalization is performed using the {@link Normalizer} class with the NFD form.
+     * 
+     * @return The normalized name of the control.
+     */
+    public String getComparableName() {
+        return normalizeName(this.name);
+    }
+
+    /**
+     * Checks if the specified name matches the normalized name of the control.
+     * This is useful for comparing names without worrying about whitespace, case, or diacritics.
+     * 
+     * @param name The name to compare with the control's name.
+     * @return true if the names match, false otherwise.
+     */
+    public boolean matchesName(String name) {
+        return getComparableName().equals(normalizeName(name));
+    }
 
     @Override
     public ListenersManager<AudioControlEvent, AudioControlListener, AudioControlEventType> getListenersManager() {
