@@ -35,7 +35,6 @@ import org.theko.sound.effects.MultipleVaryingSizeEffectsException;
 import org.theko.sound.effects.VaryingSizeEffect;
 import org.theko.sound.samples.SamplesValidation;
 import org.theko.sound.utility.ArrayUtilities;
-import org.theko.sound.utility.MathUtilities;
 import org.theko.sound.utility.SamplesUtilities;
 
 
@@ -95,7 +94,6 @@ public class AudioMixer implements AudioNode {
     private boolean[] validInputs = null;
     
     private float[][] mixedBuffer = null;
-    private float[][] effectBuffer = null;
 
     /**
      * Adds an audio input to the mixer.
@@ -373,10 +371,7 @@ public class AudioMixer implements AudioNode {
                     if (inputLength < outputLength) {
                         mixed = ArrayUtilities.padArrayWithLast(mixed, channels, outputLength);
                     }
-                    effects.get(varyingSizeEffectIndex).render(mixed, sampleRate);
-                    if (inputLength > outputLength) {
-                        mixed = ArrayUtilities.cutArray(mixed, 0, channels, 0, outputLength);
-                    }
+                    processEffect(mixed, sampleRate, effects.get(varyingSizeEffectIndex));
                     processEffectChain(mixed, sampleRate, varyingSizeEffectIndex + 1, effects.size());
                 }
             }
@@ -419,7 +414,7 @@ public class AudioMixer implements AudioNode {
                 if (effect.getEnableControl().isDisabled() || effect.getMixLevelControl().getValue() <= 0.0f) {
                     return length;
                 }
-                int required = ((VaryingSizeEffect) effect).getTargetLength(length);
+                int required = ((VaryingSizeEffect) effect).getInputLength(length);
                 if (required < 0) {
                     throw new LengthMismatchException("Effect requested negative input length: " + required);
                 }
@@ -518,45 +513,17 @@ public class AudioMixer implements AudioNode {
     }
 
     private void processEffectChain(float[][] samples, int sampleRate, int start, int end) {
-        int numChannels = samples.length;
-        int numFrames = samples[0].length;
-
         for (int i = start; i < end; i++) {
-            AudioEffect effect = effects.get(i);
-
-            if (effect == null) {
-                logger.warn("Effect at index {} is null.", i);
-                continue;
-            }
-
-            float mixLevel = effect.getMixLevelControl().getValue();
-            if (mixLevel <= 0.0f || !effect.getEnableControl().isEnabled()) {
-                continue;
-            }
-
-            if (mixLevel >= 1.0f) {
-                effect.render(samples, sampleRate);
-                continue;
-            }
-
-            // Clone the input buffer
-            if (effectBuffer == null || effectBuffer.length != numChannels || effectBuffer[0].length != numFrames) {
-                effectBuffer = new float[numChannels][numFrames];
-            }
-            for (int ch = 0; ch < numChannels; ch++) {
-                System.arraycopy(samples[ch], 0, effectBuffer[ch], 0, numFrames);
-            }
-
-            effect.render(effectBuffer, sampleRate);
-
-            // Mix
-            for (int ch = 0; ch < numChannels; ch++) {
-                float[] out = samples[ch];
-                float[] fx = effectBuffer[ch];
-                for (int f = 0; f < numFrames; f++) {
-                    out[f] = MathUtilities.lerp(out[f], fx[f], mixLevel);
-                }
-            }
+            processEffect(samples, sampleRate, effects.get(i));
         }
+    }
+
+    private void processEffect(float[][] samples, int sampleRate, AudioEffect effect) {
+        if (effect == null) {
+            logger.info("Effect is null.");
+            return;
+        }
+
+        effect.renderWithMixing(samples, sampleRate);
     }
 }

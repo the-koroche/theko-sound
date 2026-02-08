@@ -44,8 +44,7 @@ public class AudioPositioningEffect extends AudioEffect {
 
     public AudioPositioningEffect() {
         super(Type.REALTIME);
-
-        addControls(positioningControls);
+        addEffectControls(positioningControls);
     }
 
     public FloatControl getGain() {

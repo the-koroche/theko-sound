@@ -16,11 +16,8 @@
 
 package org.theko.sound.effects;
 
-import java.util.List;
-
 import org.theko.sound.ChannelsCountMismatchException;
 import org.theko.sound.LengthMismatchException;
-import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.FloatControl;
 import org.theko.sound.utility.ArrayUtilities;
 import org.theko.sound.utility.SamplesUtilities;
@@ -39,14 +36,9 @@ import org.theko.sound.utility.SamplesUtilities;
 public class StereoWidthEffect extends AudioEffect {
     protected final FloatControl stereoWidth = new FloatControl("Stereo Width", -1.0f, 1.0f, 0.0f);
 
-    protected final List<AudioControl> stereoWidthControls = List.of(
-        stereoWidth
-    );
-
     public StereoWidthEffect() {
         super(Type.REALTIME);
-
-        addControls(stereoWidthControls);
+        addEffectControl(stereoWidth);
     }
 
     public FloatControl getStereoWidthControl() {

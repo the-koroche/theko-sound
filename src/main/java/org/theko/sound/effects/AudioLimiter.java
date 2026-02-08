@@ -70,8 +70,7 @@ public class AudioLimiter extends AudioEffect {
 
     public AudioLimiter() {
         super(Type.REALTIME);
-
-        addControls(limiterControls);
+        addEffectControls(limiterControls);
     }
 
     public FloatControl getGain() {

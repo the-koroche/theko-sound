@@ -74,7 +74,7 @@ public class AudioFilterEffect extends AudioEffect {
     
     public AudioFilterEffect() {
         super(Type.REALTIME);
-        addControls(filterControls);
+        addEffectControls(filterControls);
         
         createNewFilters(2 /* channels */);
     }    

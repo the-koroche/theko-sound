@@ -18,9 +18,6 @@ package org.theko.sound.effects;
 
 import static org.theko.sound.properties.AudioSystemProperties.RESAMPLER_EFFECT;
 
-import java.util.List;
-
-import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.FloatControl;
 import org.theko.sound.resampling.AudioResampler;
 import org.theko.sound.resampling.ResampleMethod;
@@ -41,13 +38,10 @@ public class ResamplerEffect extends AudioEffect implements VaryingSizeEffect{
     protected final FloatControl speedControl = new FloatControl("Speed", 0.0f, 50.0f, 1.0f);
     protected AudioResampler resampler;
 
-    protected final List<AudioControl> resamplerControls = List.of(speedControl);
-
     public ResamplerEffect(ResampleMethod method, int quality) {
         super(Type.REALTIME);
         resampler = new AudioResampler(method, quality);
-
-        addControls(resamplerControls);
+        addEffectControl(speedControl);
     }
 
     public ResamplerEffect() {
@@ -80,11 +74,11 @@ public class ResamplerEffect extends AudioEffect implements VaryingSizeEffect{
 
     @Override
     public int getInputLength(int outputLength) {
-        return (int) Math.ceil(outputLength / speedControl.getValue());
+        return (int) Math.ceil(outputLength * speedControl.getValue());
     }
 
     @Override
     public int getTargetLength(int inputLength) {
-        return (int) Math.ceil(inputLength * speedControl.getValue());
+        return (int) Math.ceil(inputLength / speedControl.getValue());
     }
 }

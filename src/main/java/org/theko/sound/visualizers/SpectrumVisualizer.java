@@ -332,7 +332,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
      */
     public SpectrumVisualizer(float frameRate, int resizeDelay) {
         super(Type.REALTIME, frameRate, resizeDelay);
-        addControls(visualizerControls);
+        addEffectControls(visualizerControls);
     }
 
     /**
@@ -341,7 +341,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
      */
     public SpectrumVisualizer(float frameRate) {
         super(Type.REALTIME, frameRate);
-        addControls(visualizerControls);
+        addEffectControls(visualizerControls);
     }
 
     /**
@@ -349,7 +349,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
      */
     public SpectrumVisualizer() {
         super(Type.REALTIME);
-        addControls(visualizerControls);
+        addEffectControls(visualizerControls);
     }
 
     /**

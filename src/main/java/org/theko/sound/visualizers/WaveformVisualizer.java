@@ -263,7 +263,7 @@ public class WaveformVisualizer extends AudioVisualizer {
      */
     public WaveformVisualizer(float frameRate, int resizeDelay) {
         super(Type.REALTIME, frameRate, resizeDelay);
-        addControls(visualizerControls);
+        addEffectControls(visualizerControls);
     }
 
     /**
@@ -272,7 +272,7 @@ public class WaveformVisualizer extends AudioVisualizer {
      */
     public WaveformVisualizer(float frameRate) {
         super(Type.REALTIME, frameRate);
-        addControls(visualizerControls);
+        addEffectControls(visualizerControls);
     }
 
     /**
@@ -280,7 +280,7 @@ public class WaveformVisualizer extends AudioVisualizer {
      */
     public WaveformVisualizer() {
         super(Type.REALTIME);
-        addControls(visualizerControls);
+        addEffectControls(visualizerControls);
     }
 
     @Override

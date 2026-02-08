@@ -280,7 +280,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
      */
     public SpectrogramVisualizer(float frameRate, int resizeDelay) {
         super(Type.REALTIME, frameRate, resizeDelay);
-        addControls(visualizerControls);
+        addEffectControls(visualizerControls);
     }
 
     /**
@@ -289,7 +289,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
      */
     public SpectrogramVisualizer(float frameRate) {
         super(Type.REALTIME, frameRate);
-        addControls(visualizerControls);
+        addEffectControls(visualizerControls);
     }
 
     /**
@@ -297,7 +297,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
      */
     public SpectrogramVisualizer() {
         super(Type.REALTIME);
-        addControls(visualizerControls);
+        addEffectControls(visualizerControls);
     }
 
     /**

@@ -84,7 +84,7 @@ public class MixerSender extends AudioEffect {
      */
     public MixerSender(AudioMixer mixer) {
         super(Type.REALTIME);
-        addControls(mixerControls);
+        addEffectControls(mixerControls);
 
         setTargetMixer(mixer);
     }

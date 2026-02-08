@@ -37,8 +37,7 @@ public class SimpleSaturatorEffect extends AudioEffect {
 
     public SimpleSaturatorEffect() {
         super(Type.REALTIME);
-
-        addControls(saturatorControls);
+        addEffectControls(saturatorControls);
     }
 
     public FloatControl getSaturation() {

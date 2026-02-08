@@ -42,7 +42,7 @@ public class ChannelDelayEffect extends AudioEffect {
 
     public ChannelDelayEffect() {
         super(Type.REALTIME);
-        addControls(delayControls);
+        addEffectControls(delayControls);
     }
 
     public FloatControl getDelayLeft() {

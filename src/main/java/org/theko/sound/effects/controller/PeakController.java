@@ -43,7 +43,7 @@ public class PeakController extends EffectController {
 
     public PeakController() {
         super(Type.REALTIME);
-        addControls(peakControls);
+        addEffectControls(peakControls);
     }
 
     @Override

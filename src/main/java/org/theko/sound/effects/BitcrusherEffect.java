@@ -45,8 +45,7 @@ public class BitcrusherEffect extends AudioEffect {
 
     public BitcrusherEffect() {
         super(Type.REALTIME);
-
-        addControls(bitcrusherControls);
+        addEffectControls(bitcrusherControls);
     }
 
     public FloatControl getBitdepth() {
