@@ -479,23 +479,49 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
         if (effect == null) {
             throw new IllegalArgumentException("Effect cannot be null.");
         }
-        boolean varyingSizeEffect = effect instanceof VaryingSizeEffect;
-        int targetLength = samplesData[0].length;
-        if (varyingSizeEffect) {
-            targetLength = ((VaryingSizeEffect) effect).getInputLength(samplesData[0].length);
+
+        float mix = effect.getMixLevelControl().getValue();
+        if (effect.getEnableControl().isDisabled() || mix <= 0.0f) {
+            return; // Effect disabled or zero mix, nothing to do
         }
-        if (targetLength != samplesData[0].length) {
-            if (targetLength > samplesData[0].length) {
-                logger.debug("Resizing samples data from {} to {}.", samplesData[0].length, targetLength);
-                samplesData = ArrayUtilities.padArray(samplesData, samplesData.length, targetLength);
+
+        boolean varyingSize = effect instanceof VaryingSizeEffect;
+        int targetLength = varyingSize
+                ? ((VaryingSizeEffect) effect).getTargetLength(samplesData[0].length)
+                : samplesData[0].length;
+
+        int effectInputLength = Math.max(targetLength, samplesData[0].length);
+
+        // Prepare input array for effect
+        float[][] effectInput = new float[samplesData.length][effectInputLength];
+        for (int ch = 0; ch < samplesData.length; ch++) {
+            System.arraycopy(samplesData[ch], 0, effectInput[ch], 0, samplesData[ch].length);
+        }
+
+        // Apply the effect
+        effect.render(effectInput, audioFormat.getSampleRate());
+
+        // Mix effect output back into samplesData
+        for (int ch = 0; ch < samplesData.length; ch++) {
+            int len = Math.min(samplesData[ch].length, effectInput[ch].length);
+            for (int i = 0; i < len; i++) {
+                samplesData[ch][i] = samplesData[ch][i] * (1.0f - mix) + effectInput[ch][i] * mix;
             }
         }
-        effect.render(samplesData, audioFormat.getSampleRate());
-        if (targetLength != samplesData[0].length) {
-            if (targetLength < samplesData[0].length) {
-                logger.debug("Resizing samples data from {} to {}.", samplesData[0].length, targetLength);
-                samplesData = ArrayUtilities.cutArray(samplesData, 0, samplesData.length, 0, targetLength);
+
+        // If VaryingSizeEffect increased array length, resize samplesData
+        if (varyingSize && targetLength != samplesData[0].length) {
+            float[][] newSamples = new float[samplesData.length][targetLength];
+            for (int ch = 0; ch < samplesData.length; ch++) {
+                int copyLen = Math.min(samplesData[ch].length, targetLength);
+                System.arraycopy(samplesData[ch], 0, newSamples[ch], 0, copyLen);
+                if (targetLength > samplesData[ch].length) {
+                    System.arraycopy(effectInput[ch], samplesData[ch].length,
+                                    newSamples[ch], samplesData[ch].length,
+                                    targetLength - samplesData[ch].length);
+                }
             }
+            samplesData = newSamples;
         }
     }
 
