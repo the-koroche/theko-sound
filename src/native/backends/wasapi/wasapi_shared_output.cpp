@@ -215,7 +215,7 @@ public:
 };
 
 extern "C" {
-    void cleanupContext(JNIEnv* env, Logger* logger, OutputContext* ctx) {
+    static inline void cleanupContext(JNIEnv* env, Logger* logger, OutputContext* ctx) {
         if(ctx) {
             delete ctx;
         }
@@ -497,6 +497,31 @@ extern "C" {
         }
     }
 
+    void flushBuffer(JNIEnv* env, OutputContext* context, Logger* logger) {
+        if (!context) return;
+
+        UINT32 paddingFrames = 0;
+        HRESULT hrPadding = context->audioClient->GetCurrentPadding(&paddingFrames);
+        if (FAILED(hrPadding)) {
+            logger->debug(env, "GetCurrentPadding failed (%s).", fmtHR(hrPadding));
+            return;
+        }
+
+        UINT32 framesAvailable = context->bufferFrameCount - paddingFrames;
+        if (framesAvailable == 0) return;
+
+        BYTE* pBuffer = nullptr;
+        HRESULT hr = context->renderClient->GetBuffer(framesAvailable, &pBuffer);
+        if (SUCCEEDED(hr)) {
+            context->renderClient->ReleaseBuffer(framesAvailable, AUDCLNT_BUFFERFLAGS_SILENT);
+            logger->trace(env, "Flushed WASAPI buffer with %u frames.", framesAvailable);
+        } else {
+            logger->trace(env, "Flush failed and was skipped (%s).", fmtHR(hr));
+        }
+
+        context->pendingFrames = 0;
+    }
+
     JNIEXPORT void JNICALL
     Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nStop
     (JNIEnv* env, jobject obj, jlong ptr) {
@@ -506,27 +531,18 @@ extern "C" {
             logger->info(env, "WASAPI output not opened.");
             return;
         }
-        
+
         logNotifierMessages(env, logger, context);
         SetEvent(context->events[EVENT_STOP_REQUEST]);
+
         HRESULT hr = context->audioClient->Stop();
         if (FAILED(hr)) {
             logger->warn(env, "Failed to stop WASAPI output.");
         } else {
             logger->trace(env, "Stopped WASAPI render client.");
         }
-        BYTE* pBuffer;
-        hr = context->renderClient->GetBuffer(context->bufferFrameCount, &pBuffer);
-        if (SUCCEEDED(hr)) {
-            context->renderClient->ReleaseBuffer(
-                context->bufferFrameCount, 
-                AUDCLNT_BUFFERFLAGS_SILENT
-            );
-        } else {
-            logger->debug(env, "Failed to get WASAPI buffer for flushing (%s).", fmtHR(hr));
-        }
-        context->pendingFrames = 0;
-        logger->trace(env, "Flushed WASAPI buffer.");
+
+        flushBuffer(env, context, logger);
     }
 
     JNIEXPORT void JNICALL
@@ -539,16 +555,7 @@ extern "C" {
             return;
         }
 
-        BYTE* pBuffer;
-        HRESULT hr = context->renderClient->GetBuffer(context->bufferFrameCount, &pBuffer);
-        if (SUCCEEDED(hr)) {
-            context->renderClient->ReleaseBuffer(context->bufferFrameCount, AUDCLNT_BUFFERFLAGS_SILENT);
-            logger->trace(env, "Flushed WASAPI buffer.");
-        } else {
-            logger->debug(env, "Flush buffer failed (%s).", fmtHR(hr));
-        }
-
-        context->pendingFrames = 0;
+        flushBuffer(env, context, logger);
     }
 
     JNIEXPORT void JNICALL
