@@ -21,14 +21,14 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.theko.sound.backend.AudioBackend;
-import org.theko.sound.backend.AudioBackends;
-import org.theko.sound.backend.dummy.DummyAudioBackend;
-import org.theko.sound.backend.javasound.JavaSoundBackend;
-import org.theko.sound.backend.wasapi.WASAPISharedBackend;
-import org.theko.sound.codec.AudioCodec;
-import org.theko.sound.codec.AudioCodecs;
-import org.theko.sound.codec.formats.WAVECodec;
+import org.theko.sound.backends.AudioBackend;
+import org.theko.sound.backends.AudioBackends;
+import org.theko.sound.backends.dummy.DummyAudioBackend;
+import org.theko.sound.backends.javasound.JavaSoundBackend;
+import org.theko.sound.backends.wasapi.WASAPISharedBackend;
+import org.theko.sound.codecs.AudioCodec;
+import org.theko.sound.codecs.AudioCodecs;
+import org.theko.sound.codecs.formats.WAVECodec;
 
 /**
  * The AudioClassRegister class is responsible for registering audio backend and codec classes.

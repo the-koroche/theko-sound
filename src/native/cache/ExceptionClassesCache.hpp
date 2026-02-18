@@ -39,10 +39,10 @@ public:
         illegalArgumentException = JNI_TRY_RETURN(env, env->FindClass("java/lang/IllegalArgumentException"));
         unsupportedOperationException = JNI_TRY_RETURN(env, env->FindClass("java/lang/UnsupportedOperationException"));
 
-        audioBackendException = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backend/AudioBackendException"));
-        deviceException = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backend/DeviceException"));
-        deviceInvalidatedException = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backend/DeviceInvalidatedException"));
-        deviceInactiveException = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backend/DeviceInactiveException"));
+        audioBackendException = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backends/AudioBackendException"));
+        deviceException = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backends/DeviceException"));
+        deviceInvalidatedException = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backends/DeviceInvalidatedException"));
+        deviceInactiveException = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backends/DeviceInactiveException"));
         unsupportedAudioFormatException = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/UnsupportedAudioFormatException"));
         unsupportedAudioEncodingException = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/UnsupportedAudioEncodingException"));
 

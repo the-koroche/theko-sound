@@ -20,7 +20,7 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.theko.sound.utility.FormatUtilities;
+import org.theko.sound.util.FormatUtilities;
 
 /**
  * Represents a measure of audio data, such as a number of frames, samples, bytes, or seconds.

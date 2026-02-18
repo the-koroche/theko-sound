@@ -22,13 +22,13 @@ import java.io.FileNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.events.ListenersManager;
-import org.theko.sound.backend.AudioBackendCreationException;
-import org.theko.sound.backend.AudioBackendException;
-import org.theko.sound.backend.AudioBackendNotFoundException;
-import org.theko.sound.codec.AudioCodecNotFoundException;
-import org.theko.sound.event.OutputLayerEvent;
-import org.theko.sound.event.OutputLayerEventType;
-import org.theko.sound.event.OutputLayerListener;
+import org.theko.sound.backends.AudioBackendCreationException;
+import org.theko.sound.backends.AudioBackendException;
+import org.theko.sound.backends.AudioBackendNotFoundException;
+import org.theko.sound.codecs.AudioCodecNotFoundException;
+import org.theko.sound.events.OutputLayerEvent;
+import org.theko.sound.events.OutputLayerEventType;
+import org.theko.sound.events.OutputLayerListener;
 
 public class SoundPlayer extends SoundSource {
 

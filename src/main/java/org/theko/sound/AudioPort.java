@@ -16,7 +16,7 @@
 
 package org.theko.sound;
 
-import org.theko.sound.backend.AudioPortLink;
+import org.theko.sound.backends.AudioPortLink;
 
 /**
  * The {@code AudioPort} class represents an audio port with specific attributes

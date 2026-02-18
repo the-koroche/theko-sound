@@ -20,10 +20,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.theko.sound.control.AudioControl;
-import org.theko.sound.control.AudioControlGroup;
 import static org.theko.sound.properties.AudioSystemProperties.AUTOMATIONS_UPDATE_TIME;
-import org.theko.sound.utility.MathUtilities;
+
+import org.theko.sound.controls.AudioControl;
+import org.theko.sound.controls.AudioControlGroup;
+import org.theko.sound.util.MathUtilities;
 
 /**
  * Represents an automation of audio controls over time.

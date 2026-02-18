@@ -16,7 +16,7 @@
 
 package org.theko.sound.properties;
 
-import org.theko.sound.resampling.ResampleMethod;
+import org.theko.sound.resamplers.ResampleMethod;
 
 /**
  * Configuration for the audio resampler.

@@ -27,17 +27,17 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.theko.sound.control.AudioControl;
-import org.theko.sound.control.BooleanControl;
-import org.theko.sound.control.Controllable;
-import org.theko.sound.control.FloatControl;
+import org.theko.sound.controls.AudioControl;
+import org.theko.sound.controls.BooleanControl;
+import org.theko.sound.controls.Controllable;
+import org.theko.sound.controls.FloatControl;
 import org.theko.sound.effects.AudioEffect;
 import org.theko.sound.effects.IncompatibleEffectTypeException;
 import org.theko.sound.effects.MultipleVaryingSizeEffectsException;
 import org.theko.sound.effects.VaryingSizeEffect;
 import org.theko.sound.samples.SamplesValidation;
-import org.theko.sound.utility.ArrayUtilities;
-import org.theko.sound.utility.SamplesUtilities;
+import org.theko.sound.util.ArrayUtilities;
+import org.theko.sound.util.SamplesUtilities;
 
 
 /**

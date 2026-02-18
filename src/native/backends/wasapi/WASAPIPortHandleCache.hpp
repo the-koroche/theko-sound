@@ -26,7 +26,7 @@ public:
     jmethodID getHandle;
 
     WASAPIPortHandleCache(JNIEnv* env) : IJavaClassCache(env) {
-        clazz = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backend/wasapi/WASAPIPortHandle"));
+        clazz = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backends/wasapi/WASAPIPortHandle"));
         ctor = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "<init>", "(Ljava/lang/String;)V"));
         getHandle = JNI_TRY_RETURN(env, env->GetMethodID(clazz, "getHandle", "()Ljava/lang/String;"));
 

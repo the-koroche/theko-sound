@@ -23,10 +23,10 @@ import java.util.Objects;
 
 import org.theko.sound.AudioNode;
 import org.theko.sound.LengthMismatchException;
-import org.theko.sound.control.AudioControl;
-import org.theko.sound.control.BooleanControl;
-import org.theko.sound.control.Controllable;
-import org.theko.sound.control.FloatControl;
+import org.theko.sound.controls.AudioControl;
+import org.theko.sound.controls.BooleanControl;
+import org.theko.sound.controls.Controllable;
+import org.theko.sound.controls.FloatControl;
 import org.theko.sound.samples.SamplesValidation;
 
 /**

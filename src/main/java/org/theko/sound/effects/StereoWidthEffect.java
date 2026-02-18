@@ -18,9 +18,9 @@ package org.theko.sound.effects;
 
 import org.theko.sound.ChannelsCountMismatchException;
 import org.theko.sound.LengthMismatchException;
-import org.theko.sound.control.FloatControl;
-import org.theko.sound.utility.ArrayUtilities;
-import org.theko.sound.utility.SamplesUtilities;
+import org.theko.sound.controls.FloatControl;
+import org.theko.sound.util.ArrayUtilities;
+import org.theko.sound.util.SamplesUtilities;
 
 /**
  * StereoWidthEffect is an audio effect that adjusts the stereo width of audio samples.

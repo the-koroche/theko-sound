@@ -25,7 +25,7 @@ public:
     jfieldID inputContextPtr;
 
     WASAPIInputCache(JNIEnv* env) : IJavaClassCache(env) {
-        clazz = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backend/wasapi/WASAPISharedInput"));
+        clazz = JNI_TRY_RETURN(env, env->FindClass("org/theko/sound/backends/wasapi/WASAPISharedInput"));
         inputContextPtr = JNI_TRY_RETURN(env, env->GetFieldID(clazz, "inputContextPtr", "J"));
 
         if (!isValid()) {

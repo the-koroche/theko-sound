@@ -18,10 +18,10 @@ package org.theko.sound.effects;
 
 import static org.theko.sound.properties.AudioSystemProperties.RESAMPLER_EFFECT;
 
-import org.theko.sound.control.FloatControl;
-import org.theko.sound.resampling.AudioResampler;
-import org.theko.sound.resampling.ResampleMethod;
-import org.theko.sound.utility.ArrayUtilities;
+import org.theko.sound.controls.FloatControl;
+import org.theko.sound.resamplers.AudioResampler;
+import org.theko.sound.resamplers.ResampleMethod;
+import org.theko.sound.util.ArrayUtilities;
 
 /**
  * ResamplerEffect is an audio effect that allows for real-time resampling of audio samples.

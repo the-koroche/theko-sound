@@ -18,9 +18,9 @@ package org.theko.sound.dsp;
 
 import java.util.List;
 
-import org.theko.sound.control.AudioControl;
-import org.theko.sound.control.Controllable;
-import org.theko.sound.control.FloatControl;
+import org.theko.sound.controls.AudioControl;
+import org.theko.sound.controls.Controllable;
+import org.theko.sound.controls.FloatControl;
 
 /**
  * Cascade is a digital audio filter that processes mono channel audio samples using a configurable

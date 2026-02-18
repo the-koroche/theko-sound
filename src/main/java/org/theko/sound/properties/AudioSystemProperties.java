@@ -23,12 +23,12 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.AudioMeasure;
-import org.theko.sound.resampling.*;
-import org.theko.sound.utility.FormatUtilities;
-import org.theko.sound.utility.MathUtilities;
-import org.theko.sound.utility.PlatformUtilities;
-import org.theko.sound.utility.PlatformUtilities.Architecture;
-import org.theko.sound.utility.PlatformUtilities.Platform;
+import org.theko.sound.resamplers.*;
+import org.theko.sound.util.FormatUtilities;
+import org.theko.sound.util.MathUtilities;
+import org.theko.sound.util.PlatformUtilities;
+import org.theko.sound.util.PlatformUtilities.Architecture;
+import org.theko.sound.util.PlatformUtilities.Platform;
 
 /**
  * AudioSystemProperties holds the configuration properties for the audio system.

@@ -19,7 +19,7 @@ package org.theko.sound;
 import java.io.Serializable;
 import java.util.Objects;
 
-import org.theko.sound.utility.FormatUtilities;
+import org.theko.sound.util.FormatUtilities;
 
 /**
  * Represents an audio format with various properties such as sample rate, bit depth,

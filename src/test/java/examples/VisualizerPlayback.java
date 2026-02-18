@@ -20,12 +20,12 @@ import javax.swing.SwingUtilities;
 
 import org.theko.sound.AudioMixer;
 import org.theko.sound.SoundPlayer;
-import org.theko.sound.codec.AudioCodecNotFoundException;
-import org.theko.sound.codec.AudioTag;
+import org.theko.sound.codecs.AudioCodecNotFoundException;
+import org.theko.sound.codecs.AudioTag;
 import org.theko.sound.effects.BitcrusherEffect;
 import org.theko.sound.effects.ResamplerEffect;
-import org.theko.sound.event.OutputLayerEventType;
-import org.theko.sound.resampling.LanczosResampleMethod;
+import org.theko.sound.events.OutputLayerEventType;
+import org.theko.sound.resamplers.LanczosResampleMethod;
 import org.theko.sound.visualizers.ColorGradient;
 import org.theko.sound.visualizers.SpectrumVisualizer;
 

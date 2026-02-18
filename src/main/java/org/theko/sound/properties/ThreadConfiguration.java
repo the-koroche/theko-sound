@@ -16,7 +16,7 @@
 
 package org.theko.sound.properties;
 
-import org.theko.sound.utility.ThreadUtilities;
+import org.theko.sound.util.ThreadUtilities;
 
 /**
  * Configuration for a thread.

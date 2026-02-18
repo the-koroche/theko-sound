@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import org.theko.sound.SoundPlayer;
-import org.theko.sound.codec.AudioCodecNotFoundException;
-import org.theko.sound.codec.AudioTag;
+import org.theko.sound.codecs.AudioCodecNotFoundException;
+import org.theko.sound.codecs.AudioTag;
 
 import helpers.FileChooserHelper;
 

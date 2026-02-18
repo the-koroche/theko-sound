@@ -338,7 +338,7 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
         } else if (flow == eCapture) {
             jFlowObj = flowCache->inObj;
         }
-        logger->trace(env, "Obtained audio flow. Flow: %s, Pointer: %s", flow == eRender ? "Render" : "Capture", FORMAT_PTR(jFlowObj));
+        logger->trace(env, "Obtained audio flow: %s", flow == eRender ? "Render" : "Capture");
     } else {
         logger->error(env, "Failed to get flow (%s).", fmtHR(hr));
         env->ThrowNew(exceptionsCache->audioBackendException, "Failed to get flow.");

@@ -24,7 +24,7 @@
 #include "logger.hpp"
 #include "logger_manager.hpp"
 
-#include "org_theko_sound_backend_wasapi_WASAPISharedBackend.h"
+#include "org_theko_sound_backends_wasapi_WASAPISharedBackend.h"
 
 #include <windows.h>
 #include <initguid.h>
@@ -46,7 +46,7 @@ typedef struct {
 
 extern "C" {
     JNIEXPORT jlong JNICALL 
-    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nInit
+    Java_org_theko_sound_backends_wasapi_WASAPISharedBackend_nInit
     (JNIEnv* env, jobject obj) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedBackend.nInit");
 
@@ -80,7 +80,7 @@ extern "C" {
     }
 
     JNIEXPORT void JNICALL 
-    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nShutdown
+    Java_org_theko_sound_backends_wasapi_WASAPISharedBackend_nShutdown
     (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedBackend.nShutdown");
 
@@ -103,7 +103,7 @@ extern "C" {
     }
 
     JNIEXPORT jobjectArray JNICALL 
-    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nGetAllPorts
+    Java_org_theko_sound_backends_wasapi_WASAPISharedBackend_nGetAllPorts
     (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedBackend.nGetAllPorts");
 
@@ -164,7 +164,7 @@ extern "C" {
     }
 
     JNIEXPORT jobject JNICALL 
-    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nGetDefaultPort
+    Java_org_theko_sound_backends_wasapi_WASAPISharedBackend_nGetDefaultPort
     (JNIEnv* env, jobject obj, jlong ptr, jobject flowObj) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedBackend.nGetDefaultPort");
         
@@ -229,7 +229,7 @@ extern "C" {
     }
 
     JNIEXPORT jboolean JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedBackend_nIsFormatSupported
+    Java_org_theko_sound_backends_wasapi_WASAPISharedBackend_nIsFormatSupported
     (JNIEnv* env, jobject obj, jobject jport, jobject jformat, jobject atomicClosestFormat) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedBackend.nIsFormatSupported");
 

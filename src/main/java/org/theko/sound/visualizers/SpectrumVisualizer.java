@@ -33,12 +33,12 @@ import java.util.Objects;
 
 import javax.swing.JPanel;
 
-import org.theko.sound.control.AudioControl;
-import org.theko.sound.control.FloatControl;
+import org.theko.sound.controls.AudioControl;
+import org.theko.sound.controls.FloatControl;
 import org.theko.sound.dsp.FFT;
 import org.theko.sound.dsp.WindowFunction;
 import org.theko.sound.dsp.WindowType;
-import org.theko.sound.utility.MathUtilities;
+import org.theko.sound.util.MathUtilities;
 
 /**
  * Real-time audio spectrum visualizer that displays frequency content using FFT analysis.

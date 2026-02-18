@@ -23,7 +23,7 @@
 #include "logger.hpp"
 #include "logger_manager.hpp"
 
-#include "org_theko_sound_backend_wasapi_WASAPISharedOutput.h"
+#include "org_theko_sound_backends_wasapi_WASAPISharedOutput.h"
 
 #include <windows.h>
 #include <initguid.h>
@@ -248,7 +248,7 @@ extern "C" {
     }
 
     JNIEXPORT jlong JNICALL 
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nOpen
+    Java_org_theko_sound_backends_wasapi_WASAPISharedOutput_nOpen
     (JNIEnv* env, jobject obj, jobject jport, jobject jformat, jint bufferSize /* in bytes */, jobject jAtomicRefFormat) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nOpen");
 
@@ -398,7 +398,7 @@ extern "C" {
     }
 
     JNIEXPORT void JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nClose
+    Java_org_theko_sound_backends_wasapi_WASAPISharedOutput_nClose
     (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nClose");
         
@@ -476,7 +476,7 @@ extern "C" {
     }
 
     JNIEXPORT void JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nStart
+    Java_org_theko_sound_backends_wasapi_WASAPISharedOutput_nStart
     (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nStart");
         auto context = (OutputContext*)ptr;
@@ -523,7 +523,7 @@ extern "C" {
     }
 
     JNIEXPORT void JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nStop
+    Java_org_theko_sound_backends_wasapi_WASAPISharedOutput_nStop
     (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nStop");
         auto context = (OutputContext*)ptr;
@@ -546,7 +546,7 @@ extern "C" {
     }
 
     JNIEXPORT void JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nFlush
+    Java_org_theko_sound_backends_wasapi_WASAPISharedOutput_nFlush
     (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nFlush");
         auto context = (OutputContext*)ptr;
@@ -559,7 +559,7 @@ extern "C" {
     }
 
     JNIEXPORT void JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nDrain
+    Java_org_theko_sound_backends_wasapi_WASAPISharedOutput_nDrain
     (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nDrain");
         
@@ -607,7 +607,7 @@ extern "C" {
     }
 
     JNIEXPORT jint JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nWrite
+    Java_org_theko_sound_backends_wasapi_WASAPISharedOutput_nWrite
     (JNIEnv* env, jobject obj, jlong ptr, jbyteArray buffer, jint offset, jint length) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nWrite");
         
@@ -711,7 +711,7 @@ extern "C" {
     }
 
     JNIEXPORT jint JNICALL 
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nAvailable
+    Java_org_theko_sound_backends_wasapi_WASAPISharedOutput_nAvailable
     (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nAvailable");
         auto context = (OutputContext*)ptr;
@@ -739,7 +739,7 @@ extern "C" {
     }
 
     JNIEXPORT jint JNICALL 
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetBufferSize
+    Java_org_theko_sound_backends_wasapi_WASAPISharedOutput_nGetBufferSize
     (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nGetBufferSize");
         auto context = (OutputContext*)ptr;
@@ -751,7 +751,7 @@ extern "C" {
         return (jint)context->bufferFrameCount;
     }
 
-    JNIEXPORT jlong JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetFramePosition
+    JNIEXPORT jlong JNICALL Java_org_theko_sound_backends_wasapi_WASAPISharedOutput_nGetFramePosition
     (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nGetFramePosition");
         auto context = (OutputContext*)ptr;
@@ -772,7 +772,7 @@ extern "C" {
         return (jlong)position;
     }
 
-    JNIEXPORT jlong JNICALL Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetMicrosecondLatency
+    JNIEXPORT jlong JNICALL Java_org_theko_sound_backends_wasapi_WASAPISharedOutput_nGetMicrosecondLatency
     (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nGetMicrosecondLatency");
         auto context = (OutputContext*)ptr;
@@ -801,7 +801,7 @@ extern "C" {
     }
 
     JNIEXPORT jobject JNICALL
-    Java_org_theko_sound_backend_wasapi_WASAPISharedOutput_nGetCurrentAudioPort
+    Java_org_theko_sound_backends_wasapi_WASAPISharedOutput_nGetCurrentAudioPort
     (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nGetCurrentAudioPort");
         auto context = (OutputContext*)ptr;

@@ -18,8 +18,8 @@ package org.theko.sound.effects;
 
 import java.util.List;
 
-import org.theko.sound.control.FloatControl;
-import org.theko.sound.control.AudioControl;
+import org.theko.sound.controls.AudioControl;
+import org.theko.sound.controls.FloatControl;
 
 /**
  * BitcrusherEffect is an audio effect that reduces the bit depth and sample rate of audio samples,

@@ -16,7 +16,7 @@
 
 package org.theko.sound.samples;
 
-import org.theko.sound.utility.SamplesUtilities;
+import org.theko.sound.util.SamplesUtilities;
 
 /**
  * Utility class for validating audio samples.

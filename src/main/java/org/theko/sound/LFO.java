@@ -20,11 +20,11 @@ import static org.theko.sound.properties.AudioSystemProperties.AUTOMATIONS_UPDAT
 
 import java.util.List;
 
-import org.theko.sound.control.AudioControl;
-import org.theko.sound.control.AudioControlGroup;
-import org.theko.sound.control.Controllable;
-import org.theko.sound.control.EnumControl;
-import org.theko.sound.control.FloatControl;
+import org.theko.sound.controls.AudioControl;
+import org.theko.sound.controls.AudioControlGroup;
+import org.theko.sound.controls.Controllable;
+import org.theko.sound.controls.EnumControl;
+import org.theko.sound.controls.FloatControl;
 
 /**
  * Low Frequency Oscillator (LFO) for modulating audio parameters over time.

@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.theko.sound.codec.AudioCodecInfo;
-import org.theko.sound.codec.AudioCodecs;
+import org.theko.sound.codecs.AudioCodecInfo;
+import org.theko.sound.codecs.AudioCodecs;
 
 public final class FileChooserHelper {
 

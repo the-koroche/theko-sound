@@ -27,9 +27,9 @@ import javax.swing.JPanel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.theko.sound.control.AudioControl;
-import org.theko.sound.control.FloatControl;
-import org.theko.sound.utility.MathUtilities;
+import org.theko.sound.controls.AudioControl;
+import org.theko.sound.controls.FloatControl;
+import org.theko.sound.util.MathUtilities;
 
 /**
  * A class that represents a waveform visualizer.

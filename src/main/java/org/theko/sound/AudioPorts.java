@@ -20,11 +20,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import org.theko.sound.backend.AudioBackend;
-import org.theko.sound.backend.AudioBackendCreationException;
-import org.theko.sound.backend.AudioBackendNotFoundException;
-import org.theko.sound.backend.AudioBackends;
-import org.theko.sound.utility.AudioPortUtilities;
+import org.theko.sound.backends.AudioBackend;
+import org.theko.sound.backends.AudioBackendCreationException;
+import org.theko.sound.backends.AudioBackendNotFoundException;
+import org.theko.sound.backends.AudioBackends;
+import org.theko.sound.util.AudioPortUtilities;
 
 /**
  * Represents a collection of audio ports.

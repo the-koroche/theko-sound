@@ -2,13 +2,13 @@ package org.theko.sound;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.theko.sound.backend.AudioBackendCreationException;
-import org.theko.sound.backend.AudioBackendException;
-import org.theko.sound.backend.AudioBackendNotFoundException;
-import org.theko.sound.backend.AudioBackends;
-import org.theko.sound.backend.AudioInputBackend;
+import org.theko.sound.backends.AudioBackendCreationException;
+import org.theko.sound.backends.AudioBackendException;
+import org.theko.sound.backends.AudioBackendNotFoundException;
+import org.theko.sound.backends.AudioBackends;
+import org.theko.sound.backends.AudioInputBackend;
 import org.theko.sound.samples.SamplesConverter;
-import org.theko.sound.utility.ArrayUtilities;
+import org.theko.sound.util.ArrayUtilities;
 
 /**
  * Represents an audio input line in the audio system.
