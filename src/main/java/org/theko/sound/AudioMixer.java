@@ -27,7 +27,9 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.theko.sound.control.AudioControl;
 import org.theko.sound.control.BooleanControl;
+import org.theko.sound.control.Controllable;
 import org.theko.sound.control.FloatControl;
 import org.theko.sound.effects.AudioEffect;
 import org.theko.sound.effects.IncompatibleEffectTypeException;
@@ -60,7 +62,8 @@ import org.theko.sound.utility.SamplesUtilities;
  *     mixer.addInput(audioNode2);
  *     mixer.addEffect(reverbEffect);
  *     float[][] buffer = new float[2][1024];
- *     mixer.render(buffer, 44100, 1024);
+ *     int sampleRate = 44100;
+ *     mixer.render(buffer, sampleRate);
  * </pre>
  *
  * @see AudioNode
@@ -71,7 +74,7 @@ import org.theko.sound.utility.SamplesUtilities;
  * @author Theko
  * @since 2.0.0
  */
-public class AudioMixer implements AudioNode {
+public class AudioMixer implements AudioNode, Controllable {
     
     private static final Logger logger = LoggerFactory.getLogger(AudioMixer.class);
 
@@ -86,6 +89,12 @@ public class AudioMixer implements AudioNode {
     private final BooleanControl enableEffectsControl = new BooleanControl("Enable Effects", MIXER_DEFAULT_ENABLE_EFFECTS);
     private final BooleanControl swapChannelsControl = new BooleanControl("Swap Channels", MIXER_DEFAULT_SWAP_CHANNELS);
     private final BooleanControl reversePolarityControl = new BooleanControl("Reverse Polarity", MIXER_DEFAULT_REVERSE_POLARITY);
+
+    private final List<AudioControl> mixerControls = List.of(
+        preGainControl, postGainControl, panControl, 
+        stereoSeparationControl, enableEffectsControl, 
+        swapChannelsControl, reversePolarityControl
+    );
 
     private static final float STEREO_SEP_EPSILON = 0.000001f;
 
@@ -303,6 +312,19 @@ public class AudioMixer implements AudioNode {
      */
     public BooleanControl getReversePolarityControl() {
         return reversePolarityControl;
+    }
+
+    /**
+     * Returns an unmodifiable list of all audio controls managed by this mixer.
+     * <p>
+     * This list includes controls for pre-gain, post-gain, pan, stereo separation,
+     * enable effects, swap channels, and reverse polarity.
+     * 
+     * @return an unmodifiable list of AudioControl objects
+     */
+    @Override
+    public List<AudioControl> getAllControls() {
+        return Collections.unmodifiableList(mixerControls);
     }
 
     /**
