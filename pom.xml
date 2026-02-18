@@ -6,7 +6,7 @@
 
     <groupId>io.github.the-koroche</groupId>
     <artifactId>theko-sound</artifactId>
-    <version>2.5.0</version>
+    <version>0.3.0-beta</version>
 
     <name>Theko-Sound</name>
     <description>A high-performance audio library for sound processing, supporting popular platforms. Includes support for audio backends, format conversion, mixing, effects application, and codec management. Provides a flexible interface for audio playback, recording, and processing with high performance and extensibility.</description>
