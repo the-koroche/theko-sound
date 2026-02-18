@@ -86,6 +86,7 @@ public interface AudioInputBackend extends AudioBackend, AutoCloseable {
      * Starts audio input operations on the backend.
      *
      * @throws AudioBackendException If an error occurs while starting the backend.
+     * @throws BackendNotOpenException If the audio input is not open.
      */
     void start() throws AudioBackendException;
 
@@ -93,6 +94,7 @@ public interface AudioInputBackend extends AudioBackend, AutoCloseable {
      * Stops audio input operations on the backend.
      *
      * @throws AudioBackendException If an error occurs while stopping the backend.
+     * @throws BackendNotOpenException If the audio input is not open.
      */
     void stop() throws AudioBackendException;
 
@@ -100,6 +102,7 @@ public interface AudioInputBackend extends AudioBackend, AutoCloseable {
      * Flushes the audio input buffer, discarding any buffered data.
      *
      * @throws AudioBackendException If an error occurs during the operation.
+     * @throws BackendNotOpenException If the audio input is not open.
      */
     void flush() throws AudioBackendException;
 
@@ -107,6 +110,7 @@ public interface AudioInputBackend extends AudioBackend, AutoCloseable {
      * Drains the audio input buffer, ensuring all buffered data is processed.
      *
      * @throws AudioBackendException If an error occurs during the operation.
+     * @throws BackendNotOpenException If the audio input is not open.
      */
     void drain() throws AudioBackendException;
 
@@ -118,6 +122,7 @@ public interface AudioInputBackend extends AudioBackend, AutoCloseable {
      * @param length The maximum number of bytes to read.
      * @return The number of bytes actually read.
      * @throws AudioBackendException If an error occurs during reading.
+     * @throws BackendNotOpenException If the audio input is not open.
      */
     int read(byte[] buffer, int offset, int length) throws AudioBackendException;
 
@@ -126,6 +131,7 @@ public interface AudioInputBackend extends AudioBackend, AutoCloseable {
      *
      * @return The number of available bytes.
      * @throws AudioBackendException If an error occurs during the operation.
+     * @throws BackendNotOpenException If the audio input is not open.
      */
     int available() throws AudioBackendException;
 
@@ -134,6 +140,7 @@ public interface AudioInputBackend extends AudioBackend, AutoCloseable {
      *
      * @return The buffer size in bytes.
      * @throws AudioBackendException If an error occurs during the operation.
+     * @throws BackendNotOpenException If the audio input is not open.
      */
     int getBufferSize() throws AudioBackendException;
 
@@ -142,6 +149,7 @@ public interface AudioInputBackend extends AudioBackend, AutoCloseable {
      *
      * @return The frame position.
      * @throws AudioBackendException If an error occurs during the operation.
+     * @throws BackendNotOpenException If the audio input is not open.
      */
     long getFramePosition() throws AudioBackendException;
 
@@ -150,6 +158,7 @@ public interface AudioInputBackend extends AudioBackend, AutoCloseable {
      *
      * @return The microsecond position.
      * @throws AudioBackendException If an error occurs during the operation.
+     * @throws BackendNotOpenException If the audio input is not open.
      */
     long getMicrosecondPosition() throws AudioBackendException;
 
@@ -158,6 +167,7 @@ public interface AudioInputBackend extends AudioBackend, AutoCloseable {
      *
      * @return The latency in microseconds.
      * @throws AudioBackendException If an error occurs during the operation.
+     * @throws BackendNotOpenException If the audio input is not open.
      */
     long getMicrosecondLatency() throws AudioBackendException;
 
@@ -166,6 +176,7 @@ public interface AudioInputBackend extends AudioBackend, AutoCloseable {
      *
      * @return The current {@link AudioPort}.
      * @throws AudioBackendException If an error occurs during the operation.
+     * @throws BackendNotOpenException If the audio input is not open.
      */
     AudioPort getCurrentAudioPort() throws AudioBackendException;
 }
