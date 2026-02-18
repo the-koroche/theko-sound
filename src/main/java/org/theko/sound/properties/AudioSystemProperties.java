@@ -387,4 +387,13 @@ public final class AudioSystemProperties {
 
         logger.debug("Properties: \n{}", propertiesLog.toString());
     }
+
+    /**
+     * Forces static initialization of this class by calling it.
+     * This can be used to ensure that the static initialization block is executed
+     * before any other code in this class is accessed.
+     */
+    public static void runStaticInit() {
+        // Do nothing, called to force static initialization
+    }
 }
