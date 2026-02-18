@@ -96,44 +96,29 @@ public final class ThreadUtilities {
         logger.trace("Creating thread: {} {}", name, FormatUtilities.formatThreadInfo(type, priority));
         Thread thread = null;
 
-        switch (type) {
-            case VIRTUAL:
-                if (AudioSystemProperties.IS_SUPPORTING_VIRTUAL_THREADS) {
-                    try {
-                        thread = (Thread) Thread.class
-                        .getMethod("startVirtualThread", Runnable.class)
-                        .invoke(null, task);
-                        if (name != null && !name.isEmpty()) {
-                            thread.setName(name);
-                        } else {
-                            thread.setName("VirtualThread-" + getThreadId(thread));
-                        }
-                    } catch (Throwable ex) {
-                        logger.error("Error creating virtual thread, fallback to platform thread", ex);
-                    }
-                } else {
-                    logger.info("Virtual threads are not supported in Java {}. Using platform thread.", Runtime.version().feature());
-                }
-                if (thread == null) {
-                    type = ThreadType.PLATFORM;
-                    //$FALLTHROUGH$
-                }
-                break;
+        if (type == ThreadType.VIRTUAL && AudioSystemProperties.IS_SUPPORTING_VIRTUAL_THREADS) {
+            try {
+                thread = (Thread) Thread.class
+                    .getMethod("startVirtualThread", Runnable.class)
+                    .invoke(null, task);
 
-            case PLATFORM:
-                thread = new Thread(task);
-                if (name != null && !name.isEmpty()) {
-                    thread.setName(name);
-                } else {
-                    thread.setName("PlatformThread-" + getThreadId(thread));
+                if (thread != null) {
+                    if (name != null && !name.isEmpty()) thread.setName(name);
+                    else thread.setName("VirtualThread-" + getThreadId(thread));
                 }
-                thread.setPriority(priority);
-                thread.setDaemon(daemon);
-                thread.start();
-                break;
+            } catch (Throwable ex) {
+                logger.error("Error creating virtual thread, fallback to platform thread", ex);
+            }
+        }
 
-            default:
-                throw new IllegalArgumentException("Unsupported thread type: " + type);
+        if (thread == null) { // fallback to platform
+            thread = new Thread(task);
+            if (name != null && !name.isEmpty()) thread.setName(name);
+            else thread.setName("PlatformThread-" + getThreadId(thread));
+
+            thread.setPriority(priority);
+            thread.setDaemon(daemon);
+            thread.start();
         }
 
         logger.trace("Created thread: {} {}", thread.getName(), FormatUtilities.formatThreadInfo(type, priority));
