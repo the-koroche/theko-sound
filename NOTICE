@@ -1,7 +1,20 @@
-# NOTICE
+NOTICE
 
 This project includes the following third-party libraries:
 
-- **SLF4J** (`org.slf4j:slf4j-api`, `org.slf4j:slf4j-simple`)
-  [License](https://www.slf4j.org/license.html)
-  Copyright © 2004-2025 SLF4J Authors.
+- org.slf4j:slf4j-api:2.0.13
+  Source: https://github.com/qos-ch/slf4j/tree/master/slf4j-api
+  License: https://www.slf4j.org/license.html
+  Copyright (c) 2004-2025 SLF4J Authors.
+
+- org.slf4j:slf4j-simple:2.0.13
+  Source: https://github.com/qos-ch/slf4j/tree/master/slf4j-simple
+  License: https://www.slf4j.org/license.html
+  Copyright (c) 2004-2025 SLF4J Authors.
+
+- io.github.the-koroche:theko-events:1.2.4
+  Source: https://github.com/the-koroche/theko-events
+  License: https://github.com/the-koroche/theko-events/blob/main/LICENSE
+  Copyright (c) 2025-2026 Alex Soloviov (aka Theko).
+
+All rights reserved.
