@@ -168,7 +168,7 @@ Main modules of the library:
     <dependency>
         <groupId>io.github.the-koroche</groupId>
         <artifactId>theko-events</artifactId>
-        <version>1.2.2</version>
+        <version>1.2.4</version>
     </dependency>
 </dependencies>
 ```
