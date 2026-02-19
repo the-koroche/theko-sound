@@ -23,8 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.theko.sound.controls.AudioControl;
 import org.theko.sound.controls.FloatControl;
 import org.theko.sound.effects.AudioEffect;
-import org.theko.sound.util.ArrayUtilities;
-import org.theko.sound.util.SamplesUtilities;
+import org.theko.sound.util.AudioBufferUtilities;
 
 /**
  * Sends processed audio samples from its position in an {@link AudioMixer} effect chain
@@ -69,7 +68,7 @@ public class MixerSender extends AudioEffect {
                 return;
             }
             try {
-                SamplesUtilities.adjustGainAndPan(effectSamples, samples, gain.getValue(), pan.getValue());
+                AudioBufferUtilities.adjustGainAndPan(effectSamples, samples, gain.getValue(), pan.getValue());
             } catch (IllegalArgumentException e) {
                 logger.error(e.getMessage(), e);
             }
@@ -102,8 +101,8 @@ public class MixerSender extends AudioEffect {
             effectSamples = new float[samples.length][samples[0].length];
         }
         try {
-            ArrayUtilities.copyArray(samples, effectSamples);
-        } catch (LengthMismatchException | ChannelsCountMismatchException ignored) {
+            AudioBufferUtilities.copyArray(samples, effectSamples);
+        } catch (IllegalArgumentException ignored) {
         }
     }
 

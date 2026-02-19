@@ -21,7 +21,6 @@ import static org.theko.sound.properties.AudioSystemProperties.RESAMPLER_EFFECT;
 import org.theko.sound.controls.FloatControl;
 import org.theko.sound.resamplers.AudioResampler;
 import org.theko.sound.resamplers.ResampleMethod;
-import org.theko.sound.util.ArrayUtilities;
 
 /**
  * ResamplerEffect is an audio effect that allows for real-time resampling of audio samples.
@@ -54,10 +53,11 @@ public class ResamplerEffect extends AudioEffect implements VaryingSizeEffect{
 
     @Override
     public void effectRender (float[][] samples, int sampleRate) {
-        int length = samples[0].length;
-
-        float[][] toResample = ArrayUtilities.cutArray(samples, 0, samples.length, 0, length);
-        float[][] resampled = resampler.resample(toResample, speedControl.getValue());
+        if (speedControl.getValue() == 1.0f) {
+            return;
+        }
+        
+        float[][] resampled = resampler.resample(samples, speedControl.getValue());
 
         int channels = Math.min(samples.length, resampled.length);
         for (int ch = 0; ch < channels; ch++) {

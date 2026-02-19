@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.theko.sound.controls.AudioControl;
 import org.theko.sound.controls.FloatControl;
-import org.theko.sound.util.SamplesUtilities;
+import org.theko.sound.util.AudioBufferUtilities;
 
 /**
  * Represents an audio effect that allows for real-time audio positioning
@@ -38,8 +38,7 @@ public class AudioPositioningEffect extends AudioEffect {
     protected final FloatControl panControl = new FloatControl("Pan", -1.0f, 1.0f, 0.0f);
 
     protected final List<AudioControl> positioningControls = List.of(
-        gainControl,
-        panControl
+        gainControl, panControl
     );
 
     public AudioPositioningEffect() {
@@ -57,6 +56,6 @@ public class AudioPositioningEffect extends AudioEffect {
 
     @Override
     public void effectRender(float[][] samples, int sampleRate) {
-        SamplesUtilities.adjustGainAndPan(samples, gainControl.getValue(), panControl.getValue());
+        AudioBufferUtilities.adjustGainAndPan(samples, gainControl.getValue(), panControl.getValue());
     }
 }

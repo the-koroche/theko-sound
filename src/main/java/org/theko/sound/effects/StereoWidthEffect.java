@@ -16,11 +16,7 @@
 
 package org.theko.sound.effects;
 
-import org.theko.sound.ChannelsCountMismatchException;
-import org.theko.sound.LengthMismatchException;
 import org.theko.sound.controls.FloatControl;
-import org.theko.sound.util.ArrayUtilities;
-import org.theko.sound.util.SamplesUtilities;
 
 /**
  * StereoWidthEffect is an audio effect that adjusts the stereo width of audio samples.
@@ -47,11 +43,20 @@ public class StereoWidthEffect extends AudioEffect {
 
     @Override
     public void effectRender(float[][] samples, int sampleRate) {
-        float[][] separated = SamplesUtilities.stereoSeparation(samples, stereoWidth.getValue());
-        try {
-            ArrayUtilities.copyArray(separated, samples);
-        } catch (LengthMismatchException | ChannelsCountMismatchException e) {
-            throw new RuntimeException("Error applying stereo width effect: " + e.getMessage(), e);
+        if (samples.length < 2) return; // not enough channels
+
+        float width = stereoWidth.getValue();
+        float factor = (width + 1.0f) / 2.0f; // convert to range 0..1
+
+        float[] left = samples[0];
+        float[] right = samples[1];
+
+        for (int i = 0; i < left.length; i++) {
+            float mid = (left[i] + right[i]) * 0.5f;
+            float side = (left[i] - right[i]) * 0.5f;
+
+            left[i] = mid + side * factor * 2;   // *2 for full width
+            right[i] = mid - side * factor * 2;
         }
     }
 }

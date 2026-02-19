@@ -8,7 +8,7 @@ import org.theko.sound.backends.AudioBackendNotFoundException;
 import org.theko.sound.backends.AudioBackends;
 import org.theko.sound.backends.AudioInputBackend;
 import org.theko.sound.samples.SamplesConverter;
-import org.theko.sound.util.ArrayUtilities;
+import org.theko.sound.util.AudioBufferUtilities;
 
 /**
  * Represents an audio input line in the audio system.
@@ -136,8 +136,8 @@ public class AudioInputLine implements AudioNode {
         aib.read(buffer, 0, buffLength);
         float[][] bufferSamp = SamplesConverter.toSamples(buffer, audioFormat);
         try {
-            ArrayUtilities.copyArray(bufferSamp, samples);
-        } catch (LengthMismatchException | ChannelsCountMismatchException e) {
+            AudioBufferUtilities.copyArray(bufferSamp, samples);
+        } catch (IllegalArgumentException e) {
             logger.error("Length or channels mismatch.", e);
             throw new RuntimeException("Length or channels mismatch: " + e.getMessage(), e);
         }

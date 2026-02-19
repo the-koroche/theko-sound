@@ -36,8 +36,7 @@ import org.theko.sound.effects.IncompatibleEffectTypeException;
 import org.theko.sound.effects.MultipleVaryingSizeEffectsException;
 import org.theko.sound.effects.VaryingSizeEffect;
 import org.theko.sound.samples.SamplesValidation;
-import org.theko.sound.util.ArrayUtilities;
-import org.theko.sound.util.SamplesUtilities;
+import org.theko.sound.util.AudioBufferUtilities;
 
 
 /**
@@ -84,7 +83,6 @@ public class AudioMixer implements AudioNode, Controllable {
     private final FloatControl preGainControl = new FloatControl("Pre-Gain", 0.0f, 2.0f, 1.0f);
     private final FloatControl postGainControl = new FloatControl("Post-Gain", 0.0f, 2.0f, 1.0f);
     private final FloatControl panControl = new FloatControl("Pan", -1.0f, 1.0f, 0.0f);
-    private final FloatControl stereoSeparationControl = new FloatControl("Stereo Separation", -1.0f, 1.0f, 0.0f);
 
     private final BooleanControl enableEffectsControl = new BooleanControl("Enable Effects", MIXER_DEFAULT_ENABLE_EFFECTS);
     private final BooleanControl swapChannelsControl = new BooleanControl("Swap Channels", MIXER_DEFAULT_SWAP_CHANNELS);
@@ -92,11 +90,9 @@ public class AudioMixer implements AudioNode, Controllable {
 
     private final List<AudioControl> mixerControls = List.of(
         preGainControl, postGainControl, panControl, 
-        stereoSeparationControl, enableEffectsControl, 
+        enableEffectsControl, 
         swapChannelsControl, reversePolarityControl
     );
-
-    private static final float STEREO_SEP_EPSILON = 0.000001f;
 
     private CollectedInputs collectedInputs = null;
     private float[][][] inputBuffers = null;
@@ -275,16 +271,6 @@ public class AudioMixer implements AudioNode, Controllable {
     }
 
     /**
-     * Gets the stereo separation control of the mixer.
-     * Stereo separation control adjusts the stereo separation of the mixed audio.
-     * 
-     * @return the stereo separation control.
-     */
-    public FloatControl getStereoSeparationControl() {
-        return stereoSeparationControl;
-    }
-
-    /**
      * Gets the enable effects control of the mixer.
      * Enable effects control enables or disables effects processing.
      * 
@@ -383,7 +369,8 @@ public class AudioMixer implements AudioNode, Controllable {
             }
 
             mixed = mixInputs(collectedInputs, inputLength, channels);
-            SamplesUtilities.adjustGainAndPan(mixed, mixed, preGainControl.getValue(), 0.0f);
+
+            AudioBufferUtilities.adjustGain(mixed, mixed, preGainControl.getValue());
 
             if (enableEffects) {
                 int firstEffectsEnd = varyingSizeEffectIndex == -1 ? effects.size() : varyingSizeEffectIndex;
@@ -391,7 +378,7 @@ public class AudioMixer implements AudioNode, Controllable {
 
                 if (varyingSizeEffectIndex != -1) {
                     if (inputLength < outputLength) {
-                        mixed = ArrayUtilities.padArrayWithLast(mixed, channels, outputLength);
+                        mixed = AudioBufferUtilities.padArray(mixed, channels, outputLength, true /* fill new with last value */);
                     }
                     processEffect(mixed, sampleRate, effects.get(varyingSizeEffectIndex));
                     processEffectChain(mixed, sampleRate, varyingSizeEffectIndex + 1, effects.size());
@@ -404,22 +391,17 @@ public class AudioMixer implements AudioNode, Controllable {
             }
         }
 
-        float separation = stereoSeparationControl.getValue();
-        if (separation * separation > STEREO_SEP_EPSILON) {
-            mixed = SamplesUtilities.stereoSeparation(mixed, separation);
-        }
-
         if (swapChannelsControl.isEnabled()) {
-            mixed = SamplesUtilities.swapChannels(mixed);
+            AudioBufferUtilities.swapChannels(mixed, mixed);
         }
         if (reversePolarityControl.isEnabled()) {
-            mixed = SamplesUtilities.reversePolarity(mixed);
+            AudioBufferUtilities.reversePolarity(mixed, mixed);
         }
 
-        SamplesUtilities.adjustGainAndPan(mixed, mixed, postGainControl.getValue(), panControl.getValue());
+        AudioBufferUtilities.adjustGainAndPan(mixed, mixed, postGainControl.getValue(), panControl.getValue());
         try {
-            ArrayUtilities.copyArray(mixed, samples);
-        } catch (ChannelsCountMismatchException | LengthMismatchException ex) {
+            AudioBufferUtilities.copyArray(mixed, samples);
+        } catch (IllegalArgumentException ex) {
             logger.error("Failed to copy mixed samples to output.", ex);
             throw new MixingException(ex);
         }
@@ -457,7 +439,7 @@ public class AudioMixer implements AudioNode, Controllable {
             inputBuffers = new float[inputs.size()][channels][frameCount];
         } else {
             for (int i = 0; i < inputs.size(); i++) {
-                ArrayUtilities.fillZeros(inputBuffers[i]);
+                AudioBufferUtilities.fill(inputBuffers[i], 0.0f);
             }
         }
         if (validInputs == null || validInputs.length != inputs.size()) {
@@ -518,7 +500,7 @@ public class AudioMixer implements AudioNode, Controllable {
         if (mixedBuffer == null || mixedBuffer.length != channels || mixedBuffer[0].length != frameCount) {
             mixedBuffer = new float[channels][frameCount];
         } else {
-            ArrayUtilities.fillZeros(mixedBuffer);
+            AudioBufferUtilities.fill(mixedBuffer, 0.0f);
         }
 
         for (int i = 0; i < collectedInputs.inputs.length; i++) {
@@ -545,7 +527,6 @@ public class AudioMixer implements AudioNode, Controllable {
             logger.info("Effect is null.");
             return;
         }
-
         effect.renderWithMixing(samples, sampleRate);
     }
 }

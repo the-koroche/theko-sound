@@ -44,7 +44,7 @@ import org.theko.sound.events.AudioControlEventType;
 import org.theko.sound.events.SoundSourceEvent;
 import org.theko.sound.events.SoundSourceEventType;
 import org.theko.sound.events.SoundSourceListener;
-import org.theko.sound.util.ArrayUtilities;
+import org.theko.sound.util.AudioBufferUtilities;
 
 /**
  * The {@code SoundSource} class represents an audio source that can be controlled
@@ -108,7 +108,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
         @Override
         public void render(float[][] samples, int sampleRate) {
             if (!isPlaying) {
-                ArrayUtilities.fillZeros(samples);
+                AudioBufferUtilities.fill(samples, 0.0f);
                 return;
             }
 
@@ -125,7 +125,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
                 } else {
                     isPlaying = false;
                     playedFrames = 0;
-                    ArrayUtilities.fillZeros(samples);
+                    AudioBufferUtilities.fill(samples, 0.0f);
                     dispatch(SoundSourceEventType.DATA_ENDED);
                     return;
                 }

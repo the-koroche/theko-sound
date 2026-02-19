@@ -20,8 +20,8 @@ import java.util.List;
 
 import org.theko.sound.controls.AudioControl;
 import org.theko.sound.controls.FloatControl;
+import org.theko.sound.util.AudioBufferUtilities;
 import org.theko.sound.util.MathUtilities;
-import org.theko.sound.util.SamplesUtilities;
 
 /**
  * Represents an audio effect controller that manages the peak value of an audio signal.
@@ -48,7 +48,7 @@ public class PeakController extends EffectController {
 
     @Override
     protected void controllerProcess(float[][] samples, int sampleRate) {
-        float value = MathUtilities.clamp(SamplesUtilities.getAbsMaxVolume(samples) * peakAmount.getValue(), 0.0f, 1.0f);
+        float value = MathUtilities.clamp(AudioBufferUtilities.getAbsMaxVolume(samples) * peakAmount.getValue(), 0.0f, 1.0f);
         peak = MathUtilities.clamp(
             Math.max(value, peak - peakDecaySpeed.getValue()),
             0.0f, 1.0f);
