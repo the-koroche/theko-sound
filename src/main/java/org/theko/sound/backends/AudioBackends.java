@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Alex Soloviov (aka Theko)
+ * Copyright 2025-2026 Alex Soloviov (aka Theko)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,11 +70,19 @@ import org.theko.sound.util.PlatformUtilities.Platform;
  * @since 1.0.0
  * @author Theko
  */
-public class AudioBackends {
+public final class AudioBackends {
 
     private static final Logger logger = LoggerFactory.getLogger(AudioBackends.class);
 
-    private static AudioBackendInfo platformBackendInfo;
+    private static final Map<Platform, List<String>> PLATFORM_BACKENDS = Map.of(
+            Platform.WINDOWS, List.of("DirectSound", "WASAPI"),
+            Platform.LINUX, List.of("ALSA", "PulseAudio", "PipeWire", "JavaSound"),
+            Platform.OTHER_UNIX, List.of("ALSA", "PulseAudio", "PipeWire", "JavaSound"),
+            Platform.MAC, List.of("CoreAudio"),
+            Platform.UNKNOWN, List.of("JavaSound")
+    );
+
+    private static AudioBackendInfo platformInputBackendInfo, platformOutputBackendInfo;
 
     private AudioBackends() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
@@ -107,7 +115,7 @@ public class AudioBackends {
         }
         
         try {
-            platformBackendInfo = detectPlatformBackend();
+            detectPlatformBackends(false /* allow different backends for input and output */);
         } catch (AudioBackendNotFoundException | AudioBackendCreationException e) {
             logger.error("Failed to create platform-specific audio backend.", e);
         }
@@ -311,63 +319,104 @@ public class AudioBackends {
         return Collections.unmodifiableCollection(audioBackends);
     }
 
+    
     /**
-     * Retrieves the default platform-specific audio backend.
+     * Detects and selects platform-specific audio backends that support the desired
+     * features. This method is private and intended for internal use only.
      *
-     * @return The best matching platform-specific audio backend.
-     * @throws AudioBackendNotFoundException If no suitable backend is found.
-     * @throws AudioBackendCreationException 
+     * @param requireDuplex Whether the selected backend must support full duplex
+     *                    audio operations (both input and output).
+     *
+     * @throws AudioBackendCreationException If the backend cannot be instantiated.
+     * @throws AudioBackendNotFoundException If no backend is found that supports the
+     *                              desired features.
      */
-    private static AudioBackendInfo detectPlatformBackend() throws AudioBackendNotFoundException, AudioBackendCreationException {
+    private static void detectPlatformBackends(boolean requireDuplex) throws AudioBackendCreationException, AudioBackendNotFoundException {
         Platform platform = PlatformUtilities.getPlatform();
-        if (platform == null) {
-            platform = Platform.UNKNOWN;
+        if (platform == null) platform = Platform.UNKNOWN;
+
+        List<String> backendNames = PLATFORM_BACKENDS.getOrDefault(platform, List.of("JavaSound"));
+
+        for (String name : backendNames) {
+            AudioBackendInfo info;
+            try {
+                info = fromName(name);
+            } catch (AudioBackendNotFoundException e) {
+                continue; // backend not found
+            }
+
+            if (requireDuplex && (!info.supportsInput() || !info.supportsOutput())) {
+                continue;
+            }
+
+            boolean outputOk = false;
+            if (info.supportsOutput()) {
+                AudioOutputBackend out = getOutputBackend(info);
+                outputOk = (out != null && out.isAvailableOnThisPlatform());
+            }
+
+            boolean inputOk = false;
+            if (info.supportsInput()) {
+                AudioInputBackend in = getInputBackend(info);
+                inputOk = (in != null && in.isAvailableOnThisPlatform());
+            }
+
+            if (requireDuplex && (!outputOk || !inputOk)) {
+                continue;
+            }
+
+            platformOutputBackendInfo = outputOk ? info : null;
+            platformInputBackendInfo  = inputOk  ? info : null;
+
+            logger.info("Selected backend '{}' (duplex={}, output={}, input={})",
+                    name, requireDuplex, outputOk, inputOk);
+
+            return;
         }
 
-        Map<Platform, List<String>> platformBackends = Map.of(
-                // WASAPIExclusive is not included because it is not supported by default and may cause issues
-                // on some systems, especially if the user is not familiar with it.
-                Platform.WINDOWS, List.of("WASAPIShared", "DirectSound"),
-                Platform.LINUX, List.of("ALSA", "PulseAudio"),
-                Platform.MAC, List.of("CoreAudio"),
-                Platform.OTHER_UNIX, List.of("ALSA", "PulseAudio", "CoreAudio", "JavaSound"),
-                Platform.UNKNOWN, List.of("JavaSound")
-        );
-    
-        for (Map.Entry<Platform, List<String>> entry : platformBackends.entrySet()) {
-            if (entry.getKey().equals(platform)) {
-                for (String backendName : entry.getValue()) {
-                    try {
-                        AudioBackendInfo backendInfo = fromName(backendName);
-                        logger.info("Found compatible audio backend for this platform '{}': {}", System.getProperty("os.name"), backendName);
-                        AudioBackend backend = getBackend(backendInfo);
-                        if (!backend.isAvailableOnThisPlatform()) {
-                            logger.info("Audio backend '{}' is not available on this platform '{}'.", backendName, System.getProperty("os.name"));
-                            continue;
-                        }
-                        return backendInfo;
-                    } catch (AudioBackendNotFoundException ex) {
-                        logger.info("Audio backend '{}' is not available on this platform '{}'.", backendName, System.getProperty("os.name"));
-                        continue;
-                    }
-                }
-            }
-        }
-    
-        // Fallback to JavaSound if no platform-specific backend is found.
-        String fallbackBackendName = "JavaSound";
-        AudioBackendInfo fallbackBackendInfo = fromName(fallbackBackendName);
-        logger.warn("No compatible audio backends for this platform '{}'' founded. Using fallback: {}",
-                System.getProperty("os.name"), fallbackBackendInfo.getName());
-        return fallbackBackendInfo;
+        // Fallback to JavaSound if some backend was not found
+        AudioBackendInfo fallback = fromName("JavaSound");
+        if (platformOutputBackendInfo == null) platformOutputBackendInfo = fallback;
+        if (platformInputBackendInfo == null)  platformInputBackendInfo  = fallback;
+
+        logger.warn("Fallback backend selected: JavaSound (duplex mode = {})", requireDuplex);
     }
     
     /**
-     * Retrieves the default platform-specific audio backend.
-     *
-     * @return The platform-specific audio backend.
+     * Retrieves the default audio backend for output that is available on the current platform.
+     * <p>
+     * This is equivalent to {@link #getPlatformOutputBackend()} and is provided for convenience.
+     * @return the default audio backend for output that is available on the current platform.
      */
     public static AudioBackendInfo getPlatformBackend() {
-        return platformBackendInfo;
+        return platformOutputBackendInfo;
+    }
+
+    /**
+     * Retrieves the audio input backend that is available on the current platform.
+     * <p>
+     * This method is thread-safe and will return the same result every time it is called.
+     * <p>
+     * The returned backend is guaranteed to be available on the current platform and
+     * support input functionality. If no audio backend was found, it falls back to the
+     * JavaSound backend.
+     * @return the audio input backend that is available on the current platform.
+     */
+    public static AudioBackendInfo getPlatformInputBackend() {
+        return platformInputBackendInfo;
+    }
+
+    /**
+     * Retrieves the audio output backend that is available on the current platform.
+     * <p>
+     * This method is thread-safe and will return the same result every time it is called.
+     * <p>
+     * The returned backend is guaranteed to be available on the current platform and
+     * support output functionality. If no audio backend was found, it falls back to the
+     * JavaSound backend.
+     * @return the audio output backend that is available on the current platform.
+     */
+    public static AudioBackendInfo getPlatformOutputBackend() {
+        return platformOutputBackendInfo;
     }
 }
