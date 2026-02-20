@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Alex Soloviov (aka Theko)
+ * Copyright 2025-2026 Alex Soloviov (aka Theko)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import org.theko.sound.codecs.AudioTags;
 import org.theko.sound.controls.Controllable;
 import org.theko.sound.controls.FloatControl;
 import org.theko.sound.effects.AudioEffect;
+import org.theko.sound.effects.AudioEffectFunction;
 import org.theko.sound.effects.IncompatibleEffectTypeException;
 import org.theko.sound.effects.MultipleVaryingSizeEffectsException;
 import org.theko.sound.effects.ResamplerEffect;
@@ -523,6 +524,21 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
             }
             samplesData = newSamples;
         }
+    }
+
+    /**
+     * Applies an audio effect function to the sound source.
+     * The audio effect function is responsible for creating the actual
+     * audio effect and passing it to this method.
+     *
+     * @param effect The audio effect function that will be applied
+     * @throws IllegalArgumentException If the effect function is null
+     */
+    public void applyEffect(AudioEffectFunction effect) {
+        if (effect == null) {
+            throw new IllegalArgumentException("Effect function cannot be null.");
+        }
+        applyEffect(effect.getEffect());
     }
 
     @Override
