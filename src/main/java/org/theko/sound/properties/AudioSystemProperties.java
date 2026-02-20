@@ -23,7 +23,8 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.AudioMeasure;
-import org.theko.sound.resamplers.*;
+import org.theko.sound.resamplers.LinearResampleMethod;
+import org.theko.sound.resamplers.ResampleMethod;
 import org.theko.sound.util.FormatUtilities;
 import org.theko.sound.util.MathUtilities;
 import org.theko.sound.util.PlatformUtilities;
@@ -188,15 +189,13 @@ public final class AudioSystemProperties {
         }
     }
 
-    private static AudioResamplerConfiguration getAudioResamplerConfig(String key, AudioResamplerConfiguration defaultValue) {
+    private static ResampleMethod getResampleMethod(String key, ResampleMethod defaultValue) {
         String value = getString(key, null);
         if (value == null || value.isBlank()) {
             return defaultValue;
         }
 
-        String[] parts = value.trim().split(":", 2);
-        String resampleMethodStr = parts[0].trim();
-        String qualityStr = (parts.length > 1) ? parts[1].trim() : null;
+        String resampleMethodStr = value.trim();
 
         if (resampleMethodStr.isEmpty()) {
             logger.warn("Resample method missing for '{}'. Using default {}", key, defaultValue);
@@ -225,17 +224,7 @@ public final class AudioSystemProperties {
             return defaultValue;
         }
 
-        int quality = defaultValue.quality;
-        if (qualityStr != null && !qualityStr.isEmpty()) {
-            try {
-                quality = Integer.parseInt(qualityStr);
-            } catch (NumberFormatException ex) {
-                logger.warn("Invalid quality '{}' for '{}'. Using default {}", qualityStr, key, defaultValue.quality);
-                quality = defaultValue.quality;
-            }
-        }
-
-        return new AudioResamplerConfiguration(resampleMethod, quality);
+        return resampleMethod;
     }
 
     public static final Platform PLATFORM = PlatformUtilities.getPlatform();
@@ -269,14 +258,14 @@ public final class AudioSystemProperties {
     public static final AudioMeasure AOL_DEFAULT_BUFFER = getAudioMeasure(
         "org.theko.sound.outputLayer.defaultBuffer", AudioMeasure.ofFrames(2048));
     
-    public static final AudioResamplerConfiguration AOL_RESAMPLER = getAudioResamplerConfig(
-        "org.theko.sound.outputLayer.resampler", new AudioResamplerConfiguration(new LinearResampleMethod(), 2));
+    public static final ResampleMethod AOL_RESAMPLER = getResampleMethod(
+        "org.theko.sound.outputLayer.resampler", new LinearResampleMethod());
 
     public static final boolean AOL_ENABLE_SHUTDOWN_HOOK = getBoolean(
         "org.theko.sound.outputLayer.enableShutdownHook", true);
 
-    public static final AudioResamplerConfiguration SHARED_RESAMPLER = getAudioResamplerConfig(
-        "org.theko.sound.resampler.shared", new AudioResamplerConfiguration(new LinearResampleMethod(), 2));
+    public static final ResampleMethod SHARED_RESAMPLER = getResampleMethod(
+        "org.theko.sound.resampler.shared", new LinearResampleMethod());
 
     public static final boolean MIXER_DEFAULT_ENABLE_EFFECTS = getBoolean(
         "org.theko.sound.mixer.default.enableEffects", true);
@@ -299,8 +288,8 @@ public final class AudioSystemProperties {
     public static final ThreadConfiguration CLEANERS_THREAD = getThreadConfig(
         "org.theko.sound.cleaner.thread", new ThreadConfiguration(ThreadType.VIRTUAL, 1));
 
-    public static final AudioResamplerConfiguration RESAMPLER_EFFECT = getAudioResamplerConfig(
-        "org.theko.sound.effects.resampler", new AudioResamplerConfiguration(new LinearResampleMethod(), 2));
+    public static final ResampleMethod RESAMPLER_EFFECT = getResampleMethod(
+        "org.theko.sound.effects.resampler", new LinearResampleMethod());
 
     static {
         if (logger.isDebugEnabled()) {

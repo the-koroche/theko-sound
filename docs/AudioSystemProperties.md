@@ -86,24 +86,23 @@
 
 ---
 
-### AudioResamplerConfig
+### ResampleMethod
 
 **Format:**
 
 ```
-<method>:<quality;optional>
+<method>
 ```
 
 **Fields:**
 
 * **method** - class name of resample method
-* **quality** - int > 0 (optional)
 
 **Examples:**
 
 ```
 -Dkey=LinearResampleMethod
--Dkey=LanczosResampleMethod:3
+-Dkey=LanczosResampleMethod
 -Dkey=my.package.MyResampleMethod
 ```
 
@@ -120,7 +119,7 @@
 | `org.theko.sound.outputLayer.thread`                | ThreadConfig         | Playback thread configuration                 |
 | `org.theko.sound.outputLayer.timeout`               | int                  | Timeout (ms) for stopping the playback thread |
 | `org.theko.sound.outputLayer.defaultBuffer`         | AudioMeasure         | Default buffer size                           |
-| `org.theko.sound.outputLayer.resampler`             | AudioResamplerConfig | Resampler method and quality                  |
+| `org.theko.sound.outputLayer.resampler`             | ResampleMethod       | Resampler method used for output              |
 | `org.theko.sound.outputLayer.maxLengthMismatches`   | int ≥ 0              | Max ignored render-length mismatches          |
 | `org.theko.sound.outputLayer.resetLengthMismatches` | boolean              | Reset mismatch counter after success          |
 | `org.theko.sound.outputLayer.maxWriteErrors`        | int ≥ 0              | Max ignored write errors                      |
@@ -133,7 +132,7 @@
 
 | Property                           | Type                 | Description                    |
 | ---------------------------------- | -------------------- | ------------------------------ |
-| `org.theko.sound.resampler.shared` | AudioResamplerConfig | Shared resampler configuration |
+| `org.theko.sound.resampler.shared` | ResampleMethod       | Shared resampler method        |
 
 ---
 
@@ -164,4 +163,4 @@
 | `org.theko.sound.automation.threads`    | int (≥1 & < CPU_CORES×4) | Number of automation/LFO threads  |
 | `org.theko.sound.automation.updateTime` | int > 0                  | Automation update interval (ms)   |
 | `org.theko.sound.cleaner.thread`        | ThreadConfig             | Thread config for cleaners        |
-| `org.theko.sound.effects.resampler`     | AudioResamplerConfig     | Default ResamplerEffect resampler |
+| `org.theko.sound.effects.resampler`     | ResampleMethod           | Default ResamplerEffect resampler |

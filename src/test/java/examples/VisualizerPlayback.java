@@ -97,7 +97,7 @@ public class VisualizerPlayback {
                 return;
             }
 
-            ResamplerEffect resampler = new ResamplerEffect(new LanczosResampleMethod(), 2);
+            ResamplerEffect resampler = new ResamplerEffect(new LanczosResampleMethod());
             player.setResamplerEffect(resampler);
             
             AudioMixer mixer = player.getInnerMixer();

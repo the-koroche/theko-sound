@@ -37,14 +37,14 @@ public class ResamplerEffect extends AudioEffect implements VaryingSizeEffect{
     protected final FloatControl speedControl = new FloatControl("Speed", 0.0f, 50.0f, 1.0f);
     protected AudioResampler resampler;
 
-    public ResamplerEffect(ResampleMethod method, int quality) {
+    public ResamplerEffect(ResampleMethod method) {
         super(Type.REALTIME);
-        resampler = new AudioResampler(method, quality);
+        resampler = new AudioResampler(method);
         addEffectControl(speedControl);
     }
 
     public ResamplerEffect() {
-        this(RESAMPLER_EFFECT.resampleMethod, RESAMPLER_EFFECT.quality);
+        this(RESAMPLER_EFFECT);
     }
 
     public FloatControl getSpeedControl() {

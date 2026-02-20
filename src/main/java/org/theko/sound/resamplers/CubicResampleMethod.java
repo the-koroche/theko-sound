@@ -31,7 +31,7 @@ package org.theko.sound.resamplers;
 public class CubicResampleMethod implements ResampleMethod {
 
     @Override
-    public void resample(float[] input, float[] output, int targetLength, int quality) {
+    public void resample(float[] input, float[] output, int targetLength) {
         float scale = (float) input.length / targetLength;
 
         for (int i = 0; i < targetLength; i++) {

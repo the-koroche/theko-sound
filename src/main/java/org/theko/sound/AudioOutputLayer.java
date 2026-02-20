@@ -16,7 +16,15 @@
 
 package org.theko.sound;
 
-import static org.theko.sound.properties.AudioSystemProperties.*;
+import static org.theko.sound.properties.AudioSystemProperties.AOL_DEFAULT_BUFFER;
+import static org.theko.sound.properties.AudioSystemProperties.AOL_ENABLE_SHUTDOWN_HOOK;
+import static org.theko.sound.properties.AudioSystemProperties.AOL_MAX_LENGTH_MISMATCHES;
+import static org.theko.sound.properties.AudioSystemProperties.AOL_MAX_WRITE_ERRORS;
+import static org.theko.sound.properties.AudioSystemProperties.AOL_PLAYBACK_STOP_TIMEOUT;
+import static org.theko.sound.properties.AudioSystemProperties.AOL_PLAYBACK_THREAD;
+import static org.theko.sound.properties.AudioSystemProperties.AOL_RESAMPLER;
+import static org.theko.sound.properties.AudioSystemProperties.AOL_RESET_LENGTH_MISMATCHES;
+import static org.theko.sound.properties.AudioSystemProperties.AOL_RESET_WRITE_ERRORS;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -159,7 +167,7 @@ public class AudioOutputLayer implements AutoCloseable,
             Runtime.getRuntime().addShutdownHook(shutdownHookThread);
         }
 
-        resampler = new AudioResampler(AOL_RESAMPLER.resampleMethod, AOL_RESAMPLER.quality);
+        resampler = new AudioResampler(AOL_RESAMPLER);
 
         eventDispatcher = new EventDispatcher<>();
         var eventMap = eventDispatcher.createEventMap();
@@ -308,7 +316,7 @@ public class AudioOutputLayer implements AutoCloseable,
                 "N/A");
         outputLog.append("Latency info:\n");
         outputLog.append("  Latency (driver-only): ").append(driverLatencyStr).append(",\n");
-        outputLog.append("  Latency (buffer): ").append(FormatUtilities.formatTime(bufferTimeMicros*1000, TIME_FORMAT_PRECISION)).append(", ");
+        outputLog.append("  Latency (buffer): ").append(FormatUtilities.formatTime(bufferTimeMicros*1000, TIME_FORMAT_PRECISION)).append(",\n");
         outputLog.append("  Effective latency: ").append(FormatUtilities.formatTime(latencyMicros*1000, TIME_FORMAT_PRECISION)).append(".");
         logger.info("Output layer opened. {}", outputLog.toString());
 

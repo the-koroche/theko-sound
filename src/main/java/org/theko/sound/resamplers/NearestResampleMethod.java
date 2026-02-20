@@ -26,7 +26,7 @@ package org.theko.sound.resamplers;
 public class NearestResampleMethod implements ResampleMethod {
 
     @Override
-    public void resample(float[] input, float[] output, int targetLength, int quality) {
+    public void resample(float[] input, float[] output, int targetLength) {
         int inputLength = input.length;
 
         for (int i = 0; i < targetLength; i++) {

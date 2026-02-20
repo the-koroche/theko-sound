@@ -25,30 +25,46 @@ package org.theko.sound.resamplers;
  * @author Theko
  */
 public class LanczosResampleMethod implements ResampleMethod {
+
+    private final int a;
+
+    public LanczosResampleMethod(int a) {
+        this.a = a;
+    }
+
+    public LanczosResampleMethod() {
+        this(3);
+    }
     
     @Override
-    public void resample(float[] input, float[] output, int targetLength, int quality) {
+    public void resample(float[] input, float[] output, int targetLength) {
+        int inLen = input.length;
+
         for (int i = 0; i < targetLength; i++) {
             // Compute the corresponding index in the original input array
-            float index = (float) i * input.length / targetLength;
+            float index = (i + 0.5f) * inLen / targetLength - 0.5f;
             int i0 = (int) Math.floor(index);
 
-            output[i] = 0;
+            float sum = 0f;
 
             // Perform the Lanczos interpolation with a window around the current index
-            for (int j = -quality + 1; j <= quality; j++) {
+            for (int j = -a; j <= a; j++) {
                 int idx = i0 + j;
-                if (idx >= 0 && idx < input.length) {
-                    output[i] += input[idx] * lanczosKernel(index - idx, quality);
+                if (idx >= 0 && idx < inLen) {
+                    sum += input[idx] * lanczosKernel(index - idx, a);
                 }
             }
+            output[i] = sum;
         }
     }
 
     private float lanczosKernel(float x, int a) {
-        if (x == 0) return 1; // The central sample is fully weighted
-        if (Math.abs(x) >= a) return 0; // Outside the window, no contribution
-        // Apply the Lanczos formula
-        return (float) (Math.sin(Math.PI * x) * Math.sin(Math.PI * x / a) / (Math.PI * Math.PI * x * x / a));
+        if (x == 0f) return 1f; // The central sample is fully weighted
+        if (Math.abs(x) >= a) return 0f; // Outside the window
+
+        float pix = (float) (Math.PI * x);
+        float pixA = pix / a;
+
+        return (float) ((Math.sin(pix) / pix) * (Math.sin(pixA) / pixA));
     }
 }

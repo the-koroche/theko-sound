@@ -16,12 +16,12 @@
 
 package org.theko.sound.resamplers;
 
+import static org.theko.sound.properties.AudioSystemProperties.SHARED_RESAMPLER;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.samples.SamplesValidation;
 import org.theko.sound.util.MathUtilities;
-
-import static org.theko.sound.properties.AudioSystemProperties.SHARED_RESAMPLER;
 
 /**
  * The AudioResampler class provides utility methods for resampling audio data.
@@ -43,59 +43,26 @@ public class AudioResampler {
     public static final AudioResampler SHARED = new AudioResampler();
 
     /**
-     * The quality of the resampling process.
-     * Higher values indicate better quality but may impact performance.
-     * Default is set to 2, which is a good balance between quality and performance.
-     */
-    protected int quality;
-
-    /**
      * The resample method used for audio resampling.
      * It can be set to different algorithms like Lanczos, Linear, or Cubic.
      */
     protected final ResampleMethod resampleMethod;
 
     /**
-     * Constructs an AudioResampler with the specified resample method and quality.
+     * Constructs an AudioResampler with the specified resample method.
      * 
      * @param resamplerMethod The resample method to use for audio resampling.
-     * @param quality The quality of the resampling process, must be greater than or equal to 1.
      */
-    public AudioResampler(ResampleMethod resamplerMethod, int quality) {
+    public AudioResampler(ResampleMethod resamplerMethod) {
         this.resampleMethod = resamplerMethod;
-        this.quality = quality;
     }
 
     /**
      * Constructs an AudioResampler with the default shared method and quality.
      * The default method is set to the shared resample method defined in AudioSystemProperties.
-     * The default quality is set to the shared quality defined in AudioSystemProperties.
      */
     public AudioResampler() {
-        this(SHARED_RESAMPLER.resampleMethod, SHARED_RESAMPLER.quality);
-    }
-
-    /**
-     * Returns the current quality of the resampling process.
-     * 
-     * @return The quality of the resampling process.
-     */
-    public int getQuality() {
-        return quality;
-    }
-
-    /**
-     * Sets the quality of the resampling process.
-     * 
-     * @param quality The new quality value, must be greater than or equal to 1.
-     * @throws IllegalArgumentException if the quality is less than 1.
-     */
-    public void setQuality(int quality) {
-        if (quality < 1) {
-            logger.error("Quality argument is less than 1.");
-            throw new IllegalArgumentException("Quality must be greater than or equal to 1.");
-        }
-        this.quality = quality;
+        this(SHARED_RESAMPLER);
     }
 
     /**
@@ -174,7 +141,7 @@ public class AudioResampler {
             throw new IllegalArgumentException("Resample method is null.");
         }
 
-        resampleMethod.resample(input, output, newLength, quality);
+        resampleMethod.resample(input, output, newLength);
         return true;
     }
 }
