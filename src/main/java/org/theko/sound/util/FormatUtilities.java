@@ -25,7 +25,7 @@ import org.theko.sound.properties.ThreadConfiguration;
  * Utility class for formatting data in a human-readable way.
  * It includes methods for formatting bytes, pointers, and thread information.
  * 
- * @since 2.3.2
+ * @since 0.2.3-beta
  * @author Theko
  */
 public final class FormatUtilities {

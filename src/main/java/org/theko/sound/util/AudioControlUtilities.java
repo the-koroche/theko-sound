@@ -32,7 +32,7 @@ import org.theko.sound.controls.FloatControl;
  * 
  * <p>This class is not intended to be instantiated.
  * 
- * @since 2.4.1
+ * @since 0.2.4-beta
  * @author Theko
  */
 public final class AudioControlUtilities {

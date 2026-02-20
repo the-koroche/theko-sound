@@ -21,7 +21,7 @@ package org.theko.sound.generators;
  * 
  * @see AudioGenerator
  * 
- * @since 2.4.0
+ * @since 0.2.4-beta
  * @author Theko
  */
 public class NoiseGenerator extends AudioGenerator {

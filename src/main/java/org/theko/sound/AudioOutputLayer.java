@@ -90,7 +90,7 @@ import org.theko.sound.util.TimeUtilities;
  * @see AudioOutputBackend
  * @see AudioNode
  * 
- * @since 2.0.0
+ * @since 0.2.0-beta
  * @author Theko
  */
 public class AudioOutputLayer implements AutoCloseable,

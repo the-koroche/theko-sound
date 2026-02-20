@@ -32,7 +32,7 @@ import org.theko.sound.util.MathUtilities;
  * level between 0.0 and 1.0. Curve tensions range from -1.0 to 1.0: negative values create concave
  * curves, positive values create convex curves, and 0.0 results in a linear transition.
  *
- * @since 2.4.1
+ * @since 0.2.4-beta
  * @author Theko
  */
 public class Envelope implements Controllable {

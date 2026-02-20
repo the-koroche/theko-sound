@@ -33,7 +33,7 @@ import org.theko.sound.codecs.formats.WAVECodec;
 /**
  * The AudioClassRegister class is responsible for registering audio backend and codec classes.
  *
- * @since 2.0.0
+ * @since 0.2.0-beta
  * @author Theko
  * 
  * @see AudioBackend

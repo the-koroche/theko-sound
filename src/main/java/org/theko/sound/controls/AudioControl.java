@@ -36,7 +36,7 @@ import org.theko.sound.events.AudioControlListener;
  * @see FloatControl
  * @see Controllable
  * 
- * @since 1.2.0
+ * @since 0.1.2-beta
  * @author Theko
  */
 public abstract class AudioControl implements ListenersManagerProvider<AudioControlEvent, AudioControlListener, AudioControlEventType> {

@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  * @see AudioControl
  * @see FloatControl
  * 
- * @since 2.1.0
+ * @since 0.2.1-beta
  * @author Theko
  */
 @SuppressWarnings("rawtypes")

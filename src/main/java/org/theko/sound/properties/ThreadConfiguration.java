@@ -26,7 +26,7 @@ import org.theko.sound.util.ThreadUtilities;
  * @see ThreadType
  * @see ThreadUtilities
  * 
- * @since 2.4.1
+ * @since 0.2.4-beta
  * @author Theko
  */
 public class ThreadConfiguration {

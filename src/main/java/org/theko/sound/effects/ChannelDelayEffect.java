@@ -26,7 +26,7 @@ import org.theko.sound.controls.FloatControl;
  * The delay amount can be adjusted for each channel.
  * 
  * @author Theko
- * @since 2.4.0
+ * @since 0.2.4-beta
  */
 public class ChannelDelayEffect extends AudioEffect {
 

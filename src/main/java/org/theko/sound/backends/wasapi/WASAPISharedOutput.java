@@ -35,7 +35,7 @@ import org.theko.sound.backends.BackendNotOpenException;
  * @see WASAPISharedBackend
  *
  * @author Theko
- * @since 2.3.2
+ * @since 0.2.3-beta
  */
 public final class WASAPISharedOutput extends WASAPISharedBackend implements AudioOutputBackend {
 

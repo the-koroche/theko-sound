@@ -29,7 +29,7 @@ import java.util.Objects;
  * with {@code .so}.
  * 
  * 
- * @since 2.3.2
+ * @since 0.2.3-beta
  * @author Theko
  */
 public final class PlatformUtilities {

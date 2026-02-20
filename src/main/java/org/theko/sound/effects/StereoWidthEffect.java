@@ -26,7 +26,7 @@ import org.theko.sound.controls.FloatControl;
  * This effect can be applied to audio samples in real-time, making it useful for creative sound design
  * and spatial audio applications.
  * 
- * @since 2.1.0
+ * @since 0.2.1-beta
  * @author Theko
  */
 public class StereoWidthEffect extends AudioEffect {

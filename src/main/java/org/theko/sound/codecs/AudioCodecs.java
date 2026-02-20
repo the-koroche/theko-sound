@@ -38,7 +38,7 @@ import org.theko.sound.AudioClassRegister;
  * 
  * <p><strong>Thread Safety:</strong> The collection of codecs is synchronized to ensure thread-safe access.
  * 
- * @since 1.3.1
+ * @since 0.1.3-beta
  * @author Theko
  */
 public final class AudioCodecs {

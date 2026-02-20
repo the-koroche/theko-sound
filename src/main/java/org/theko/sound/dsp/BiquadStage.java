@@ -22,7 +22,7 @@ package org.theko.sound.dsp;
  * @see AudioFilter
  * @see CascadeFilter
  * 
- * @since 2.3.2
+ * @since 0.2.3-beta
  * @author Theko
  */
 public class BiquadStage implements AudioFilter {

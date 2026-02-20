@@ -47,7 +47,7 @@ import org.theko.sound.util.MathUtilities;
  * @see AudioVisualizer
  * @see #setFrequencyScale(float)
  * 
- * @since 2.2.0
+ * @since 0.2.2-beta
  * @author Theko
  */
 public class SpectrumVisualizer extends AudioVisualizer {

@@ -71,7 +71,7 @@ import org.theko.sound.util.AudioBufferUtilities;
  * @see BooleanControl
  * 
  * @author Theko
- * @since 2.0.0
+ * @since 0.2.0-beta
  */
 public class AudioMixer implements AudioNode, Controllable {
     

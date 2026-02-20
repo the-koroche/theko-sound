@@ -19,7 +19,7 @@ package org.theko.sound.dsp;
 /**
  * Represents common filter types used in audio processing.
  *
- * @since 2.3.2
+ * @since 0.2.3-beta
  * author Theko
  */
 public enum FilterType {

@@ -79,7 +79,7 @@ import org.theko.sound.util.AudioBufferUtilities;
  * @see AudioMixer
  * @see ResamplerEffect
  * 
- * @since 2.0.0
+ * @since 0.2.0-beta
  * @author Theko
  */
 public class SoundSource implements AudioNode, Controllable, AutoCloseable,

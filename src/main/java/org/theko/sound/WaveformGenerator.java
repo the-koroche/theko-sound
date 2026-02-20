@@ -19,7 +19,7 @@ package org.theko.sound;
 /**
  * Utility class for generating waveforms.
  * 
- * @since 2.3.2
+ * @since 0.2.3-beta
  * @author Theko
  */
 public class WaveformGenerator {

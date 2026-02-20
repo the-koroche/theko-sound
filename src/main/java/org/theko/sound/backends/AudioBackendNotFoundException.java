@@ -26,7 +26,7 @@ package org.theko.sound.backends;
  *   <li>When the system fails to detect a required audio backend.</li>
  * </ul>
  * 
- * @since 1.0.0
+ * @since 0.1.0-beta
  * @author Theko
  */
 public class AudioBackendNotFoundException extends Exception {

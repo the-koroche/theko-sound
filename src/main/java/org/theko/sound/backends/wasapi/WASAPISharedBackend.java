@@ -56,7 +56,7 @@ import org.theko.sound.util.PlatformUtilities.Platform;
  * Note: Input backend functionality is not realized and will throw {@link UnsupportedOperationException}.
  *
  * @author Theko
- * @since 2.3.2
+ * @since 0.2.3-beta
  * 
  * @see AudioBackend
  * @see AudioPort

@@ -22,7 +22,7 @@ package org.theko.sound.resamplers;
  * This method is suitable for high-quality audio resampling,
  * providing a good balance between performance and quality.
  * 
- * @since 2.0.0
+ * @since 0.2.0-beta
  * @author Theko
  * 
  * @see ResampleMethod

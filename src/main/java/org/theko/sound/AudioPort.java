@@ -27,7 +27,7 @@ import org.theko.sound.backends.AudioPortLink;
  * 
  * <p>This class is immutable, meaning its state cannot be changed after it is created.
  * 
- * @since 1.0.0
+ * @since 0.1.0-beta
  * @author Theko
  */
 public class AudioPort {

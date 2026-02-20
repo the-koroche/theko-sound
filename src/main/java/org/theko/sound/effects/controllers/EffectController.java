@@ -24,7 +24,7 @@ import org.theko.sound.effects.AudioEffect;
  * Abstract class representing an audio effect controller.
  * It is used when a control group is managed by the effect.
  * 
- * @since 2.4.1
+ * @since 0.2.4-beta
  * @author Theko
  */
 public abstract class EffectController extends AudioEffect {

@@ -60,7 +60,7 @@ import org.theko.sound.AudioFormat;
  * @see AudioFormat
  * @see ByteBuffer
  * 
- * @since 1.2.0
+ * @since 0.1.2-beta
  * @author Theko
  */
 public final class SamplesConverter {

@@ -21,7 +21,7 @@ package org.theko.sound.util;
  * <p>This class provides methods for remapping values between ranges, linear interpolation,
  * and quantization of floating-point values.
  * 
- * @since 2.0.0
+ * @since 0.2.0-beta
  * @author Theko
  */
 public final class MathUtilities {

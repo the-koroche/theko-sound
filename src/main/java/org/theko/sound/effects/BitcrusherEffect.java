@@ -29,7 +29,7 @@ import org.theko.sound.controls.FloatControl;
  * and manipulation.
  * 
  * @author Theko
- * @since 2.0.0
+ * @since 0.2.0-beta
  */
 public class BitcrusherEffect extends AudioEffect {
 

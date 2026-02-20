@@ -24,7 +24,7 @@ import org.theko.sound.util.AudioBufferUtilities;
  * 
  * @see AudioBufferUtilities
  * 
- * @since 2.4.0
+ * @since 0.2.4-beta
  * @author Theko
  */
 public final class SamplesValidation {

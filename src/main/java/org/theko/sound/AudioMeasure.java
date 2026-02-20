@@ -27,7 +27,7 @@ import org.theko.sound.util.FormatUtilities;
  * It can be created using the static methods {@code ofFrames}, {@code ofSamples}, {@code ofBytes}, or {@code ofSeconds},
  * and can be converted to other units using the methods {@code getFrames}, {@code getSamples}, {@code getBytes}, or {@code getSeconds}.
  * 
- * @since 2.4.0
+ * @since 0.2.4-beta
  * @author Theko
  */
 public class AudioMeasure {

@@ -30,7 +30,7 @@ import org.theko.sound.util.AudioBufferUtilities;
  * position in the stereo field.
  * 
  * @author Theko
- * @since 2.1.0
+ * @since 0.2.1-beta
  */
 public class AudioPositioningEffect extends AudioEffect {
 

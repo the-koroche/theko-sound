@@ -26,7 +26,7 @@ package org.theko.sound.codecs;
  * represents the metadata field (e.g., "Title") and the value represents the
  * corresponding data (e.g., "Song Name").
  * 
- * @since 1.3.1
+ * @since 0.1.3-beta
  * @author Theko
  */
 public class AudioTag {

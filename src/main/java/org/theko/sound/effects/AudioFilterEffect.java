@@ -37,7 +37,7 @@ import org.theko.sound.dsp.CascadeFilter;
  * The filter can process audio in either a single-pass or double-pass configuration, allowing for
  * different levels of filtering intensity and response characteristics.
  *
- * @since 2.3.2
+ * @since 0.2.3-beta
  * @author Theko
  */
 public class AudioFilterEffect extends AudioEffect {

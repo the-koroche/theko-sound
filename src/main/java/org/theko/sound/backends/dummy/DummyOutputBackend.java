@@ -33,7 +33,7 @@ import org.theko.sound.util.TimeUtilities;
  * It implements the {@link AudioOutputBackend} interface and provides all the necessary methods.
  * 
  * @author Theko
- * @since 2.4.1
+ * @since 0.2.4-beta
  */
 public class DummyOutputBackend extends DummyAudioBackend implements AudioOutputBackend {
 

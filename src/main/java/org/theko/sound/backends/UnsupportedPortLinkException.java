@@ -20,7 +20,7 @@ package org.theko.sound.backends;
  * This exception is thrown to indicate that an audio port link type is not supported by the audio backend.
  * It extends the {@link AudioBackendException} class and provides constructors for various use cases.
  * 
- * @since 2.3.2
+ * @since 0.2.3-beta
  * @author Theko
  */
 public class UnsupportedPortLinkException extends AudioBackendException {

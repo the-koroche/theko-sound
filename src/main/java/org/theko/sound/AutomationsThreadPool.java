@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @see Automation
  *
- * @since 2.4.0
+ * @since 0.2.4-beta
  * @author Theko
  */
 class AutomationsThreadPool {

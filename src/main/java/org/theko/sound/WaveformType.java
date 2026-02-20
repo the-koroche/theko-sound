@@ -22,7 +22,7 @@ package org.theko.sound;
  * 
  * @see WaveformGenerator
  * 
- * @since 2.3.2
+ * @since 0.2.3-beta
  * @author Theko
  */
 public enum WaveformType {

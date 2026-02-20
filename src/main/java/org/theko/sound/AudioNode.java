@@ -21,7 +21,7 @@ package org.theko.sound;
  * <p>Each node can process audio samples and is responsible for rendering
  * its output into the provided sample buffer.
  * 
- * @since 2.0.0
+ * @since 0.2.0-beta
  * @author Theko
  * 
  * @see org.theko.sound.AudioMixer

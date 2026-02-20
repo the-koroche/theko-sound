@@ -29,7 +29,7 @@ import org.theko.sound.resamplers.ResampleMethod;
  * This effect can be applied to audio samples to change their playback speed without altering
  * the pitch, making it useful for various audio processing tasks.
  * 
- * @since 2.0.0
+ * @since 0.2.0-beta
  * @author Theko
  */
 public class ResamplerEffect extends AudioEffect implements VaryingSizeEffect{

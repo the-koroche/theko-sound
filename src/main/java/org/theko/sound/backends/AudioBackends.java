@@ -67,7 +67,7 @@ import org.theko.sound.util.PlatformUtilities.Platform;
  * @see AudioInputBackend
  * @see AudioOutputBackend
  * 
- * @since 1.0.0
+ * @since 0.1.0-beta
  * @author Theko
  */
 public final class AudioBackends {

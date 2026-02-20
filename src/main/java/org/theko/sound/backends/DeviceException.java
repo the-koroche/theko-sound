@@ -19,7 +19,7 @@ package org.theko.sound.backends;
 /**
  * An exception that is thrown when an audio device state changed, e.g. an audio device is invalidated.
  * 
- * @since 2.4.0
+ * @since 0.2.4-beta
  * @author Theko
  */
 public class DeviceException extends AudioBackendException {

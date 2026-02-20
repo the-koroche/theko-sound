@@ -31,7 +31,7 @@ import org.theko.sound.util.AudioPortUtilities;
  * Supports filtering by flow, format, and active status.
  * 
  * @author Theko
- * @since 2.3.2
+ * @since 0.2.3-beta
  */
 public class AudioPorts extends ArrayList<AudioPort> {
     

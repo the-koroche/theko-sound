@@ -23,7 +23,7 @@ import java.util.List;
  * Represents a linear color gradient.
  * Allows retrieving interpolated colors based on a normalized value or a float index.
  * 
- * @since 2.3.2
+ * @since 0.2.3-beta
  * @author Theko
  */
 public class ColorGradient {

@@ -21,7 +21,7 @@ import org.theko.sound.controls.AudioControl;
 /**
  * Event types for {@link AudioControl} events.
  * 
- * @since 2.4.0
+ * @since 0.2.4-beta
  * @author Theko
  */
 public enum AudioControlEventType {

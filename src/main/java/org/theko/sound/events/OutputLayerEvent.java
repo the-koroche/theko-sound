@@ -23,7 +23,7 @@ import org.theko.sound.AudioOutputLayer;
  * Event object for {@link AudioOutputLayer} events.
  * It contains the audio formats and the buffer sizes of the output layer.
  * 
- * @since 2.4.0
+ * @since 0.2.4-beta
  * @author Theko
  */
 public class OutputLayerEvent extends Event {

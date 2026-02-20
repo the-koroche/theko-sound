@@ -19,7 +19,7 @@ package org.theko.sound.visualizers;
 /**
  * A functional interface that returns a color based on a volume.
  * 
- * @since 2.3.2
+ * @since 0.2.3-beta
  * @author Theko
  */
 @FunctionalInterface

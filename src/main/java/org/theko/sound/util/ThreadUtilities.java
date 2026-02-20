@@ -25,7 +25,7 @@ import org.theko.sound.properties.ThreadType;
  * Utility class for creating threads.
  * 
  * @author Theko
- * @since 2.0.0
+ * @since 0.2.0-beta
  */
 public final class ThreadUtilities {
 

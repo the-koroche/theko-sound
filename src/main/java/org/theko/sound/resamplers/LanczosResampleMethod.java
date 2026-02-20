@@ -21,7 +21,7 @@ package org.theko.sound.resamplers;
  * This method uses the Lanczos kernel for interpolation,
  * known for its high-quality interpolation in audio and image processing.
  * 
- * @since 1.4.1
+ * @since 0.1.4-beta
  * @author Theko
  */
 public class LanczosResampleMethod implements ResampleMethod {

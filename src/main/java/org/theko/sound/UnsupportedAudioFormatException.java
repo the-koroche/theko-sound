@@ -26,7 +26,7 @@ package org.theko.sound;
  * <p>Usage examples include scenarios where an audio file format is not
  * recognized or supported by the application.
  * 
- * @since 1.0.0
+ * @since 0.1.0-beta
  * @author Theko
  */
 public class UnsupportedAudioFormatException extends Exception {

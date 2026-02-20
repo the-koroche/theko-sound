@@ -21,7 +21,7 @@ import org.theko.sound.SoundSource;
 /**
  * Event types for {@link SoundSource} events.
  * 
- * @since 2.4.0
+ * @since 0.2.4-beta
  * @author Theko
  */
 public enum SoundSourceEventType {

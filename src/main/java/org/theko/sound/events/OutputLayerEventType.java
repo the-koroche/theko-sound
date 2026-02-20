@@ -21,7 +21,7 @@ import org.theko.sound.AudioOutputLayer;
 /**
  * Event types for {@link AudioOutputLayer} events.
  * 
- * @since 2.4.0
+ * @since 0.2.4-beta
  * @author Theko
  */
 public enum OutputLayerEventType {

@@ -29,7 +29,7 @@ import org.theko.sound.util.MathUtilities;
  * The peak amount control determines the amount by which the peak value is scaled.
  * The peak decay speed control determines the speed at which the peak value decays over time.
  * 
- * @since 2.4.1
+ * @since 0.2.4-beta
  * @author Theko
  */
 public class PeakController extends EffectController {

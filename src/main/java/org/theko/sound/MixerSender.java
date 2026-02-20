@@ -47,7 +47,7 @@ import org.theko.sound.util.AudioBufferUtilities;
  * @see AudioEffect
  * 
  * @author Theko
- * @since 2.4.1
+ * @since 0.2.4-beta
  */
 public class MixerSender extends AudioEffect {
 

@@ -21,7 +21,7 @@ import java.io.File;
 /**
  * Utility class for common file operations.
  * 
- * @since 2.4.0
+ * @since 0.2.4-beta
  * @author Theko
  */
 public final class FileUtilities {

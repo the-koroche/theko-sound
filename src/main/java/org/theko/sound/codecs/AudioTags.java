@@ -23,7 +23,7 @@ import java.util.Iterator;
 /**
  * Represents a collection of audio metadata tags.
  * 
- * @since 2.5.0
+ * @since 0.2.5-beta
  * @author Theko
  */
 public class AudioTags implements Iterable<AudioTag> {

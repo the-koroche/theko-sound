@@ -39,7 +39,7 @@ import org.theko.sound.effects.AudioEffect;
  * <p>It extends the {@code AudioEffect} class and provides
  * a framework for visualizing audio data in real-time.
  * 
- * @since 2.1.1
+ * @since 0.2.1-beta
  * @author Theko
  */
 public abstract class AudioVisualizer extends AudioEffect implements Closeable {
@@ -79,7 +79,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
     /**
      * The {@code Render} class is a utility class used by {@code AudioVisualizer} to manage rendering.
      * 
-     * @since 2.4.1
+     * @since 0.2.4-beta
      * @author Theko
      */
     protected class Render {

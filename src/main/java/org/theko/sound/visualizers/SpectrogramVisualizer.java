@@ -42,7 +42,7 @@ import static org.theko.sound.visualizers.SpectrumVisualizationUtilities.*;
  * 
  * @see AudioVisualizer
  * 
- * @since 2.3.2
+ * @since 0.2.3-beta
  * @author Theko
  */
 public class SpectrogramVisualizer extends AudioVisualizer {

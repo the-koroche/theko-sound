@@ -20,7 +20,7 @@ package org.theko.sound.resamplers;
  * NearestResampleMethod implements a nearest neighbor resampling algorithm.
  * It simply copies the nearest sample from the input array to the output array.
  *
- * @since 2.3.2
+ * @since 0.2.3-beta
  * @author Theko
  */
 public class NearestResampleMethod implements ResampleMethod {

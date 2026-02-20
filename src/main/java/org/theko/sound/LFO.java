@@ -47,7 +47,7 @@ import org.theko.sound.controls.FloatControl;
  * lfo.start();
  * }</pre>
  * 
- * @since 2.3.2
+ * @since 0.2.3-beta
  * @author Theko
  */
 public class LFO implements Controllable {

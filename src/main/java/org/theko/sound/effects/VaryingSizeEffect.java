@@ -23,7 +23,7 @@ package org.theko.sound.effects;
  * Implementations should provide a method to determine the target length
  * based on the required length.
  * 
- * @since 2.0.0
+ * @since 0.2.0-beta
  * @author Theko
  * 
  * @see AudioEffect

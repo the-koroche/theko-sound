@@ -58,7 +58,7 @@ import org.theko.sound.backends.BackendNotOpenException;
  * @see JavaSoundBackend
  * @see SourceDataLine
  * 
- * @since 1.0.0
+ * @since 0.1.0-beta
  * @author Theko
  */
 public final class JavaSoundOutput extends JavaSoundBackend implements AudioOutputBackend {

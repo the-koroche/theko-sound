@@ -25,7 +25,7 @@ import org.theko.sound.AudioNode;
  * @see AudioNode
  * @see NoiseGenerator
  * 
- * @since 2.4.0
+ * @since 0.2.4-beta
  * @author Theko
  */
 public abstract class AudioGenerator implements AudioNode {

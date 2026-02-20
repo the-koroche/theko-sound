@@ -21,7 +21,7 @@ package org.theko.sound.resamplers;
  * Implementations of this interface define how to resample an input array
  * of audio samples to a specified target length.
  * 
- * @since 1.4.1
+ * @since 0.1.4-beta
  * @author Theko
  */
 public interface ResampleMethod {

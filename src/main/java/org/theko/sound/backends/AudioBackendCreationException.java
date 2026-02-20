@@ -30,7 +30,7 @@ package org.theko.sound.backends;
  * Usage examples include handling errors when initializing or configuring audio
  * backends in an application.
  *
- * @since 1.0.0
+ * @since 0.1.0-beta
  * @author Theko
  */
 public class AudioBackendCreationException extends Exception {

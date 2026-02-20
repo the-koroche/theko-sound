@@ -38,7 +38,7 @@ import org.theko.sound.util.MathUtilities;
  * 
  * @see AudioVisualizer
  * 
- * @since 2.1.1
+ * @since 0.2.1-beta
  * @author Theko
  */
 public class WaveformVisualizer extends AudioVisualizer {

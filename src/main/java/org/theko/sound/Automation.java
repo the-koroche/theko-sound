@@ -34,7 +34,7 @@ import org.theko.sound.util.MathUtilities;
  * @see AudioControlGroup
  * @see Keypoint
  * 
- * @since 2.4.0
+ * @since 0.2.4-beta
  * @author Theko
  */
 public class Automation {
@@ -53,7 +53,7 @@ public class Automation {
      * Represents a keypoint in an automation.
      * It stores the time, value, and tension of the keypoint.
      * 
-     * @since 2.4.0
+     * @since 0.2.4-beta
      * @author Theko
      */
     public static class Keypoint {

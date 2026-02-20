@@ -42,7 +42,7 @@ import org.theko.sound.controls.FloatControl;
  * @see AudioEffect
  * @see FloatControl
  * 
- * @since 1.4.1
+ * @since 0.1.4-beta
  * @author Theko
  */
 public class AudioLimiter extends AudioEffect {

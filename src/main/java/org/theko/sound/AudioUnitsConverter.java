@@ -20,7 +20,7 @@ package org.theko.sound;
  * Provides methods for converting between time durations in microseconds and audio frames,
  * and also between linear amplitude multipliers and decibel (dB) values.
  *
- * @since 1.1.0
+ * @since 0.1.1-beta
  * @author Theko
  */
 public final class AudioUnitsConverter {

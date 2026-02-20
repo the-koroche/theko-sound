@@ -25,7 +25,7 @@ package org.theko.sound.codecs;
  * attempts to process audio data with a codec that is unavailable
  * or unsupported.
  * 
- * @since 1.3.1
+ * @since 0.1.3-beta
  * @author Theko
  */
 public class AudioCodecNotFoundException extends AudioCodecException {

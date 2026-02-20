@@ -29,7 +29,7 @@ import org.theko.sound.backends.wasapi.WASAPISharedBackend;
 /**
  * Utility class to map audio port link types to audio backends.
  * 
- * @since 2.3.2
+ * @since 0.2.3-beta
  * @author Theko
  */
 public final class AudioPortUtilities {

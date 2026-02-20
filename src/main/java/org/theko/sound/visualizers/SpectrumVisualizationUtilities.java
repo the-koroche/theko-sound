@@ -22,7 +22,7 @@ import java.util.Arrays;
  * Utility class for spectrum visualization with interpolation methods,
  * and position mapping.
  * 
- * @since 2.4.1
+ * @since 0.2.4-beta
  * @author Theko
  */
 public final class SpectrumVisualizationUtilities {

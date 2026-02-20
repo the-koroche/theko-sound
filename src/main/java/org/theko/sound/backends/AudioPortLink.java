@@ -23,7 +23,7 @@ import org.theko.sound.AudioPort;
  * 
  * @see AudioPort
  * 
- * @since 2.4.0
+ * @since 0.2.4-beta
  * @author Theko
  */
 public interface AudioPortLink {

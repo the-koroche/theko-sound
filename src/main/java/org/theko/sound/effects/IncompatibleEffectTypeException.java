@@ -23,7 +23,7 @@ package org.theko.sound.effects;
  * Usually this exception is used when an effect is offline processing,
  * but it is added to an AudioMixer that expects an real-time effect.
  * 
- * @since 2.0.0
+ * @since 0.2.0-beta
  * @author Theko
  */
 public class IncompatibleEffectTypeException extends Exception {

@@ -57,7 +57,7 @@ import org.theko.sound.UnsupportedAudioFormatException;
  * @see AudioFlow
  * @see AudioFormat
  * 
- * @since 1.0.0
+ * @since 0.1.0-beta
  * @author Theko
  */
 @AudioBackendType(name = "JavaSound",

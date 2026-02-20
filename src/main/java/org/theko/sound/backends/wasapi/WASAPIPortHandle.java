@@ -22,7 +22,7 @@ import org.theko.sound.backends.AudioPortLink;
  * String identifier representation of a native audio port handle.
  * Used to identify audio ports link type in the WASAPI backend.
  * 
- * @since 2.3.2
+ * @since 0.2.3-beta
  * @author Theko
  */
 public class WASAPIPortHandle implements AudioPortLink {

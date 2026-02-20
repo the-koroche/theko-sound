@@ -21,7 +21,7 @@ package org.theko.sound.properties;
  * 
  * @see AudioSystemProperties
  * 
- * @since 2.4.1
+ * @since 0.2.4-beta
  * @author Theko
  */
 public enum ThreadType {

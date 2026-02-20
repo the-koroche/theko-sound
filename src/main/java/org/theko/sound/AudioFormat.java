@@ -48,7 +48,7 @@ import org.theko.sound.util.FormatUtilities;
  * 
  * @see Encoding
  * 
- * @since 1.0.0
+ * @since 0.1.0-beta
  * @author Theko
  */
 public class AudioFormat implements Serializable {

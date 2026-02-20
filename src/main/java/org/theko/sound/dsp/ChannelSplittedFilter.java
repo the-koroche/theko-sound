@@ -32,7 +32,7 @@ import org.theko.sound.samples.SamplesValidation;
  * @see AudioFilter
  * @see CascadeFilter
  * 
- * @since 2.4.1
+ * @since 0.2.4-beta
  * @author Theko
  */
 public class ChannelSplittedFilter<T extends AudioFilter> {

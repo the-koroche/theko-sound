@@ -28,7 +28,7 @@ import java.util.concurrent.locks.LockSupport;
  * <p>
  * This class is final and cannot be instantiated.
  *
- * @since 2.4.1
+ * @since 0.2.4-beta
  * @author Theko
  */
 public final class TimeUtilities {

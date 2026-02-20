@@ -21,7 +21,7 @@ package org.theko.sound;
  * This exception can be used to signal issues related to missing or unavailable
  * audio ports in the system.
  * 
- * @since 1.0.0
+ * @since 0.1.0-beta
  * @author Theko
  */
 public class AudioPortsNotFoundException extends Exception {

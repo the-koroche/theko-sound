@@ -24,7 +24,7 @@ package org.theko.sound.codecs;
  * If the provided codec class is not annotated with {@link AudioCodecType},
  * an {@link IllegalArgumentException} is thrown.
  * 
- * @since 1.3.1
+ * @since 0.1.3-beta
  * @author Theko
  */
 public class AudioCodecInfo {

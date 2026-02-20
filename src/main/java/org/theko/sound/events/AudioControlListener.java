@@ -22,7 +22,7 @@ import org.theko.sound.controls.AudioControl;
 /**
  * Listener for {@link AudioControl} events.
  * 
- * @since 2.4.0
+ * @since 0.2.4-beta
  * @author Theko
  */
 public interface AudioControlListener extends Listener<AudioControlEvent, AudioControlEventType> {

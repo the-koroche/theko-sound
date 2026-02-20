@@ -22,7 +22,7 @@ import org.theko.sound.SoundSource;
 /**
  * Listener for {@link SoundSource} events.
  * 
- * @since 2.4.0
+ * @since 0.2.4-beta
  * @author Theko
  */
 public interface SoundSourceListener extends Listener<SoundSourceEvent, SoundSourceEventType> {

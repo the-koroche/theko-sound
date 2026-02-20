@@ -34,7 +34,7 @@ import org.theko.sound.events.AudioControlEventType;
  * 
  * @see AudioControl
  * 
- * @since 2.1.1
+ * @since 0.2.1-beta
  * @author Theko
  */
 public class EnumControl<T extends Enum<T>> extends AudioControl {

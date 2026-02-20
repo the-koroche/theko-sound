@@ -39,7 +39,7 @@ import org.theko.sound.controls.FloatControl;
  * @see BiquadStage
  * @see FilterType
  * 
- * @since 2.3.2
+ * @since 0.2.3-beta
  * @author Theko
  */
 public class CascadeFilter implements AudioFilter, Controllable {

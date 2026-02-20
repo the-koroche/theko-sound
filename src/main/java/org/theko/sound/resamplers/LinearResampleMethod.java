@@ -21,7 +21,7 @@ package org.theko.sound.resamplers;
  * functionality to resample an input array of floating-point audio samples to a
  * specified target length using linear interpolation.
  * 
- * @since 1.4.1
+ * @since 0.1.4-beta
  * @author Theko
  */
 public class LinearResampleMethod implements ResampleMethod {

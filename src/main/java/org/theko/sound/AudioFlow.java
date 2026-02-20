@@ -21,7 +21,7 @@ package org.theko.sound;
  * 
  * @see AudioPort
  * 
- * @since 1.0.0
+ * @since 0.1.0-beta
  * @author Theko
  */
 public enum AudioFlow {
