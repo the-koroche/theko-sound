@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Alex Soloviov (aka Theko)
+ * Copyright 2025-2026 Alex Soloviov (aka Theko)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,7 +139,7 @@ public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundIn
 
         for (AudioPort port : getAllPorts()) {
             if (port.getFlow() == flow && isFormatSupported(port, audioFormat)) {
-                logger.debug("Found compatible audio port: {}", port);
+                logger.trace("Found compatible audio port: {}", port);
                 availablePorts.add(port);
             }
         }
@@ -158,7 +158,7 @@ public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundIn
 
         for (AudioPort port : getAllPorts()) {
             if (port.getFlow() == flow) {
-                logger.debug("Found compatible audio port: {}", port);
+                logger.trace("Found compatible audio port: {}", port);
                 availablePorts.add(port);
             }
         }
@@ -222,7 +222,7 @@ public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundIn
 
     protected static Mixer getMixerForPort(AudioPort port) {
         if (port == null) {
-            logger.debug("Using default mixer.");
+            logger.trace("Using default mixer.");
             return AudioSystem.getMixer(null);
         }
 
@@ -268,13 +268,12 @@ public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundIn
                     logger.trace("Compatible format found: {}", current);
                     return current;
                 }
-                logger.trace("Format {} is not compatible with the audio port. Skipping.", current);
             }
         } catch (UnsupportedAudioFormatException ex) {
-            logger.info("Unsupported audio format: {}", ex);
+            logger.debug("Unsupported audio format: {}", ex);
         }
 
-        logger.info("No compatible format found.");
+        logger.debug("No compatible format found.");
 
         // No compatible format found
         return null;
