@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.theko.sound.util;
+package org.theko.sound.controls;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -29,8 +29,6 @@ import java.util.Objects;
 
 import javax.swing.JPanel;
 import javax.swing.Timer;
-
-import org.theko.sound.controls.AudioControl;
 
 /**
  * A utility class for visualizing the history of an {@link AudioControl} over time.
@@ -315,10 +313,12 @@ public class ControlVisualizer extends JPanel {
     /**
      * Sets the maximum time period in seconds for which the control value history is kept.
      * <p>A minimum value of 0.2f is enforced to prevent very short history periods.
+     * <p>Setting this value to -1 will use a default value of 60.0f equivalent to 1 minute.
      * 
      * @param historyTime the maximum time period in seconds for which the control value history is kept.
      */
     public void setHistoryMaxTime(float historyTime) {
+        if (historyTime == -1) historyTime = 60.0f;
         if (historyTime < 0.2f) historyTime = 0.2f;
         this.historyMaxTime = historyTime;
         

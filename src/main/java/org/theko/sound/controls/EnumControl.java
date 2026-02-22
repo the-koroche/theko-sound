@@ -25,7 +25,7 @@ import org.theko.sound.events.AudioControlEventType;
  * 
  * <p>Example usage:
  * <pre>
- * EnumControl bandTypeControl = new EnumControl("FilterType", BandType.PEAKING);
+ * EnumControl<BandType> bandTypeControl = new EnumControl<>("FilterType", BandType.PEAKING);
  * bandTypeControl.setValue(1.0f); // selects last enum constant
  * BandType current = bandTypeControl.getEnumValue();
  * </pre>
@@ -39,7 +39,7 @@ import org.theko.sound.events.AudioControlEventType;
  */
 public class EnumControl<T extends Enum<T>> extends AudioControl {
 
-    private final T[] enumValues;
+    protected final T[] enumValues;
     private T value;
 
     /**
