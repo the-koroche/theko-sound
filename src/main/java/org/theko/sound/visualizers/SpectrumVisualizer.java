@@ -75,7 +75,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
 
     private float spectrumDecayFactor = 0.86f;
     private DecayMode spectrumDecayMode = DecayMode.MULTIPLY;
-    private float finalSpectrumSmoothness = 0.6f;
+    private float spectrumSmoothness = 0.3f;
 
     protected static final float MIN_SCALE = 0.5f;
     protected static final float MAX_SCALE = 4.0f;
@@ -236,7 +236,12 @@ public class SpectrumVisualizer extends AudioVisualizer {
                 }
             }
 
-            smoothSpectrum(drawnSpectrum, finalSpectrumSmoothness);
+            float smooth = spectrumSmoothness;
+            float k = drawnSpectrum.length * spectrumSmoothness * 0.01f;
+            k = Math.max(k, 1.0001f);
+            smooth = 1.0f - 1.0f / k;
+            smooth = Math.min(smooth, 0.999f);
+            smoothSpectrum(drawnSpectrum, smooth);
         }
 
         private void fillRect(int x, int y, int w, int h, int argb, int[] pixels) {
@@ -581,7 +586,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
      * @param smoothness Smoothing strength in range [0..1]
      */
     public void setSpectrumSmoothness(float smoothness) {
-        this.finalSpectrumSmoothness = MathUtilities.clamp(smoothness, 0, 1);
+        this.spectrumSmoothness = MathUtilities.clamp(smoothness, 0, 1);
     }
 
     /**
@@ -592,7 +597,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
      * @return Smoothing strength in range [0..1]
      */
     public float getSpectrumSmoothness() {
-        return finalSpectrumSmoothness;
+        return spectrumSmoothness;
     }
     
     /**
