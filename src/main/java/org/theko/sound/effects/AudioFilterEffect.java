@@ -160,10 +160,10 @@ public class AudioFilterEffect extends AudioEffect {
         float gainVal = gain.getValue();
         
         if (lastChannels != samples.length ||
-            lastDoublePass != doublePass.isEnabled()) {
+            lastDoublePass != doublePass.getValue()) {
             createNewFilters(samples.length);
             lastChannels = samples.length;
-            lastDoublePass = doublePass.isEnabled();
+            lastDoublePass = doublePass.getValue();
         }
         updateFiltersCoefficients(cutoffVal, bandwidthVal, gainVal, sampleRate);
 
@@ -188,7 +188,7 @@ public class AudioFilterEffect extends AudioEffect {
      * @param channels the number of channels to create filters for
      */
     protected void createNewFilters(int channels) {
-        int order = (doublePass.isEnabled() ? DOUBLE_PASS_ORDERS : SINGLE_PASS_ORDERS);
+        int order = (doublePass.getValue() ? DOUBLE_PASS_ORDERS : SINGLE_PASS_ORDERS);
         lowPassFilter = new ChannelSplittedFilter<>(new CascadeFilter(FilterType.LOWPASS, order), channels);
         bandPassFilter = new ChannelSplittedFilter<>(new CascadeFilter(FilterType.BANDPASS, order), channels);
         highPassFilter = new ChannelSplittedFilter<>(new CascadeFilter(FilterType.HIGHPASS, order), channels);
@@ -227,6 +227,6 @@ public class AudioFilterEffect extends AudioEffect {
                 lastBandwidth != bandwidth.getValue() || 
                 lastGain != gain.getValue() || 
                 lastSampleRate != sampleRate || 
-                lastDoublePass != doublePass.isEnabled();
+                lastDoublePass != doublePass.getValue();
     }
 }

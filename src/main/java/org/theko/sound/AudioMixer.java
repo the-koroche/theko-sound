@@ -345,7 +345,7 @@ public class AudioMixer implements AudioNode, Controllable {
 
         int outputLength = samples[0].length;
 
-        boolean enableEffects = enableEffectsControl.isEnabled();
+        boolean enableEffects = enableEffectsControl.getValue();
         int inputLength = outputLength;
         try {
             inputLength = getTargetInputLength(outputLength);
@@ -391,10 +391,10 @@ public class AudioMixer implements AudioNode, Controllable {
             }
         }
 
-        if (swapChannelsControl.isEnabled()) {
+        if (swapChannelsControl.getValue()) {
             AudioBufferUtilities.swapChannels(mixed, mixed);
         }
-        if (reversePolarityControl.isEnabled()) {
+        if (reversePolarityControl.getValue()) {
             AudioBufferUtilities.reversePolarity(mixed, mixed);
         }
 
@@ -408,14 +408,14 @@ public class AudioMixer implements AudioNode, Controllable {
     }
 
     private int getTargetInputLength(int length) throws LengthMismatchException {
-        if (!enableEffectsControl.isEnabled()) {
+        if (!enableEffectsControl.getValue()) {
             return length;
         }
         int varyingIndex = getVaryingSizeEffectIndex();
         if (varyingIndex != -1) {
             AudioEffect effect = effects.get(varyingIndex);
             if (effect instanceof VaryingSizeEffect) {
-                if (effect.getEnableControl().isDisabled() || effect.getMixLevelControl().getValue() <= 0.0f) {
+                if (!effect.getEnableControl().getValue() || effect.getMixLevelControl().getValue() <= 0.0f) {
                     return length;
                 }
                 int required = ((VaryingSizeEffect) effect).getInputLength(length);

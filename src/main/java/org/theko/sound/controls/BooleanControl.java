@@ -50,21 +50,12 @@ public class BooleanControl extends AudioControl {
     }
 
     /**
-     * Checks if the current boolean value is true.
-     *
-     * @return {@code true} if the value is true, otherwise {@code false}.
+     * Retrieves the current boolean value of this BooleanControl.
+     * 
+     * @return The current boolean value of this BooleanControl.
      */
-    public boolean isEnabled() {
+    public boolean getValue() {
         return value;
-    }
-
-    /**
-     * Checks if the current boolean value is false.
-     *
-     * @return {@code true} if the value is false, otherwise {@code false}.
-     */
-    public boolean isDisabled() {
-        return !value;
     }
 
     /**

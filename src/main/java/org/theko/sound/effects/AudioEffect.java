@@ -149,7 +149,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
      * @throws RuntimeException If the samples have different lengths, with a LengthMismatchException as the cause
      */
     public final void renderWithMixing(float[][] samples, int sampleRate) {
-        if (!enable.isEnabled() || mixLevel.getValue() <= 0.0f) {
+        if (!enable.getValue() || mixLevel.getValue() <= 0.0f) {
             return; // Effect is disabled, do not process samples
         }
         boolean shouldMix = mixLevel.getValue() < 1.0f;

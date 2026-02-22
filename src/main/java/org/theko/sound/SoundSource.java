@@ -482,7 +482,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
         }
 
         float mix = effect.getMixLevelControl().getValue();
-        if (effect.getEnableControl().isDisabled() || mix <= 0.0f) {
+        if (!effect.getEnableControl().getValue() || mix <= 0.0f) {
             return; // Effect disabled or zero mix, nothing to do
         }
 
