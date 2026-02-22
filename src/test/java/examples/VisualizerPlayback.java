@@ -25,7 +25,8 @@ import org.theko.sound.codecs.AudioTag;
 import org.theko.sound.effects.BitcrusherEffect;
 import org.theko.sound.effects.ResamplerEffect;
 import org.theko.sound.events.OutputLayerEventType;
-import org.theko.sound.resamplers.LanczosResampleMethod;
+import org.theko.sound.resamplers.CubicResampleMethod;
+import org.theko.sound.visualizers.AudioVisualizer;
 import org.theko.sound.visualizers.ColorGradient;
 import org.theko.sound.visualizers.SpectrumVisualizer;
 
@@ -39,7 +40,7 @@ public class VisualizerPlayback {
     private long messageTimestamp = 0;
 
     private JFrame frame;
-    private SpectrumVisualizer spectrum;
+    private AudioVisualizer visualizer;
     private BitcrusherEffect bitcrusher;
 
     private class OverlayPanel extends JPanel {
@@ -97,7 +98,7 @@ public class VisualizerPlayback {
                 return;
             }
 
-            ResamplerEffect resampler = new ResamplerEffect(new LanczosResampleMethod());
+            ResamplerEffect resampler = new ResamplerEffect(new CubicResampleMethod());
             player.setResamplerEffect(resampler);
             
             AudioMixer mixer = player.getInnerMixer();
@@ -108,14 +109,16 @@ public class VisualizerPlayback {
             bitcrusher.getEnableControl().setValue(false);
             mixer.addEffect(bitcrusher);
 
-            spectrum = new SpectrumVisualizer(120.0f);
+            SpectrumVisualizer spectrum = new SpectrumVisualizer(120.0f);
             spectrum.setVolumeColorProcessor(ColorGradient.VIRIDIS_COLOR_MAP.getVolumeColorProcessor());
             spectrum.setFftWindowSize(4096);
             spectrum.setFrequencyScale(1.5f);
             mixer.addEffect(spectrum);
 
+            visualizer = spectrum;
+
             SwingUtilities.invokeLater(() -> {
-                frame = new JFrame("Spectrum");
+                frame = new JFrame(getReadableName(visualizer.getClass().getSimpleName()));
                 frame.setSize(800, 400);
                 frame.setMinimumSize(new Dimension(150, 100));
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -203,6 +206,11 @@ public class VisualizerPlayback {
         );
     }
 
+    private String getReadableName(String name) {
+        if (name == null || name.isEmpty()) return name;
+        return name.replaceAll("(?<!^)([A-Z])", " $1");
+    }
+
     private boolean ensureOpen() {
         if (!player.isOpen()) {
             System.out.println("Reopening output layer...");
@@ -246,8 +254,8 @@ public class VisualizerPlayback {
                 }
                 // Bitcrusher toggle
                 case KeyEvent.VK_B -> {
-                    bitcrusher.getEnableControl().setValue(!bitcrusher.getEnableControl().isEnabled());
-                    message("Bitcrusher %s".formatted(bitcrusher.getEnableControl().isEnabled() ? "enabled" : "disabled"));
+                    bitcrusher.getEnableControl().setValue(!bitcrusher.getEnableControl().getValue());
+                    message("Bitcrusher %s".formatted(bitcrusher.getEnableControl().getValue() ? "enabled" : "disabled"));
                 }
                 // Open new audio track
                 case KeyEvent.VK_O -> {
