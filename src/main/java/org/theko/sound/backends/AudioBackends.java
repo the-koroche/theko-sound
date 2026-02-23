@@ -75,9 +75,9 @@ public final class AudioBackends {
     private static final Logger logger = LoggerFactory.getLogger(AudioBackends.class);
 
     private static final Map<Platform, List<String>> PLATFORM_BACKENDS = Map.of(
-            Platform.WINDOWS, List.of("DirectSound", "WASAPI"),
-            Platform.LINUX, List.of("ALSA", "PulseAudio", "PipeWire", "JavaSound"),
-            Platform.OTHER_UNIX, List.of("ALSA", "PulseAudio", "PipeWire", "JavaSound"),
+            Platform.WINDOWS, List.of("WASAPIShared", "DirectSound"),
+            Platform.LINUX, List.of("PipeWire", "PulseAudio", "ALSA"),
+            Platform.OTHER_UNIX, List.of("PipeWire", "PulseAudio", "ALSA"),
             Platform.MAC, List.of("CoreAudio"),
             Platform.UNKNOWN, List.of("JavaSound")
     );
