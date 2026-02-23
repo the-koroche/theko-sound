@@ -1,12 +1,10 @@
 PROJECT_DIR ?= $(CURDIR)
 
-# Compiler settings
-CXX = g++
-CXXFLAGS = -Wall -Wextra -shared -static-libgcc -static-libstdc++ \
-	-Os -s -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections \
-	-D_WIN32_WINNT=0x0601 -DWINVER=0x0601
-
-LIBS = -lole32 -loleaut32 -lavrt -static -lpthread
+SRCS = \
+	$(PROJECT_DIR)/src/native/backends/wasapi/wasapi_shared_backend.cpp \
+	$(PROJECT_DIR)/src/native/backends/wasapi/wasapi_shared_output.cpp \
+	$(PROJECT_DIR)/src/native/backends/wasapi/wasapi_shared_input.cpp \
+	$(PROJECT_DIR)/src/native/JNI_Entrypoints.cpp
 
 INCLUDES = \
 	-I $(PROJECT_DIR)/src/native \
@@ -16,25 +14,42 @@ INCLUDES = \
 	-I "$(JAVA_HOME)/include" \
 	-I "$(JAVA_HOME)/include/win32"
 
-# Sources
-SRCS = \
-	$(PROJECT_DIR)/src/native/backends/wasapi/wasapi_shared_backend.cpp \
-	$(PROJECT_DIR)/src/native/backends/wasapi/wasapi_shared_output.cpp \
-	$(PROJECT_DIR)/src/native/backends/wasapi/wasapi_shared_input.cpp \
-	$(PROJECT_DIR)/src/native/JNI_Entrypoints.cpp
+COMMON_FLAGS = -shared -static-libgcc -static-libstdc++ \
+	-Os -s -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections \
+	-D_WIN32_WINNT=0x0601 -DWINVER=0x0601
 
-# Output
-OUT = $(PROJECT_DIR)/src/main/resources/native/WASApiShrd64.dll
+LIBS = -lole32 -loleaut32 -lavrt -static -lpthread
 
-# Rules
-all: $(OUT)
+OUTDIR = $(PROJECT_DIR)/src/main/resources/native
+OUT64  = $(OUTDIR)/WASApiShrd64.dll
+OUT32  = $(OUTDIR)/WASApiShrd32.dll
+
+ARCH ?= x64
+
+ifeq ($(ARCH),x64)
+  CXX = x86_64-w64-mingw32-g++
+  OUT = $(OUT64)
+endif
+
+ifeq ($(ARCH),x86)
+  CXX = i686-w64-mingw32-g++
+  OUT = $(OUT32)
+endif
+
+# Build
+all: x64 x86
+
+x64:
+	$(MAKE) ARCH=x64 build
+
+x86:
+	$(MAKE) ARCH=x86 build
+
+build: $(OUT)
 
 $(OUT): $(SRCS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $^ $(LIBS)
+	@if not exist "$(OUTDIR)" mkdir "$(OUTDIR)"
+	$(CXX) $(COMMON_FLAGS) $(INCLUDES) -o $@ $^ $(LIBS)
 
 clean:
-ifeq ($(OS),Windows_NT)
-	del /Q "$(subst /,\,$(OUT))" 2>nul
-else
-	rm -f $(OUT)
-endif
+	rm -f $(OUT64) $(OUT32) $(OUTARM)
