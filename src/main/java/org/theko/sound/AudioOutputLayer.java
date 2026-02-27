@@ -33,8 +33,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.events.EventDispatcher;
+import org.theko.events.ListenersManageable;
 import org.theko.events.ListenersManager;
-import org.theko.events.ListenersManagerProvider;
 import org.theko.sound.backends.AudioBackendCreationException;
 import org.theko.sound.backends.AudioBackendException;
 import org.theko.sound.backends.AudioBackendInfo;
@@ -94,7 +94,7 @@ import org.theko.sound.util.TimeUtilities;
  * @author Theko
  */
 public class AudioOutputLayer implements AutoCloseable,
-        ListenersManagerProvider<OutputLayerEvent, OutputLayerListener, OutputLayerEventType> {
+        ListenersManageable<OutputLayerEvent, OutputLayerListener, OutputLayerEventType> {
     
     private static final Logger logger = LoggerFactory.getLogger(AudioOutputLayer.class);
 

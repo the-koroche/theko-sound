@@ -19,8 +19,8 @@ package org.theko.sound.controls;
 import java.text.Normalizer;
 
 import org.theko.events.EventDispatcher;
+import org.theko.events.ListenersManageable;
 import org.theko.events.ListenersManager;
-import org.theko.events.ListenersManagerProvider;
 import org.theko.sound.events.AudioControlEvent;
 import org.theko.sound.events.AudioControlEventType;
 import org.theko.sound.events.AudioControlListener;
@@ -39,10 +39,11 @@ import org.theko.sound.events.AudioControlListener;
  * @since 0.1.2-beta
  * @author Theko
  */
-public abstract class AudioControl implements ListenersManagerProvider<AudioControlEvent, AudioControlListener, AudioControlEventType> {
+public abstract class AudioControl implements
+        ListenersManageable<AudioControlEvent, AudioControlListener, AudioControlEventType> {
 
     protected final String name;
-    protected final EventDispatcher<AudioControlEvent, AudioControlListener, AudioControlEventType> eventDispatcher = new EventDispatcher<>();
+    protected final EventDispatcher<AudioControlEvent, AudioControlListener, AudioControlEventType> eventDispatcher;
 
     /**
      * Constructs a new AudioControl with the specified name.
@@ -50,6 +51,7 @@ public abstract class AudioControl implements ListenersManagerProvider<AudioCont
      * @param name The name of the audio control.
      */
     public AudioControl(String name) {
+        this.eventDispatcher = new EventDispatcher<>();
         this.name = name;
         var eventMap = eventDispatcher.createEventMap();
         eventMap.put(AudioControlEventType.VALUE_CHANGED, AudioControlListener::onValueChanged);
@@ -88,11 +90,6 @@ public abstract class AudioControl implements ListenersManagerProvider<AudioCont
         return getComparableName().equals(normalizeName(name));
     }
 
-    @Override
-    public ListenersManager<AudioControlEvent, AudioControlListener, AudioControlEventType> getListenersManager() {
-        return eventDispatcher.getListenersManager();
-    }
-
     /**
      * Retrieves the name of this audio control.
      *
@@ -100,6 +97,11 @@ public abstract class AudioControl implements ListenersManagerProvider<AudioCont
      */
     public String getName() {
         return name;
+    }
+
+    @Override
+    public ListenersManager<AudioControlEvent, AudioControlListener, AudioControlEventType> getListenersManager() {
+        return eventDispatcher.getListenersManager();
     }
 
     /**

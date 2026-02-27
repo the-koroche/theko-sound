@@ -57,7 +57,7 @@
         <dependency>
             <groupId>io.github.the-koroche</groupId>
             <artifactId>theko-events</artifactId>
-            <version>1.2.4</version>
+            <version>2.0.0</version>
         </dependency>
     </dependencies>
 

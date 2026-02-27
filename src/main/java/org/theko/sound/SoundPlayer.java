@@ -201,6 +201,8 @@ public class SoundPlayer extends SoundSource {
 
     /**
      * Starts the playback of the sound source and waits for it to finish.
+     * 
+     * @throws InterruptedException If the playback is interrupted.
      */
     public void startAndWait() throws InterruptedException {
         start();
@@ -209,6 +211,8 @@ public class SoundPlayer extends SoundSource {
 
     /**
      * Waits for the playback of the sound source to finish.
+     * 
+     * @throws InterruptedException If the playback is interrupted.
      */
     public void waitUntilEnded() throws InterruptedException {
         while (super.isPlaying()) {
@@ -237,7 +241,10 @@ public class SoundPlayer extends SoundSource {
         logger.info("SoundPlayer closed.");
     }
 
-    public ListenersManager<OutputLayerEvent, OutputLayerListener, OutputLayerEventType> getOutputLayerListenersManager() {
+    /**
+     * @return The listeners manager for the audio output layer.
+     */
+    public ListenersManager<OutputLayerEvent, OutputLayerListener, OutputLayerEventType> getOutputLayerListeners() {
         return outputLayer.getListenersManager();
     }
 }

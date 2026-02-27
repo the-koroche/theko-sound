@@ -25,7 +25,7 @@ import org.theko.sound.controls.AudioControl;
  * @since 0.2.4-beta
  * @author Theko
  */
-public interface AudioControlListener extends Listener<AudioControlEvent, AudioControlEventType> {
+public interface AudioControlListener extends Listener<AudioControlEvent> {
 
     /**
      * Called when the value of an {@link AudioControl} is changed.

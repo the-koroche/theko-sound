@@ -24,8 +24,8 @@ import java.io.FileNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.events.EventDispatcher;
+import org.theko.events.ListenersManageable;
 import org.theko.events.ListenersManager;
-import org.theko.events.ListenersManagerProvider;
 import org.theko.sound.codecs.AudioCodec;
 import org.theko.sound.codecs.AudioCodecException;
 import org.theko.sound.codecs.AudioCodecInfo;
@@ -83,7 +83,7 @@ import org.theko.sound.util.AudioBufferUtilities;
  * @author Theko
  */
 public class SoundSource implements AudioNode, Controllable, AutoCloseable,
-        ListenersManagerProvider<SoundSourceEvent, SoundSourceListener, SoundSourceEventType> {
+        ListenersManageable<SoundSourceEvent, SoundSourceListener, SoundSourceEventType> {
 
     private static final Logger logger = LoggerFactory.getLogger(SoundSource.class);
     private final EventDispatcher<SoundSourceEvent, SoundSourceListener, SoundSourceEventType> eventDispatcher = new EventDispatcher<>();
@@ -191,7 +191,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
         eventMap.put(SoundSourceEventType.DATA_ENDED, SoundSourceListener::onDataEnded);
         eventDispatcher.setEventMap(eventMap);
 
-        speedControl.getListenersManager().addConsumer(AudioControlEventType.VALUE_CHANGED, event -> {
+        speedControl.addConsumer(AudioControlEventType.VALUE_CHANGED, (type, event) -> {
             ResamplerEffect resampler = this.resamplerEffect;
             if (resampler != null) {
                 resampler.getSpeedControl().setValue(speedControl.getValue());
@@ -228,10 +228,10 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
         if (innerMixer == null) {
             innerMixer = new AudioMixer();
 
-            innerMixer.getPostGainControl().getListenersManager().addConsumer(AudioControlEventType.VALUE_CHANGED, event -> 
+            innerMixer.getPostGainControl().addConsumer(AudioControlEventType.VALUE_CHANGED, (type, event) -> 
                     dispatch(SoundSourceEventType.VOLUME_CHANGE));
 
-            innerMixer.getPanControl().getListenersManager().addConsumer(AudioControlEventType.VALUE_CHANGED, event -> 
+            innerMixer.getPanControl().addConsumer(AudioControlEventType.VALUE_CHANGED, (type, event) -> 
                     dispatch(SoundSourceEventType.PAN_CHANGE));
         } else if (playback != null) {
             innerMixer.removeInput(playback);
