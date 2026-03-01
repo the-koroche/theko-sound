@@ -31,16 +31,16 @@ import org.theko.sound.properties.ThreadConfiguration;
 public final class FormatUtilities {
 
     public static final long KiBytes = 1024L;
-    public static final long MiByets = 1_048_576L;
-    public static final long GiByets = 1_073_741_824L;
-    public static final long TiByets = 1_099_511_627_776L;
-    public static final long PiByets = 1_125_899_906_842_624L;
+    public static final long MiBytes = 1_048_576L;
+    public static final long GiBytes = 1_073_741_824L;
+    public static final long TiBytes = 1_099_511_627_776L;
+    public static final long PiBytes = 1_125_899_906_842_624L;
 
-    public static final long KByets = 1000L;
-    public static final long MByets = 1_000_000L;
-    public static final long GByets = 1_000_000_000L;
-    public static final long TByets = 1_000_000_000_000L;
-    public static final long PByets = 1_000_000_000_000_000L;
+    public static final long KBytes = 1000L;
+    public static final long MBytes = 1_000_000L;
+    public static final long GBytes = 1_000_000_000L;
+    public static final long TBytes = 1_000_000_000_000L;
+    public static final long PBytes = 1_000_000_000_000_000L;
 
     public static final long KBits = 1000L;
     public static final long MBits = 1_000_000L;
@@ -93,11 +93,11 @@ public final class FormatUtilities {
      */
     public static String formatBytesBinary(long bytes, int precision) {
         if (bytes < KiBytes) return bytes + " B";
-        else if (bytes < MiByets) return formatAdaptive(bytes / (double) KiBytes, precision) + " KiB";
-        else if (bytes < GiByets) return formatAdaptive(bytes / (double) MiByets, precision) + " MiB";
-        else if (bytes < TiByets) return formatAdaptive(bytes / (double) GiByets, precision) + " GiB";
-        else if (bytes < PiByets) return formatAdaptive(bytes / (double) TiByets, precision) + " TiB";
-        else return formatAdaptive(bytes / (double) PiByets, precision) + " PiB";
+        else if (bytes < MiBytes) return formatAdaptive(bytes / (double) KiBytes, precision) + " KiB";
+        else if (bytes < GiBytes) return formatAdaptive(bytes / (double) MiBytes, precision) + " MiB";
+        else if (bytes < TiBytes) return formatAdaptive(bytes / (double) GiBytes, precision) + " GiB";
+        else if (bytes < PiBytes) return formatAdaptive(bytes / (double) TiBytes, precision) + " TiB";
+        else return formatAdaptive(bytes / (double) PiBytes, precision) + " PiB";
     }
 
     /**
@@ -108,12 +108,12 @@ public final class FormatUtilities {
      * @return The formatted string
      */
     public static String formatBytesDecimal(long bytes, int precision) {
-        if (bytes < KByets) return bytes + " B";
-        else if (bytes < MByets) return formatAdaptive(bytes / (double) KByets, precision) + " KB";
-        else if (bytes < GByets) return formatAdaptive(bytes / (double) MByets, precision) + " MB";
-        else if (bytes < TByets) return formatAdaptive(bytes / (double) GByets, precision) + " GB";
-        else if (bytes < PByets) return formatAdaptive(bytes / (double) TByets, precision) + " TB";
-        else return formatAdaptive(bytes / (double) PByets, precision) + " PB";
+        if (bytes < KBytes) return bytes + " B";
+        else if (bytes < MBytes) return formatAdaptive(bytes / (double) KBytes, precision) + " KB";
+        else if (bytes < GBytes) return formatAdaptive(bytes / (double) MBytes, precision) + " MB";
+        else if (bytes < TBytes) return formatAdaptive(bytes / (double) GBytes, precision) + " GB";
+        else if (bytes < PBytes) return formatAdaptive(bytes / (double) TBytes, precision) + " TB";
+        else return formatAdaptive(bytes / (double) PBytes, precision) + " PB";
     }
 
     /**
