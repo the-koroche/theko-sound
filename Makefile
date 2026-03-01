@@ -19,6 +19,7 @@ COMMON_FLAGS = -shared -static-libgcc -static-libstdc++ \
 	-D_WIN32_WINNT=0x0601 -DWINVER=0x0601
 
 LIBS = -lole32 -loleaut32 -lavrt -static -lpthread
+LIBS += -Wl,--gc-sections
 
 OUTDIR = $(PROJECT_DIR)/src/main/resources/native
 OUT64  = $(OUTDIR)/WASApiShrd64.dll
