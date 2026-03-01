@@ -1,7 +1,13 @@
 package helpers;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -14,6 +20,38 @@ import org.theko.sound.codecs.AudioCodecs;
 
 public final class FileChooserHelper {
 
+    private static final String lastOpenedFilePath = System.getProperty("java.io.tmpdir") + "/TSoundEx_FCH_LastOpenedFile.txt";
+    private static File lastOpened = getLastOpened();
+    
+    private static File getLastOpened() {
+        Path path = Path.of(lastOpenedFilePath);
+        if (!Files.exists(path)) return null;
+        
+        try {
+            String savedPath = Files.readString(path, StandardCharsets.UTF_8).trim();
+            if (savedPath.isEmpty()) return null;
+
+            File f = new File(savedPath);
+            return f.exists() ? f : null;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private static void setLastOpened(File file) {
+        try {
+            Files.writeString(
+                Path.of(lastOpenedFilePath),
+                file.getAbsolutePath(),
+                StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static File chooseAudioFile() {
         String[] extensions = getSupportedAudioExtensions();
         return chooseFile("Audio", extensions, getAdditionalAudioFilters());
@@ -22,7 +60,8 @@ public final class FileChooserHelper {
     public static String[] getSupportedAudioExtensions() {
         return AudioCodecs.getAllCodecs()
             .stream()
-            .map(AudioCodecInfo::getExtension)
+            .flatMap(codec -> Arrays.stream(codec.getExtensions()))
+            .distinct()
             .toArray(String[]::new);
     }
 
@@ -40,6 +79,9 @@ public final class FileChooserHelper {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Select " + getArticle(name) + name + " file");
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        if (lastOpened != null) {
+            chooser.setSelectedFile(getLastOpened());
+        }
 
         FileNameExtensionFilter filter = createFilter(name + " files", extensions);
         List<FileNameExtensionFilter> additionalFileFilters = createChoosableFilters(additionalFilters);
@@ -57,6 +99,7 @@ public final class FileChooserHelper {
         int result = chooser.showOpenDialog(null);
 
         if (result == JFileChooser.APPROVE_OPTION) {
+            setLastOpened(chooser.getSelectedFile());
             return chooser.getSelectedFile();
         }
 
