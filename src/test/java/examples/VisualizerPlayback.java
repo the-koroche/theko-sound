@@ -122,23 +122,23 @@ public class VisualizerPlayback {
                 frame.setSize(800, 400);
                 frame.setMinimumSize(new Dimension(150, 100));
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                spectrum.getPanel().setDoubleBuffered(true);
-                spectrum.getPanel().setBackground(Color.BLACK);
-                spectrum.getPanel().setOpaque(true);
+                visualizer.getPanel().setDoubleBuffered(true);
+                visualizer.getPanel().setBackground(Color.BLACK);
+                visualizer.getPanel().setOpaque(true);
 
-                JPanel spectrumPanel = spectrum.getPanel();
-                spectrumPanel.setLayout(new OverlayLayout(spectrumPanel));
+                JPanel visualizerPanel = visualizer.getPanel();
+                visualizerPanel.setLayout(new OverlayLayout(visualizerPanel));
 
                 JPanel overlay = new OverlayPanel();
                 overlay.setOpaque(false);
-                spectrumPanel.add(overlay);
+                visualizerPanel.add(overlay);
 
-                frame.add(spectrumPanel);
+                frame.add(visualizerPanel);
                 frame.addWindowListener(new WindowAdapter() {
                     @Override
                     public void windowClosing(WindowEvent e) {
                         player.close();
-                        spectrum.close();
+                        visualizer.close();
                     }
                 });
                 addKeyListeners();
