@@ -54,7 +54,7 @@ public class AudioTag {
     /**
      * Retrieves the key of the audio metadata tag.
      * 
-     * @return Key of the audio metadata tag.
+     * @return Key of the audio metadata tag
      */
     public String getKey() {
         return key;
@@ -63,7 +63,7 @@ public class AudioTag {
     /**
      * Retrieves the value associated with the audio metadata tag.
      * 
-     * @return Value associated with the audio metadata tag.
+     * @return Value associated with the audio metadata tag
      */
     public String getValue() {
         return value;

@@ -150,10 +150,10 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     /**
      * Constructs a new {@code SoundSource} object and opens the specified audio file.
      * 
-     * @param file The audio file to open.
-     * @throws FileNotFoundException If the audio file is not found.
-     * @throws AudioCodecNotFoundException If the audio codec is not found.
-     * @throws RuntimeException If decoding fails for other reasons or adding the resampler effect fails.
+     * @param file The audio file to open
+     * @throws FileNotFoundException If the audio file is not found
+     * @throws AudioCodecNotFoundException If the audio codec is not found
+     * @throws RuntimeException If decoding fails for other reasons or adding the resampler effect fails
      */
     public SoundSource(File file) throws FileNotFoundException, AudioCodecNotFoundException {
         this();
@@ -163,10 +163,10 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     /**
      * Constructs a new {@code SoundSource} object and opens the specified audio file.
      * 
-     * @param file The audio file path to open.
-     * @throws FileNotFoundException If the audio file is not found.
-     * @throws AudioCodecNotFoundException If the audio codec is not found.
-     * @throws RuntimeException If decoding fails for other reasons or adding the resampler effect fails.
+     * @param file The audio file path to open
+     * @throws FileNotFoundException If the audio file is not found
+     * @throws AudioCodecNotFoundException If the audio codec is not found
+     * @throws RuntimeException If decoding fails for other reasons or adding the resampler effect fails
      */
     public SoundSource(String file) throws FileNotFoundException, AudioCodecNotFoundException {
         this();
@@ -205,10 +205,10 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * If this SoundSource was opened previously, the mixer and resampler are not recreated,
      * and existing mixer effects are preserved.
      *
-     * @param file The audio file to open. Supported formats depend on available codecs.
-     * @throws FileNotFoundException If the file does not exist or cannot be read.
-     * @throws AudioCodecNotFoundException If no suitable codec is available for decoding.
-     * @throws RuntimeException If decoding fails for other reasons or adding the resampler effect fails.
+     * @param file The audio file to open. Supported formats depend on available codecs
+     * @throws FileNotFoundException If the file does not exist or cannot be read
+     * @throws AudioCodecNotFoundException If no suitable codec is available for decoding
+     * @throws RuntimeException If decoding fails for other reasons or adding the resampler effect fails
      */
     public void open(File file) throws FileNotFoundException, AudioCodecNotFoundException {
         if (file == null || !file.exists()) {
@@ -261,10 +261,10 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * If this SoundSource was opened previously, the mixer and resampler are not recreated,
      * and existing mixer effects are preserved.
      *
-     * @param file The audio file path to open. Supported formats depend on available codecs.
-     * @throws FileNotFoundException If the file does not exist or cannot be read.
-     * @throws AudioCodecNotFoundException If no suitable codec is available for decoding.
-     * @throws RuntimeException If decoding fails for other reasons or adding the resampler effect fails.
+     * @param file The audio file path to open. Supported formats depend on available codecs
+     * @throws FileNotFoundException If the file does not exist or cannot be read
+     * @throws AudioCodecNotFoundException If no suitable codec is available for decoding
+     * @throws RuntimeException If decoding fails for other reasons or adding the resampler effect fails
      * @see #open(File)
      */
     public void open(String file) throws FileNotFoundException, AudioCodecNotFoundException {
@@ -314,28 +314,28 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
 
     /**
      * Checks if the sound source is currently playing.
-     * @return {@code true} if the sound source is playing, {@code false} otherwise.
+     * @return {@code true} if the sound source is playing, {@code false} otherwise
      */
     public boolean isPlaying() {
         return isPlaying;
     }
 
     /**
-     * @return The gain control of the sound source.
+     * @return The gain control of the sound source
      */
     public FloatControl getGainControl() {
         return innerMixer.getPostGainControl();
     }
 
     /** 
-     * @return The inner mixer of the sound source.
+     * @return The inner mixer of the sound source
      */
     public AudioMixer getInnerMixer() {
         return innerMixer;
     }
 
     /**
-     * @return The resampler effect of the sound source.
+     * @return The resampler effect of the sound source
      */
     public ResamplerEffect getResamplerEffect() {
         return resamplerEffect;
@@ -346,8 +346,8 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * If the old resampler effect is the same as the new resampler effect, nothing is done, and {@code true} is returned.
      * If the new resampler effect cannot be added to the inner mixer, {@code false} is returned.
      * 
-     * @param newResamplerEffect The resampler effect to set, cannot be null.
-     * @throws IllegalArgumentException if the new resampler effect is null.
+     * @param newResamplerEffect The resampler effect to set, cannot be null
+     * @throws IllegalArgumentException if the new resampler effect is null
      */
     public boolean setResamplerEffect(ResamplerEffect newResamplerEffect) {
         if (newResamplerEffect == null)
@@ -372,7 +372,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
 
     /**
      * Sets the loop state of the sound source.
-     * @param loop {@code true} to loop the sound source, {@code false} otherwise.
+     * @param loop {@code true} to loop the sound source, {@code false} otherwise
      */
     public void setLoop(boolean loop) {
         this.loop = loop;
@@ -380,21 +380,21 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
 
     /**
      * Checks if the sound source is looping.
-     * @return {@code true} if the sound source is looping, {@code false} otherwise.
+     * @return {@code true} if the sound source is looping, {@code false} otherwise
      */
     public boolean isLooping() {
         return loop;
     }
     
     /**
-     * @return The pan control of the sound source.
+     * @return The pan control of the sound source
      */
     public FloatControl getPanControl() {
         return innerMixer.getPanControl();
     }
 
     /**
-     * @return The speed control of the sound source.
+     * @return The speed control of the sound source
      */
     public FloatControl getSpeedControl() {
         return speedControl;
@@ -402,7 +402,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
 
     /**
      * Sets the frame position of the sound source.
-     * @param position The frame position to set.
+     * @param position The frame position to set
      */
     public void setFramePosition(int position) {
         if (position < 0 || position > samplesData[0].length) {
@@ -414,7 +414,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     }
 
     /**
-     * @return The frame position of the sound source.
+     * @return The frame position of the sound source
      */
     public int getFramePosition() {
         return playedFrames;
@@ -422,7 +422,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
 
     /**
      * Sets the seconds position of the sound source.
-     * @param seconds The seconds position to set.
+     * @param seconds The seconds position to set
      */
     public void setSecondsPosition(double seconds) {
         int samples = (int)AudioUnitsConverter.microsecondsToFrames((long)(seconds * 1_000_000.0), audioFormat.getSampleRate());
@@ -430,14 +430,14 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     }
 
     /**
-     * @return The seconds position of the sound source.
+     * @return The seconds position of the sound source
      */
     public double getSecondsPosition() {
         return AudioUnitsConverter.framesToMicroseconds(playedFrames, audioFormat.getSampleRate()) / 1_000_000.0;
     }
 
     /**
-     * @return The duration of the sound source in seconds.
+     * @return The duration of the sound source in seconds
      */
     public double getDuration() {
         if (samplesData == null || audioFormat == null) {
@@ -447,14 +447,14 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     }
 
     /**
-     * @return The audio format of the sound source.
+     * @return The audio format of the sound source
      */
     public AudioFormat getAudioFormat() {
         return audioFormat;
     }
 
     /**
-     * @return The metadata tags of the sound source.
+     * @return The metadata tags of the sound source
      */
     public AudioTags getTags() {
         return tags;
@@ -466,9 +466,9 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * The sound source must not be playing. If the effect is a {@link VaryingSizeEffect},
      * the internal sample arrays may be resized to accommodate the effect's requirements.
      *
-     * @param effect The audio effect to apply.
-     * @throws IllegalArgumentException if the effect is null.
-     * @throws IllegalStateException if the sound source is not initialized or is currently playing.
+     * @param effect The audio effect to apply
+     * @throws IllegalArgumentException if the effect is null
+     * @throws IllegalStateException if the sound source is not initialized or is currently playing
      */
     public void applyEffect(AudioEffect effect) {
         if (samplesData == null || audioFormat == null) {

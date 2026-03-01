@@ -75,7 +75,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
     /**
      * Constructs an AudioEffect with the specified type.
      * 
-     * @param type The type of the audio effect, must not be null.
+     * @param type The type of the audio effect, must not be null
      */
     public AudioEffect(Type type) {
         this.type = Objects.requireNonNull(type);
@@ -85,7 +85,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
      * Returns the mix level control for this audio effect.
      * The mix level controls the amount of effect applied to the audio samples.
      * 
-     * @return The FloatControl representing the mix level.
+     * @return The FloatControl representing the mix level
      */
     public FloatControl getMixLevelControl() {
         return mixLevel;
@@ -95,7 +95,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
      * Returns the enable control for this audio effect.
      * The enable control allows toggling the effect on or off.
      * 
-     * @return The BooleanControl representing the enable state of the effect.
+     * @return The BooleanControl representing the enable state of the effect
      */
     public BooleanControl getEnableControl() {
         return enable;
@@ -191,15 +191,15 @@ public abstract class AudioEffect implements AudioNode, Controllable {
      * method after validating the input samples.
      * Subclasses must implement this method to define the actual effect processing logic.
      * 
-     * @param samples The audio samples to process.
-     * @param sampleRate The sample rate of the audio.
+     * @param samples The audio samples to process
+     * @param sampleRate The sample rate of the audio
      */
     protected abstract void effectRender(float[][] samples, int sampleRate);
 
     /**
      * Returns the type of the audio effect.
      * 
-     * @return The type of the audio effect, either REALTIME or OFFLINE_PROCESSING.
+     * @return The type of the audio effect, either REALTIME or OFFLINE_PROCESSING
      */
     public Type getType() {
         return type;
@@ -208,7 +208,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
     /**
      * Returns a list of all controls available for this audio effect.
      * This includes the mix level and enable controls, as well as any additional controls specific to the effect.
-     * @return A list of AudioControl objects representing all controls for this effect.
+     * @return A list of AudioControl objects representing all controls for this effect
      */
     @Override
     public List<AudioControl> getAllControls() {
@@ -218,8 +218,8 @@ public abstract class AudioEffect implements AudioNode, Controllable {
     /**
      * Adds a list of controls to the list of all controls for this audio effect.
      * 
-     * @param controls The list of controls to add.
-     * @throws IllegalArgumentException if the controls list is null or contains null elements.
+     * @param controls The list of controls to add
+     * @throws IllegalArgumentException if the controls list is null or contains null elements
      */
     protected void addEffectControls(List<AudioControl> controls) {
         if (controls == null) {
@@ -233,9 +233,9 @@ public abstract class AudioEffect implements AudioNode, Controllable {
     /**
      * Adds a control to the list of all controls for this audio effect.
      * 
-     * @param control The control to add.
-     * @return true if the control was added successfully, false if the control was already present in the list.
-     * @throws IllegalArgumentException if the control is null.
+     * @param control The control to add
+     * @return true if the control was added successfully, false if the control was already present in the list
+     * @throws IllegalArgumentException if the control is null
      */
     protected boolean addEffectControl(AudioControl control) {
         if (control == null) {

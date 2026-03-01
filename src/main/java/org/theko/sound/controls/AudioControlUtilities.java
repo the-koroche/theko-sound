@@ -49,9 +49,9 @@ public final class AudioControlUtilities {
      * If the control is of type BooleanControl, it will return 1.0 if the control is enabled, 0.0 if disabled.
      * If the control is of type EnumControl, it will return the index of the enum constant as a float.
      * 
-     * @param control The audio control to retrieve the value from.
-     * @return The value of the audio control as a float.
-     * @throws IllegalArgumentException If the control type is unsupported.
+     * @param control The audio control to retrieve the value from
+     * @return The value of the audio control as a float
+     * @throws IllegalArgumentException If the control type is unsupported
      */
     @SuppressWarnings("rawtypes")
     public static float getValueAsFloat(AudioControl control) {
@@ -77,9 +77,9 @@ public final class AudioControlUtilities {
      * If the control is of type BooleanControl, it will set the control to enabled if the value is greater than 0.5, disabled otherwise.
      * If the control is of type EnumControl, it will set the enum index from the float value.
      * 
-     * @param control The audio control to set the value from.
-     * @param value The float representing the value to set.
-     * @throws IllegalArgumentException If the control type is unsupported.
+     * @param control The audio control to set the value from
+     * @param value The float representing the value to set
+     * @throws IllegalArgumentException If the control type is unsupported
      */
     @SuppressWarnings("rawtypes")
     public static void setValueFromFloat(AudioControl control, float value) {
@@ -100,12 +100,12 @@ public final class AudioControlUtilities {
      * Creates a custom FloatControl with the specified name, minimum, and maximum values.
      * The control will use the supplier to retrieve the current value of the control, and the consumer to set the value of the control.
      * 
-     * @param name The name of the custom FloatControl.
-     * @param min The minimum value of the control.
-     * @param max The maximum value of the control.
-     * @param supplier The supplier to retrieve the current value of the control.
-     * @param consumer The consumer to set the value of the control.
-     * @return The custom FloatControl.
+     * @param name The name of the custom FloatControl
+     * @param min The minimum value of the control
+     * @param max The maximum value of the control
+     * @param supplier The supplier to retrieve the current value of the control
+     * @param consumer The consumer to set the value of the control
+     * @return The custom FloatControl
      */
     public static FloatControl getCustomFloatControl(String name, float min, float max, Supplier<Float> supplier, Consumer<Float> consumer) {
         class CustomFloatControl extends FloatControl {
@@ -141,10 +141,10 @@ public final class AudioControlUtilities {
      * Creates a custom BooleanControl with the specified name, supplier to retrieve the current value of the control,
      * and consumer to set the value of the control.
      * 
-     * @param name The name of the custom BooleanControl.
-     * @param supplier The supplier to retrieve the current value of the control.
-     * @param consumer The consumer to set the value of the control.
-     * @return The custom BooleanControl.
+     * @param name The name of the custom BooleanControl
+     * @param supplier The supplier to retrieve the current value of the control
+     * @param consumer The consumer to set the value of the control
+     * @return The custom BooleanControl
      */
     public static BooleanControl getCustomBooleanControl(String name, Supplier<Boolean> supplier, Consumer<Boolean> consumer) {
         class CustomBooleanControl extends BooleanControl {
@@ -180,11 +180,11 @@ public final class AudioControlUtilities {
      * Creates a custom EnumControl with the specified name, enum class, supplier to retrieve the current index of the control,
      * and consumer to set the index of the control.
      * 
-     * @param name The name of the custom EnumControl.
-     * @param enumClass The enum class of the control.
-     * @param supplier The supplier to retrieve the current index of the control.
-     * @param consumer The consumer to set the index of the control.
-     * @return The custom EnumControl.
+     * @param name The name of the custom EnumControl
+     * @param enumClass The enum class of the control
+     * @param supplier The supplier to retrieve the current index of the control
+     * @param consumer The consumer to set the index of the control
+     * @return The custom EnumControl
      */
     public static <T extends Enum<T>> EnumControl<T> getCustomEnumControl(
         String name,

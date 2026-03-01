@@ -48,7 +48,7 @@ public abstract class AudioControl implements
     /**
      * Constructs a new AudioControl with the specified name.
      *
-     * @param name The name of the audio control.
+     * @param name The name of the audio control
      */
     public AudioControl(String name) {
         this.eventDispatcher = new EventDispatcher<>();
@@ -73,7 +73,7 @@ public abstract class AudioControl implements
      * 
      * <p>Normalization is performed using the {@link Normalizer} class with the NFD form.
      * 
-     * @return The normalized name of the control.
+     * @return The normalized name of the control
      */
     public String getComparableName() {
         return normalizeName(this.name);
@@ -83,8 +83,8 @@ public abstract class AudioControl implements
      * Checks if the specified name matches the normalized name of the control.
      * This is useful for comparing names without worrying about whitespace, case, or diacritics.
      * 
-     * @param name The name to compare with the control's name.
-     * @return true if the names match, false otherwise.
+     * @param name The name to compare with the control's name
+     * @return true if the names match, false otherwise
      */
     public boolean matchesName(String name) {
         return getComparableName().equals(normalizeName(name));
@@ -93,7 +93,7 @@ public abstract class AudioControl implements
     /**
      * Retrieves the name of this audio control.
      *
-     * @return The name of the audio control.
+     * @return The name of the audio control
      */
     public String getName() {
         return name;
@@ -108,7 +108,7 @@ public abstract class AudioControl implements
      * Returns a string representation of the AudioControl object,
      * displaying the name of the control.
      *
-     * @return A string that represents the audio control.
+     * @return A string that represents the audio control
      */
     @Override
     public String toString() {

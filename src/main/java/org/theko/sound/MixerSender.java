@@ -79,7 +79,7 @@ public class MixerSender extends AudioEffect {
     
     /**
      * Constructs a new {@code MixerSender} with the specified {@link AudioMixer}.
-     * @param mixer The audio mixer to get audio samples from.
+     * @param mixer The audio mixer to get audio samples from
      */
     public MixerSender(AudioMixer mixer) {
         super(Type.REALTIME);
@@ -110,7 +110,7 @@ public class MixerSender extends AudioEffect {
      * Sets the audio mixer to send audio samples to.
      * If the old mixer is not null, removes the sender node from the old mixer.
      * If the new mixer is not null, adds the sender node to the new mixer.
-     * @param mixer The audio mixer to send audio samples to.
+     * @param mixer The audio mixer to send audio samples to
      */
     public void setTargetMixer(AudioMixer mixer) {
         if (this.targetMixer != null) {
@@ -127,7 +127,7 @@ public class MixerSender extends AudioEffect {
      * Returns the gain control for this mixer sender.
      * The gain control allows adjusting the volume of the audio samples sent to the target node.
      * 
-     * @return The FloatControl representing the gain control of the mixer sender.
+     * @return The FloatControl representing the gain control of the mixer sender
      */
     public FloatControl getGainControl() {
         return gain;
@@ -137,7 +137,7 @@ public class MixerSender extends AudioEffect {
      * Returns the pan control for this mixer sender.
      * The pan control allows adjusting the left-right balance of the audio samples sent to the target node.
      * 
-     * @return The FloatControl representing the pan control of the mixer sender.
+     * @return The FloatControl representing the pan control of the mixer sender
      */
     public FloatControl getPanControl() {
         return pan;
@@ -148,7 +148,7 @@ public class MixerSender extends AudioEffect {
      * Returns the audio samples that have been processed by the mixer sender
      * and are ready to be sent to the target node.
      * 
-     * @return The audio samples that have been processed by the mixer sender.
+     * @return The audio samples that have been processed by the mixer sender
      */
     public float[][] getEffectSamples() {
         return effectSamples;
@@ -159,7 +159,7 @@ public class MixerSender extends AudioEffect {
      * This node is the source of the audio samples that are processed by the mixer sender,
      * and is added as an input to the mixer when the mixer sender is started.
      * 
-     * @return The audio node responsible for sending audio samples to the mixer.
+     * @return The audio node responsible for sending audio samples to the mixer
      */
     public AudioNode getSenderNode() {
         return senderInputNode;
@@ -168,7 +168,7 @@ public class MixerSender extends AudioEffect {
     /**
      * Returns the audio mixer that receives the audio samples from this mixer sender.
      * 
-     * @return The destination audio mixer where processed samples are sent.
+     * @return The destination audio mixer where processed samples are sent
      */
     public AudioMixer getTargetMixer() {
         return targetMixer;

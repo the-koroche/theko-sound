@@ -306,7 +306,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
      * The gain control allows adjusting the overall amplitude of the spectogram.
      * A value of 1.0f will not change the amplitude of the spectogram, while a value of 0.0f will mute it.
      * 
-     * @return The gain control of the spectrogram visualizer.
+     * @return The gain control of the spectrogram visualizer
      */
     public FloatControl getGainControl() {
         return gainControl;
@@ -322,7 +322,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
      * A frequency scale of 2.0f would represent twice the full frequency range
      * of the sampling rate.
      * 
-     * @param frequencyScale The frequency scale of the spectrogram visualizer.
+     * @param frequencyScale The frequency scale of the spectrogram visualizer
      */
     public void setFrequencyScale(float frequencyScale) {
         this.frequencyScale = MathUtilities.clamp(frequencyScale, MIN_SCALE, MAX_SCALE);
@@ -331,7 +331,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
     /**
      * Returns the frequency scale of the spectogram visualizer.
      * 
-     * @return The frequency scale of the spectogram visualizer.
+     * @return The frequency scale of the spectogram visualizer
      */
     public float getFrequencyScale() {
         return frequencyScale;
@@ -343,7 +343,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
      * visualizer. The update time is used to control how often the visualizer
      * is updated.
      * 
-     * @param updateTime The update time of the visualizer in milliseconds.
+     * @param updateTime The update time of the visualizer in milliseconds
      * @see #getUpdateTime()
      */
     public void setUpdateTime(float updateTime) {
@@ -353,7 +353,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
     /**
      * Returns the update time of the visualizer in milliseconds.
      * 
-     * @return The update time of the visualizer in milliseconds.
+     * @return The update time of the visualizer in milliseconds
      */
     public float getUpdateTime() {
         return updateTime;
@@ -389,7 +389,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
      * where minNormalizerRoot is the square root of the minimum amplitude normalizer
      * and maxAmplitude is the maximum amplitude of the spectrum.
      * 
-     * @param divider The minimum amplitude normalizer of the visualizer.
+     * @param divider The minimum amplitude normalizer of the visualizer
      */
     public void setMinAmplitudeNormalizer(float divider) {
         this.minAmplitudeNormalizer = MathUtilities.clamp(divider, MIN_DIVIDER, MAX_DIVIDER);
@@ -398,7 +398,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
     /**
      * Returns the minimum amplitude normalizer of the visualizer.
      * 
-     * @return The minimum amplitude normalizer of the visualizer.
+     * @return The minimum amplitude normalizer of the visualizer
      */
     public float getMinAmplitudeNormalizer() {
         return minAmplitudeNormalizer;
@@ -412,7 +412,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
      * A higher amplitude exponent will result in a more dramatic amplitude scaling.
      * A lower amplitude exponent will result in a less dramatic amplitude scaling.
      * 
-     * @param power The amplitude exponent of the visualizer.
+     * @param power The amplitude exponent of the visualizer
      */
     public void setAmplitudeExponent(float power) {
         this.amplitudeExponent = MathUtilities.clamp(power, MIN_AMPLITUDE_POWER, MAX_AMPLITUDE_POWER);
@@ -421,7 +421,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
     /**
      * Returns the amplitude exponent of the visualizer.
      * 
-     * @return the amplitude exponent of the visualizer.
+     * @return the amplitude exponent of the visualizer
      */
     public float getAmplitudeExponent() {
         return amplitudeExponent;
@@ -433,7 +433,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
      * instantly, while a decay speed of 1.0f will cause the amplitude normalizer
      * to recover very slowly.
      * 
-     * @param speed The decay speed of the amplitude normalizer.
+     * @param speed The decay speed of the amplitude normalizer
      */
     public void setNormalizerDecaySpeed(float speed) {
         this.normalizerDecaySpeed = MathUtilities.clamp(speed, MIN_DIVIDER_DECAY_SPEED, MAX_DIVIDER_DECAY_SPEED);
@@ -442,7 +442,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
     /**
      * Returns the decay speed of the amplitude normalizer.
      * 
-     * @return The decay speed of the amplitude normalizer.
+     * @return The decay speed of the amplitude normalizer
      */
     public float getNormalizerDecaySpeed() {
         return normalizerDecaySpeed;
@@ -454,7 +454,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
      * increase the computational cost of generating the spectrogram, and may cause
      * lower time resolution.
      * 
-     * @param size The size of the FFT to use.
+     * @param size The size of the FFT to use
      */
     public void setFftWindowSize(int size) {
         this.fftWindowSize = MathUtilities.clamp(size, MIN_FFT_SIZE, MAX_FFT_SIZE);
@@ -466,7 +466,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
     /**
      * Returns the size of the FFT used to generate the spectrogram.
      * 
-     * @return the size of the FFT used.
+     * @return the size of the FFT used
      */
     public int getFftWindowSize() {
         return fftWindowSize;
@@ -486,7 +486,7 @@ public class SpectrogramVisualizer extends AudioVisualizer {
     /**
      * Returns the window type used before the FFT is applied.
      * 
-     * @return The window type used.
+     * @return The window type used
      */
     public WindowType getWindowType() {
         return windowType;

@@ -46,14 +46,14 @@ public class AudioPort {
     /**
      * Constructor to create an AudioPort instance.
      * 
-     * @param link The link object associated with the port.
-     * @param flow The flow type of the port (input or output).
-     * @param isActive Whether the port is active or not.
-     * @param mixFormat The audio format used for mixing audio data.
-     * @param name The name of the port.
-     * @param vendor The vendor name of the port.
-     * @param version The version of the port.
-     * @param description A description providing details about the port.
+     * @param link The link object associated with the port
+     * @param flow The flow type of the port (input or output)
+     * @param isActive Whether the port is active or not
+     * @param mixFormat The audio format used for mixing audio data
+     * @param name The name of the port
+     * @param vendor The vendor name of the port
+     * @param version The version of the port
+     * @param description A description providing details about the port
      */
     public AudioPort(
             AudioPortLink link,
@@ -77,12 +77,12 @@ public class AudioPort {
     /**
      * Constructor to create an AudioPort instance with an active state set to true.
      * 
-     * @param link The link object associated with the port.
-     * @param flow The flow type of the port (input or output).
-     * @param mixFormat The audio format used for mixing audio data.
-     * @param name The name of the port.
-     * @param vendor The vendor name of the port.
-     * @param version The version of the port.
+     * @param link The link object associated with the port
+     * @param flow The flow type of the port (input or output)
+     * @param mixFormat The audio format used for mixing audio data
+     * @param name The name of the port
+     * @param vendor The vendor name of the port
+     * @param version The version of the port
      */
     public AudioPort(
             AudioPortLink link,
@@ -98,11 +98,11 @@ public class AudioPort {
     /**
      * Constructor to create an AudioPort instance with an active state set to true and a description set to "Unknown".
      * 
-     * @param link The link object associated with the port.
-     * @param flow The flow type of the port (input or output).
-     * @param mixFormat The audio format used for mixing audio data.
-     * @param name The name of the port.
-     * @param vendor The vendor name of the port.
+     * @param link The link object associated with the port
+     * @param flow The flow type of the port (input or output)
+     * @param mixFormat The audio format used for mixing audio data
+     * @param name The name of the port
+     * @param vendor The vendor name of the port
      */
     public AudioPort(
             AudioPortLink link,
@@ -117,7 +117,7 @@ public class AudioPort {
     /**
      * Returns the link object associated with the audio port.
      * 
-     * @return The link object as an AudioPortLink.
+     * @return The link object as an AudioPortLink
      */
     public AudioPortLink getLink() {
         return link;
@@ -126,7 +126,7 @@ public class AudioPort {
     /**
      * Returns the flow direction of the audio port (input or output).
      * 
-     * @return The flow type of the port (AudioFlow).
+     * @return The flow type of the port (AudioFlow)
      */
     public AudioFlow getFlow() {
         return flow;
@@ -135,7 +135,7 @@ public class AudioPort {
     /**
      * Returns whether the audio port is active or not.
      * 
-     * @return True if the port is active, false otherwise.
+     * @return True if the port is active, false otherwise
      */
     public boolean isActive() {
         return isActive;
@@ -144,7 +144,7 @@ public class AudioPort {
     /**
      * Returns the audio format associated with the audio port.
      * 
-     * @return The audio format.
+     * @return The audio format
      */
     public AudioFormat getMixFormat() {
         return mixFormat;
@@ -153,7 +153,7 @@ public class AudioPort {
     /**
      * Returns the name of the audio port.
      * 
-     * @return The name of the port.
+     * @return The name of the port
      */
     public String getName() {
         return name;
@@ -162,7 +162,7 @@ public class AudioPort {
     /**
      * Returns the vendor of the audio port.
      * 
-     * @return The vendor of the port.
+     * @return The vendor of the port
      */
     public String getVendor() {
         return vendor;
@@ -171,7 +171,7 @@ public class AudioPort {
     /**
      * Returns the version of the audio port.
      * 
-     * @return The version of the port.
+     * @return The version of the port
      */
     public String getVersion() {
         return version;
@@ -180,7 +180,7 @@ public class AudioPort {
     /**
      * Returns the description of the audio port.
      * 
-     * @return The description of the port.
+     * @return The description of the port
      */
     public String getDescription() {
         return description;
@@ -189,8 +189,8 @@ public class AudioPort {
     /**
      * Compares two AudioPort objects based on their link objects.
      * 
-     * @param obj The object to compare with.
-     * @return True if the objects are equal, false otherwise.
+     * @param obj The object to compare with
+     * @return True if the objects are equal, false otherwise
      */
     @Override
     public boolean equals(Object obj) {
@@ -203,7 +203,7 @@ public class AudioPort {
     /**
      * Returns a string representation of the link object associated with the audio port.
      * 
-     * @return A string that represents the link object.
+     * @return A string that represents the link object
      */
     public String getLinkAsString() {
         return link.getClass().getSimpleName() + "@" + link.hashCode();
@@ -212,7 +212,7 @@ public class AudioPort {
     /**
      * Provides a string representation of the AudioPort object.
      * 
-     * @return A string that represents the audio port.
+     * @return A string that represents the audio port
      */
     @Override
     public String toString() {

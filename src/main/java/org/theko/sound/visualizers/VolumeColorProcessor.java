@@ -28,8 +28,8 @@ public interface VolumeColorProcessor {
     /**
      * Returns a color based on a volume.
      * 
-     * @param volume The volume to process.
-     * @return A color based on the volume, in 0xAARRGGBB format.
+     * @param volume The volume to process
+     * @return A color based on the volume, in 0xAARRGGBB format
      */
     public int getColor(float volume);
 }

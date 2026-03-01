@@ -103,8 +103,8 @@ public class AudioMixer implements AudioNode, Controllable {
     /**
      * Adds an audio input to the mixer.
      * 
-     * @param input The audio input to add.
-     * @throws IllegalArgumentException If the input is null, an effect, this mixer itself, or a circular reference.
+     * @param input The audio input to add
+     * @throws IllegalArgumentException If the input is null, an effect, this mixer itself, or a circular reference
      */
     public void addInput(AudioNode input) {
         if (input == null) {
@@ -151,9 +151,9 @@ public class AudioMixer implements AudioNode, Controllable {
     /**
      * Adds an audio effect to the mixer.
      * 
-     * @param effect The audio effect to add.
-     * @throws IncompatibleEffectTypeException if the effect is an offline processing effect.
-     * @throws MultipleVaryingSizeEffectsException if the effect is a varying size effect and the mixer already has a varying size effect.
+     * @param effect The audio effect to add
+     * @throws IncompatibleEffectTypeException if the effect is an offline processing effect
+     * @throws MultipleVaryingSizeEffectsException if the effect is a varying size effect and the mixer already has a varying size effect
      */
     public void addEffect(AudioEffect effect) throws IncompatibleEffectTypeException, MultipleVaryingSizeEffectsException {
         if (effect == null) {
@@ -174,7 +174,7 @@ public class AudioMixer implements AudioNode, Controllable {
     /**
      * Checks if the mixer has a varying size effect.
      * 
-     * @return True if the mixer has a varying size effect, false otherwise.
+     * @return True if the mixer has a varying size effect, false otherwise
      */
     protected boolean hasVaryingSizeEffect() {
         return getVaryingSizeEffectIndex() != -1;
@@ -183,7 +183,7 @@ public class AudioMixer implements AudioNode, Controllable {
     /**
      * Gets the index of the varying size effect in the effects list.
      * 
-     * @return The index of the varying size effect, or -1 if not found.
+     * @return The index of the varying size effect, or -1 if not found
      */
     protected int getVaryingSizeEffectIndex() {
         for (int i = 0; i < effects.size(); i++) {
@@ -197,8 +197,8 @@ public class AudioMixer implements AudioNode, Controllable {
     /**
      * Removes an audio input from the mixer.
      * 
-     * @param input The audio input to remove.
-     * @throws IllegalArgumentException If the input is null.
+     * @param input The audio input to remove
+     * @throws IllegalArgumentException If the input is null
      */
     public boolean removeInput(AudioNode input) {
         if (input == null) {
@@ -211,8 +211,8 @@ public class AudioMixer implements AudioNode, Controllable {
     /**
      * Removes an audio effect from the mixer.
      * 
-     * @param effect The audio effect to remove.
-     * @throws IllegalArgumentException If the effect is null.
+     * @param effect The audio effect to remove
+     * @throws IllegalArgumentException If the effect is null
      */
     public boolean removeEffect(AudioEffect effect) {
         if (effect == null) {
@@ -225,7 +225,7 @@ public class AudioMixer implements AudioNode, Controllable {
     /**
      * Gets the audio inputs of the mixer.
      * 
-     * @return the unmodifiable list of audio inputs.
+     * @return the unmodifiable list of audio inputs
      */
     public List<AudioNode> getInputs() {
         return Collections.unmodifiableList(inputs);
@@ -234,7 +234,7 @@ public class AudioMixer implements AudioNode, Controllable {
     /**
      * Gets the audio effects of the mixer.
      * 
-     * @return the unmodifiable list of audio effects.
+     * @return the unmodifiable list of audio effects
      */
     public List<AudioEffect> getEffects() {
         return Collections.unmodifiableList(effects);
@@ -244,7 +244,7 @@ public class AudioMixer implements AudioNode, Controllable {
      * Gets the pre-gain control of the mixer.
      * Pre-gain control adjusts the gain of the input audio before it is mixed.
      * 
-     * @return the pre-gain control.
+     * @return the pre-gain control
      */
     public FloatControl getPreGainControl() {
         return preGainControl;
@@ -254,7 +254,7 @@ public class AudioMixer implements AudioNode, Controllable {
      * Gets the post-gain control of the mixer.
      * Post-gain control adjusts the gain of the mixed audio after it is processed by effects.
      * 
-     * @return the post-gain control.
+     * @return the post-gain control
      */
     public FloatControl getPostGainControl() {
         return postGainControl;
@@ -264,7 +264,7 @@ public class AudioMixer implements AudioNode, Controllable {
      * Gets the pan control of the mixer.
      * Pan control adjusts the pan of the mixed audio.
      * 
-     * @return the pan control.
+     * @return the pan control
      */
     public FloatControl getPanControl() {
         return panControl;
@@ -274,7 +274,7 @@ public class AudioMixer implements AudioNode, Controllable {
      * Gets the enable effects control of the mixer.
      * Enable effects control enables or disables effects processing.
      * 
-     * @return the enable effects control.
+     * @return the enable effects control
      */
     public BooleanControl getEnableEffectsControl() {
         return enableEffectsControl;
@@ -284,7 +284,7 @@ public class AudioMixer implements AudioNode, Controllable {
      * Gets the swap channels control of the mixer.
      * Swap channels control swaps the channels of the mixed audio.
      * 
-     * @return the swap channels control.
+     * @return the swap channels control
      */
     public BooleanControl getSwapChannelsControl() {
         return swapChannelsControl;
@@ -294,7 +294,7 @@ public class AudioMixer implements AudioNode, Controllable {
      * Gets the reverse polarity control of the mixer.
      * Reverse polarity control reverses the polarity of the mixed audio.
      * 
-     * @return the reverse polarity control.
+     * @return the reverse polarity control
      */
     public BooleanControl getReversePolarityControl() {
         return reversePolarityControl;
@@ -324,10 +324,10 @@ public class AudioMixer implements AudioNode, Controllable {
     /**
      * Renders the mixed audio into the provided sample buffer.
      * 
-     * @param samples The sample buffer to render into.
-     * @param sampleRate The sample rate of the audio.
-     * @throws MixingException If an error occurs while mixing the audio.
-     * @throws IllegalArgumentException If the sample rate is not positive.
+     * @param samples The sample buffer to render into
+     * @param sampleRate The sample rate of the audio
+     * @throws MixingException If an error occurs while mixing the audio
+     * @throws IllegalArgumentException If the sample rate is not positive
      */
     @Override
     public void render(float[][] samples, int sampleRate) throws MixingException, IllegalArgumentException {

@@ -95,7 +95,7 @@ public interface Controllable {
      * AudioControl is returned. If no matching control is found,
      * the method returns null.
      *
-     * @param name The name of the AudioControl to be retrieved.
+     * @param name The name of the AudioControl to be retrieved
      * @return The AudioControl with the specified name, or null if no 
      *         such control exists.
      */
@@ -117,7 +117,7 @@ public interface Controllable {
      * corresponding FloatControl is returned. If no matching control is found,
      * the method returns null.
      *
-     * @param name The name of the FloatControl to be retrieved.
+     * @param name The name of the FloatControl to be retrieved
      * @return The FloatControl with the specified name, or null if no 
      *         such control exists.
      */
@@ -139,7 +139,7 @@ public interface Controllable {
      * corresponding BooleanControl is returned. If no matching control is found,
      * the method returns null.
      *
-     * @param name The name of the BooleanControl to be retrieved.
+     * @param name The name of the BooleanControl to be retrieved
      * @return The BooleanControl with the specified name, or null if no
      *         such control exists.
      */
@@ -161,7 +161,7 @@ public interface Controllable {
      * corresponding EnumControl is returned. If no matching control is found,
      * the method returns null.
      *
-     * @param name The name of the EnumControl to be retrieved.
+     * @param name The name of the EnumControl to be retrieved
      * @return The EnumControl with the specified name, or null if no
      *         such control exists.
      */
@@ -184,7 +184,7 @@ public interface Controllable {
      * corresponding Vector2Control is returned. If no matching control is found,
      * the method returns null.
      *
-     * @param name The name of the Vector2Control to be retrieved.
+     * @param name The name of the Vector2Control to be retrieved
      * @return The Vector2Control with the specified name, or null if no
      *         such control exists.
      */
@@ -206,7 +206,7 @@ public interface Controllable {
      * corresponding Vector3Control is returned. If no matching control is found,
      * the method returns null.
      *
-     * @param name The name of the Vector3Control to be retrieved.
+     * @param name The name of the Vector3Control to be retrieved
      * @return The Vector3Control with the specified name, or null if no
      *         such control exists.
      */

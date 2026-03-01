@@ -83,7 +83,7 @@ public class AudioFilterEffect extends AudioEffect {
      * Returns the cutoff control of the audio filter effect.
      * This control allows adjusting the cutoff frequency of the filter in Hz.
      * 
-     * @return The FloatControl representing the cutoff control of the audio filter effect.
+     * @return The FloatControl representing the cutoff control of the audio filter effect
      */
     public FloatControl getCutoffControl() {
         return cutoff;
@@ -93,7 +93,7 @@ public class AudioFilterEffect extends AudioEffect {
      * Returns the bandwidth control of the audio filter effect.
      * This control allows adjusting the bandwidth of the filter in octaves.
      * 
-     * @return The FloatControl representing the bandwidth control of the audio filter effect.
+     * @return The FloatControl representing the bandwidth control of the audio filter effect
      */
     public FloatControl getBandwidthControl() {
         return bandwidth;
@@ -103,7 +103,7 @@ public class AudioFilterEffect extends AudioEffect {
      * Returns the gain control of the audio filter effect.
      * This control allows adjusting the overall gain of the filter, with a value of 1.0 being unity gain.
      * 
-     * @return The FloatControl representing the gain control of the audio filter effect.
+     * @return The FloatControl representing the gain control of the audio filter effect
      */
     public FloatControl getGainControl() {
         return gain;
@@ -114,7 +114,7 @@ public class AudioFilterEffect extends AudioEffect {
      * This control allows adjusting the proportion of low frequencies passed through the filter.
      * A value of 1.0 will pass all low frequencies, while a value of 0.0 will pass none.
      * 
-     * @return The FloatControl representing the low-pass control of the audio filter effect.
+     * @return The FloatControl representing the low-pass control of the audio filter effect
      */
     public FloatControl getLowPassControl() {
         return lowPass;
@@ -125,7 +125,7 @@ public class AudioFilterEffect extends AudioEffect {
      * This control allows adjusting the proportion of high frequencies passed through the filter.
      * A value of 1.0 will pass all high frequencies, while a value of 0.0 will pass none.
      * 
-     * @return The FloatControl representing the high-pass control of the audio filter effect.
+     * @return The FloatControl representing the high-pass control of the audio filter effect
      */
     public FloatControl getHighPassControl() {
         return highPass;
@@ -136,7 +136,7 @@ public class AudioFilterEffect extends AudioEffect {
      * This control allows adjusting the proportion of midrange frequencies passed through the filter.
      * A value of 1.0 will pass all midrange frequencies, while a value of 0.0 will pass none.
      * 
-     * @return The FloatControl representing the band-pass control of the audio filter effect.
+     * @return The FloatControl representing the band-pass control of the audio filter effect
      */
     public FloatControl getBandPassControl() {
         return bandPass;
@@ -147,7 +147,7 @@ public class AudioFilterEffect extends AudioEffect {
      * This control allows enabling or disabling double-pass filtering, which can
      * provide a more intense filtering effect.
      * 
-     * @return The BooleanControl representing the double-pass control of the audio filter effect.
+     * @return The BooleanControl representing the double-pass control of the audio filter effect
      */
     public BooleanControl getDoublePassControl() {
         return doublePass;

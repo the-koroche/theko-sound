@@ -139,10 +139,10 @@ public class AudioOutputLayer implements AutoCloseable,
     /**
      * Constructs an {@code AudioOutputLayer} with the specified audio output backend.
      * 
-     * @param aobInfo The {@link AudioBackendInfo} of the audio output backend to use.
-     * @throws IllegalArgumentException If the audio output backend info is null.
-     * @throws AudioBackendCreationException If an error occurs while creating the audio output backend.
-     * @throws AudioBackendNotFoundException If the specified audio output backend is not found.
+     * @param aobInfo The {@link AudioBackendInfo} of the audio output backend to use
+     * @throws IllegalArgumentException If the audio output backend info is null
+     * @throws AudioBackendCreationException If an error occurs while creating the audio output backend
+     * @throws AudioBackendNotFoundException If the specified audio output backend is not found
      */
     public AudioOutputLayer(AudioBackendInfo aobInfo) throws AudioBackendCreationException, AudioBackendNotFoundException, IllegalArgumentException {
         if (aobInfo == null) throw new IllegalArgumentException("AudioOutputBackend cannot be null.");
@@ -198,9 +198,9 @@ public class AudioOutputLayer implements AutoCloseable,
     /**
      * Constructs an {@code AudioOutputLayer} with the default audio output backend for the platform.
      * 
-     * @throws IllegalArgumentException If the default audio output backend is null.
-     * @throws AudioBackendCreationException If an error occurs while creating the audio output backend.
-     * @throws AudioBackendNotFoundException If the specified audio output backend is not found.
+     * @throws IllegalArgumentException If the default audio output backend is null
+     * @throws AudioBackendCreationException If an error occurs while creating the audio output backend
+     * @throws AudioBackendNotFoundException If the specified audio output backend is not found
      */
     public AudioOutputLayer() throws AudioBackendCreationException, AudioBackendNotFoundException {
         this(AudioBackends.getPlatformBackend());
@@ -212,14 +212,14 @@ public class AudioOutputLayer implements AutoCloseable,
      * If the port is null, the default output port will be used.
      * This method also tries to use best matching audio format, if the given format is not supported.
      * 
-     * @param port The {@link AudioPort} to be used.
-     * @param audioFormat The {@link AudioFormat} for audio data.
-     * @param bufferSize The size of the buffer for audio data, defined by {@link AudioMeasure}.
-     * @param reopen If true, the audio output will be reopened if it is already open.
-     * @throws UnsupportedAudioFormatException If the specified audio format is not supported.
-     * @throws IllegalArgumentException If the audio port, audio format, buffer size, or buffer count are invalid.
-     * @throws AudioBackendException If an error occurs while opening the backend.
-     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output.
+     * @param port The {@link AudioPort} to be used
+     * @param audioFormat The {@link AudioFormat} for audio data
+     * @param bufferSize The size of the buffer for audio data, defined by {@link AudioMeasure}
+     * @param reopen If true, the audio output will be reopened if it is already open
+     * @throws UnsupportedAudioFormatException If the specified audio format is not supported
+     * @throws IllegalArgumentException If the audio port, audio format, buffer size, or buffer count are invalid
+     * @throws AudioBackendException If an error occurs while opening the backend
+     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output
      */
     public void open(AudioPort port, AudioFormat audioFormat, AudioMeasure bufferSize, boolean reopen) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioPortsNotFoundException, AudioBackendException {
         if (isOpened && !reopen) {
@@ -381,13 +381,13 @@ public class AudioOutputLayer implements AutoCloseable,
     /**
      * Opens the audio output with the specified port, format, and buffer size.
      * 
-     * @param port The {@link AudioPort} to be used.
-     * @param audioFormat The {@link AudioFormat} for audio data.
-     * @param bufferSize The {@link AudioMeasure} representing the buffer size.
-     * @throws UnsupportedAudioFormatException If the specified audio format is not supported.
-     * @throws IllegalArgumentException If the audio format is null.
-     * @throws AudioBackendException If an error occurs while opening the backend.
-     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output.
+     * @param port The {@link AudioPort} to be used
+     * @param audioFormat The {@link AudioFormat} for audio data
+     * @param bufferSize The {@link AudioMeasure} representing the buffer size
+     * @throws UnsupportedAudioFormatException If the specified audio format is not supported
+     * @throws IllegalArgumentException If the audio format is null
+     * @throws AudioBackendException If an error occurs while opening the backend
+     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output
      */
     public void open(AudioPort port, AudioFormat audioFormat, AudioMeasure bufferSize) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException, AudioPortsNotFoundException {
         this.open(port, audioFormat, bufferSize, false /* don't reopen */);
@@ -396,12 +396,12 @@ public class AudioOutputLayer implements AutoCloseable,
     /**
      * Opens the audio output with the specified port and format.
      * 
-     * @param port The {@link AudioPort} to be used.
-     * @param audioFormat The {@link AudioFormat} for audio data.
-     * @throws UnsupportedAudioFormatException If the specified audio format is not supported.
-     * @throws IllegalArgumentException If the audio format is null.
-     * @throws AudioBackendException If an error occurs while opening the backend.
-     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output.
+     * @param port The {@link AudioPort} to be used
+     * @param audioFormat The {@link AudioFormat} for audio data
+     * @throws UnsupportedAudioFormatException If the specified audio format is not supported
+     * @throws IllegalArgumentException If the audio format is null
+     * @throws AudioBackendException If an error occurs while opening the backend
+     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output
      */
     public void open(AudioPort port, AudioFormat audioFormat) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException, AudioPortsNotFoundException {
         this.open(port, audioFormat, AOL_DEFAULT_BUFFER);
@@ -410,11 +410,11 @@ public class AudioOutputLayer implements AutoCloseable,
     /**
      * Opens the audio output with the specified format, and default output port.
      * 
-     * @param audioFormat The {@link AudioFormat} for audio data.
-     * @throws UnsupportedAudioFormatException If the specified audio format is not supported.
-     * @throws IllegalArgumentException If the audio format is null.
-     * @throws AudioBackendException If an error occurs while opening the backend.
-     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output.
+     * @param audioFormat The {@link AudioFormat} for audio data
+     * @throws UnsupportedAudioFormatException If the specified audio format is not supported
+     * @throws IllegalArgumentException If the audio format is null
+     * @throws AudioBackendException If an error occurs while opening the backend
+     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output
      */
     public void open(AudioFormat audioFormat) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException, AudioPortsNotFoundException {
         this.open(null /* default output port */, audioFormat);
@@ -428,7 +428,7 @@ public class AudioOutputLayer implements AutoCloseable,
     /**
      * Checks if the audio output is open.
      * 
-     * @return True if the audio output is open, false otherwise.
+     * @return True if the audio output is open, false otherwise
      */
     public boolean isOpen() {
         return aob.isOpen() && isOpened;
@@ -439,8 +439,8 @@ public class AudioOutputLayer implements AutoCloseable,
      * Creates a playback thread and starts it.
      * The thread is set as a daemon thread to not block JVM exit.
      * 
-     * @throws AudioBackendException If an error occurs while starting the backend.
-     * @throws RuntimeException If the playback thread cannot be started.
+     * @throws AudioBackendException If an error occurs while starting the backend
+     * @throws RuntimeException If the playback thread cannot be started
      */
     public void start() throws AudioBackendException {
         if (isPlaying) return;
@@ -469,8 +469,8 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Stops the audio output and interrupts the playback thread.
-     * @throws AudioBackendException If an error occurs while stopping the backend.
-     * @throws InterruptedException If the threads join operation is interrupted.
+     * @throws AudioBackendException If an error occurs while stopping the backend
+     * @throws InterruptedException If the threads join operation is interrupted
      */
     public void stop() throws AudioBackendException, InterruptedException {
         if (!isPlaying) return;
@@ -501,7 +501,7 @@ public class AudioOutputLayer implements AutoCloseable,
      * Closes the audio output, stopping the playback thread and closing the backend.
      * Stop can take some time, so it is recommended to call it in a separate thread.
      * 
-     * @throws InterruptedException If the threads join operation is interrupted while stopping.
+     * @throws InterruptedException If the threads join operation is interrupted while stopping
      * @throws AudioBackendException If an error occurs while closing the backend
      */
     @Override
@@ -532,8 +532,8 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Flushes the audio output buffer, discarding any buffered data.
-     * @throws AudioBackendException If an error occurs while flushing the buffer.
-     * @throws BackendNotOpenException If the audio output is not open.
+     * @throws AudioBackendException If an error occurs while flushing the buffer
+     * @throws BackendNotOpenException If the audio output is not open
      */
     public void flush() throws AudioBackendException {
         aob.flush();
@@ -543,8 +543,8 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Drains the audio output buffer, ensuring all buffered data is processed.
-     * @throws AudioBackendException If an error occurs while draining the buffer.
-     * @throws BackendNotOpenException If the audio output is not open.
+     * @throws AudioBackendException If an error occurs while draining the buffer
+     * @throws BackendNotOpenException If the audio output is not open
      */
     public void drain() throws AudioBackendException {
         aob.drain();
@@ -554,9 +554,9 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Returns the number of available frames in the audio output buffer.
-     * @return The number of available frames.
-     * @throws AudioBackendException If an error occurs while retrieving the available frames.
-     * @throws BackendNotOpenException If the audio output is not open.
+     * @return The number of available frames
+     * @throws AudioBackendException If an error occurs while retrieving the available frames
+     * @throws BackendNotOpenException If the audio output is not open
      */
     public int available() throws AudioBackendException {
         return aob.available();
@@ -564,7 +564,7 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Returns the size of the audio output buffer.
-     * @return The size of the audio output buffer.
+     * @return The size of the audio output buffer
      */
     public int getRenderBufferSize() {
         return renderBufferSize;
@@ -572,9 +572,9 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Returns the size of the audio output backend's buffer.
-     * @return The size of the audio output backend's buffer.
-     * @throws AudioBackendException If an error occurs while retrieving the buffer size.
-     * @throws BackendNotOpenException If the audio output is not open.
+     * @return The size of the audio output backend's buffer
+     * @throws AudioBackendException If an error occurs while retrieving the buffer size
+     * @throws BackendNotOpenException If the audio output is not open
      */
     public int getBackendBufferSize() throws AudioBackendException {
         return aob.getBufferSize();
@@ -582,7 +582,7 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Returns the priority of the playback thread.
-     * @return The priority of the playback thread.
+     * @return The priority of the playback thread
      */
     public int getThreadPriority() {
         return processingPriority;
@@ -590,7 +590,7 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Sets the priority of the playback thread.
-     * @param priority The new priority of the thread.
+     * @param priority The new priority of the thread
      */
     public void setThreadPriority(int priority) {
         if (priority < Thread.MIN_PRIORITY || priority > Thread.MAX_PRIORITY)
@@ -605,7 +605,7 @@ public class AudioOutputLayer implements AutoCloseable,
     /**
      * Sets the root node for audio playback.
      * <p>If the root node is null, the output layer will wait buffer-time, until a new root node is set.
-     * @param rootNode The new root node for audio playback (can be null).
+     * @param rootNode The new root node for audio playback (can be null)
      */
     public void setRootNode(AudioNode rootNode) {
         if (rootNode == null) {
@@ -616,7 +616,7 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Returns the audio format of the audio output.
-     * @return The audio format of the audio output.
+     * @return The audio format of the audio output
      */
     public AudioFormat getSourceFormat() {
         return sourceFormat;
@@ -624,7 +624,7 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Returns the audio format which is used to open the line.
-     * @return The opened audio format.
+     * @return The opened audio format
      */
     public AudioFormat getOpenedFormat() {
         return openedFormat;
@@ -632,9 +632,9 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Returns the current frame position of the audio output.
-     * @return The current frame position.
-     * @throws AudioBackendException If an error occurs while retrieving the frame position.
-     * @throws BackendNotOpenException If the audio output is not open.
+     * @return The current frame position
+     * @throws AudioBackendException If an error occurs while retrieving the frame position
+     * @throws BackendNotOpenException If the audio output is not open
      */
     public long getFramePosition() throws AudioBackendException {
         return aob.getFramePosition();
@@ -642,9 +642,9 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Returns the current microsecond position of the audio output.
-     * @return The current microsecond position.
-     * @throws AudioBackendException If an error occurs while retrieving the microsecond position.
-     * @throws BackendNotOpenException If the audio output is not open.
+     * @return The current microsecond position
+     * @throws AudioBackendException If an error occurs while retrieving the microsecond position
+     * @throws BackendNotOpenException If the audio output is not open
      */
     public long getMicrosecondPosition() throws AudioBackendException {
         return aob.getMicrosecondPosition();
@@ -652,7 +652,7 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Returns the latency of this output layer in microseconds.
-     * @return The latency in microseconds.
+     * @return The latency in microseconds
      */
     public long getMicrosecondLatency() {
         return latencyMicros;
@@ -660,9 +660,9 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Returns the current audio port of the audio output.
-     * @return The current audio port.
-     * @throws AudioBackendException If an error occurs while retrieving the current port.
-     * @throws BackendNotOpenException If the audio output is not open.
+     * @return The current audio port
+     * @throws AudioBackendException If an error occurs while retrieving the current port
+     * @throws BackendNotOpenException If the audio output is not open
      */
     public AudioPort getCurrentAudioPort() throws AudioBackendException {
         return aob.getCurrentAudioPort();

@@ -61,7 +61,7 @@ public class PeakController extends EffectController {
      * This control allows adjusting the overall gain.
      * A value of 1.0 will pass the peak amount through unchanged, while a value of -2.0 will invert the peak amount.
      * 
-     * @return The FloatControl representing the peak amount control.
+     * @return The FloatControl representing the peak amount control
      */
     public FloatControl getPeakAmountControl() {
         return peakAmount;
@@ -72,7 +72,7 @@ public class PeakController extends EffectController {
      * This control allows adjusting the speed at which the peak value decays.
      * A value of 0.0 will cause the peak value to never decay, while a value of 1.0 will cause the peak value to decay immediately.
      * 
-     * @return The FloatControl representing the peak decay speed control.
+     * @return The FloatControl representing the peak decay speed control
      */
     public FloatControl getPeakDecayControl() {
         return peakDecaySpeed;
@@ -83,7 +83,7 @@ public class PeakController extends EffectController {
      * The peak value is the maximum volume of the audio signal in the range [0, 1],
      * where 0 represents silence and 1 represents maximum volume.
      * 
-     * @return The current peak value of the peak controller.
+     * @return The current peak value of the peak controller
      */
     public float getPeakValue() {
         return peak;

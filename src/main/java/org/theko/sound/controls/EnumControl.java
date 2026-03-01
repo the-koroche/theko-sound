@@ -30,7 +30,7 @@ import org.theko.sound.events.AudioControlEventType;
  * BandType current = bandTypeControl.getEnumValue();
  * </pre>
  * 
- * @param <T> The type of the enum values managed by this control.
+ * @param <T> The type of the enum values managed by this control
  * 
  * @see AudioControl
  * 
@@ -45,8 +45,8 @@ public class EnumControl<T extends Enum<T>> extends AudioControl {
     /**
      * Constructs an {@code EnumControl} for the specified enum type and default value.
      * 
-     * @param name The name of the control.
-     * @param defaultValue The default enum value.
+     * @param name The name of the control
+     * @param defaultValue The default enum value
      */
     public EnumControl(String name, T defaultValue) {
         super(name);
@@ -58,7 +58,7 @@ public class EnumControl<T extends Enum<T>> extends AudioControl {
      * Sets the enum value to the specified index. If the index is out of range,
      * it will be clamped to the nearest valid index.
      * 
-     * @param index The index of the enum value to set.
+     * @param index The index of the enum value to set
      */
     public void setValue(int index) {
         int clampedIndex = Math.max(0, Math.min(index, enumValues.length - 1));
@@ -73,7 +73,7 @@ public class EnumControl<T extends Enum<T>> extends AudioControl {
      * The index of the enum value is calculated as follows: {@code (int)(normalizedValue * (enumValues.length - 1) + 0.5f}.
      * If the index is out of range, it will be clamped to the nearest valid index.
      * 
-     * @param normalizedValue The normalized value to set the enum value from.
+     * @param normalizedValue The normalized value to set the enum value from
      */
     public void setValue(float normalizedValue) {
         int index = (int)(normalizedValue * (enumValues.length - 1) + 0.5f);
@@ -83,7 +83,7 @@ public class EnumControl<T extends Enum<T>> extends AudioControl {
     /**
      * Sets the enum value of this control to the given value.
      * 
-     * @param newValue The new enum value to set.
+     * @param newValue The new enum value to set
      */
     public void setEnumValue(T newValue) {
         if (newValue != null && !newValue.equals(value)) {
@@ -93,14 +93,14 @@ public class EnumControl<T extends Enum<T>> extends AudioControl {
     }
 
     /**
-     * @return The current enum value of this control.
+     * @return The current enum value of this control
      */
     public T getEnumValue() {
         return value;
     }
 
     /**
-     * @return The index of the current enum value in the array of available enum constants.
+     * @return The index of the current enum value in the array of available enum constants
      */
     public int getEnumIndex() {
         return value.ordinal();
@@ -112,21 +112,21 @@ public class EnumControl<T extends Enum<T>> extends AudioControl {
      * <p>
      * The normalized value is calculated as follows: {@code (float)(getEnumIndex()) / (enumValues.length - 1)}.
      * 
-     * @return The normalized value of this control.
+     * @return The normalized value of this control
      */
     public float getNormalized() {
         return (float)(getEnumIndex()) / (enumValues.length - 1);
     }
 
     /**
-     * @return A copy of the array of available enum constants.
+     * @return A copy of the array of available enum constants
      */
     public T[] getEnumValues() {
         return enumValues.clone();
     }
 
     /**
-     * @return A string representation of this control, including its name, current value, and number of options.
+     * @return A string representation of this control, including its name, current value, and number of options
      */
     @Override
     public String toString() {

@@ -43,9 +43,9 @@
  * The audio encoding is retrieved and checked to be either PCM (signed/unsigned) or IEEE Float.
  * If the audio encoding is not supported, an exception is thrown.
  *
- * @param env the JNI environment.
- * @param waveformat the native WAVEFORMATEX object to be converted.
- * @return a pointer to the AudioFormat object (jobject), or nullptr if the conversion fails.
+ * @param env the JNI environment
+ * @param waveformat the native WAVEFORMATEX object to be converted
+ * @return a pointer to the AudioFormat object (jobject), or nullptr if the conversion fails
  */
 static jobject WAVEFORMATEX_to_AudioFormat(JNIEnv* env, const WAVEFORMATEX* waveformat) {
     Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPIBridge.WAVEFORMATEX -> AudioFormat");
@@ -120,9 +120,9 @@ static jobject WAVEFORMATEX_to_AudioFormat(JNIEnv* env, const WAVEFORMATEX* wave
  * The audio encoding is retrieved and checked to be either PCM_FLOAT or PCM_SIGNED/UNSIGNED.
  * If the audio encoding is not supported, an exception is thrown.
  *
- * @param env the JNI environment.
- * @param audioFormat the Java AudioFormat object to be converted.
- * @return a pointer to the native WAVEFORMATEX object, or nullptr if the conversion fails.
+ * @param env the JNI environment
+ * @param audioFormat the Java AudioFormat object to be converted
+ * @return a pointer to the native WAVEFORMATEX object, or nullptr if the conversion fails
  */
 static WAVEFORMATEX* AudioFormat_to_WAVEFORMATEX(JNIEnv* env, jobject audioFormat) {
     Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPIBridge.AudioFormat -> WAVEFORMATEX");
@@ -194,11 +194,11 @@ static WAVEFORMATEX* AudioFormat_to_WAVEFORMATEX(JNIEnv* env, jobject audioForma
  * The returned pointer is owned by the caller and should be released when it is no longer needed
  * using CoTaskMemFree(result).
  *
- * @param env the JNI environment.
+ * @param env the JNI environment
  * @param device the IMMDevice object associated with the audio device to retrieve the property
  *         value from.
- * @param key the PROPERTYKEY object identifying the property to retrieve.
- * @return a pointer to the retrieved property value, or nullptr if the call fails.
+ * @param key the PROPERTYKEY object identifying the property to retrieve
+ * @return a pointer to the retrieved property value, or nullptr if the call fails
  */
 static wchar_t* getAudioDeviceProperty(JNIEnv* env, IPropertyStore* pProps, IMMDevice* device, const PROPERTYKEY& key) {
     Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPIBridge.getAudioDeviceProperty");
@@ -240,9 +240,9 @@ static wchar_t* getAudioDeviceProperty(JNIEnv* env, IPropertyStore* pProps, IMMD
 /**
  * Converts an IMMDevice to an org.theko.sound.AudioPort.
  * 
- * @param env The JNIEnv which will be used to access the Java objects.
- * @param pDevice The IMMDevice to be converted.
- * @return The converted AudioPort, or nullptr if failed.
+ * @param env The JNIEnv which will be used to access the Java objects
+ * @param pDevice The IMMDevice to be converted
+ * @return The converted AudioPort, or nullptr if failed
  */
 static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPIBridge.IMMDevice -> AudioPort");
@@ -399,9 +399,9 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
 /**
  * Converts an org.theko.sound.AudioPort to its corresponding IMMDevice.
  *
- * @param env The JNI environment.
- * @param jAudioPort The AudioPort to convert.
- * @return The corresponding IMMDevice, or nullptr if failed.
+ * @param env The JNI environment
+ * @param jAudioPort The AudioPort to convert
+ * @return The corresponding IMMDevice, or nullptr if failed
  */
 static IMMDevice* AudioPort_to_IMMDevice(JNIEnv* env, jobject jAudioPort) {
     Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPIBridge.AudioPort -> IMMDevice");

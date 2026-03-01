@@ -45,10 +45,10 @@ public final class ResourceLoader {
 
     /**
      * Loads a resource as a stream from the classpath.
-     * @param resourceName The name of the resource to load.
-     * @return The resource as a stream.
-     * @throws ResourceNotFoundException If the resource is not found.
-     * @throws IllegalArgumentException If the resource name is null or empty.
+     * @param resourceName The name of the resource to load
+     * @return The resource as a stream
+     * @throws ResourceNotFoundException If the resource is not found
+     * @throws IllegalArgumentException If the resource name is null or empty
      */
     public static InputStream getResourceStream(String resourceName) throws ResourceNotFoundException {
         if (resourceName == null || resourceName.isEmpty()) {
@@ -67,11 +67,11 @@ public final class ResourceLoader {
     /**
      * Loads a resource as a file from the classpath.
      * It creates a temporary file and copies the resource to it.
-     * @param resourceName The name of the resource to load.
-     * @return The resource as a file.
-     * @throws RuntimeException If an error occurs while creating the temporary file.
-     * @throws ResourceNotFoundException If the resource is not found.
-     * @throws IllegalArgumentException If the resource name is null or empty.
+     * @param resourceName The name of the resource to load
+     * @return The resource as a file
+     * @throws RuntimeException If an error occurs while creating the temporary file
+     * @throws ResourceNotFoundException If the resource is not found
+     * @throws IllegalArgumentException If the resource name is null or empty
      */
     public static File getResourceFile(String resourceName) throws ResourceNotFoundException {
         try (InputStream resourceStream = getResourceStream(resourceName)) {

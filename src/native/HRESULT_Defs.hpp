@@ -31,7 +31,7 @@
 /**
  * Return a human-readable constant name of the given HRESULT.
  * If no mapping is found, nullptr is returned.
- * @param hr The HRESULT to format.
+ * @param hr The HRESULT to format
  * @return A human-readable constant name for the given HRESULT,
  *         or nullptr if no mapping is found.
  * @note This function is thread-safe and does not allocate any memory.

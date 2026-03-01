@@ -67,7 +67,7 @@ static IMMDeviceEnumerator* getDeviceEnumerator() {
  * 
  * @param pEnum The IMMDeviceEnumerator object responsible for
  *        enumerating audio endpoints on the system.
- * @param flow The data flow type to filter audio endpoints by.
+ * @param flow The data flow type to filter audio endpoints by
  * @return A pointer to the IMMDeviceCollection object containing the
  *         filtered list of audio endpoints, or nullptr if the call fails.
  */
@@ -116,8 +116,8 @@ static WAVEFORMATEX* getMixFormat(IMMDevice* device) {
 /**
  * Converts a WAVEFORMATEX object to a human-readable string.
  * 
- * @param waveformat The WAVEFORMATEX object to be converted.
- * @return A human-readable string representing the WAVEFORMATEX object, or nullptr if the conversion fails.
+ * @param waveformat The WAVEFORMATEX object to be converted
+ * @return A human-readable string representing the WAVEFORMATEX object, or nullptr if the conversion fails
  */
 static const char* WAVEFORMATEX_toText(WAVEFORMATEX* waveformat) {
     if (!waveformat) return nullptr;

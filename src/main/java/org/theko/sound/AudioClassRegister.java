@@ -64,7 +64,7 @@ public final class AudioClassRegister {
      * Adds a new audio backend class to the backends set.
      * If the class is already in the set, a warning message is logged.
      *
-     * @param backend The class of the audio backend to add.
+     * @param backend The class of the audio backend to add
      */
     public static void addBackend(Class<? extends AudioBackend> backend) {
         if (registeredBackends.contains(backend)) {
@@ -78,7 +78,7 @@ public final class AudioClassRegister {
      * Adds a new audio codec class to the codecs set.
      * If the class is already in the set, a warning message is logged.
      *
-     * @param codec The class of the audio codec to add.
+     * @param codec The class of the audio codec to add
      */
     public static void addCodec(Class<? extends AudioCodec> codec) {
         if (registeredCodecs.contains(codec)) {
@@ -100,7 +100,7 @@ public final class AudioClassRegister {
     /**
      * Returns a set of all audio backend classes available in the system.
      *
-     * @return A set of audio backend classes.
+     * @return A set of audio backend classes
      */
     public static Set<Class<? extends AudioBackend>> getBackendClasses() {
         return registeredBackends != null ? Collections.unmodifiableSet(registeredBackends) : definedBackends;
@@ -109,7 +109,7 @@ public final class AudioClassRegister {
     /**
      * Returns a set of all audio codec classes available in the system.
      *
-     * @return A set of audio codec classes.
+     * @return A set of audio codec classes
      */
     public static Set<Class<? extends AudioCodec>> getCodecClasses() {
         return registeredCodecs != null ? Collections.unmodifiableSet(registeredCodecs) : definedCodecs;

@@ -125,10 +125,10 @@ public final class AudioBackends {
      * Retrieves an {@link AudioBackendInfo} by its name.
      * The name is case-insensitive.
      *
-     * @param name The name of the audio backend.
-     * @return The corresponding {@link AudioBackendInfo}.
-     * @throws IllegalArgumentException If the audio backend name is null or empty.
-     * @throws AudioBackendNotFoundException If no backend is found with the given name.
+     * @param name The name of the audio backend
+     * @return The corresponding {@link AudioBackendInfo}
+     * @throws IllegalArgumentException If the audio backend name is null or empty
+     * @throws AudioBackendNotFoundException If no backend is found with the given name
      */
     public static AudioBackendInfo fromName(String name) throws AudioBackendNotFoundException {
         if (name == null || name.isEmpty()) {
@@ -146,11 +146,11 @@ public final class AudioBackends {
     /**
      * Retrieves an {@link AudioBackend} by its class type.
      *
-     * @param audioBackendClass The class type of the audio backend.
-     * @return The corresponding {@link AudioBackend}.
-     * @throws IllegalArgumentException If the audio backend class is null.
-     * @throws AudioBackendNotFoundException If no backend is found with the given class type.
-     * @throws AudioBackendCreationException If the backend cannot be instantiated.
+     * @param audioBackendClass The class type of the audio backend
+     * @return The corresponding {@link AudioBackend}
+     * @throws IllegalArgumentException If the audio backend class is null
+     * @throws AudioBackendNotFoundException If no backend is found with the given class type
+     * @throws AudioBackendCreationException If the backend cannot be instantiated
      */
     public static AudioBackend getBackend(Class<? extends AudioBackend> audioBackendClass) throws AudioBackendNotFoundException, AudioBackendCreationException {
         if (audioBackendClass == null) {
@@ -168,11 +168,11 @@ public final class AudioBackends {
     /**
      * Retrieves an {@link AudioBackend} by its {@link AudioBackendInfo}.
      *
-     * @param audioBackendInfo The {@link AudioBackendInfo} of the audio backend.
-     * @return The corresponding {@link AudioBackend}.
-     * @throws IllegalArgumentException If the audio backend info is null.
-     * @throws AudioBackendNotFoundException If no backend is found with the given {@link AudioBackendInfo}.
-     * @throws AudioBackendCreationException If the backend cannot be instantiated.
+     * @param audioBackendInfo The {@link AudioBackendInfo} of the audio backend
+     * @return The corresponding {@link AudioBackend}
+     * @throws IllegalArgumentException If the audio backend info is null
+     * @throws AudioBackendNotFoundException If no backend is found with the given {@link AudioBackendInfo}
+     * @throws AudioBackendCreationException If the backend cannot be instantiated
      */
     public static AudioBackend getBackend(AudioBackendInfo audioBackendInfo) throws AudioBackendNotFoundException, AudioBackendCreationException {
         if (audioBackendInfo == null) {
@@ -196,11 +196,11 @@ public final class AudioBackends {
     /**
      * Retrieves an {@link AudioInputBackend} instance by its class type.
      *
-     * @param audioBackendClass The class of the desired input backend.
-     * @return The instantiated {@link AudioInputBackend}.
-     * @throws IllegalArgumentException If the audio backend class is null.
-     * @throws AudioBackendNotFoundException If the backend is not registered.
-     * @throws AudioBackendCreationException If an error occurs during instantiation.
+     * @param audioBackendClass The class of the desired input backend
+     * @return The instantiated {@link AudioInputBackend}
+     * @throws IllegalArgumentException If the audio backend class is null
+     * @throws AudioBackendNotFoundException If the backend is not registered
+     * @throws AudioBackendCreationException If an error occurs during instantiation
      */
     public static AudioInputBackend getInputBackend(Class<? extends AudioBackend> audioBackendClass) throws AudioBackendNotFoundException, AudioBackendCreationException {
         if (audioBackendClass == null) {
@@ -222,11 +222,11 @@ public final class AudioBackends {
     /**
      * Retrieves an {@link AudioInputBackend} instance by its {@link AudioBackendInfo}.
      *
-     * @param audioBackendInfo The {@link AudioBackendInfo} of the audio backend.
-     * @return The instantiated {@link AudioInputBackend}.
-     * @throws IllegalArgumentException If the audio backend info is null.
-     * @throws AudioBackendNotFoundException If no backend is found with the given {@link AudioBackendInfo}, or if the backend does not support input.
-     * @throws AudioBackendCreationException If the backend cannot be instantiated.
+     * @param audioBackendInfo The {@link AudioBackendInfo} of the audio backend
+     * @return The instantiated {@link AudioInputBackend}
+     * @throws IllegalArgumentException If the audio backend info is null
+     * @throws AudioBackendNotFoundException If no backend is found with the given {@link AudioBackendInfo}, or if the backend does not support input
+     * @throws AudioBackendCreationException If the backend cannot be instantiated
      */
     public static AudioInputBackend getInputBackend(AudioBackendInfo audioBackendInfo) throws AudioBackendCreationException, AudioBackendNotFoundException {
         if (audioBackendInfo == null) {
@@ -255,10 +255,10 @@ public final class AudioBackends {
     /**
      * Retrieves an {@link AudioOutputBackend} instance by its class type.
      *
-     * @param audioBackendClass The class of the desired output backend.
-     * @return The instantiated {@link AudioOutputBackend}.
-     * @throws AudioBackendNotFoundException If the backend is not registered.
-     * @throws AudioBackendCreationException If an error occurs during instantiation.
+     * @param audioBackendClass The class of the desired output backend
+     * @return The instantiated {@link AudioOutputBackend}
+     * @throws AudioBackendNotFoundException If the backend is not registered
+     * @throws AudioBackendCreationException If an error occurs during instantiation
      */
     public static AudioOutputBackend getOutputBackend(Class<? extends AudioBackend> audioBackendClass) throws AudioBackendNotFoundException, AudioBackendCreationException {
         if (audioBackendClass == null) {
@@ -280,11 +280,11 @@ public final class AudioBackends {
     /**
      * Retrieves an {@link AudioOutputBackend} instance by its {@link AudioBackendInfo}.
      *
-     * @param audioBackendInfo The {@link AudioBackendInfo} of the audio backend.
-     * @return The instantiated {@link AudioOutputBackend}.
-     * @throws IllegalArgumentException If the audio backend info is null.
-     * @throws AudioBackendNotFoundException If no backend is found with the given {@link AudioBackendInfo}, or if the backend does not support output.
-     * @throws AudioBackendCreationException If the backend cannot be instantiated.
+     * @param audioBackendInfo The {@link AudioBackendInfo} of the audio backend
+     * @return The instantiated {@link AudioOutputBackend}
+     * @throws IllegalArgumentException If the audio backend info is null
+     * @throws AudioBackendNotFoundException If no backend is found with the given {@link AudioBackendInfo}, or if the backend does not support output
+     * @throws AudioBackendCreationException If the backend cannot be instantiated
      */
     public static AudioOutputBackend getOutputBackend(AudioBackendInfo audioBackendInfo) throws AudioBackendCreationException, AudioBackendNotFoundException {
         if (audioBackendInfo == null) {
@@ -313,7 +313,7 @@ public final class AudioBackends {
     /**
      * Returns all registered audio backends as an unmodifiable collection.
      *
-     * @return A collection of all registered {@link AudioBackendInfo} instances.
+     * @return A collection of all registered {@link AudioBackendInfo} instances
      */
     public static Collection<AudioBackendInfo> getAllBackends() {
         return Collections.unmodifiableCollection(audioBackends);
@@ -327,7 +327,7 @@ public final class AudioBackends {
      * @param requireDuplex Whether the selected backend must support full duplex
      *                    audio operations (both input and output).
      *
-     * @throws AudioBackendCreationException If the backend cannot be instantiated.
+     * @throws AudioBackendCreationException If the backend cannot be instantiated
      * @throws AudioBackendNotFoundException If no backend is found that supports the
      *                              desired features.
      */
@@ -386,7 +386,7 @@ public final class AudioBackends {
      * Retrieves the default audio backend for output that is available on the current platform.
      * <p>
      * This is equivalent to {@link #getPlatformOutputBackend()} and is provided for convenience.
-     * @return the default audio backend for output that is available on the current platform.
+     * @return the default audio backend for output that is available on the current platform
      */
     public static AudioBackendInfo getPlatformBackend() {
         return platformOutputBackendInfo;
@@ -400,7 +400,7 @@ public final class AudioBackends {
      * The returned backend is guaranteed to be available on the current platform and
      * support input functionality. If no audio backend was found, it falls back to the
      * JavaSound backend.
-     * @return the audio input backend that is available on the current platform.
+     * @return the audio input backend that is available on the current platform
      */
     public static AudioBackendInfo getPlatformInputBackend() {
         return platformInputBackendInfo;
@@ -414,7 +414,7 @@ public final class AudioBackends {
      * The returned backend is guaranteed to be available on the current platform and
      * support output functionality. If no audio backend was found, it falls back to the
      * JavaSound backend.
-     * @return the audio output backend that is available on the current platform.
+     * @return the audio output backend that is available on the current platform
      */
     public static AudioBackendInfo getPlatformOutputBackend() {
         return platformOutputBackendInfo;

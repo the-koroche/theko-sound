@@ -44,8 +44,8 @@ public class AudioBackendInfo {
      * Constructs an AudioBackendInfo object by extracting metadata from the given audio backend class.
      * The class must be annotated with {@link AudioBackendType}.
      *
-     * @param audioBackend The audio backend class to extract information from.
-     * @throws IllegalArgumentException if the class is not annotated with {@link AudioBackendType}.
+     * @param audioBackend The audio backend class to extract information from
+     * @throws IllegalArgumentException if the class is not annotated with {@link AudioBackendType}
      */
     public AudioBackendInfo(Class<? extends AudioBackend> audioBackend) {
         // Check if the audio backend class has the AudioBackendType annotation
@@ -64,35 +64,35 @@ public class AudioBackendInfo {
     }
 
     /**
-     * @return the name of the audio backend, as specified in the {@link AudioBackendType} annotation.
+     * @return the name of the audio backend, as specified in the {@link AudioBackendType} annotation
      */
     public String getName() {
         return name;
     }
 
     /**
-     * @return the description of the audio backend, as specified in the {@link AudioBackendType} annotation.
+     * @return the description of the audio backend, as specified in the {@link AudioBackendType} annotation
      */
     public String getDescription() {
         return description;
     }
 
     /**
-     * @return true if the audio backend supports input, false otherwise.
+     * @return true if the audio backend supports input, false otherwise
      */
     public boolean supportsInput() {
         return input;
     }
 
     /**
-     * @return true if the audio backend supports output, false otherwise.
+     * @return true if the audio backend supports output, false otherwise
      */
     public boolean supportsOutput() {
         return output;
     }
 
     /**
-     * @return the class of the audio backend this info object represents.
+     * @return the class of the audio backend this info object represents
      */
     public Class<? extends AudioBackend> getBackendClass() {
         return audioBackend;

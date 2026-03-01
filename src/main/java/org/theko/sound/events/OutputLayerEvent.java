@@ -33,8 +33,8 @@ public class OutputLayerEvent extends Event {
     
     /**
      * Constructor for the OutputLayerEvent class.
-     * @param aol The audio output layer.
-     * @param outBufferSize The size of the output buffer.
+     * @param aol The audio output layer
+     * @param outBufferSize The size of the output buffer
      */
     public OutputLayerEvent(AudioOutputLayer aol, int outBufferSize) {
         this.aol = aol;
@@ -42,14 +42,14 @@ public class OutputLayerEvent extends Event {
     }
 
     /**
-     * @return the audio output layer associated with this event.
+     * @return the audio output layer associated with this event
      */
     public AudioOutputLayer getAudioOutputLayer() {
         return aol;
     }
 
     /**
-     * @return The size of the output buffer associated with this event.
+     * @return The size of the output buffer associated with this event
      */
     public int getOutBufferSize() {
         return outBufferSize;

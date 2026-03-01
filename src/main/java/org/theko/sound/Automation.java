@@ -84,9 +84,9 @@ public class Automation {
     /**
      * Creates an automation with the given keypoints and controls.
      * 
-     * @param keypoints The keypoints of the automation.
-     * @param controls The controls of the automation.
-     * @param updateTime The update time of the automation in milliseconds.
+     * @param keypoints The keypoints of the automation
+     * @param controls The controls of the automation
+     * @param updateTime The update time of the automation in milliseconds
      */
     public Automation(List<Keypoint> keypoints, List<AudioControl> controls, int updateTime) {
         this.keypoints = new ArrayList<>();
@@ -102,8 +102,8 @@ public class Automation {
     /**
      * Creates an automation with the given keypoints and controls.
      * 
-     * @param keypoints The keypoints of the automation.
-     * @param controls The controls of the automation.
+     * @param keypoints The keypoints of the automation
+     * @param controls The controls of the automation
      */
     public Automation(List<Keypoint> keypoints, List<AudioControl> controls) {
         this(keypoints, controls, DEFAULT_UPDATE_TIME);
@@ -112,7 +112,7 @@ public class Automation {
     /**
      * Creates an automation with the given controls.
      * 
-     * @param controls The controls of the automation.
+     * @param controls The controls of the automation
      */
     public Automation(List<AudioControl> controls) {
         this(List.of(), controls, DEFAULT_UPDATE_TIME);
@@ -128,7 +128,7 @@ public class Automation {
     /**
      * Adds a control to the automation.
      * 
-     * @param control The control to add.
+     * @param control The control to add
      */
     public void addControl(AudioControl control) {
         controls.addControl(control);
@@ -137,7 +137,7 @@ public class Automation {
     /**
      * Removes a control from the automation.
      * 
-     * @param control The control to remove.
+     * @param control The control to remove
      */
     public void removeControl(AudioControl control) {
         controls.removeControl(control);
@@ -146,9 +146,9 @@ public class Automation {
     /**
      * Adds a keypoint to the automation at the given time with the given value and tension.
      * 
-     * @param time The time of the keypoint in seconds.
-     * @param value The value of the keypoint.
-     * @param tension The tension of the keypoint.
+     * @param time The time of the keypoint in seconds
+     * @param value The value of the keypoint
+     * @param tension The tension of the keypoint
      */
     public void addKeypoint(float time, float value, float tension) {
         keypoints.add(new Keypoint(time, value, tension));
@@ -157,7 +157,7 @@ public class Automation {
     /**
      * Adds a keypoint to the automation.
      * 
-     * @param keypoint The keypoint to add.
+     * @param keypoint The keypoint to add
      */
     public void addKeypoint(Keypoint keypoint) {
         keypoints.add(keypoint);
@@ -166,7 +166,7 @@ public class Automation {
     /**
      * Removes a keypoint from the automation.
      * 
-     * @param keypoint The keypoint to remove.
+     * @param keypoint The keypoint to remove
      */
     public void removeKeypoint(Keypoint keypoint) {
         keypoints.remove(keypoint);
@@ -177,7 +177,7 @@ public class Automation {
      * This list is a copy of the internal list and is not updated when the automation is modified.
      * It is intended for use in rendering the automation or other forms of visualization.
      * 
-     * @return An unmodifiable list of keypoints.
+     * @return An unmodifiable list of keypoints
      */
     public List<Keypoint> getKeypoints() {
         return Collections.unmodifiableList(keypoints);
@@ -213,7 +213,7 @@ public class Automation {
     /**
      * Returns whether the automation is currently playing.
      * 
-     * @return true if the automation is playing, false otherwise.
+     * @return true if the automation is playing, false otherwise
      */
     public boolean isPlaying() {
         return isPlaying;
@@ -249,7 +249,7 @@ public class Automation {
      * This method will return the maximum time value of all keypoints in the automation.
      * If the automation has no keypoints, it will return 0.0f.
      * 
-     * @return The duration of the automation in seconds.
+     * @return The duration of the automation in seconds
      */
     public float getDuration() {
         return keypoints.stream()
@@ -263,7 +263,7 @@ public class Automation {
      * This method will return the maximum value of all keypoints in the automation.
      * If the automation has no keypoints, it will return 0.0f.
      * 
-     * @return The maximum value of all keypoints in the automation.
+     * @return The maximum value of all keypoints in the automation
      */
     public float getMaxValue() {
         return keypoints.stream()
@@ -277,7 +277,7 @@ public class Automation {
      * This method will return the minimum value of all keypoints in the automation.
      * If the automation has no keypoints, it will return 0.0f.
      * 
-     * @return The minimum value of all keypoints in the automation.
+     * @return The minimum value of all keypoints in the automation
      */
     public float getMinValue() {
         return keypoints.stream()
@@ -292,7 +292,7 @@ public class Automation {
      * The automation will start playing from the specified time when the next {@link #play()} call is made.
      * If the automation is already playing, this method will stop the automation and reset it to the specified time.
      * 
-     * @param time The time to set the automation to in seconds.
+     * @param time The time to set the automation to in seconds
      */
     public void setTime(float time) {
         playhead = time;
@@ -305,7 +305,7 @@ public class Automation {
      * This method is useful for getting the current time of the automation
      * when it is already playing.
      *
-     * @return The current time of the automation in seconds.
+     * @return The current time of the automation in seconds
      */
     public float getTime() {
         return playhead;
@@ -317,7 +317,7 @@ public class Automation {
      * A time scale of 2.0f will play the automation at twice its normal speed.
      * A time scale of 0.5f will play the automation at half its normal speed.
      * 
-     * @param scale The time scale of the automation.
+     * @param scale The time scale of the automation
      */
     public void setTimeScale(float scale) {
         timeScale = scale;
@@ -326,7 +326,7 @@ public class Automation {
     /**
      * Returns the time scale of the automation.
      * 
-     * @return The time scale of the automation.
+     * @return The time scale of the automation
      */
     public float getTimeScale() {
         return timeScale;
@@ -382,8 +382,8 @@ public class Automation {
     /**
      * Retrieves the value of the automation at the given time.
      * 
-     * @param time The time to retrieve the value for.
-     * @return The value of the automation at the given time.
+     * @param time The time to retrieve the value for
+     * @return The value of the automation at the given time
      * @see #getValue(float)
      */
     public float getValue(float time) {

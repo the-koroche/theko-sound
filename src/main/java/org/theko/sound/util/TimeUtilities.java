@@ -42,8 +42,8 @@ public final class TimeUtilities {
      * This method is designed to be more precise than {@link Thread#sleep(long)} and {@link Object#wait(long)}.
      * It uses busy waiting and {@link LockSupport#parkNanos(long)} to wait for the specified amount of time.
      * 
-     * @param micros The amount of time to wait in microseconds.
-     * @throws InterruptedException when the thread is interrupted while waiting.
+     * @param micros The amount of time to wait in microseconds
+     * @throws InterruptedException when the thread is interrupted while waiting
      */
     public static void waitMicrosPrecise(long micros) throws InterruptedException {
         long nanos = Math.multiplyExact(micros, 1000);
@@ -55,8 +55,8 @@ public final class TimeUtilities {
      * This method is designed to be more precise than {@link Thread#sleep(long)} and {@link Object#wait(long)}.
      * It uses busy waiting and {@link LockSupport#parkNanos(long)} to wait for the specified amount of time.
      * 
-     * @param nanos The amount of time to wait in nanoseconds.
-     * @throws InterruptedException when the thread is interrupted while waiting.
+     * @param nanos The amount of time to wait in nanoseconds
+     * @throws InterruptedException when the thread is interrupted while waiting
      */
     public static void waitNanosPrecise(long nanos) throws InterruptedException {
         if (nanos <= 0) return;
@@ -88,8 +88,8 @@ public final class TimeUtilities {
      * This method is designed to be more precise than {@link Thread#sleep(long)} and {@link Object#wait(long)}.
      * It uses busy waiting and {@link Thread#onSpinWait()} to wait for the specified amount of time.
      * 
-     * @param nanos The amount of time to wait in nanoseconds.
-     * @throws InterruptedException when the thread is interrupted while waiting.
+     * @param nanos The amount of time to wait in nanoseconds
+     * @throws InterruptedException when the thread is interrupted while waiting
      */
     public static void waitNanosBusy(long nanos) throws InterruptedException {
         if (nanos <= 0) return;

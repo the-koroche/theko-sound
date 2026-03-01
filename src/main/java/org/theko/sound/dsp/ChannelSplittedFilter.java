@@ -122,7 +122,7 @@ public class ChannelSplittedFilter<T extends AudioFilter> {
      * @param samples the input samples
      * @param output the output samples
      * @param sampleRate the sample rate in Hz
-     * @throws IllegalArgumentException if the samples and output arrays do not have the same number of channels and samples.
+     * @throws IllegalArgumentException if the samples and output arrays do not have the same number of channels and samples
      */
     public void process(float[][] samples, float[][] output, int sampleRate) {
         SamplesValidation.validateSamples(samples);

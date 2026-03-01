@@ -119,7 +119,7 @@ public final class PlatformUtilities {
     /**
      * Retrieves the detected platform.
      * 
-     * @return The detected platform.
+     * @return The detected platform
      */
     public static Platform getPlatform() {
         return platform;
@@ -128,7 +128,7 @@ public final class PlatformUtilities {
     /**
      * Retrieves the detected architecture.
      * 
-     * @return The detected architecture.
+     * @return The detected architecture
      */
     public static Architecture getArchitecture() {
         return architecture;
@@ -137,7 +137,7 @@ public final class PlatformUtilities {
     /**
      * Retrieves the default library extension for the current platform ("dll", "dylib", "so", etc.).
      * 
-     * @return The default library extension.
+     * @return The default library extension
      */
     public static String getDefaultLibraryExtension() {
         switch (platform) {
@@ -153,7 +153,7 @@ public final class PlatformUtilities {
     /**
      * Retrieves the default library prefix for the current platform ("", "lib", etc.).
      * 
-     * @return The default library prefix.
+     * @return The default library prefix
      */
     public static String getDefaultLibraryPrefix() {
         switch (platform) {
@@ -181,8 +181,8 @@ public final class PlatformUtilities {
      * - otherwise → name
      * </pre>
      * 
-     * @param name The library name to format.
-     * @return The formatted library name.
+     * @param name The library name to format
+     * @return The formatted library name
      */
     public static String formatLibraryName(String name) {
         Objects.requireNonNull(name);

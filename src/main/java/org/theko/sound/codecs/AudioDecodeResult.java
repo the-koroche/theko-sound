@@ -40,10 +40,10 @@ public class AudioDecodeResult {
     /**
      * Constructs an AudioDecodeResult with the specified codec information, decoded samples,
      * audio format, and tags.
-     * @param codecInfo Information about the audio codec used for decoding.
-     * @param pcm The decoded audio samples as a 2D float array (channels x samples).
-     * @param format The format of the decoded audio.
-     * @param tags The list of audio tags associated with the decoded audio.
+     * @param codecInfo Information about the audio codec used for decoding
+     * @param pcm The decoded audio samples as a 2D float array (channels x samples)
+     * @param format The format of the decoded audio
+     * @param tags The list of audio tags associated with the decoded audio
      */
     public AudioDecodeResult(AudioCodecInfo codecInfo, float[][] pcm, AudioFormat format, List<AudioTag> tags) {
         this.codecInfo = codecInfo;
@@ -55,35 +55,35 @@ public class AudioDecodeResult {
     /**
      * Returns the decoded audio samples as a 2D float array ([channels][samples]).
      *
-     * @return The decoded audio samples.
+     * @return The decoded audio samples
      */
     public float[][] getSamples() {
         return pcm;
     }
 
     /**
-     * @return The audio format of the decoded audio data.
+     * @return The audio format of the decoded audio data
      */
     public AudioFormat getAudioFormat() {
         return format;
     }
 
     /**
-     * @return The unmodifiable list of audio tags associated with the decoded audio.
+     * @return The unmodifiable list of audio tags associated with the decoded audio
      */
     public List<AudioTag> getTagsList() {
         return Collections.unmodifiableList(tags);
     }
 
     /**
-     * @return The list of audio tags as {@link AudioTags}.
+     * @return The list of audio tags as {@link AudioTags}
      */
     public AudioTags getTags() {
         return new AudioTags(tags);
     }
 
     /**
-     * @return Information about the audio codec used for decoding.
+     * @return Information about the audio codec used for decoding
      */
     public AudioCodecInfo getCodecInfo() {
         return codecInfo;

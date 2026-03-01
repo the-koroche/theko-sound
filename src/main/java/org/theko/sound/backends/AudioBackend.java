@@ -54,7 +54,7 @@ public interface AudioBackend {
     /**
      * Checks if the audio backend is available on the current platform.
      *
-     * @return {@code true} if the audio backend is available; {@code false} otherwise.
+     * @return {@code true} if the audio backend is available; {@code false} otherwise
      */
     boolean isAvailableOnThisPlatform();
 
@@ -63,7 +63,7 @@ public interface AudioBackend {
      * and it is expected that implementers override this method if initialization
      * logic is required.
      *
-     * @throws AudioBackendException if an error occurs during initialization.
+     * @throws AudioBackendException if an error occurs during initialization
      */
     default void initialize() throws AudioBackendException {
         // No default initialization logic provided.
@@ -74,7 +74,7 @@ public interface AudioBackend {
      * This default implementation does nothing, and it is expected that
      * implementers override this method if shutdown logic is required.
      *
-     * @throws AudioBackendException if an error occurs during shutdown.
+     * @throws AudioBackendException if an error occurs during shutdown
      */
     default void shutdown() throws AudioBackendException {
         // No default shutdown logic provided.
@@ -84,7 +84,7 @@ public interface AudioBackend {
      * Retrieves all ports associated with this audio backend, regardless of
      * availability or compatibility.
      *
-     * @return a collection of all {@link AudioPort}s available on the backend.
+     * @return a collection of all {@link AudioPort}s available on the backend
      */
     Collection<AudioPort> getAllPorts();
 
@@ -92,11 +92,11 @@ public interface AudioBackend {
      * Returns a collection of audio ports that are compatible with the specified
      * audio flow and audio format.
      *
-     * @param flow the direction of the audio flow (input or output).
-     * @param audioFormat the desired audio format for compatibility.
-     * @return a collection of {@link AudioPort}s matching the given criteria.
-     * @throws AudioPortsNotFoundException if no ports are found for the given flow.
-     * @throws UnsupportedAudioFormatException if the format is not supported by the backend or ports.
+     * @param flow the direction of the audio flow (input or output)
+     * @param audioFormat the desired audio format for compatibility
+     * @return a collection of {@link AudioPort}s matching the given criteria
+     * @throws AudioPortsNotFoundException if no ports are found for the given flow
+     * @throws UnsupportedAudioFormatException if the format is not supported by the backend or ports
      */
     Collection<AudioPort> getAvailablePorts(AudioFlow flow, AudioFormat audioFormat)
         throws AudioPortsNotFoundException, UnsupportedAudioFormatException;
@@ -105,9 +105,9 @@ public interface AudioBackend {
      * Returns a collection of audio ports that are compatible with the specified
      * audio flow.
      *
-     * @param flow the direction of the audio flow (input or output).
-     * @return a collection of {@link AudioPort}s matching the given criteria.
-     * @throws AudioPortsNotFoundException if no ports are found for the given flow.
+     * @param flow the direction of the audio flow (input or output)
+     * @return a collection of {@link AudioPort}s matching the given criteria
+     * @throws AudioPortsNotFoundException if no ports are found for the given flow
      */
     Collection<AudioPort> getAvailablePorts(AudioFlow flow)
         throws AudioPortsNotFoundException;
@@ -115,28 +115,28 @@ public interface AudioBackend {
     /**
      * Checks if a specific audio port supports the provided audio format.
      *
-     * @param port the {@link AudioPort} to check.
-     * @param audioFormat the audio format to test compatibility for.
-     * @param closestFormat a reference to store the closest supported format.
-     * @return {@code true} if the port supports the specified format; {@code false} otherwise.
+     * @param port the {@link AudioPort} to check
+     * @param audioFormat the audio format to test compatibility for
+     * @param closestFormat a reference to store the closest supported format
+     * @return {@code true} if the port supports the specified format; {@code false} otherwise
      */
     boolean isFormatSupported(AudioPort port, AudioFormat audioFormat, AtomicReference<AudioFormat> closestFormat);
 
     /**
      * Checks if a specific audio port supports the provided audio format.
      *
-     * @param port the {@link AudioPort} to check.
-     * @param audioFormat the audio format to test compatibility for.
-     * @return {@code true} if the port supports the specified format; {@code false} otherwise.
+     * @param port the {@link AudioPort} to check
+     * @param audioFormat the audio format to test compatibility for
+     * @return {@code true} if the port supports the specified format; {@code false} otherwise
      */
     boolean isFormatSupported(AudioPort port, AudioFormat audioFormat);
 
     /**
      * Retrieves the default audio port for the specified audio flow.
      *
-     * @param flow the desired audio flow (input or output).
-     * @return an {@link Optional} containing the default port if found; empty otherwise.
-     * @throws AudioPortsNotFoundException if no matching ports are available.
+     * @param flow the desired audio flow (input or output)
+     * @return an {@link Optional} containing the default port if found; empty otherwise
+     * @throws AudioPortsNotFoundException if no matching ports are available
      */
     Optional<AudioPort> getDefaultPort(AudioFlow flow)
         throws AudioPortsNotFoundException;
@@ -144,11 +144,11 @@ public interface AudioBackend {
     /**
      * Retrieves the audio port that supports the specified audio flow and audio format.
      *
-     * @param flow the desired audio flow (input or output).
-     * @param audioFormat the desired audio format.
-     * @return an {@link Optional} containing the supporting port if found; empty otherwise.
-     * @throws AudioPortsNotFoundException if no matching ports are available.
-     * @throws UnsupportedAudioFormatException if the format is not supported by the backend or ports.
+     * @param flow the desired audio flow (input or output)
+     * @param audioFormat the desired audio format
+     * @return an {@link Optional} containing the supporting port if found; empty otherwise
+     * @throws AudioPortsNotFoundException if no matching ports are available
+     * @throws UnsupportedAudioFormatException if the format is not supported by the backend or ports
      */
     Optional<AudioPort> getPort(AudioFlow flow, AudioFormat audioFormat) 
         throws AudioPortsNotFoundException, UnsupportedAudioFormatException;
@@ -157,7 +157,7 @@ public interface AudioBackend {
      * Returns the input backend associated with this audio backend, allowing
      * for access to input-specific controls or metadata.
      *
-     * @return an {@link AudioInputBackend} representing the input side of this backend.
+     * @return an {@link AudioInputBackend} representing the input side of this backend
      */
     AudioInputBackend getInputBackend();
 
@@ -165,14 +165,14 @@ public interface AudioBackend {
      * Returns the output backend associated with this audio backend, allowing
      * for access to output-specific controls or metadata.
      *
-     * @return an {@link AudioOutputBackend} representing the output side of this backend.
+     * @return an {@link AudioOutputBackend} representing the output side of this backend
      */
     AudioOutputBackend getOutputBackend();
 
     /**
      * Checks if the audio backend is initialized.
      *
-     * @return {@code true} if the audio backend is initialized; {@code false} otherwise.
+     * @return {@code true} if the audio backend is initialized; {@code false} otherwise
      */
     boolean isInitialized();
 }

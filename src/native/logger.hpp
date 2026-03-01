@@ -75,10 +75,10 @@ private:
     /**
      * Logs a message to the logger. If the logger is null, the method is null or the message is null, the function does nothing.
      *
-     * @param env The JNI environment.
-     * @param method The method to call on the logger.
-     * @param msg The message to log.
-     * @param args The arguments to pass to the format function.
+     * @param env The JNI environment
+     * @param method The method to call on the logger
+     * @param msg The message to log
+     * @param args The arguments to pass to the format function
      */
     void log(JNIEnv* env, jmethodID method, const char* msg, va_list args) {
         if (!logger || !method || !msg) return;
@@ -95,8 +95,8 @@ public:
     /**
      * Creates a logger with the given name.
      *
-     * @param env The JNI environment.
-     * @param name The name of the logger.
+     * @param env The JNI environment
+     * @param name The name of the logger
      *
      * This function creates a logger with the given name and stores it in a global reference.
      * It also checks for any pending exceptions and clears them if necessary.
@@ -118,9 +118,9 @@ public:
     /**
      * Logs a trace message to the logger. If the logger is null, the method is null or the message is null, the function does nothing.
      * 
-     * @param env The JNI environment.
-     * @param msg The message to log.
-     * @param ... The arguments to pass to the format function.
+     * @param env The JNI environment
+     * @param msg The message to log
+     * @param ... The arguments to pass to the format function
      */
     void trace(JNIEnv* env, const char* msg, ...) {
         va_list args;
@@ -132,9 +132,9 @@ public:
     /**
      * Logs a debug message to the logger. If the logger is null, the method is null or the message is null, the function does nothing.
      * 
-     * @param env The JNI environment.
-     * @param msg The message to log.
-     * @param ... The arguments to pass to the format function.
+     * @param env The JNI environment
+     * @param msg The message to log
+     * @param ... The arguments to pass to the format function
      */
     void debug(JNIEnv* env, const char* msg, ...) {
         va_list args;
@@ -146,9 +146,9 @@ public:
     /**
      * Logs an info message to the logger. If the logger is null, the method is null or the message is null, the function does nothing.
      * 
-     * @param env The JNI environment.
-     * @param msg The message to log.
-     * @param ... The arguments to pass to the format function.
+     * @param env The JNI environment
+     * @param msg The message to log
+     * @param ... The arguments to pass to the format function
      */
     void info(JNIEnv* env, const char* msg, ...) {
         va_list args;
@@ -160,9 +160,9 @@ public:
     /**
      * Logs a warning message to the logger. If the logger is null, the method is null or the message is null, the function does nothing.
      * 
-     * @param env The JNI environment.
-     * @param msg The message to log.
-     * @param ... The arguments to pass to the format function.
+     * @param env The JNI environment
+     * @param msg The message to log
+     * @param ... The arguments to pass to the format function
      */
     void warn(JNIEnv* env, const char* msg, ...) {
         va_list args;
@@ -174,9 +174,9 @@ public:
     /**
      * Logs an error message to the logger. If the logger is null, the method is null or the message is null, the function does nothing.
      * 
-     * @param env The JNI environment.
-     * @param msg The message to log.
-     * @param ... The arguments to pass to the format function.
+     * @param env The JNI environment
+     * @param msg The message to log
+     * @param ... The arguments to pass to the format function
      */
     void error(JNIEnv* env, const char* msg, ...) {
         va_list args;
@@ -190,7 +190,7 @@ public:
      *
      * This function releases the logger and its global reference. If the logger is null, the function does nothing.
      *
-     * @param env The JNI environment.
+     * @param env The JNI environment
      */
     void release(JNIEnv* env) {
         if (logger) {

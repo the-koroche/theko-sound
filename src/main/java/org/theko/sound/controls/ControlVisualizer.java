@@ -78,8 +78,8 @@ public class ControlVisualizer extends JPanel {
 
     /**
      * Creates a new ControlVisualizer.
-     * @param control The control to visualize.
-     * @param frameRate The frame rate in frames per second.
+     * @param control The control to visualize
+     * @param frameRate The frame rate in frames per second
      */
     public ControlVisualizer(AudioControl control, int frameRate) {
         Objects.requireNonNull(control);
@@ -102,7 +102,7 @@ public class ControlVisualizer extends JPanel {
 
     /**
      * Creates a new ControlVisualizer with a default frame rate of 60 frames per second.
-     * @param control The control to visualize.
+     * @param control The control to visualize
      */
     public ControlVisualizer(AudioControl control) {
         this(control, 60);
@@ -200,12 +200,12 @@ public class ControlVisualizer extends JPanel {
     /**
      * Draws a grid on the given graphics context.
      * 
-     * @param g2d the graphics context to draw on.
-     * @param w the width of the component.
-     * @param h the height of the component.
-     * @param actualMin the minimum y value of the component.
-     * @param actualMax the maximum y value of the component.
-     * @param range the range of y values (actualMax - actualMin).
+     * @param g2d the graphics context to draw on
+     * @param w the width of the component
+     * @param h the height of the component
+     * @param actualMin the minimum y value of the component
+     * @param actualMax the maximum y value of the component
+     * @param range the range of y values (actualMax - actualMin)
      */
     protected void drawGrid(Graphics2D g2d, int w, int h, float actualMin, float actualMax, float range) {
         g2d.setColor(gridColor);
@@ -223,12 +223,12 @@ public class ControlVisualizer extends JPanel {
     /**
      * Draws a path representing the history of values on the given graphics context.
      * 
-     * @param g2d the graphics context to draw on.
-     * @param w the width of the component.
-     * @param h the height of the component.
-     * @param actualMin the minimum y value of the component.
-     * @param scaleX the scale factor for the x axis.
-     * @param scaleY the scale factor for the y axis.
+     * @param g2d the graphics context to draw on
+     * @param w the width of the component
+     * @param h the height of the component
+     * @param actualMin the minimum y value of the component
+     * @param scaleX the scale factor for the x axis
+     * @param scaleY the scale factor for the y axis
      */
     protected void drawHistoryPath(Graphics2D g2d, int w, int h, float actualMin, float scaleX, float scaleY) {
         g2d.setColor(historyColor);
@@ -263,11 +263,11 @@ public class ControlVisualizer extends JPanel {
      * Draws a line representing the current value on the given graphics context.
      * <p>The line is drawn at the y position corresponding to the current value.
      * 
-     * @param g2d the graphics context to draw on.
-     * @param w the width of the component.
-     * @param h the height of the component.
-     * @param actualMin the minimum y value of the component.
-     * @param range the range of y values (actualMax - actualMin).
+     * @param g2d the graphics context to draw on
+     * @param w the width of the component
+     * @param h the height of the component
+     * @param actualMin the minimum y value of the component
+     * @param range the range of y values (actualMax - actualMin)
      */
     protected void drawCurrentValueLine(Graphics2D g2d, int w, int h, float actualMin, float range) {
         float value = historySamples[(historyIndex - 1 + historyMaxSamples) % historyMaxSamples];
@@ -282,9 +282,9 @@ public class ControlVisualizer extends JPanel {
      * Draws the current value of the associated control as a text on the given graphics context.
      * <p>The text is drawn at the bottom right corner of the component.
      * 
-     * @param g2d the graphics context to draw on.
-     * @param w the width of the component.
-     * @param h the height of the component.
+     * @param g2d the graphics context to draw on
+     * @param w the width of the component
+     * @param h the height of the component
      */
     protected void drawCurrentValueText(Graphics2D g2d, int w, int h) {
         String valueText = String.format(Locale.US, "%.3f", AudioControlUtilities.getValueAsFloat(control));
@@ -315,7 +315,7 @@ public class ControlVisualizer extends JPanel {
      * <p>A minimum value of 0.2f is enforced to prevent very short history periods.
      * <p>Setting this value to -1 will use a default value of 60.0f equivalent to 1 minute.
      * 
-     * @param historyTime the maximum time period in seconds for which the control value history is kept.
+     * @param historyTime the maximum time period in seconds for which the control value history is kept
      */
     public void setHistoryMaxTime(float historyTime) {
         if (historyTime == -1) historyTime = 60.0f;
@@ -341,7 +341,7 @@ public class ControlVisualizer extends JPanel {
     /**
      * Retrieves the maximum time period in seconds for which the control value history is kept.
      * 
-     * @return The maximum history time period in seconds.
+     * @return The maximum history time period in seconds
      */
     public float getHistoryMaxTime() {
         return historyMaxTime;
@@ -349,7 +349,7 @@ public class ControlVisualizer extends JPanel {
 
     /**
      * Returns the associated AudioControl object that is being visualized.
-     * @return The AudioControl object.
+     * @return The AudioControl object
      */
     public AudioControl getControl() {
         return control;

@@ -362,7 +362,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
      * The gain control allows adjusting the amplitude of the audio signal
      * that is used to generate the spectrum display.
      * 
-     * @return The gain control of the spectrum visualizer.
+     * @return The gain control of the spectrum visualizer
      */
     public FloatControl getGainControl() {
         return gainControl;
@@ -378,7 +378,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
      * A frequency scale of 2.0f would represent twice the full frequency range
      * of the sampling rate.
      *
-     * @param frequencyScale The frequency scale of the spectrum visualizer.
+     * @param frequencyScale The frequency scale of the spectrum visualizer
      */
     public void setFrequencyScale(float frequencyScale) {
         this.frequencyScale = MathUtilities.clamp(frequencyScale, MIN_SCALE, MAX_SCALE);
@@ -389,7 +389,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
      * The frequency scale is used to determine the frequency range of the
      * spectrum that is displayed.
      * 
-     * @return The frequency scale of the spectrum visualizer.
+     * @return The frequency scale of the spectrum visualizer
      */
     public float getFrequencyScale() {
         return frequencyScale;
@@ -560,7 +560,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
      * Sets the spectrum decay factor of the visualizer.
      * This value controls how quickly the spectrum decays back to zero.
      * 
-     * @param decay The spectrum decay factor of the visualizer.
+     * @param decay The spectrum decay factor of the visualizer
      */
     public void setSpectrumDecayFactor(float decay) {
         this.spectrumDecayFactor = MathUtilities.clamp(decay, MIN_DECAY, MAX_DECAY);
@@ -571,7 +571,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
      * This value controls how quickly the spectrum decays back to zero after the
      * audio signal has stopped.
      * 
-     * @return The spectrum decay factor of the visualizer.
+     * @return The spectrum decay factor of the visualizer
      */
     public float getSpectrumDecayFactor() {
         return spectrumDecayFactor;
@@ -701,7 +701,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
     /**
      * Returns the current interpolation mode used to generate the spectrum.
      * 
-     * @return The current interpolation mode used.
+     * @return The current interpolation mode used
      * @see #setSpectrumInterpolationMode(InterpolationMode)
      * @see InterpolationMode
      */
@@ -725,7 +725,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
     /**
      * Returns the current decay mode used by the spectrum visualizer.
      * 
-     * @return The current decay mode used.
+     * @return The current decay mode used
      * @see #setSpectrumDecayMode(DecayMode)
      * @see DecayMode
      */
@@ -739,7 +739,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
      * increase the computational cost of generating the spectrum, and may cause
      * lower time resolution.
      * 
-     * @param size The size of the FFT to use.
+     * @param size The size of the FFT to use
      */
     public void setFftWindowSize(int size) {
         this.fftWindowSize = MathUtilities.clamp(size, MIN_FFT_SIZE, MAX_FFT_SIZE);
@@ -748,7 +748,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
     /**
      * Returns the size of the FFT used to generate the spectrum.
      * 
-     * @return the size of the FFT used.
+     * @return the size of the FFT used
      */
     public int getFftWindowSize() {
         return fftWindowSize;
@@ -772,7 +772,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
     /**
      * Returns the window type used before the FFT is applied.
      * 
-     * @return The window type used.
+     * @return The window type used
      */
     public WindowType getWindowType() {
         return windowType;
@@ -794,7 +794,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
     /**
      * Returns the channel to show in the spectrogram visualizer.
      * 
-     * @return The channel to show.
+     * @return The channel to show
      * @see #setChannelToShow(int)
      */
     public int getChannelToShow() {

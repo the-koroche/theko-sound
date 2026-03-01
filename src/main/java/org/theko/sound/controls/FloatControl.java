@@ -57,7 +57,7 @@ public class FloatControl extends AudioControl {
      * Sets the value of this control to the given value, ensuring that the
      * new value is within the range of {@code min} and {@code max}.
      * 
-     * @param value The new value for this control.
+     * @param value The new value for this control
      */
     public void setValue(float value) {
         this.value = MathUtilities.clamp(value, min, max);
@@ -71,7 +71,7 @@ public class FloatControl extends AudioControl {
      * <p>
      * The resulting value will be remapped to the range of {@code min} to {@code max}.
      * 
-     * @param value The normalized value to set this control to.
+     * @param value The normalized value to set this control to
      */
     public void setNormalized(float value) {
         this.value = MathUtilities.remapClamped(value, 0f, 1f, min, max);
@@ -81,7 +81,7 @@ public class FloatControl extends AudioControl {
     /**
      * Retrieves the current value of this control.
      * 
-     * @return The current value of this control.
+     * @return The current value of this control
      */
     public float getValue() {
         return value;
@@ -90,7 +90,7 @@ public class FloatControl extends AudioControl {
     /**
      * Retrieves the minimum bound of the range for this control.
      * 
-     * @return The minimum value that this control can have.
+     * @return The minimum value that this control can have
      */
     public float getMin() {
         return min;
@@ -100,7 +100,7 @@ public class FloatControl extends AudioControl {
     /**
      * Retrieves the maximum bound of the range for this control.
      * 
-     * @return The maximum value that this control can have.
+     * @return The maximum value that this control can have
      */
     public float getMax() {
         return max;
@@ -110,7 +110,7 @@ public class FloatControl extends AudioControl {
      * Retrieves the normalized value of this control within the range [0, 1],
      * where 0 represents the minimum value and 1 represents the maximum value.
      * 
-     * @return The normalized value of this control.
+     * @return The normalized value of this control
      */
     public float getNormalized() {
         return (float)MathUtilities.remapClamped(value, min, max, 0f, 1f);
@@ -120,7 +120,7 @@ public class FloatControl extends AudioControl {
      * Returns a string representation of the FloatControl object, displaying the name of the control,
      * its current value, and its minimum and maximum bounds.
      * 
-     * @return A string that represents the float control.
+     * @return A string that represents the float control
      */
     @Override
     public String toString() {

@@ -51,7 +51,7 @@ public class AudioResampler {
     /**
      * Constructs an AudioResampler with the specified resample method.
      * 
-     * @param resamplerMethod The resample method to use for audio resampling.
+     * @param resamplerMethod The resample method to use for audio resampling
      */
     public AudioResampler(ResampleMethod resamplerMethod) {
         this.resampleMethod = resamplerMethod;
@@ -68,10 +68,10 @@ public class AudioResampler {
     /**
      * Resamples the given audio samples to a new length.
      * 
-     * @param samples The audio samples to resample, represented as a 2D float array.
-     * @param speedMultiplier The speed multiplier for the resampling process.
-     * @return A 2D float array containing the resampled audio samples.
-     * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels.
+     * @param samples The audio samples to resample, represented as a 2D float array
+     * @param speedMultiplier The speed multiplier for the resampling process
+     * @return A 2D float array containing the resampled audio samples
+     * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels
      */
     public float[][] resample(float[][] samples, float speedMultiplier) {
         return resample(samples, (int) (samples[0].length / speedMultiplier));
@@ -80,10 +80,10 @@ public class AudioResampler {
     /**
      * Resamples the given audio samples to a new length.
      * 
-     * @param samples The audio samples to resample, represented as a 2D float array.
-     * @param newLength The target length of the resampled audio samples.
-     * @return A 2D float array containing the resampled audio samples.
-     * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels.
+     * @param samples The audio samples to resample, represented as a 2D float array
+     * @param newLength The target length of the resampled audio samples
+     * @return A 2D float array containing the resampled audio samples
+     * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels
      */
     public float[][] resample(float[][] samples, int newLength) {
         newLength = MathUtilities.clamp(newLength, 1, samples[0].length * 50);
@@ -95,10 +95,10 @@ public class AudioResampler {
     /**
      * Resamples the given audio samples to a new length.
      * 
-     * @param samples The audio samples to resample, represented as a 2D float array.
-     * @param output The output array to store the resampled audio samples, with new length.
-     * @param speedMultiplier The speed multiplier for the resampling process.
-     * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels.
+     * @param samples The audio samples to resample, represented as a 2D float array
+     * @param output The output array to store the resampled audio samples, with new length
+     * @param speedMultiplier The speed multiplier for the resampling process
+     * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels
      */
     public void resample(float[][] samples, float[][] output, float speedMultiplier) {
         resample(samples, output, (int) (samples[0].length / speedMultiplier));
@@ -107,10 +107,10 @@ public class AudioResampler {
     /**
      * Resamples the given audio samples to a new length.
      * 
-     * @param samples The audio samples to resample, represented as a 2D float array.
-     * @param output The output array to store the resampled audio samples, with new length.
-     * @param newLength The target length of the resampled audio samples.
-     * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels.
+     * @param samples The audio samples to resample, represented as a 2D float array
+     * @param output The output array to store the resampled audio samples, with new length
+     * @param newLength The target length of the resampled audio samples
+     * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels
      */
     public void resample(float[][] samples, float[][] output, int newLength) {
         newLength = Math.max(1, newLength);

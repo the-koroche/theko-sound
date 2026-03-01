@@ -82,10 +82,10 @@ public final class SamplesConverter {
      * dimension is the channel index and the second is the frame index. Input data must
      * match the specified {@link AudioFormat}.
      *
-     * @param data the raw PCM audio data (must not be null).
-     * @param audioFormat the format of the input data (must not be null).
-     * @return a newly allocated 2D array of normalized floating-point samples [channels][frames].
-     * @throws IllegalArgumentException if data or audioFormat is null, or data length is inconsistent with channels/sample size.
+     * @param data the raw PCM audio data (must not be null)
+     * @param audioFormat the format of the input data (must not be null)
+     * @return a newly allocated 2D array of normalized floating-point samples [channels][frames]
+     * @throws IllegalArgumentException if data or audioFormat is null, or data length is inconsistent with channels/sample size
      */
     public static float[][] toSamples(byte[] data, AudioFormat audioFormat) {
         if (data == null || audioFormat == null) {
@@ -109,10 +109,10 @@ public final class SamplesConverter {
      * <p>The input samples are expected in the range [-1.0, 1.0] and organized as [channels][frames].
      * Optional {@code volumes} act as per-channel multipliers applied before quantization.
      *
-     * @param samples 2D array of normalized floating-point samples [channels][frames] (must not be null).
-     * @param audioFormat target PCM format (must not be null).
-     * @return a newly allocated byte array containing PCM audio data.
-     * @throws IllegalArgumentException if samples or audioFormat is null, or array dimensions are inconsistent.
+     * @param samples 2D array of normalized floating-point samples [channels][frames] (must not be null)
+     * @param audioFormat target PCM format (must not be null)
+     * @return a newly allocated byte array containing PCM audio data
+     * @throws IllegalArgumentException if samples or audioFormat is null, or array dimensions are inconsistent
      */
     public static byte[] fromSamples(float[][] samples, AudioFormat audioFormat) {
         if (samples == null || audioFormat == null) {
@@ -142,12 +142,12 @@ public final class SamplesConverter {
      * outputSamples[ch].length == data.length / bytesPerSample / channels
      * </pre>
      *
-     * @param data the raw PCM audio data (not null).
+     * @param data the raw PCM audio data (not null)
      * @param outputSamples preallocated array of shape [channels][frames],
      *                      where frames = data.length / bytesPerSample / channels.
-     * @param audioFormat format describing the PCM data (sample size, byte order, etc.).
+     * @param audioFormat format describing the PCM data (sample size, byte order, etc.)
      *
-     * @throws IllegalArgumentException if data, audio format, or output samples are null, or if array dimensions are inconsistent with the input data.
+     * @throws IllegalArgumentException if data, audio format, or output samples are null, or if array dimensions are inconsistent with the input data
      */
     public static void toSamples(byte[] data, float[][] outputSamples, AudioFormat audioFormat) {
         if (data == null || audioFormat == null || outputSamples == null) {
@@ -269,9 +269,9 @@ public final class SamplesConverter {
      * <p>Conversion respects the target {@link AudioFormat}'s encoding, sample
      * size, byte order, and channel count.
      *
-     * @param samples 2D array of floating-point audio data, organized as [channels][frames].
-     * @param outputBytes preallocated byte array to store converted PCM data.
-     * @param targetFormat target PCM format (encoding, sample size, endian, channels).
+     * @param samples 2D array of floating-point audio data, organized as [channels][frames]
+     * @param outputBytes preallocated byte array to store converted PCM data
+     * @param targetFormat target PCM format (encoding, sample size, endian, channels)
      *
      * @throws IllegalArgumentException if {@code outputBytes} length is inconsistent with
      *                                  {@code samples.length}, frame count, or {@code targetFormat}.

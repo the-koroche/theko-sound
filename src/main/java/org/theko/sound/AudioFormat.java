@@ -90,12 +90,12 @@ public class AudioFormat implements Serializable {
     /**
      * Constructs an AudioFormat instance with computed frame size and byte rate.
      *
-     * @param sampleRate    The sample rate in Hz (must be positive).
-     * @param bitsPerSample Bits per sample (must be positive).
-     * @param channels      Number of audio channels (must be positive).
-     * @param encoding      The encoding type (must not be null).
-     * @param bigEndian     True for big-endian byte order, false for little-endian.
-     * @throws IllegalArgumentException if any parameter is invalid.
+     * @param sampleRate    The sample rate in Hz (must be positive)
+     * @param bitsPerSample Bits per sample (must be positive)
+     * @param channels      Number of audio channels (must be positive)
+     * @param encoding      The encoding type (must not be null)
+     * @param bigEndian     True for big-endian byte order, false for little-endian
+     * @throws IllegalArgumentException if any parameter is invalid
      */
     public AudioFormat(int sampleRate, int bitsPerSample, int channels, Encoding encoding, boolean bigEndian) {
         this(sampleRate, bitsPerSample, channels, encoding, bigEndian,
@@ -106,14 +106,14 @@ public class AudioFormat implements Serializable {
     /**
      * Constructs an AudioFormat instance with all parameters explicitly specified.
      *
-     * @param sampleRate    The sample rate in Hz.
-     * @param bitsPerSample Bits per sample.
-     * @param channels      Number of audio channels.
-     * @param encoding      The encoding type.
-     * @param bigEndian     True for big-endian byte order.
-     * @param frameSize     Bytes per frame.
-     * @param byteRate      Bytes per second.
-     * @throws IllegalArgumentException if any parameter is invalid.
+     * @param sampleRate    The sample rate in Hz
+     * @param bitsPerSample Bits per sample
+     * @param channels      Number of audio channels
+     * @param encoding      The encoding type
+     * @param bigEndian     True for big-endian byte order
+     * @param frameSize     Bytes per frame
+     * @param byteRate      Bytes per second
+     * @throws IllegalArgumentException if any parameter is invalid
      */
     public AudioFormat(int sampleRate, int bitsPerSample, int channels, Encoding encoding, boolean bigEndian, int frameSize, int byteRate) {
         if (sampleRate <= 0) throw new IllegalArgumentException("Sample rate must be positive.");
@@ -174,8 +174,8 @@ public class AudioFormat implements Serializable {
     /**
      * Checks if another AudioFormat instance has the same format.
      *
-     * @param other Another AudioFormat instance.
-     * @return True if the formats match, false otherwise.
+     * @param other Another AudioFormat instance
+     * @return True if the formats match, false otherwise
      */
     public boolean isSameFormat(AudioFormat other) {
         return this.sampleRate == other.sampleRate &&
@@ -190,8 +190,8 @@ public class AudioFormat implements Serializable {
     /**
      * Returns a new AudioFormat with a different encoding.
      *
-     * @param newEncoding The new encoding.
-     * @return A new AudioFormat instance with the specified encoding.
+     * @param newEncoding The new encoding
+     * @return A new AudioFormat instance with the specified encoding
      */
     public AudioFormat convertTo(Encoding newEncoding) {
         return new AudioFormat(sampleRate, bitsPerSample, channels, newEncoding, bigEndian, frameSize, byteRate);
@@ -200,8 +200,8 @@ public class AudioFormat implements Serializable {
     /**
      * Returns a new AudioFormat with a different endianness.
      *
-     * @param newEndian True for big-endian, false for little-endian.
-     * @return A new AudioFormat instance with the specified endianness.
+     * @param newEndian True for big-endian, false for little-endian
+     * @return A new AudioFormat instance with the specified endianness
      */
     public AudioFormat withEndian(boolean newEndian) {
         return new AudioFormat(sampleRate, bitsPerSample, channels, encoding, newEndian, frameSize, byteRate);

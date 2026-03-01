@@ -67,8 +67,8 @@ public class AudioMeasure {
     /**
      * Sets the audio format for this audio measure.
      * 
-     * @param format The audio format.
-     * @return This audio measure.
+     * @param format The audio format
+     * @return This audio measure
      */
     public AudioMeasure onFormat(AudioFormat format) {
         if (format == null) throw new IllegalArgumentException("Audio format must not be null.");
@@ -79,8 +79,8 @@ public class AudioMeasure {
     /**
      * Creates an audio measure for the specified number of frames.
      * 
-     * @param frames The number of frames.
-     * @return An audio measure for the specified number of frames.
+     * @param frames The number of frames
+     * @return An audio measure for the specified number of frames
      */
     public static AudioMeasure ofFrames(long frames) {
         return new AudioMeasure(frames, 0, Unit.FRAMES, null);
@@ -89,8 +89,8 @@ public class AudioMeasure {
     /**
      * Creates an audio measure for the specified number of samples.
      * 
-     * @param samples The number of samples.
-     * @return An audio measure for the specified number of samples.
+     * @param samples The number of samples
+     * @return An audio measure for the specified number of samples
      */
     public static AudioMeasure ofSamples(long samples) {
         return new AudioMeasure(samples, 0, Unit.SAMPLES, null);
@@ -99,8 +99,8 @@ public class AudioMeasure {
     /**
      * Creates an audio measure for the specified number of bytes.
      * 
-     * @param bytes The number of bytes.
-     * @return An audio measure for the specified number of bytes.
+     * @param bytes The number of bytes
+     * @return An audio measure for the specified number of bytes
      */
     public static AudioMeasure ofBytes(long bytes) {
         return new AudioMeasure(bytes, 0, Unit.BYTES, null);
@@ -109,8 +109,8 @@ public class AudioMeasure {
     /**
      * Creates an audio measure for the specified number of seconds.
      * 
-     * @param seconds The number of seconds.
-     * @return An audio measure for the specified number of seconds.
+     * @param seconds The number of seconds
+     * @return An audio measure for the specified number of seconds
      */
     public static AudioMeasure ofSeconds(double seconds) {
         return new AudioMeasure(0, seconds, Unit.SECONDS, null);
@@ -206,7 +206,7 @@ public class AudioMeasure {
     /**
      * Returns the value of this audio measure in frames.
      * 
-     * @return The value of this audio measure in frames.
+     * @return The value of this audio measure in frames
      */
     public long getFrames() {
         checkFormat();
@@ -222,7 +222,7 @@ public class AudioMeasure {
     /**
      * Returns the value of this audio measure in samples.
      * 
-     * @return The value of this audio measure in samples.
+     * @return The value of this audio measure in samples
      */
     public long getSamples() {
         checkFormat();
@@ -238,7 +238,7 @@ public class AudioMeasure {
     /**
      * Returns the value of this audio measure in bytes.
      * 
-     * @return The value of this audio measure in bytes.
+     * @return The value of this audio measure in bytes
      */
     public long getBytes() {
         checkFormat();
@@ -254,7 +254,7 @@ public class AudioMeasure {
     /**
      * Returns the value of this audio measure in seconds.
      * 
-     * @return The value of this audio measure in seconds.
+     * @return The value of this audio measure in seconds
      */
     public double getSeconds() {
         checkFormat();

@@ -64,10 +64,10 @@ public final class FormatUtilities {
     /**
      * Formats bytes in a human-readable way using the specified unit system.
      * 
-     * @param bytes The number of bytes to format.
-     * @param binary True to use binary units, false to use decimal units.
-     * @param precision The number of decimal places to use.
-     * @return The formatted string.
+     * @param bytes The number of bytes to format
+     * @param binary True to use binary units, false to use decimal units
+     * @param precision The number of decimal places to use
+     * @return The formatted string
      */
     public static String formatBytes(long bytes, boolean binary, int precision) {
         return binary ? formatBytesBinary(bytes, precision) : formatBytesDecimal(bytes, precision);
@@ -76,9 +76,9 @@ public final class FormatUtilities {
     /**
      * Formats bytes in a human-readable way using decimal units.
      * 
-     * @param bytes The number of bytes to format.
-     * @param precision The number of decimal places to use.
-     * @return The formatted string.
+     * @param bytes The number of bytes to format
+     * @param precision The number of decimal places to use
+     * @return The formatted string
      */
     public static String formatBytes(long bytes, int precision) {
         return formatBytesDecimal(bytes, precision);
@@ -87,9 +87,9 @@ public final class FormatUtilities {
     /**
      * Formats bytes in a human-readable way using binary units.
      * 
-     * @param bytes The number of bytes to format.
-     * @param precision The number of decimal places to use.
-     * @return The formatted string.
+     * @param bytes The number of bytes to format
+     * @param precision The number of decimal places to use
+     * @return The formatted string
      */
     public static String formatBytesBinary(long bytes, int precision) {
         if (bytes < KiBytes) return bytes + " B";
@@ -103,9 +103,9 @@ public final class FormatUtilities {
     /**
      * Formats bytes in a human-readable way using decimal units.
      * 
-     * @param bytes The number of bytes to format.
-     * @param precision The number of decimal places to use.
-     * @return The formatted string.
+     * @param bytes The number of bytes to format
+     * @param precision The number of decimal places to use
+     * @return The formatted string
      */
     public static String formatBytesDecimal(long bytes, int precision) {
         if (bytes < KByets) return bytes + " B";
@@ -119,9 +119,9 @@ public final class FormatUtilities {
     /**
      * Formats bits in a human-readable way using decimal units.
      * 
-     * @param bits The number of bits to format.
-     * @param precision The number of decimal places to use.
-     * @return The formatted string.
+     * @param bits The number of bits to format
+     * @param precision The number of decimal places to use
+     * @return The formatted string
      */
     public static String formatBits(long bits, int precision) {
         if (bits < KBits) return bits + " b";
@@ -140,9 +140,9 @@ public final class FormatUtilities {
      * For times less than 2 minutes, the format is "xx.xxx ms", "xx.xxx us", or "xx.xxx ns".
      * 
      * 
-     * @param ns The time in nanoseconds to format.
-     * @param precision The number of decimal places to use.
-     * @return The formatted string.
+     * @param ns The time in nanoseconds to format
+     * @param precision The number of decimal places to use
+     * @return The formatted string
      */
     public static String formatTime(long ns, int precision) {
         double seconds = ns / (double) SECONDS_NS;
@@ -183,9 +183,9 @@ public final class FormatUtilities {
     /**
      * Formats time in a human-readable way from microseconds.
      * 
-     * @param us The number of microseconds to format.
-     * @param precision The number of decimal places to use.
-     * @return The formatted string.
+     * @param us The number of microseconds to format
+     * @param precision The number of decimal places to use
+     * @return The formatted string
      */
     public static String formatTimeMicros(long us, int precision) {
         return formatTime(us * MICROS_NS, precision);
@@ -194,9 +194,9 @@ public final class FormatUtilities {
     /**
      * Formats time in a human-readable way from milliseconds.
      * 
-     * @param ms The number of milliseconds to format.
-     * @param precision The number of decimal places to use.
-     * @return The formatted string.
+     * @param ms The number of milliseconds to format
+     * @param precision The number of decimal places to use
+     * @return The formatted string
      */
     public static String formatTimeMillis(long ms, int precision) {
         return formatTime(ms * MILLIS_NS, precision);
@@ -205,9 +205,9 @@ public final class FormatUtilities {
     /**
      * Formats time in a human-readable way from seconds.
      * 
-     * @param sec The number of seconds to format.
-     * @param precision The number of decimal places to use.
-     * @return The formatted string.
+     * @param sec The number of seconds to format
+     * @param precision The number of decimal places to use
+     * @return The formatted string
      */
     public static String formatTimeSeconds(long sec, int precision) {
         return formatTime(sec * SECONDS_NS, precision);
@@ -257,8 +257,8 @@ public final class FormatUtilities {
     /**
      * Formats a pointer in a human-readable way, using the format "0xXXXXXXXXXXXXXXXX".
      * 
-     * @param pointer The pointer to format.
-     * @return The formatted string.
+     * @param pointer The pointer to format
+     * @return The formatted string
      */
     public static String formatPointer(long pointer) {
         return String.format("0x%016X", pointer);
@@ -268,7 +268,7 @@ public final class FormatUtilities {
      * Formats thread information in a human-readable way.
      * 
      * @param threadConfig The thread config to format
-     * @return The formatted string.
+     * @return The formatted string
      */
     public static String formatThreadInfo(ThreadConfiguration threadConfig) {
         return String.format("(%s, %d)", threadConfig.threadType.toString(), threadConfig.priority);
@@ -277,9 +277,9 @@ public final class FormatUtilities {
     /**
      * Formats thread information in a human-readable way.
      * 
-     * @param isPlatform True if the thread is a platform thread, false if it's a virtual thread.
-     * @param priority The priority of the thread.
-     * @return The formatted string.
+     * @param isPlatform True if the thread is a platform thread, false if it's a virtual thread
+     * @param priority The priority of the thread
+     * @return The formatted string
      */ 
     public static String formatThreadInfo(boolean isPlatform, int priority) {
         return String.format("(%s, %d)", (isPlatform ? "Platform" : "Virtual"), priority);
@@ -288,9 +288,9 @@ public final class FormatUtilities {
     /**
      * Formats thread information in a human-readable way.
      * 
-     * @param type The type of the thread (virtual or platform).
-     * @param priority The priority of the thread.
-     * @return The formatted string.
+     * @param type The type of the thread (virtual or platform)
+     * @param priority The priority of the thread
+     * @return The formatted string
      */ 
     public static String formatThreadInfo(ThreadType type, int priority) {
         return String.format("(%s, %d)", type.toString(), priority);

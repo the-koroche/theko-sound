@@ -41,10 +41,10 @@ public class AudioEncodeResult {
     /**
      * Constructs an AudioEncodeResult with the specified codec information, encoded data,
      * audio format, and tags.
-     * @param codecInfo Information about the audio codec used for encoding.
-     * @param encoded The encoded audio data as a byte array.
-     * @param format The format of the encoded audio.
-     * @param tags The list of audio tags associated with the encoded audio.
+     * @param codecInfo Information about the audio codec used for encoding
+     * @param encoded The encoded audio data as a byte array
+     * @param format The format of the encoded audio
+     * @param tags The list of audio tags associated with the encoded audio
      */
     public AudioEncodeResult(AudioCodecInfo codecInfo, byte[] encoded, AudioFormat format, List<AudioTag> tags) {
         this.codecInfo = codecInfo;
@@ -54,35 +54,35 @@ public class AudioEncodeResult {
     }
 
     /**
-     * @return the encoded audio data as a byte array.
+     * @return the encoded audio data as a byte array
      */
     public byte[] getEncodedData() {
         return encoded;
     }
 
     /**
-     * @return The audio format of the encoded audio data.
+     * @return The audio format of the encoded audio data
      */
     public AudioFormat getAudioFormat() {
         return format;
     }
 
     /**
-     * @return an unmodifiable list of audio tags associated with the encoded audio.
+     * @return an unmodifiable list of audio tags associated with the encoded audio
      */
     public List<AudioTag> getTagsList() {
         return Collections.unmodifiableList(tags);
     }
 
     /**
-     * @return The list of audio tags as {@link AudioTags}.
+     * @return The list of audio tags as {@link AudioTags}
      */
     public AudioTags getTags() {
         return new AudioTags(tags);
     }
 
     /**
-     * @return Information about the audio codec used for encoding.
+     * @return Information about the audio codec used for encoding
      */
     public AudioCodecInfo getCodecInfo() {
         return codecInfo;

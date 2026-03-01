@@ -42,7 +42,7 @@ public class BooleanControl extends AudioControl {
     /**
      * Sets the boolean value of this BooleanControl to the given value.
      * 
-     * @param value The boolean value to set. If true, the control is enabled; if false, the control is disabled.
+     * @param value The boolean value to set. If true, the control is enabled; if false, the control is disabled
      */
     public void setValue(boolean value) {
         this.value = value;
@@ -52,7 +52,7 @@ public class BooleanControl extends AudioControl {
     /**
      * Retrieves the current boolean value of this BooleanControl.
      * 
-     * @return The current boolean value of this BooleanControl.
+     * @return The current boolean value of this BooleanControl
      */
     public boolean getValue() {
         return value;
@@ -62,7 +62,7 @@ public class BooleanControl extends AudioControl {
      * Returns a string representation of the BooleanControl object, displaying the name of the control
      * and the boolean value.
      * 
-     * @return A string that represents the boolean control.
+     * @return A string that represents the boolean control
      */
     @Override
     public String toString() {

@@ -75,7 +75,7 @@ class AutomationsThreadPool {
      * If the task is null, this method does nothing. If the pool is shutting down by the shutdown hook, the task is ignored.
      * If the pool is shutdown, it is restarted before submitting the task.
      * 
-     * @param task The task to submit to the thread pool.
+     * @param task The task to submit to the thread pool
      */
     public static void submit(Runnable task) {
         if (task == null) return;

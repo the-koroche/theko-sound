@@ -37,8 +37,8 @@ public class AudioCodecInfo {
     /**
      * Creates an instance of {@link AudioCodecInfo} based on the provided codec class.
      * 
-     * @param codecClass The codec class to extract information from.
-     * @throws IllegalArgumentException If the provided codec class is not annotated with {@link AudioCodecType}.
+     * @param codecClass The codec class to extract information from
+     * @throws IllegalArgumentException If the provided codec class is not annotated with {@link AudioCodecType}
      */
     public AudioCodecInfo(Class<? extends AudioCodec> codecClass) throws IllegalArgumentException {
                 if (codecClass.isAnnotationPresent(AudioCodecType.class)) {
@@ -53,14 +53,14 @@ public class AudioCodecInfo {
     }
 
     /**
-     * @return The name of the audio codec.
+     * @return The name of the audio codec
      */
     public String getName() {
         return name;
     }
 
     /**
-     * @return An array of file extensions associated with this audio codec.
+     * @return An array of file extensions associated with this audio codec
      */
     public String[] getExtensions() {
         return extensions;
@@ -68,21 +68,21 @@ public class AudioCodecInfo {
 
     /**
      * Returns the primary file extension for this audio codec.
-     * @return The primary file extension.
+     * @return The primary file extension
      */
     public String getExtension() {
         return extensions[0];
     }
 
     /**
-     * @return The version of the audio codec.
+     * @return The version of the audio codec
      */
     public String getVersion() {
         return version;
     }
 
     /**
-     * @return The class of the audio codec that this info is associated with.
+     * @return The class of the audio codec that this info is associated with
      */
     public Class<? extends AudioCodec> getCodecClass() {
         return codecClass;

@@ -47,9 +47,9 @@ public final class SamplesValidation {
      * Checks if two 2D float arrays (matrices) represent valid audio samples.
      * This method checks if both arrays have the same number of channels, and if each channel has the same number of samples.
      * 
-     * @param a The first 2D float array to check.
-     * @param b The second 2D float array to check.
-     * @return An enumeration value indicating the result of the validation check.
+     * @param a The first 2D float array to check
+     * @param b The second 2D float array to check
+     * @return An enumeration value indicating the result of the validation check
      * @see DimensionsResult
      */
     public static DimensionsResult checkSamplesDimensions(float[][] a, float[][] b) {
@@ -71,9 +71,9 @@ public final class SamplesValidation {
      * Checks if two 1D float arrays (vectors) represent valid audio samples.
      * This method checks if both arrays have the same number of samples.
      * 
-     * @param a The first 1D float array to check.
-     * @param b The second 1D float array to check.
-     * @return An enumeration value indicating the result of the validation check.
+     * @param a The first 1D float array to check
+     * @param b The second 1D float array to check
+     * @return An enumeration value indicating the result of the validation check
      * @see DimensionsResult
      */
     public static DimensionsResult checkSamplesDimensions(float[] a, float[] b) {
@@ -86,9 +86,9 @@ public final class SamplesValidation {
      * Validates the dimensions of two 2D float arrays, ensuring they have the same number of channels and samples.
      * If the validation check fails, an {@link IllegalArgumentException} is thrown.
      *
-     * @param a The first 2D float array to validate.
-     * @param b The second 2D float array to validate.
-     * @throws IllegalArgumentException if the dimensions of the arrays do not match.
+     * @param a The first 2D float array to validate
+     * @param b The second 2D float array to validate
+     * @throws IllegalArgumentException if the dimensions of the arrays do not match
      */
     public static void validateSamplesDimensions(float[][] a, float[][] b) {
         if (checkSamplesDimensions(a, b) != DimensionsResult.EXACT) {
@@ -100,9 +100,9 @@ public final class SamplesValidation {
      * Validates the dimensions of two 1D float arrays, ensuring they have the same number of samples.
      * If the validation check fails, an {@link IllegalArgumentException} is thrown.
      *
-     * @param a The first 1D float array to validate.
-     * @param b The second 1D float array to validate.
-     * @throws IllegalArgumentException if the dimensions of the arrays do not match.
+     * @param a The first 1D float array to validate
+     * @param b The second 1D float array to validate
+     * @throws IllegalArgumentException if the dimensions of the arrays do not match
      */
     public static void validateSamplesDimensions(float[] a, float[] b) {
         if (checkSamplesDimensions(a, b) != DimensionsResult.EXACT) {
@@ -114,8 +114,8 @@ public final class SamplesValidation {
      * Checks if the provided 1D float array represents valid audio samples.
      * <p>If the array is null or empty, the method returns corresponding ValidationResult.
      *
-     * @param samples The 1D float array representing audio samples, in the {@code float[samples]} format.
-     * @return ValidationResult indicating the validity of the samples.
+     * @param samples The 1D float array representing audio samples, in the {@code float[samples]} format
+     * @return ValidationResult indicating the validity of the samples
      */
     public static ValidationResult isValidSamples(float[] samples) {
         if (samples == null) return ValidationResult.NULL_ARRAY;
@@ -127,8 +127,8 @@ public final class SamplesValidation {
      * Checks if the provided 2D float array represents valid audio samples.
      * <p>If the array is null, empty, or contains null or empty channels, the method returns corresponding ValidationResult.
      *
-     * @param samples The 2D float array representing audio samples, in the {@code float[channels][samples]} format.
-     * @return ValidationResult indicating the validity of the samples.
+     * @param samples The 2D float array representing audio samples, in the {@code float[channels][samples]} format
+     * @return ValidationResult indicating the validity of the samples
      */
     public static ValidationResult isValidSamples(float[][] samples) {
         if (samples == null) return ValidationResult.NULL_ARRAY;
@@ -145,8 +145,8 @@ public final class SamplesValidation {
      * <p>This method throws an IllegalArgumentException if the array is invalid, determined by {@link #isValidSamples(float[])} method.
      * <p>Throws IllegalArgumentException if the array is null or empty.
      *
-     * @param samples The 1D float array representing audio samples, in the {@code float[samples]} format.
-     * @throws IllegalArgumentException if the array is null or empty.
+     * @param samples The 1D float array representing audio samples, in the {@code float[samples]} format
+     * @throws IllegalArgumentException if the array is null or empty
      */
     public static void validateSamples(float[] samples) throws IllegalArgumentException {
         switch (isValidSamples(samples)) {
@@ -166,8 +166,8 @@ public final class SamplesValidation {
      * <p>This method throws an IllegalArgumentException if the array is invalid, determined by {@link #isValidSamples(float[][])} method.
      * <p>Throws IllegalArgumentException if the array is null, empty, or contains null or empty channels.
      *
-     * @param samples The 2D float array representing audio samples, in the {@code float[channels][samples]} format.
-     * @throws IllegalArgumentException if the array is null, empty, or contains null or empty channels.
+     * @param samples The 2D float array representing audio samples, in the {@code float[channels][samples]} format
+     * @throws IllegalArgumentException if the array is null, empty, or contains null or empty channels
      */
     public static void validateSamples(float[][] samples) throws IllegalArgumentException {
         switch (isValidSamples(samples)) {
@@ -190,9 +190,9 @@ public final class SamplesValidation {
      * Checks if all channels in the samples array have the same length.
      * It uses the first channel length as the expected length.
      *
-     * @param samples The 2D float array representing audio samples, in the {@code float[channels][samples]} format.
-     * @return true if all channels have the same length, false otherwise.
-     * @throws IllegalArgumentException if the samples array is null or empty.
+     * @param samples The 2D float array representing audio samples, in the {@code float[channels][samples]} format
+     * @return true if all channels have the same length, false otherwise
+     * @throws IllegalArgumentException if the samples array is null or empty
      */
     public static boolean checkLength(float[][] samples) {
         return checkLength(samples, samples[0].length);
@@ -201,10 +201,10 @@ public final class SamplesValidation {
     /**
      * Checks if all channels in the samples array have the specified length.
      *
-     * @param samples The 2D float array representing audio samples, in the {@code float[channels][samples]} format.
-     * @param length The expected length of each channel.
-     * @return true if all channels have the specified length, false otherwise.
-     * @throws IllegalArgumentException if the samples array is null or empty.
+     * @param samples The 2D float array representing audio samples, in the {@code float[channels][samples]} format
+     * @param length The expected length of each channel
+     * @return true if all channels have the specified length, false otherwise
+     * @throws IllegalArgumentException if the samples array is null or empty
      */
     public static boolean checkLength(float[][] samples, int length) {
         validateSamples(samples);

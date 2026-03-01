@@ -39,7 +39,7 @@ public abstract class EffectController extends AudioEffect {
      * Adds a control to the group.
      * If the control type is not Float, Boolean or Enum, it is ignored.
      * 
-     * @param control The control to add.
+     * @param control The control to add
      */
     public void addControl(AudioControl control) {
         controlGroup.addControl(control);
@@ -48,7 +48,7 @@ public abstract class EffectController extends AudioEffect {
     /**
      * Removes a control from the group.
      * 
-     * @param control The control to remove.
+     * @param control The control to remove
      */
     public void removeControl(AudioControl control) {
         controlGroup.removeControl(control);
@@ -71,8 +71,8 @@ public abstract class EffectController extends AudioEffect {
      * This method is called by the effectRender method and should be implemented
      * by subclasses to process the audio samples and apply value to the controls.
      * 
-     * @param samples The audio samples to process.
-     * @param sampleRate The sample rate of the audio.
+     * @param samples The audio samples to process
+     * @param sampleRate The sample rate of the audio
      */
     protected abstract void controllerProcess(float[][] samples, int sampleRate);
 

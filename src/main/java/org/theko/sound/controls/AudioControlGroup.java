@@ -46,7 +46,7 @@ public class AudioControlGroup {
     /**
      * Constructs an AudioControlGroup from a list of controls.
      * 
-     * @param controls A list of AudioControl objects.
+     * @param controls A list of AudioControl objects
      */
     public AudioControlGroup(List<AudioControl> controls) {
         controls.forEach(this::addControl);
@@ -62,7 +62,7 @@ public class AudioControlGroup {
      * Adds a control to the group.
      * If the control type is not Float, Boolean or Enum, it is ignored.
      * 
-     * @param control The control to add.
+     * @param control The control to add
      */
     public void addControl(AudioControl control) {
         if (control == null) {
@@ -80,7 +80,7 @@ public class AudioControlGroup {
     /**
      * Removes a control from the group.
      * 
-     * @param control The control to remove.
+     * @param control The control to remove
      */
     public void removeControl(AudioControl control) {
         if (control == null) {
@@ -131,7 +131,7 @@ public class AudioControlGroup {
     /**
      * Applies a value to all Float controls in the group.
      * 
-     * @param value The value to apply.
+     * @param value The value to apply
      */
     public void applyFloat(float value) {
         for (FloatControl control : floatControls) {
@@ -142,7 +142,7 @@ public class AudioControlGroup {
     /**
      * Applies a value to all Boolean controls in the group.
      * 
-     * @param value The value to apply.
+     * @param value The value to apply
      */
     public void applyBoolean(boolean value) {
         for (BooleanControl control : booleanControls) {
@@ -153,7 +153,7 @@ public class AudioControlGroup {
     /**
      * Applies a value to all Enum controls in the group.
      * 
-     * @param value The value to apply.
+     * @param value The value to apply
      */
     public void applyEnum(int value) {
         for (EnumControl control : enumControls) {
@@ -163,7 +163,7 @@ public class AudioControlGroup {
 
     /**
      * Returns an unmodifiable list of all controls in the group.
-     * @return A list of AudioControl objects.
+     * @return A list of AudioControl objects
      */
     public List<AudioControl> getControls() {
         return Stream.of(floatControls, booleanControls, enumControls)
@@ -176,7 +176,7 @@ public class AudioControlGroup {
 
     /**
      * Returns an unmodifiable list of all Float controls in the group.
-     * @return A list of FloatControl objects.
+     * @return A list of FloatControl objects
      */
     public List<FloatControl> getFloatControls() {
         return Collections.unmodifiableList(floatControls);
@@ -184,7 +184,7 @@ public class AudioControlGroup {
 
     /**
      * Returns an unmodifiable list of all Boolean controls in the group.
-     * @return A list of BooleanControl objects.
+     * @return A list of BooleanControl objects
      */
     public List<BooleanControl> getBooleanControls() {
         return Collections.unmodifiableList(booleanControls);
@@ -192,7 +192,7 @@ public class AudioControlGroup {
 
     /**
      * Returns an unmodifiable list of all Enum controls in the group.
-     * @return A list of EnumControl objects.
+     * @return A list of EnumControl objects
      */
     public List<EnumControl> getEnumControls() {
         return Collections.unmodifiableList(enumControls);

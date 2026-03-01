@@ -90,7 +90,7 @@ public final class WASAPISharedInput extends WASAPISharedBackend implements Audi
      * Checks if the audio input backend is started.
      * 
      * @return True if the backend is started and opened, false otherwise
-     * @throws AudioBackendException If an error occurs during the operation.
+     * @throws AudioBackendException If an error occurs during the operation
      */
     public boolean isStarted() throws AudioBackendException {
         return isOpen() && isStarted;

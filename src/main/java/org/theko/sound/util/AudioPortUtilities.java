@@ -49,8 +49,8 @@ public final class AudioPortUtilities {
     /**
      * Returns the audio backend class associated with the specified audio port link type.
      * 
-     * @param link The audio port link type.
-     * @return The audio backend class, or null if not found.
+     * @param link The audio port link type
+     * @return The audio backend class, or null if not found
      */
     public static Class<? extends AudioBackend> getBackendByLinkType(Class<?> link) {
         if (link == null) {

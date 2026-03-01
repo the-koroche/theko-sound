@@ -157,8 +157,8 @@ public class ColorGradient {
 
     /**
      * Creates a color gradient from a list of colors in 0xAARRGGBB format.
-     * @param colors A list of colors in 0xAARRGGBB format.
-     * @return A color gradient.
+     * @param colors A list of colors in 0xAARRGGBB format
+     * @return A color gradient
      */
     public static ColorGradient fromIntColors(int[] colors) {
         if (colors == null || colors.length == 0) {
@@ -171,8 +171,8 @@ public class ColorGradient {
 
     /**
      * Creates a color gradient from a list of colors.
-     * @param colors A list of colors.
-     * @return A color gradient.
+     * @param colors A list of colors
+     * @return A color gradient
      */
     public static ColorGradient fromColors(List<Color> colors) {
         ColorGradient gradient = new ColorGradient();
@@ -204,7 +204,7 @@ public class ColorGradient {
     /**
      * Returns a copy of the color gradient.
      *
-     * @return A copy of the color gradient.
+     * @return A copy of the color gradient
      */
     public ColorGradient copy() {
         return fromIntColors(colors);
@@ -212,7 +212,7 @@ public class ColorGradient {
 
     /**
      * Returns a volume color processor that maps a volume value to a color from the gradient.
-     * @return A volume color processor.
+     * @return A volume color processor
      */
     public VolumeColorProcessor getVolumeColorProcessor() {
         return new VolumeColorProcessor() {
@@ -225,8 +225,8 @@ public class ColorGradient {
 
     /**
      * Retrieves a color from a normalized value.
-     * @param normalizedValue A value between 0 and 1.
-     * @return An interpolated color in 0xAARRGGBB format.
+     * @param normalizedValue A value between 0 and 1
+     * @return An interpolated color in 0xAARRGGBB format
      */
     public int getColorFromNormalizedValue(float normalizedValue) {
         return getColor(normalizedValue * (colors.length - 1));
@@ -234,8 +234,8 @@ public class ColorGradient {
 
     /**
      * Retrieves a color from a float index.
-     * @param floatIndex A float index.
-     * @return An interpolated color in 0xAARRGGBB format.
+     * @param floatIndex A float index
+     * @return An interpolated color in 0xAARRGGBB format
      */
     public int getColor(float floatIndex) {
         int index1 = (int) Math.floor(floatIndex);

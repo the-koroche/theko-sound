@@ -32,9 +32,9 @@ public final class AudioUnitsConverter {
     /**
      * Converts a time duration in microseconds to the equivalent number of audio frames.
      *
-     * @param microseconds The time duration in microseconds.
-     * @param sampleRate   The sample rate of the audio data (samples per second).
-     * @return The equivalent number of audio frames.
+     * @param microseconds The time duration in microseconds
+     * @param sampleRate   The sample rate of the audio data (samples per second)
+     * @return The equivalent number of audio frames
      */
     public static long microsecondsToFrames(long microseconds, int sampleRate) {
         return (microseconds * sampleRate) / 1_000_000L;
@@ -43,9 +43,9 @@ public final class AudioUnitsConverter {
     /**
      * Converts a number of audio frames to the equivalent time duration in microseconds.
      *
-     * @param frames      The number of audio frames.
-     * @param sampleRate  The sample rate of the audio data (samples per second).
-     * @return The equivalent time duration in microseconds.
+     * @param frames      The number of audio frames
+     * @param sampleRate  The sample rate of the audio data (samples per second)
+     * @return The equivalent time duration in microseconds
      */
     public static long framesToMicroseconds(long frames, int sampleRate) {
         return (frames * 1_000_000L) / sampleRate;
@@ -56,10 +56,10 @@ public final class AudioUnitsConverter {
      * <p>
      * Note: Here a "sample" refers to a single value in one channel (not a frame).
      *
-     * @param samples     The total number of audio samples across all channels.
-     * @param sampleRate  The sample rate of the audio data (samples per second).
-     * @param channels    The number of channels in the audio data.
-     * @return The equivalent time duration in microseconds.
+     * @param samples     The total number of audio samples across all channels
+     * @param sampleRate  The sample rate of the audio data (samples per second)
+     * @param channels    The number of channels in the audio data
+     * @return The equivalent time duration in microseconds
      */
     public static long samplesToMicroseconds(long samples, int sampleRate, int channels) {
         return (long) (samples / channels * 1_000_000.0 / sampleRate);
@@ -70,10 +70,10 @@ public final class AudioUnitsConverter {
      * <p>
      * Note: Here a "sample" refers to a single value in one channel (not a frame).
      *
-     * @param microseconds The time duration in microseconds.
-     * @param sampleRate   The sample rate of the audio data (samples per second).
-     * @param channels     The number of channels in the audio data.
-     * @return The equivalent number of total audio samples.
+     * @param microseconds The time duration in microseconds
+     * @param sampleRate   The sample rate of the audio data (samples per second)
+     * @param channels     The number of channels in the audio data
+     * @return The equivalent number of total audio samples
      */
     public static long microsecondsToSamples(long microseconds, int sampleRate, int channels) {
         return (long) (microseconds * sampleRate / 1_000_000.0) * channels;
@@ -91,8 +91,8 @@ public final class AudioUnitsConverter {
      * <p>
      * Returns 0.0 if decibels is Double.NEGATIVE_INFINITY.
      * 
-     * @param decibels The decibel value to convert.
-     * @return The linear amplitude multiplier.
+     * @param decibels The decibel value to convert
+     * @return The linear amplitude multiplier
      */
     public static double decibelToLinear(double decibels) {
         if (decibels == Double.NEGATIVE_INFINITY) return 0.0;
@@ -106,8 +106,8 @@ public final class AudioUnitsConverter {
      * <p>
      * Returns Double.NEGATIVE_INFINITY if linear is 0.0 or negative.
      * 
-     * @param linear The linear amplitude multiplier to convert.
-     * @return The decibel value.
+     * @param linear The linear amplitude multiplier to convert
+     * @return The decibel value
      */
     public static double linearToDecibel(double linear) {
         if (linear <= 0.0) return Double.NEGATIVE_INFINITY;

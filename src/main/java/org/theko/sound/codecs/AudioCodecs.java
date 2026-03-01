@@ -80,9 +80,9 @@ public final class AudioCodecs {
     /**
      * Retrieve an AudioCodecInfo by its name. The name is case-insensitive.
      *
-     * @param name The name of the audio codec to retrieve.
-     * @return An instance of {@link AudioCodecInfo} containing the audio codec's information.
-     * @throws AudioCodecNotFoundException If no audio codecs are found with the given name.
+     * @param name The name of the audio codec to retrieve
+     * @return An instance of {@link AudioCodecInfo} containing the audio codec's information
+     * @throws AudioCodecNotFoundException If no audio codecs are found with the given name
      */
     public static AudioCodecInfo fromName(String name) throws AudioCodecNotFoundException {
         for (AudioCodecInfo audioCodec : audioCodecs) {
@@ -96,8 +96,8 @@ public final class AudioCodecs {
 
     /**
      * Get an AudioCodecInfo by its file extension
-     * @param extension File extension without a dot or an asterisk.
-     * @return An instance of {@link AudioCodecInfo} containing the audio codec's information.
+     * @param extension File extension without a dot or an asterisk
+     * @return An instance of {@link AudioCodecInfo} containing the audio codec's information
      * @throws AudioCodecNotFoundException If no audio codecs are found with the given extension
      */
     public static AudioCodecInfo fromExtension(String extension) throws AudioCodecNotFoundException {

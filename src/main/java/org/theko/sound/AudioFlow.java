@@ -34,8 +34,8 @@ public enum AudioFlow {
     /**
      * Converts a boolean value to an AudioFlow.
      *
-     * @param isOut If true, returns {@code OUT}; otherwise, returns {@code IN}.
-     * @return The corresponding AudioFlow value.
+     * @param isOut If true, returns {@code OUT}; otherwise, returns {@code IN}
+     * @return The corresponding AudioFlow value
      */
     public static AudioFlow fromBoolean (boolean isOut) {
         return (isOut ? AudioFlow.OUT : AudioFlow.IN);
@@ -44,7 +44,7 @@ public enum AudioFlow {
     /**
      * Returns a string representation of this AudioFlow.
      *
-     * @return "IN" for input flow, "OUT" for output flow.
+     * @return "IN" for input flow, "OUT" for output flow
      */
     @Override
     public String toString () {

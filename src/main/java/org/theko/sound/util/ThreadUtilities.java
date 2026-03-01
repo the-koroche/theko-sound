@@ -38,10 +38,10 @@ public final class ThreadUtilities {
     /**
      * Creates a new thread with default name.
      * 
-     * @param name The name of the thread. If null, the default name will be used.
-     * @param type The type of thread to create.
-     * @param task The task to run in the thread.
-     * @return The created thread.
+     * @param name The name of the thread. If null, the default name will be used
+     * @param type The type of thread to create
+     * @param task The task to run in the thread
+     * @return The created thread
      */
     public static Thread startThread(ThreadType type, Runnable task) {
         return startThread(null, type, Thread.NORM_PRIORITY, task);
@@ -50,10 +50,10 @@ public final class ThreadUtilities {
     /**
      * Creates a new thread.
      * 
-     * @param name The name of the thread. If null, the default name will be used.
-     * @param type The type of thread to create.
-     * @param task The task to run in the thread.
-     * @return The created thread.
+     * @param name The name of the thread. If null, the default name will be used
+     * @param type The type of thread to create
+     * @param task The task to run in the thread
+     * @return The created thread
      */
     public static Thread startThread(String name, ThreadType type, Runnable task) {
         return startThread(name, type, Thread.NORM_PRIORITY, task);
@@ -63,11 +63,11 @@ public final class ThreadUtilities {
     /**
      * Creates a new thread.
      * 
-     * @param name The name of the thread. If null, the default name will be used.
-     * @param type The type of thread to create.
-     * @param priority The priority of the thread.
-     * @param task The task to run in the thread.
-     * @return The created thread.
+     * @param name The name of the thread. If null, the default name will be used
+     * @param type The type of thread to create
+     * @param priority The priority of the thread
+     * @param task The task to run in the thread
+     * @return The created thread
      * @see #startThread(String, ThreadType, int, boolean, Runnable)
      */
     public static Thread startThread(String name, ThreadType type, int priority, Runnable task) {
@@ -81,13 +81,13 @@ public final class ThreadUtilities {
      * Virtual threads does not support daemon and priority, and they will be ignored.
      * If the thread type is not supported, it will fallback to platform thread.
      * 
-     * @param name The name of the thread. If null, the default name will be used.
-     * @param type The type of thread to create.
-     * @param priority The priority of the thread.
-     * @param daemon Whether the thread should be a daemon thread.
-     * @param task The task to run in the thread.
-     * @return The created thread.
-     * @throws IllegalArgumentException if the thread type or task is null, or if the thread type is not supported.
+     * @param name The name of the thread. If null, the default name will be used
+     * @param type The type of thread to create
+     * @param priority The priority of the thread
+     * @param daemon Whether the thread should be a daemon thread
+     * @param task The task to run in the thread
+     * @return The created thread
+     * @throws IllegalArgumentException if the thread type or task is null, or if the thread type is not supported
      */
     public static Thread startThread(String name, ThreadType type, int priority, boolean daemon, Runnable task) {
         if (type == null || task == null) {

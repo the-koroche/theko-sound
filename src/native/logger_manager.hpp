@@ -31,8 +31,8 @@ public:
     /**
      * @brief Retrieves a SLF4J logger instance by name.
      *
-     * @param env The JNIEnv pointer for the current thread.
-     * @param name The name of the logger to retrieve.
+     * @param env The JNIEnv pointer for the current thread
+     * @param name The name of the logger to retrieve
      *
      * @return A pointer to the logger or nullptr if the logger could not be
      *          created.
@@ -66,7 +66,7 @@ public:
      * cache if they exist. The loggers will be released in the order they
      * were retrieved from the cache, and the logger cache will be released last.
      *
-     * @param env The JNIEnv pointer for the current thread.
+     * @param env The JNIEnv pointer for the current thread
      */
     void releaseAll(JNIEnv* env) {
         std::lock_guard<std::mutex> guard(mutex);
@@ -95,7 +95,7 @@ public:
      * instance is stored in a static variable and is guaranteed
      * to be thread-safe.
      *
-     * @return The global LoggerManager instance.
+     * @return The global LoggerManager instance
      */
     static LoggerManager* getManager() {
         static LoggerManager* manager = new LoggerManager();

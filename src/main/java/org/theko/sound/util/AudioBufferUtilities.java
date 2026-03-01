@@ -41,13 +41,13 @@ public final class AudioBufferUtilities {
      * If the original array is smaller than the new dimensions, it will be padded
      * with either the last available element in each row or with a default value (0.0f).
      * 
-     * @param original The original 2D float array to pad.
-     * @param newLengthD1 The new length for the first dimension (rows).
-     * @param newLengthD2 The new length for the second dimension (columns).
-     * @param fillNewWithLast If true, the new array will be padded with the last available element in each row.
+     * @param original The original 2D float array to pad
+     * @param newLengthD1 The new length for the first dimension (rows)
+     * @param newLengthD2 The new length for the second dimension (columns)
+     * @param fillNewWithLast If true, the new array will be padded with the last available element in each row
      * If false, the new array will be padded with the default value (0.0f).
-     * @return A new 2D float array padded to the specified dimensions.
-     * @throws IllegalArgumentException if the original array is null or if the new lengths are less than or equal to zero.
+     * @return A new 2D float array padded to the specified dimensions
+     * @throws IllegalArgumentException if the original array is null or if the new lengths are less than or equal to zero
      */
     public static float[][] padArray(float[][] original, int newLengthD1, int newLengthD2, boolean fillNewWithLast) {
         if (original == null) throw new IllegalArgumentException("Original array cannot be null.");
@@ -99,9 +99,9 @@ public final class AudioBufferUtilities {
      * The source and target arrays must have the same number of channels (rows).
      * Each channel can have a different length, the target length will be minimum of the two.
      *
-     * @param source The source 2D float array to copy from.
-     * @param target The target 2D float array to copy to.
-     * @throws IllegalArgumentException if the source or target arrays are null or if the channel counts do not match.
+     * @param source The source 2D float array to copy from
+     * @param target The target 2D float array to copy to
+     * @throws IllegalArgumentException if the source or target arrays are null or if the channel counts do not match
      */
     public static void copyArray(float[][] source, float[][] target) {
         SamplesValidation.validateSamples(source);
@@ -120,9 +120,9 @@ public final class AudioBufferUtilities {
      * Each channel in the source array is cloned separately.
      * The resulting array is a new object with identical contents to the source array.
      * 
-     * @param source The source 2D float array to clone.
-     * @return A new 2D float array containing a deep copy of the source array.
-     * @throws IllegalArgumentException if the source array is null or empty.
+     * @param source The source 2D float array to clone
+     * @return A new 2D float array containing a deep copy of the source array
+     * @throws IllegalArgumentException if the source array is null or empty
      */
     public static float[][] cloneArray(float[][] source) {
         SamplesValidation.validateSamples(source);
@@ -137,9 +137,9 @@ public final class AudioBufferUtilities {
      * Fills a 2D float array (matrix) with a specified value.
      * This method sets all elements in each channel to the specified value.
      * 
-     * @param samples The 2D float array to fill with the specified value.
-     * @param value The value to fill the array with.
-     * @throws IllegalArgumentException if the samples array is null or empty.
+     * @param samples The 2D float array to fill with the specified value
+     * @param value The value to fill the array with
+     * @throws IllegalArgumentException if the samples array is null or empty
      */
     public static void fill(float[][] samples, float value) {
         SamplesValidation.validateSamples(samples);
@@ -155,9 +155,9 @@ public final class AudioBufferUtilities {
      * This method negates each sample in the provided 1D float array.
      * The output array is filled with the negated values.
      * 
-     * @param samples The audio samples to reverse polarity.
-     * @param output The output array to fill with negated values.
-     * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match.
+     * @param samples The audio samples to reverse polarity
+     * @param output The output array to fill with negated values
+     * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match
      */
     public static void reversePolarity(float[] samples, float[] output) {
         SamplesValidation.validateSamples(samples);
@@ -173,9 +173,9 @@ public final class AudioBufferUtilities {
      * This method negates each sample in the provided 1D float array.
      * The output array is filled with the negated values.
      * 
-     * @param samples The audio samples to reverse polarity.
-     * @return A new 1D float array with negated values.
-     * @throws IllegalArgumentException if the samples array is null or empty.
+     * @param samples The audio samples to reverse polarity
+     * @return A new 1D float array with negated values
+     * @throws IllegalArgumentException if the samples array is null or empty
      */
     public static float[] reversePolarity(float[] samples) {
         SamplesValidation.validateSamples(samples);
@@ -190,9 +190,9 @@ public final class AudioBufferUtilities {
      * Reverses the polarity of the audio samples.
      * This method negates each sample in the provided 2D float array and writes the negated values to the provided output array.
      * 
-     * @param samples The audio samples to reverse polarity.
-     * @param output The output array to fill with negated values.
-     * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match.
+     * @param samples The audio samples to reverse polarity
+     * @param output The output array to fill with negated values
+     * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match
      */
     public static void reversePolarity(float[][] samples, float[][] output) {
         SamplesValidation.validateSamples(samples);
@@ -210,9 +210,9 @@ public final class AudioBufferUtilities {
      * This method negates each sample in the provided 2D float array.
      * The output array is filled with the negated values.
      * 
-     * @param samples The audio samples to reverse polarity.
-     * @return A new 2D float array with negated values.
-     * @throws IllegalArgumentException if the samples array is null or empty.
+     * @param samples The audio samples to reverse polarity
+     * @return A new 2D float array with negated values
+     * @throws IllegalArgumentException if the samples array is null or empty
      */
     public static float[][] reversePolarity(float[][] samples) {
         SamplesValidation.validateSamples(samples);
@@ -231,9 +231,9 @@ public final class AudioBufferUtilities {
      * This method reverses the order of channels in the provided 2D float array.
      * The output array is filled with the swapped channels.
      * 
-     * @param samples The audio samples to swap channels.
-     * @param output The output array to fill with swapped channels.
-     * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match.
+     * @param samples The audio samples to swap channels
+     * @param output The output array to fill with swapped channels
+     * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match
      */
     public static void swapChannels(float[][] samples, float[][] output) {
         SamplesValidation.validateSamples(samples);
@@ -249,9 +249,9 @@ public final class AudioBufferUtilities {
      * This method reverses the order of channels in the provided 2D float array.
      * The output array is filled with the swapped channels.
      * 
-     * @param samples The audio samples to swap channels.
-     * @return A new 2D float array with swapped channels.
-     * @throws IllegalArgumentException if the samples array is null or empty.
+     * @param samples The audio samples to swap channels
+     * @return A new 2D float array with swapped channels
+     * @throws IllegalArgumentException if the samples array is null or empty
      */
     public static float[][] swapChannels(float[][] samples) {
         SamplesValidation.validateSamples(samples);
@@ -266,9 +266,9 @@ public final class AudioBufferUtilities {
      * Reverses the order of samples in the provided 1D float array.
      * This method fills the output array with the reversed samples.
      * 
-     * @param samples The audio samples to reverse.
-     * @param output The output array to fill with reversed samples.
-     * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match.
+     * @param samples The audio samples to reverse
+     * @param output The output array to fill with reversed samples
+     * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match
      */
     public static void reverse(float[] samples, float[] output) {
         SamplesValidation.validateSamples(samples);
@@ -283,9 +283,9 @@ public final class AudioBufferUtilities {
      * Reverses the order of samples in the provided 1D float array.
      * This method creates a new 1D float array with the reversed samples.
      * 
-     * @param samples The audio samples to reverse.
-     * @return A new 1D float array with reversed samples.
-     * @throws IllegalArgumentException if the samples array is null or empty.
+     * @param samples The audio samples to reverse
+     * @return A new 1D float array with reversed samples
+     * @throws IllegalArgumentException if the samples array is null or empty
      */
     public static float[] reverse(float[] samples) {
         SamplesValidation.validateSamples(samples);
@@ -300,9 +300,9 @@ public final class AudioBufferUtilities {
      * Reverses the order of samples in the provided 2D float array.
      * This method fills the output array with the reversed samples.
      * 
-     * @param samples The audio samples to reverse.
-     * @param output The output array to fill with reversed samples.
-     * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match.
+     * @param samples The audio samples to reverse
+     * @param output The output array to fill with reversed samples
+     * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match
      */
     public static void reverse(float[][] samples, float[][] output) {
         SamplesValidation.validateSamples(samples);
@@ -319,9 +319,9 @@ public final class AudioBufferUtilities {
      * Reverses the order of samples in the provided 2D float array.
      * This method creates a new 2D float array with the reversed samples.
      * 
-     * @param samples The audio samples to reverse.
-     * @return A new 2D float array with reversed samples.
-     * @throws IllegalArgumentException if the samples array is null or empty.
+     * @param samples The audio samples to reverse
+     * @return A new 2D float array with reversed samples
+     * @throws IllegalArgumentException if the samples array is null or empty
      */
     public static float[][] reverse(float[][] samples) {
         SamplesValidation.validateSamples(samples);
@@ -342,9 +342,9 @@ public final class AudioBufferUtilities {
      * This method iterates through all samples in the provided 1D float array
      * and returns the maximum absolute value found.
      * 
-     * @param samples The audio samples to analyze, represented as a 1D float array.
-     * @return The maximum absolute volume as a float.
-     * @throws IllegalArgumentException if the samples array is null or empty.
+     * @param samples The audio samples to analyze, represented as a 1D float array
+     * @return The maximum absolute volume as a float
+     * @throws IllegalArgumentException if the samples array is null or empty
      */
     public static float getAbsMaxVolume(float[] samples) {
         SamplesValidation.validateSamples(samples);
@@ -360,9 +360,9 @@ public final class AudioBufferUtilities {
      * This method iterates through all samples in the provided 2D float array
      * and returns the maximum absolute value found.
      * 
-     * @param samples The audio samples to analyze, represented as a 2D float array.
-     * @return The maximum absolute volume as a float.
-     * @throws IllegalArgumentException if the samples array is null or empty.
+     * @param samples The audio samples to analyze, represented as a 2D float array
+     * @return The maximum absolute volume as a float
+     * @throws IllegalArgumentException if the samples array is null or empty
      */
     public static float getAbsMaxVolume(float[][] samples) {
         SamplesValidation.validateSamples(samples);
@@ -380,9 +380,9 @@ public final class AudioBufferUtilities {
      * This method iterates through all samples in the provided 1D float array
      * and returns the average absolute value found.
      * 
-     * @param samples The audio samples to analyze, represented as a 1D float array.
-     * @return The average absolute volume as a float.
-     * @throws IllegalArgumentException if the samples array is null or empty.
+     * @param samples The audio samples to analyze, represented as a 1D float array
+     * @return The average absolute volume as a float
+     * @throws IllegalArgumentException if the samples array is null or empty
      */
     public static float getAbsAvgVolume(float[] samples) {
         SamplesValidation.validateSamples(samples);
@@ -400,9 +400,9 @@ public final class AudioBufferUtilities {
      * This method iterates through all samples in the provided 2D float array
      * and returns the average absolute value found.
      * 
-     * @param samples The audio samples to analyze, represented as a 2D float array.
-     * @return The average absolute volume as a float.
-     * @throws IllegalArgumentException if the samples array is null or empty.
+     * @param samples The audio samples to analyze, represented as a 2D float array
+     * @return The average absolute volume as a float
+     * @throws IllegalArgumentException if the samples array is null or empty
      */
     public static float getAbsAvgVolume(float[][] samples) {
         SamplesValidation.validateSamples(samples);
@@ -422,9 +422,9 @@ public final class AudioBufferUtilities {
      * This method scales each sample in the provided 1D float array by the maximum absolute volume.
      * The output array is filled with the normalized samples.
      * 
-     * @param samples The audio samples to normalize, represented as a 1D float array.
-     * @param output The output array to fill with normalized samples.
-     * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match.
+     * @param samples The audio samples to normalize, represented as a 1D float array
+     * @param output The output array to fill with normalized samples
+     * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match
      */
     public static void normalize(float[] samples, float[] output) {
         SamplesValidation.validateSamples(samples);
@@ -444,9 +444,9 @@ public final class AudioBufferUtilities {
      * This method scales each sample in the provided 1D float array by the maximum absolute volume.
      * The output array is filled with the normalized samples.
      * 
-     * @param samples The audio samples to normalize, represented as a 1D float array.
-     * @return A new 1D float array with normalized samples.
-     * @throws IllegalArgumentException if the samples array is null or empty.
+     * @param samples The audio samples to normalize, represented as a 1D float array
+     * @return A new 1D float array with normalized samples
+     * @throws IllegalArgumentException if the samples array is null or empty
      */
     public static float[] normalize(float[] samples) {
         SamplesValidation.validateSamples(samples);
@@ -466,9 +466,9 @@ public final class AudioBufferUtilities {
      * This method scales each sample in the provided 2D float array by the maximum absolute volume.
      * The output array is filled with the normalized samples.
      * 
-     * @param samples The audio samples to normalize, represented as a 2D float array.
-     * @param output The output array to fill with normalized samples.
-     * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match.
+     * @param samples The audio samples to normalize, represented as a 2D float array
+     * @param output The output array to fill with normalized samples
+     * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match
      */
     public static void normalize(float[][] samples, float[][] output) {
         SamplesValidation.validateSamples(samples);
@@ -490,9 +490,9 @@ public final class AudioBufferUtilities {
      * This method scales each sample in the provided 2D float array by the maximum absolute volume.
      * The output array is filled with the normalized samples.
      * 
-     * @param samples The audio samples to normalize, represented as a 2D float array.
-     * @return A new 2D float array with normalized samples.
-     * @throws IllegalArgumentException if the samples array is null or empty.
+     * @param samples The audio samples to normalize, represented as a 2D float array
+     * @return A new 2D float array with normalized samples
+     * @throws IllegalArgumentException if the samples array is null or empty
      */
     public static float[][] normalize(float[][] samples) {
         SamplesValidation.validateSamples(samples);
@@ -515,10 +515,10 @@ public final class AudioBufferUtilities {
      * This method scales each sample in the provided 1D float array by the specified gain.
      * The output array is filled with the adjusted samples.
      * 
-     * @param samples The audio samples to adjust, represented as a 1D float array.
-     * @param output The output array to fill with adjusted samples.
-     * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged.
-     * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match.
+     * @param samples The audio samples to adjust, represented as a 1D float array
+     * @param output The output array to fill with adjusted samples
+     * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged
+     * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match
      */
     public static void adjustGain(float[] samples, float[] output, float gain) {
         SamplesValidation.validateSamples(samples);
@@ -534,10 +534,10 @@ public final class AudioBufferUtilities {
      * This method scales each sample in the provided 1D float array by the specified gain.
      * The output array is filled with the adjusted samples.
      * 
-     * @param samples The audio samples to adjust, represented as a 1D float array.
-     * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged.
-     * @return A new 1D float array with adjusted samples.
-     * @throws IllegalArgumentException if the samples array is null or empty.
+     * @param samples The audio samples to adjust, represented as a 1D float array
+     * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged
+     * @return A new 1D float array with adjusted samples
+     * @throws IllegalArgumentException if the samples array is null or empty
      */
     public static float[] adjustGain(float[] samples, float gain) {
         SamplesValidation.validateSamples(samples);
@@ -553,10 +553,10 @@ public final class AudioBufferUtilities {
      * This method scales each sample in the provided 2D float array by the specified gain.
      * The output array is filled with the adjusted samples.
      * 
-     * @param samples The audio samples to adjust, represented as a 2D float array.
-     * @param output The output array to fill with adjusted samples.
-     * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged.
-     * @throws IllegalArgumentException if the samples or output array is null or empty, or if dimensions do not match.
+     * @param samples The audio samples to adjust, represented as a 2D float array
+     * @param output The output array to fill with adjusted samples
+     * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged
+     * @throws IllegalArgumentException if the samples or output array is null or empty, or if dimensions do not match
      */
     public static void adjustGain(float[][] samples, float[][] output, float gain) {
         SamplesValidation.validateSamples(samples);
@@ -574,10 +574,10 @@ public final class AudioBufferUtilities {
      * This method scales each sample in the provided 2D float array by the specified gain.
      * The output array is filled with the adjusted samples.
      * 
-     * @param samples The audio samples to adjust, represented as a 2D float array.
-     * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged.
-     * @return A new 2D float array with adjusted samples.
-     * @throws IllegalArgumentException if the samples array is null or empty.
+     * @param samples The audio samples to adjust, represented as a 2D float array
+     * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged
+     * @return A new 2D float array with adjusted samples
+     * @throws IllegalArgumentException if the samples array is null or empty
      */
     public static float[][] adjustGain(float[][] samples, float gain) {
         SamplesValidation.validateSamples(samples);
@@ -599,12 +599,12 @@ public final class AudioBufferUtilities {
      * then the pan value is applied only to the left and right channels;
      * additional channels remain unaffected.
      * 
-     * @param samples The audio samples to adjust, represented as a 2D float array.
-     * @param output The output array to fill with adjusted samples.
-     * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged.
-     * @param pan The pan value to apply. A value of 0.0f is center, -1.0f is left, and 1.0f is right.
-     * @return true if the samples were adjusted, false otherwise.
-     * @throws IllegalArgumentException if the samples or output array is null or empty, or if dimensions do not match.
+     * @param samples The audio samples to adjust, represented as a 2D float array
+     * @param output The output array to fill with adjusted samples
+     * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged
+     * @param pan The pan value to apply. A value of 0.0f is center, -1.0f is left, and 1.0f is right
+     * @return true if the samples were adjusted, false otherwise
+     * @throws IllegalArgumentException if the samples or output array is null or empty, or if dimensions do not match
      */
     public static boolean adjustGainAndPan(float[][] samples, float[][] output, float gain, float pan) {
         SamplesValidation.validateSamples(samples);
@@ -646,11 +646,11 @@ public final class AudioBufferUtilities {
      * This method applies the gain and pan values to a channel and returns the resulting volume.
      * If channel index is out of range (stereo), it returns the gain value.
      * 
-     * @param ch The channel to calculate the volume for (0 or 1).
-     * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged.
-     * @param leftVol The volume for the left channel.
-     * @param rightVol The volume for the right channel.
-     * @return The volume for the given channel.
+     * @param ch The channel to calculate the volume for (0 or 1)
+     * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged
+     * @param leftVol The volume for the left channel
+     * @param rightVol The volume for the right channel
+     * @return The volume for the given channel
      */
     private static float getVolumeForChannel(int ch, float gain, float leftVol, float rightVol) {
         if (ch == 0) return gain * leftVol;
@@ -666,11 +666,11 @@ public final class AudioBufferUtilities {
      * then the pan value is applied only to the left and right channels;
      * additional channels remain unaffected.
      * 
-     * @param samples The audio samples to adjust, represented as a 2D float array.
-     * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged.
-     * @param pan The pan value to apply. A value of 0.0f is center, -1.0f is left, and 1.0f is right.
-     * @return A new 2D float array with adjusted samples, or the original samples if no adjustment was made.
-     * @throws IllegalArgumentException if the samples array is null or empty.
+     * @param samples The audio samples to adjust, represented as a 2D float array
+     * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged
+     * @param pan The pan value to apply. A value of 0.0f is center, -1.0f is left, and 1.0f is right
+     * @return A new 2D float array with adjusted samples, or the original samples if no adjustment was made
+     * @throws IllegalArgumentException if the samples array is null or empty
      */
     public static float[][] adjustGainAndPan(float[][] samples, float gain, float pan) {
         SamplesValidation.validateSamples(samples);

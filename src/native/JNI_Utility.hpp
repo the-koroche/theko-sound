@@ -45,8 +45,8 @@ static void JNIUtil_ReleaseGlobal(JNIEnv* env, jobject obj);
  * environment. If true, then an exception is pending and the
  * environment should be checked for exceptions. If false, then no exception is
  * pending.
- * @param env The JNI environment.
- * @return True if an exception is pending, false otherwise.
+ * @param env The JNI environment
+ * @return True if an exception is pending, false otherwise
  */
 static bool JNIUtil_ReportException(JNIEnv* env) {
     if (!env) return false;
@@ -63,8 +63,8 @@ static bool JNIUtil_ReportException(JNIEnv* env) {
  * If the input object is null, returns null.
  * If an exception occurs while creating the global reference, it is
  * reported and cleared, and nullptr is returned.
- * @param env The JNI environment.
- * @param obj The object to create a global reference to.
+ * @param env The JNI environment
+ * @param obj The object to create a global reference to
  * @return The created global reference, or nullptr if an exception
  * occurs.
  */
@@ -84,8 +84,8 @@ static jobject JNIUtil_CreateGlobal(JNIEnv* env, jobject obj) {
  * If the input object is null, this function does nothing.
  * If an exception occurs while releasing the global reference, it is
  * reported and cleared.
- * @param env The JNI environment.
- * @param obj The object to release the global reference to.
+ * @param env The JNI environment
+ * @param obj The object to release the global reference to
  */
 static void JNIUtil_ReleaseGlobal(JNIEnv* env, jobject obj) { 
     if (!env || !obj) return;
@@ -96,9 +96,9 @@ static void JNIUtil_ReleaseGlobal(JNIEnv* env, jobject obj) {
 /**
  * Converts a Java string to a UTF-8 encoded C++ string.
  * The resulting string will be empty if the input Java string is null.
- * @param env The JNI environment.
- * @param str The Java string to convert.
- * @return The UTF-8 encoded C++ string.
+ * @param env The JNI environment
+ * @param str The Java string to convert
+ * @return The UTF-8 encoded C++ string
  */
 static std::string JNIUtil_StringToUTF8(JNIEnv* env, jstring str) {
     if (!env || !str) return {};

@@ -32,8 +32,8 @@ public interface AudioNode {
     /**
      * Renders the audio node's output into the provided sample buffer.
      * 
-     * @param samples The sample buffer to render into.
-     * @param sampleRate The sample rate of the audio.
+     * @param samples The sample buffer to render into
+     * @param sampleRate The sample rate of the audio
      */
     public void render(float[][] samples, int sampleRate);
 }

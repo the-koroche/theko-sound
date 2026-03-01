@@ -31,9 +31,9 @@ public class WaveformGenerator {
     /**
      * Generates a waveform based on the specified type and value.
      * 
-     * @param type The waveform type.
-     * @param value The value to generate the waveform for.
-     * @return The generated waveform value.
+     * @param type The waveform type
+     * @param value The value to generate the waveform for
+     * @return The generated waveform value
      */
     public static float generate(WaveformType type, float value) {
         switch (type) {

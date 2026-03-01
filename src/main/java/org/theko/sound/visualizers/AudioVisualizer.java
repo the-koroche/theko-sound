@@ -178,7 +178,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
         /**
          * Returns the width of the render area.
          * 
-         * @return the width.
+         * @return the width
          */
         protected int getWidth() {
             return width;
@@ -214,14 +214,14 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
         }
 
         /**
-         * @return the time difference between the last and previous update in nanoseconds.
+         * @return the time difference between the last and previous update in nanoseconds
          */
         protected long getTimeDelta() {
             return lastUpdateTime - prevUpdateTime;
         }
 
         /**
-         * @return the time delta multiplier for frame-independent animations.
+         * @return the time delta multiplier for frame-independent animations
          */
         protected float getTimeDeltaMult() {
             float deltaSec = getTimeDelta() / 1_000_000_000f;
@@ -234,9 +234,9 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
          * This method resizes the render area to the specified size. It is thread-safe and
          * is designed to be used with the {@link Render} interface.
          * 
-         * @param newWidth The new width of the render area.
-         * @param newHeight The new height of the render area.
-         * @return This object, for chaining purposes.
+         * @param newWidth The new width of the render area
+         * @param newHeight The new height of the render area
+         * @return This object, for chaining purposes
          */
         protected Render resize(int newWidth, int newHeight) {
             synchronized (lock) {

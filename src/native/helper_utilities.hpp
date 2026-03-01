@@ -48,9 +48,9 @@ public:
 /**
  * Format a string using va_list and return the result as a std::string.
  * If the underlying vsnprintf call fails (returns a negative value), an empty string is returned.
- * @param fmt The format string to use.
- * @param ... The arguments to pass to vsnprintf.
- * @return The formatted string, or an empty string if vsnprintf fails.
+ * @param fmt The format string to use
+ * @param ... The arguments to pass to vsnprintf
+ * @return The formatted string, or an empty string if vsnprintf fails
  */
 static std::string format(const char* fmt, ...) {
     va_list args;
@@ -76,9 +76,9 @@ static std::string format(const char* fmt, ...) {
 /**
  * Format a string using va_list and return the result as a std::string.
  * If the underlying vsnprintf call fails (returns a negative value), an empty string is returned.
- * @param fmt The format string to use.
- * @param args The arguments to pass to vsnprintf.
- * @return The formatted string, or an empty string if vsnprintf fails.
+ * @param fmt The format string to use
+ * @param args The arguments to pass to vsnprintf
+ * @return The formatted string, or an empty string if vsnprintf fails
  */
 static std::string formatv(const char* fmt, va_list args) {
     va_list args_copy;
@@ -101,8 +101,8 @@ static std::string formatv(const char* fmt, va_list args) {
 /**
  * Allocate a buffer to store a literal UTF-8 string and copy the contents of the given string into it.
  * The caller is responsible for freeing the returned buffer using 'free()'
- * @param str The string to copy into the allocated buffer.
- * @return A pointer to the allocated buffer containing a copy of the given string, or NULL if an error occurs.
+ * @param str The string to copy into the allocated buffer
+ * @return A pointer to the allocated buffer containing a copy of the given string, or NULL if an error occurs
  */
 static char* memalloc_literal_utf8(const char* str) {
     if (!str) return NULL;
@@ -116,8 +116,8 @@ static char* memalloc_literal_utf8(const char* str) {
 /**
  * Allocate a buffer to store a literal UTF-16 string and copy the contents of the given UTF-8 string into it.
  * The caller is responsible for freeing the returned buffer using 'free()'
- * @param utf8 The UTF-8 string to copy into the allocated buffer.
- * @return A pointer to the allocated buffer containing a copy of the given string, or NULL if an error occurs.
+ * @param utf8 The UTF-8 string to copy into the allocated buffer
+ * @return A pointer to the allocated buffer containing a copy of the given string, or NULL if an error occurs
  */
 static wchar_t* utf8_to_utf16(const char* utf8) {
     if (!utf8) return NULL;
@@ -137,8 +137,8 @@ static wchar_t* utf8_to_utf16(const char* utf8) {
  * If the input string is null, an empty string is returned.
  * The returned string is guaranteed to be null-terminated.
  * If the conversion fails, an empty string is returned.
- * @param utf16 The UTF-16 string to convert.
- * @return The converted UTF-8 string, or an empty string if the conversion fails.
+ * @param utf16 The UTF-16 string to convert
+ * @return The converted UTF-8 string, or an empty string if the conversion fails
  */
 static std::string utf16_to_utf8(const wchar_t* utf16) {
     if (!utf16) return {};
@@ -157,8 +157,8 @@ static std::string utf16_to_utf8(const wchar_t* utf16) {
 /**
  * Allocate a buffer to store a literal UTF-8 string and copy the contents of the given string into it.
  * The caller is responsible for freeing the returned buffer using 'CoTaskMemFree()'
- * @param str The string to copy into the allocated buffer.
- * @return A pointer to the allocated buffer containing a copy of the given string, or NULL if an error occurs.
+ * @param str The string to copy into the allocated buffer
+ * @return A pointer to the allocated buffer containing a copy of the given string, or NULL if an error occurs
  */
 static char* com_memalloc_literal_utf8(const char* str) {
     if (!str) return NULL;
@@ -171,8 +171,8 @@ static char* com_memalloc_literal_utf8(const char* str) {
 /**
  * Allocate a buffer to store a literal UTF-16 string and copy the contents of the given string into it.
  * The caller is responsible for freeing the returned buffer using 'free()'
- * @param str The string to copy into the allocated buffer.
- * @return A pointer to the allocated buffer containing a copy of the given string, or NULL if an error occurs.
+ * @param str The string to copy into the allocated buffer
+ * @return A pointer to the allocated buffer containing a copy of the given string, or NULL if an error occurs
  */
 static wchar_t* memalloc_literal_utf16(const wchar_t* str) {
     if (!str) return NULL;
@@ -185,8 +185,8 @@ static wchar_t* memalloc_literal_utf16(const wchar_t* str) {
 /**
  * Allocate a buffer to store a literal UTF-16 string and copy the contents of the given string into it.
  * The caller is responsible for freeing the returned buffer using 'CoTaskMemFree()'
- * @param str The string to copy into the allocated buffer.
- * @return A pointer to the allocated buffer containing a copy of the given string, or NULL if an error occurs.
+ * @param str The string to copy into the allocated buffer
+ * @return A pointer to the allocated buffer containing a copy of the given string, or NULL if an error occurs
  */
 static wchar_t* com_memalloc_literal_utf16(const wchar_t* str) {
     if (!str) return NULL;
@@ -199,8 +199,8 @@ static wchar_t* com_memalloc_literal_utf16(const wchar_t* str) {
 /**
  * Formats a human-readable string for the given HRESULT.
  * If no mapping is found, nullptr is returned.
- * @param hr The HRESULT to format.
- * @return A human-readable string for the given HRESULT, or nullptr if no mapping is found.
+ * @param hr The HRESULT to format
+ * @return A human-readable string for the given HRESULT, or nullptr if no mapping is found
  * @note This function is thread-safe and does not allocate any memory.
  * @note This function is only available on Windows.
  */
