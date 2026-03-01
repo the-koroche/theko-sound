@@ -221,7 +221,7 @@ extern "C" {
         }
     }
     
-    inline void cleanupAndThrowError(
+    static inline void cleanupAndThrowError(
         JNIEnv* env,
         Logger* logger,
         OutputContext* ctx,
@@ -320,7 +320,10 @@ extern "C" {
             nullptr 
         );
         logger->trace(env, "IAudioClient::Initialize called. Result: %s", fmtHR(hr));
-        if (FAILED(hr) || hr == AUDCLNT_E_DEVICE_IN_USE) {
+        if (hr == AUDCLNT_E_DEVICE_IN_USE) {
+            cleanupAndThrowError(env, logger, context, hr, "Device is in use.");
+            return 0;
+        } else if (FAILED(hr)) {
             cleanupAndThrowError(env, logger, context, hr, "Failed to initialize IAudioClient.");
             return 0;
         }
