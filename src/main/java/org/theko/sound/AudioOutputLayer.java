@@ -179,12 +179,10 @@ public class AudioOutputLayer implements AutoCloseable,
         eventMap.put(OutputLayerEventType.FLUSHED, OutputLayerListener::onFlushed);
         eventMap.put(OutputLayerEventType.DRAINED, OutputLayerListener::onDrained);        
         eventMap.put(OutputLayerEventType.UNDERRUN, OutputLayerListener::onUnderrun);
-        eventMap.put(OutputLayerEventType.PROCESSING_INTERRUPTED, OutputLayerListener::onProcessingInterrupted);
-        eventMap.put(OutputLayerEventType.OUTPUT_INTERRUPTED, OutputLayerListener::onOutputInterrupted);
+        eventMap.put(OutputLayerEventType.PLAYBACK_INTERRUPTED, OutputLayerListener::onPlaybackInterrupted);
         eventMap.put(OutputLayerEventType.LENGTH_MISMATCH, OutputLayerListener::onLengthMismatch);
         eventMap.put(OutputLayerEventType.UNCHECKED_CLOSE, OutputLayerListener::onUncheckedClose);
-        eventMap.put(OutputLayerEventType.RENDER_EXCEPTION, OutputLayerListener::onRenderException);
-        eventMap.put(OutputLayerEventType.OUTPUT_EXCEPTION, OutputLayerListener::onOutputException);
+        eventMap.put(OutputLayerEventType.PLAYBACK_EXCEPTION, OutputLayerListener::onPlaybackException);
         eventMap.put(OutputLayerEventType.DEVICE_INVALIDATED, OutputLayerListener::onDeviceInvalidated);
         eventMap.put(OutputLayerEventType.REOPEN_FAILED, OutputLayerListener::onReopenFailed);
         eventDispatcher.setEventMap(eventMap);
@@ -321,7 +319,6 @@ public class AudioOutputLayer implements AutoCloseable,
         logger.info("Output layer opened. {}", outputLog.toString());
 
         isOpened = true;
-        eventDispatcher.dispatch(OutputLayerEventType.OPENED, getEvent());
 
         if (reopen) {
             eventDispatcher.dispatch(OutputLayerEventType.REOPENED, getEvent());
@@ -329,6 +326,8 @@ public class AudioOutputLayer implements AutoCloseable,
                 logger.debug("Starting playback after re-opening...");
                 start();
             }
+        } else {
+            eventDispatcher.dispatch(OutputLayerEventType.OPENED, getEvent());
         }
     }
 
@@ -768,7 +767,7 @@ public class AudioOutputLayer implements AutoCloseable,
                             reopen();
                         } catch (Exception ex2) {
                             logger.error("Error while reopening device.", ex2);
-                            eventDispatcher.dispatch(OutputLayerEventType.RENDER_EXCEPTION, getEvent());
+                            eventDispatcher.dispatch(OutputLayerEventType.REOPEN_FAILED, getEvent());
                         } finally {
                             reopenInProgress.set(false);
                         }
@@ -779,21 +778,21 @@ public class AudioOutputLayer implements AutoCloseable,
                 return;
             } catch (AudioBackendException ex) {
                 logger.error("Error writing to audio backend.", ex);
-                eventDispatcher.dispatch(OutputLayerEventType.RENDER_EXCEPTION, getEvent());
+                eventDispatcher.dispatch(OutputLayerEventType.PLAYBACK_EXCEPTION, getEvent());
                 throw new RuntimeException("Error writing to audio backend.", ex);
             } catch (LengthMismatchException ex) {
                 // Already logged
                 throw new RuntimeException(ex);
             } catch (ProcessingException ex) { 
                 logger.error("Processing error.", ex);
-                eventDispatcher.dispatch(OutputLayerEventType.RENDER_EXCEPTION, getEvent());
+                eventDispatcher.dispatch(OutputLayerEventType.PLAYBACK_EXCEPTION, getEvent());
                 throw ex;
             } catch (InterruptedException ex) {
                 logger.debug("Playback thread interrupted.");
                 return;
             } catch (Exception ex) {
                 logger.error("Exception in playback thread.", ex);
-                eventDispatcher.dispatch(OutputLayerEventType.RENDER_EXCEPTION, getEvent());
+                eventDispatcher.dispatch(OutputLayerEventType.PLAYBACK_EXCEPTION, getEvent());
                 // Ignore
             }
         }

@@ -94,28 +94,16 @@ public interface OutputLayerListener extends Listener<OutputLayerEvent> {
     default void onUncheckedClose(OutputLayerEvent event) { }
 
     /**
-     * Called when an output layer's processing is interrupted.
+     * Called when an output layer's playbacks thread is interrupted.
      * @param event the event carrying an immutable snapshot of the output layer state
      */
-    default void onProcessingInterrupted(OutputLayerEvent event) { }
+    default void onPlaybackInterrupted(OutputLayerEvent event) { }
 
     /**
-     * Called when an output layer's output thread is interrupted.
+     * Called when an output layer's playback thread catches an exception.
      * @param event the event carrying an immutable snapshot of the output layer state
      */
-    default void onOutputInterrupted(OutputLayerEvent event) { }
-
-    /**
-     * Called when an output layer's processing thread catches an exception.
-     * @param event the event carrying an immutable snapshot of the output layer state
-     */
-    default void onRenderException(OutputLayerEvent event) { }
-
-    /**
-     * Called when an output layer's output thread catches an exception.
-     * @param event the event carrying an immutable snapshot of the output layer state
-     */
-    default void onOutputException(OutputLayerEvent event) { }
+    default void onPlaybackException(OutputLayerEvent event) { }
 
     /**
      * Called when an output layer's device is invalidated or inactive.
