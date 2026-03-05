@@ -160,7 +160,10 @@ public class SoundPlayer extends SoundSource {
     @Override public void open(File file) throws FileNotFoundException, AudioCodecNotFoundException {
         super.open(file);
         try {
-            this.outputLayer.open(null, getAudioFormat());
+            if (this.outputLayer.isOpen()) {
+                this.outputLayer.close();
+            }
+            this.outputLayer.open(getAudioFormat());
         } catch (AudioBackendException e) {
             throw new RuntimeException("Audio backend creation failed.", e);
         } catch (UnsupportedAudioFormatException ex) {
@@ -225,7 +228,7 @@ public class SoundPlayer extends SoundSource {
         super.stop();
         try {
             outputLayer.stop();
-        } catch (AudioBackendException | InterruptedException e) {
+        } catch (AudioBackendException e) {
             throw new RuntimeException("Failed to stop audio output layer.", e);
         }
     }
@@ -235,7 +238,7 @@ public class SoundPlayer extends SoundSource {
         super.close();
         try {
             outputLayer.close();
-        } catch (AudioBackendException | InterruptedException e) {
+        } catch (AudioBackendException e) {
             throw new RuntimeException("Failed to close audio output layer.", e);
         }
         logger.info("SoundPlayer closed.");

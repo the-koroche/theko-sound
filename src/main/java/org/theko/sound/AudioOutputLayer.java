@@ -233,13 +233,7 @@ public class AudioOutputLayer implements AutoCloseable,
         if (isOpened) {
             if (reopen)
                 logger.debug("Reopen flag is set. Closing previous backend...");
-            try {
-                close();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                logger.warn("Interrupted while closing previous backend.", e);
-                throw new AudioBackendException("Interrupted while closing previous backend", e);
-            }
+            close();
         }
 
         if (audioFormat == null) throw new IllegalArgumentException("Audio format cannot be null.");
@@ -469,9 +463,8 @@ public class AudioOutputLayer implements AutoCloseable,
     /**
      * Stops the audio output and interrupts the playback thread.
      * @throws AudioBackendException If an error occurs while stopping the backend
-     * @throws InterruptedException If the threads join operation is interrupted
      */
-    public void stop() throws AudioBackendException, InterruptedException {
+    public void stop() throws AudioBackendException {
         if (!isPlaying) return;
         isPlaybackInterrupted = true;
         if (playbackThread != null && playbackThread.isAlive()) {
@@ -483,8 +476,8 @@ public class AudioOutputLayer implements AutoCloseable,
                 playbackThread.join(AOL_PLAYBACK_STOP_TIMEOUT);
             }
         } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
             logger.error("Interrupted while joining output thread.", ex);
-            throw ex;
         }
         if (playbackThread != null && playbackThread.isAlive()) {
             logger.warn("Cannot close output thread. Stopping output backend.");
@@ -500,11 +493,10 @@ public class AudioOutputLayer implements AutoCloseable,
      * Closes the audio output, stopping the playback thread and closing the backend.
      * Stop can take some time, so it is recommended to call it in a separate thread.
      * 
-     * @throws InterruptedException If the threads join operation is interrupted while stopping
      * @throws AudioBackendException If an error occurs while closing the backend
      */
     @Override
-    public void close() throws AudioBackendException, InterruptedException {
+    public void close() throws AudioBackendException {
         if (!isOpened) {
             logger.info("Audio output layer is already closed.");
             return;
