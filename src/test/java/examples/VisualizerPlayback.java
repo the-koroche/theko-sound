@@ -178,21 +178,28 @@ public class VisualizerPlayback {
     }
 
     private static String getPlaybackInfo(SoundPlayer player) {
-        int posSec = (int) player.getSecondsPosition();
-        int durSec = (int) player.getDuration();
-
-        int posMin = posSec / 60;
-        int posRemSec = posSec % 60;
-
-        int durMin = durSec / 60;
-        int durRemSec = durSec % 60;
+        int pos = (int) player.getSecondsPosition();
+        int dur = (int) player.getDuration();
 
         float speed = player.getSpeedControl().getValue();
+        boolean isPlaying = player.isPlaying();
 
-        return "%02d:%02d / %02d:%02d %s%s".formatted(posMin, posRemSec, durMin, durRemSec,
-            player.isPlaying() ? "" : "[Stopped]",
-            speed != 1f ? "\nSpeed: x%.2f".formatted(speed) : ""
+        String stopped = isPlaying ? "" : " [Stopped]";
+        String speedStr = speed != 1f ? "\nSpeed: x%.2f".formatted(speed) : "";
+
+        String realDur = "";
+        if (speed != 1f) {
+            int adj = (int) (dur / speed);
+            realDur = "(" + fmt(adj) + ")";
+        }
+
+        return "%s / %s %s%s%s".formatted(
+                fmt(pos), fmt(dur), realDur, stopped, speedStr
         );
+    }
+
+    private static String fmt(int seconds) {
+        return "%02d:%02d".formatted(seconds / 60, seconds % 60);
     }
 
     private String getReadableName(String name) {
