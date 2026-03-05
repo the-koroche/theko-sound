@@ -159,24 +159,13 @@ public class VisualizerPlayback {
         }
     }
 
-    private boolean openAudio() {
-        try {
-            File audioFile = FileChooserHelper.chooseAudioFile();
-            if (audioFile == null) {
-                System.out.println("No audio file selected.");
-                return false;
-            }
-            player.open(audioFile);
-            trackInfo = getTrackInfo(player);
-            return true;
-        } catch (FileNotFoundException e) {
-            System.err.println("File not found.");
+    private boolean openAudio() throws FileNotFoundException, AudioCodecNotFoundException {
+        File audioFile = FileChooserHelper.chooseAudioFile();
+        if (audioFile == null)
             return false;
-        } catch (AudioCodecNotFoundException e) {
-            // AudioCodecNotFoundException used to handle an unsupported audio extensions
-            System.err.println("Provided audio file is unsupported.");
-            return false;
-        }
+        player.open(audioFile);
+        trackInfo = getTrackInfo(player);
+        return true;
     }
 
     private static String getTrackInfo(SoundPlayer player) {
@@ -259,8 +248,14 @@ public class VisualizerPlayback {
                 }
                 // Open new audio track
                 case KeyEvent.VK_O -> {
-                    if (openAudio()) message("Opened new audio track");
-                    else message("Failed to open audio track");
+                    try {
+                        if (openAudio()) message("Opened new audio track");
+                        else message("No audio file selected");
+                    } catch (FileNotFoundException ex) {
+                        message("File not found");
+                    } catch (AudioCodecNotFoundException ex) {
+                        message("Unsupported audio codec");
+                    }
                 }
             }
         }
