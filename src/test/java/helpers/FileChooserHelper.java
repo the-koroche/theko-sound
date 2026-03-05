@@ -47,6 +47,7 @@ public final class FileChooserHelper {
                 StandardOpenOption.CREATE,
                 StandardOpenOption.TRUNCATE_EXISTING
             );
+            lastOpened = file;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -80,7 +81,7 @@ public final class FileChooserHelper {
         chooser.setDialogTitle("Select " + getArticle(name) + name + " file");
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         if (lastOpened != null) {
-            chooser.setSelectedFile(getLastOpened());
+            chooser.setSelectedFile(lastOpened);
         }
 
         FileNameExtensionFilter filter = createFilter(name + " files", extensions);
@@ -111,7 +112,8 @@ public final class FileChooserHelper {
             return "a ";
         }
         char firstChar = Character.toLowerCase(word.charAt(0));
-        if (firstChar == 'a' || firstChar == 'e' || firstChar == 'i' || firstChar == 'o' || firstChar == 'u') {
+        if (firstChar == 'a' || firstChar == 'e' || firstChar == 'i' ||
+                firstChar == 'o' || firstChar == 'u' || firstChar == 'y') {
             return "an ";
         }
         return "a ";
@@ -122,11 +124,11 @@ public final class FileChooserHelper {
             return null;
         }
         StringBuilder description = new StringBuilder()
-                .append(prefix != null ? prefix + " " : "").append("(");
+                .append(prefix != null ? prefix : "").append("(");
         for (int i = 0; i < extensions.length; i++) {
             description.append("*.").append(extensions[i]);
             if (i < extensions.length - 1) {
-                description.append(", ");
+                description.append(",");
             }
         }
         description.append(")");
