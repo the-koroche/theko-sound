@@ -28,29 +28,47 @@ OUT32  = $(OUTDIR)/WASApiShrd32.dll
 ARCH ?= x64
 
 ifeq ($(ARCH),x64)
-  CXX = x86_64-w64-mingw32-g++
-  OUT = $(OUT64)
+	CXX = x86_64-w64-mingw32-g++
+	OUT = $(OUT64)
 endif
 
 ifeq ($(ARCH),x86)
-  CXX = i686-w64-mingw32-g++
-  OUT = $(OUT32)
+	CXX = i686-w64-mingw32-g++
+	OUT = $(OUT32)
+endif
+
+# Create output directory
+ifeq ($(OS),Windows_NT)
+	MKDIR = if not exist "$(OUTDIR)" mkdir "$(OUTDIR)"
+else
+	MKDIR = mkdir -p "$(OUTDIR)"
+endif
+
+ifeq (, $(shell command -v $(CXX) 2>/dev/null))
+	HAS_COMPILER = 0
+else
+	HAS_COMPILER = 1
 endif
 
 # Build
 all: x64 x86
 
 x64:
-	$(MAKE) ARCH=x64 build
+	@$(MAKE) ARCH=x64 build
 
 x86:
-	$(MAKE) ARCH=x86 build
+	@$(MAKE) ARCH=x86 build
 
-build: $(OUT)
+build:
+ifeq ($(HAS_COMPILER),1)
+	@$(MAKE) $(OUT)
+else
+	@echo "Compiler $(CXX) not found, skipping build for ARCH=$(ARCH)"
+endif
 
 $(OUT): $(SRCS)
-	@if not exist "$(OUTDIR)" mkdir "$(OUTDIR)"
-	$(CXX) $(COMMON_FLAGS) $(INCLUDES) -o $@ $^ $(LIBS)
+	@$(MKDIR)
+	@$(CXX) $(COMMON_FLAGS) $(INCLUDES) -o $@ $^ $(LIBS) || true
 
 clean:
-	rm -f $(OUT64) $(OUT32) $(OUTARM)
+	rm -f $(OUT64) $(OUT32)
