@@ -186,7 +186,6 @@
                                     <goal>exec</goal>
                                 </goals>
                                 <configuration>
-                                    <ignoreExitValue>true</ignoreExitValue>
                                     <executable>${exec.command}</executable>
                                     <arguments>
                                         <argument>-c</argument>
@@ -223,7 +222,6 @@
                                     <goal>exec</goal>
                                 </goals>
                                 <configuration>
-                                    <ignoreExitValue>true</ignoreExitValue>
                                     <executable>${exec.command}</executable>
                                     <arguments>
                                         <argument>/c</argument>
