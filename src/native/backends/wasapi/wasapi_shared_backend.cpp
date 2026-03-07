@@ -16,16 +16,6 @@
 
 #include <jni.h>
 
-#include "helper_utilities.hpp"
-
-#include "DefaultClassesCache.hpp"
-#include "WASAPIClassesCache.hpp"
-
-#include "logger.hpp"
-#include "logger_manager.hpp"
-
-#include "org_theko_sound_backends_wasapi_WASAPISharedBackend.h"
-
 #include <windows.h>
 #include <initguid.h>
 #include <mmdeviceapi.h>
@@ -33,10 +23,17 @@
 #include <functiondiscoverykeys.h>
 #include <Functiondiscoverykeys_devpkey.h>
 
-EXTERN_C const IID IID_IUnknown = {0x00000000, 0x0000, 0x0000, {0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46}};
+#include "logger.hpp"
+#include "logger_manager.hpp"
+#include "helper_utilities.hpp"
+
+#include "org_theko_sound_backends_wasapi_WASAPISharedBackend.h"
+#include "cache/java_util_concurrent_atomic_AtomicReferenceCache.hpp"
 
 #include "wasapi_utils.hpp"
 #include "wasapi_bridge.hpp"
+
+EXTERN_C const IID IID_IUnknown = {0x00000000, 0x0000, 0x0000, {0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46}};
 
 namespace org_theko_sound_backend_wasapi {
 
@@ -50,12 +47,11 @@ extern "C" {
     (JNIEnv* env, jobject obj) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedBackend.nInit");
 
-        ExceptionClassesCache* exceptionsCache = ExceptionClassesCache::get(env);
-
         HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+        logger->trace(env, "CoInitializeEx result: %s", fmtHR(hr));
         if (FAILED(hr)) {
             logger->error(env, "Failed to initialize COM in multithreaded mode (%s).", fmtHR(hr));
-            env->ThrowNew(exceptionsCache->audioBackendException, "Failed to initialize COM.");
+            env->ThrowNew(Java_org_theko_sound_backends_AudioBackendException::getClazz(env), "Failed to initialize COM.");
             return 0;
         }
 
@@ -69,7 +65,7 @@ extern "C" {
         );
         if (FAILED(hr)) {
             logger->error(env, "Failed to create IMMDeviceEnumerator (%s).", fmtHR(hr));
-            env->ThrowNew(exceptionsCache->audioBackendException, "Failed to create IMMDeviceEnumerator.");
+            env->ThrowNew(Java_org_theko_sound_backends_AudioBackendException::getClazz(env), "Failed to create IMMDeviceEnumerator.");
             CoUninitialize();
             return 0;
         }
@@ -87,7 +83,7 @@ extern "C" {
         auto* ctx = (BackendContext*)ptr;
         if (!ctx) {
             logger->warn(env, "WASAPI backend not initialized.");
-            env->ThrowNew(ExceptionClassesCache::get(env)->audioBackendException, "WASAPI backend not initialized.");
+            env->ThrowNew(Java_org_theko_sound_backends_AudioBackendException::getClazz(env), "WASAPI backend not initialized.");
             return;
         }
         IMMDeviceEnumerator* deviceEnumerator = ctx->deviceEnumerator;
@@ -110,7 +106,7 @@ extern "C" {
         auto* ctx = (BackendContext*)ptr;
         if (!ctx) {
             logger->warn(env, "WASAPI backend not initialized.");
-            env->ThrowNew(ExceptionClassesCache::get(env)->audioBackendException, "WASAPI backend not initialized.");
+            env->ThrowNew(Java_org_theko_sound_backends_AudioBackendException::getClazz(env), "WASAPI backend not initialized.");
             return nullptr;
         }
         IMMDeviceEnumerator* deviceEnumerator = ctx->deviceEnumerator;
@@ -133,7 +129,7 @@ extern "C" {
 
         logger->trace(env, "Found %d render ports and %d capture ports. Total %d ports.", renderCount, captureCount, totalCount);
 
-        jobjectArray result = env->NewObjectArray(totalCount, AudioPortCache::get(env)->clazz, nullptr);
+        jobjectArray result = env->NewObjectArray(totalCount, Java_org_theko_sound_AudioPort::getClazz(env), nullptr);
         if (!result) {
             logger->warn(env, "Failed to create AudioPort array.");
             return nullptr;
@@ -173,7 +169,7 @@ extern "C" {
         auto* ctx = (BackendContext*)ptr;
         if (!ctx) {
             logger->warn(env, "WASAPI backend not initialized.");
-            env->ThrowNew(ExceptionClassesCache::get(env)->audioBackendException, "WASAPI backend not initialized.");
+            env->ThrowNew(Java_org_theko_sound_backends_AudioBackendException::getClazz(env), "WASAPI backend not initialized.");
             return nullptr;
         }
         IMMDeviceEnumerator* deviceEnumerator = ctx->deviceEnumerator;
@@ -183,12 +179,10 @@ extern "C" {
             return nullptr;
         }
 
-        AudioFlowCache* flowCache = AudioFlowCache::get(env);
-
         EDataFlow flow = eRender;
-        if (env->IsSameObject(flowObj, flowCache->outObj)) {
+        if (env->IsSameObject(flowObj, Java_org_theko_sound_AudioFlow::getField__OUT(env))) {
             flow = eRender;
-        } else if (env->IsSameObject(flowObj, flowCache->inObj)) {
+        } else if (env->IsSameObject(flowObj, Java_org_theko_sound_AudioFlow::getField__IN(env))) {
             flow = eCapture;
         } else {
             return nullptr;
@@ -280,7 +274,7 @@ extern "C" {
                 if (atomicClosestFormat) {
                     logger->trace(env, "AtomicClosestFormat pointer: %s", FORMAT_PTR(atomicClosestFormat));
                     jobject jAudioFormat = WAVEFORMATEX_to_AudioFormat(env, closest);
-                    env->CallVoidMethod(atomicClosestFormat, AtomicReferenceCache::get(env)->setMethod, jAudioFormat);
+                    Java_java_util_concurrent_atomic_AtomicReference::set(env, atomicClosestFormat, jAudioFormat);
                 }
                 CoTaskMemFree(closest);
             }

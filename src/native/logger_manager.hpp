@@ -77,10 +77,6 @@ public:
                 delete logger;
             }
         }
-
-        loggerCache.clear();
-
-        LoggerCache::get(env)->release(env);
     }
 
     ~LoggerManager() {

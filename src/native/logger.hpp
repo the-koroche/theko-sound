@@ -21,52 +21,9 @@
 #include <cstdarg>
 #include <cstdlib>
 #include <cstdio>
-
-#include "IJavaClassCache.hpp"
+#include "cache/org_slf4j_LoggerCache.hpp"
+#include "cache/org_slf4j_LoggerFactoryCache.hpp"
 #include "helper_utilities.hpp"
-#include "JNI_Utility.hpp"
-
-class LoggerCache : public IJavaClassCache {
-public:
-    jclass factoryClass;
-    jclass loggerClass;
-    jmethodID getLogger;
-    jmethodID traceMethod;
-    jmethodID debugMethod;
-    jmethodID infoMethod;
-    jmethodID warnMethod;
-    jmethodID errorMethod;
-
-    LoggerCache(JNIEnv* env) : IJavaClassCache(env) {
-        factoryClass = env->FindClass("org/slf4j/LoggerFactory");
-        loggerClass = env->FindClass("org/slf4j/Logger");
-
-        getLogger = env->GetStaticMethodID(factoryClass, "getLogger", "(Ljava/lang/String;)Lorg/slf4j/Logger;");
-        traceMethod = env->GetMethodID(loggerClass, "trace", "(Ljava/lang/String;)V");
-        debugMethod = env->GetMethodID(loggerClass, "debug", "(Ljava/lang/String;)V");
-        infoMethod  = env->GetMethodID(loggerClass, "info",  "(Ljava/lang/String;)V");
-        warnMethod  = env->GetMethodID(loggerClass, "warn",  "(Ljava/lang/String;)V");
-        errorMethod = env->GetMethodID(loggerClass, "error", "(Ljava/lang/String;)V");
-
-        if (!isValid()) {
-            env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Logger failed to initialize");
-        }
-
-        factoryClass = (jclass) JNIUtil_CreateGlobal(env, factoryClass);
-        loggerClass = (jclass) JNIUtil_CreateGlobal(env, loggerClass);
-    }
-
-    bool isValid() const override {
-        return factoryClass && loggerClass && getLogger && traceMethod && debugMethod && infoMethod && warnMethod && errorMethod;
-    }
-
-    void release(JNIEnv* env) override {
-        JNI_RELEASE_GLOBAL(env, factoryClass);
-        JNI_RELEASE_GLOBAL(env, loggerClass);
-    }
-
-    AUTO_STATIC_CACHE_GET(LoggerCache)
-};
 
 class Logger {
 private:
@@ -87,7 +44,6 @@ private:
 
         jstring jmsg = env->NewStringUTF(formatted);
         env->CallVoidMethod(logger, method, jmsg);
-        JNIUtil_ReportException(env);
         env->DeleteLocalRef(jmsg);
     }
 
@@ -105,14 +61,17 @@ public:
      * The name string is deleted from the local reference after it is used.
      */
     Logger(JNIEnv* env, const char* name) {
-        LoggerCache* cache = LoggerCache::get(env);
-        jstring jname = env->NewStringUTF(name);    
-        logger = env->CallStaticObjectMethod(cache->factoryClass, cache->getLogger, jname);
-        JNIUtil_ReportException(env);
-
-        logger = (jobject) JNIUtil_CreateGlobal(env, logger);
-
+        auto loggerCache = Java_org_slf4j_Logger::get(env);
+        auto factoryCache = Java_org_slf4j_LoggerFactory::get(env);
+        jstring jname = env->NewStringUTF(name);
+        
+        jobject localLogger = factoryCache->getLogger__java_lang_String(env, jname);
         env->DeleteLocalRef(jname);
+        
+        if (!localLogger) return;
+        
+        logger = env->NewGlobalRef(localLogger);
+        env->DeleteLocalRef(localLogger);
     }
 
     /**
@@ -125,7 +84,7 @@ public:
     void trace(JNIEnv* env, const char* msg, ...) {
         va_list args;
         va_start(args, msg);
-        log(env, LoggerCache::get(env)->traceMethod, msg, args);
+        log(env, Java_org_slf4j_Logger::getmtd__trace_java_lang_String(env), msg, args);
         va_end(args);
     }
 
@@ -139,7 +98,7 @@ public:
     void debug(JNIEnv* env, const char* msg, ...) {
         va_list args;
         va_start(args, msg);
-        log(env, LoggerCache::get(env)->debugMethod, msg, args);
+        log(env, Java_org_slf4j_Logger::getmtd__debug_java_lang_String(env), msg, args);
         va_end(args);
     }
 
@@ -153,7 +112,7 @@ public:
     void info(JNIEnv* env, const char* msg, ...) {
         va_list args;
         va_start(args, msg);
-        log(env, LoggerCache::get(env)->infoMethod, msg, args);
+        log(env, Java_org_slf4j_Logger::getmtd__info_java_lang_String(env), msg, args);
         va_end(args);
     }
 
@@ -167,7 +126,7 @@ public:
     void warn(JNIEnv* env, const char* msg, ...) {
         va_list args;
         va_start(args, msg);
-        log(env, LoggerCache::get(env)->warnMethod, msg, args);
+        log(env, Java_org_slf4j_Logger::getmtd__warn_java_lang_String(env), msg, args);
         va_end(args);
     }
 
@@ -181,7 +140,7 @@ public:
     void error(JNIEnv* env, const char* msg, ...) {
         va_list args;
         va_start(args, msg);
-        log(env, LoggerCache::get(env)->errorMethod, msg, args);
+        log(env, Java_org_slf4j_Logger::getmtd__error_java_lang_String(env), msg, args);
         va_end(args);
     }
 
