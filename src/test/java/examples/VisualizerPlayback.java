@@ -17,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.OverlayLayout;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import org.theko.sound.AudioMixer;
 import org.theko.sound.SoundPlayer;
@@ -94,7 +95,7 @@ public class VisualizerPlayback {
 
     private VisualizerPlayback() {
         try {
-            if (!openAudio()) {
+            if (!openAudio(false)) {
                 return;
             }
 
@@ -159,12 +160,39 @@ public class VisualizerPlayback {
         }
     }
 
-    private boolean openAudio() throws FileNotFoundException, AudioCodecNotFoundException {
+    private boolean openAudio(boolean background) throws FileNotFoundException, AudioCodecNotFoundException {
         File audioFile = FileChooserHelper.chooseAudioFile();
         if (audioFile == null)
             return false;
-        player.open(audioFile);
-        trackInfo = getTrackInfo(player);
+
+        if (background) {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    String frameTitle = frame.getTitle();
+                    SwingUtilities.invokeLater(() -> frame.setTitle("Opening..."));
+                    player.open(audioFile);
+                    player.start();
+                    trackInfo = getTrackInfo(player);
+                    SwingUtilities.invokeLater(() -> frame.setTitle(frameTitle));
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+                    try {
+                        get();
+                    } catch (Exception e) {
+                        message("Failed to open audio: " + e.getMessage());
+                    }
+                }
+            };
+            worker.execute();
+        } else {
+            player.open(audioFile);
+            player.start();
+            trackInfo = getTrackInfo(player);
+        }
         return true;
     }
 
@@ -256,7 +284,7 @@ public class VisualizerPlayback {
                 // Open new audio track
                 case KeyEvent.VK_O -> {
                     try {
-                        if (openAudio()) message("Opened new audio track");
+                        if (openAudio(true)) message("Opening new audio track");
                         else message("No audio file selected");
                     } catch (FileNotFoundException ex) {
                         message("File not found");
