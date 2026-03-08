@@ -17,7 +17,7 @@
 package org.theko.sound.effects;
 
 /**
- * Represents a function that generates an {@link AudioEffect}.
+ * Represents a function that builds an {@link AudioEffect}.
  * <p>
  * Use implementations of this interface to create audio effects with specific parameters or settings.
  * 
@@ -28,7 +28,7 @@ package org.theko.sound.effects;
  * @author Theko
  */
 @FunctionalInterface
-public interface AudioEffectFunction {
+public interface AudioEffectBuilder {
 
     /**
      * Returns an {@link AudioEffect} representing this effect function.
