@@ -166,20 +166,22 @@ public class VisualizerPlayback {
             return false;
 
         if (background) {
-            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            String frameTitle = frame.getTitle();
+            frame.setTitle("Opening...");
+
+            SwingWorker<Void, Void> worker = new SwingWorker<>() {
+
                 @Override
                 protected Void doInBackground() throws Exception {
-                    String frameTitle = frame.getTitle();
-                    SwingUtilities.invokeLater(() -> frame.setTitle("Opening..."));
                     player.open(audioFile);
                     player.start();
                     trackInfo = getTrackInfo(player);
-                    SwingUtilities.invokeLater(() -> frame.setTitle(frameTitle));
                     return null;
                 }
 
                 @Override
                 protected void done() {
+                    frame.setTitle(frameTitle);
                     try {
                         get();
                     } catch (Exception e) {
