@@ -16,6 +16,8 @@
 
 package org.theko.sound;
 
+import org.theko.sound.effects.AudioEffect;
+
 /**
  * Represents a node in the audio processing graph.
  * <p>Each node can process audio samples and is responsible for rendering
@@ -24,9 +26,10 @@ package org.theko.sound;
  * @since 0.2.0-beta
  * @author Theko
  * 
- * @see org.theko.sound.AudioMixer
- * @see org.theko.sound.effects.AudioEffect
+ * @see AudioMixer
+ * @see AudioEffect
  */
+@FunctionalInterface
 public interface AudioNode {
     
     /**
