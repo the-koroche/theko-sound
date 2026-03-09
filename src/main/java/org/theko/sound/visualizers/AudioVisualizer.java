@@ -35,15 +35,15 @@ import org.theko.sound.effects.AudioEffect;
 
 /**
  * The {@code AudioVisualizer} class serves as an abstract base class for creating
- * custom audio visualizers. 
+ * custom audio visualizers.
  * <p>It extends the {@code AudioEffect} class and provides
  * a framework for visualizing audio data in real-time.
- * 
+ *
  * @since 0.2.1-beta
  * @author Theko
  */
 public abstract class AudioVisualizer extends AudioEffect implements Closeable {
-    
+
     private RenderPanel panel;
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private Render render;
@@ -78,7 +78,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
 
     /**
      * The {@code Render} class is a utility class used by {@code AudioVisualizer} to manage rendering.
-     * 
+     *
      * @since 0.2.4-beta
      * @author Theko
      */
@@ -120,13 +120,13 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
          * and may not reflect the current state of the render area.
          * <p>
          * The render image is updated by calling the {@link #resize(int, int)} method.
-         * 
+         *
          * @return the current render image
          */
         protected BufferedImage getRenderImage() {
             return renderImage;
         }
-        
+
         /**
          * Returns the graphics context for the render area.
          * <p>
@@ -134,7 +134,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
          * for the render area. The returned graphics context is a snapshot of the
          * render area at the time of the method call and may not reflect the current
          * state of the render area.
-         * 
+         *
          * @return the graphics context for the render area
          */
         protected Graphics2D getGraphics() {
@@ -142,7 +142,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
                 return g;
             }
         }
-        
+
         /**
          * Returns the ready image.
          * <p>
@@ -151,7 +151,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
          * and may not reflect the current state of the render area.
          * <p>
          * The ready image is updated by calling the {@link #updateReadyImage()} method.
-         * 
+         *
          * @return the ready image
          */
         protected BufferedImage getReadyImage() {
@@ -159,7 +159,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
                 return readyImage;
             }
         }
-        
+
         /**
          * Updates the ready image with the current render image.
          * <p>
@@ -177,7 +177,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
 
         /**
          * Returns the width of the render area.
-         * 
+         *
          * @return the width
          */
         protected int getWidth() {
@@ -186,7 +186,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
 
         /**
          * Returns the height of the render area.
-         * 
+         *
          * @return the height
          */
         protected int getHeight() {
@@ -195,7 +195,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
 
         /**
          * Returns the image type of the render area.
-         * 
+         *
          * @return the image type
          */
         protected int getImageType() {
@@ -204,7 +204,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
 
         /**
          * Updates the previous and last update times.
-         * 
+         *
          * This method updates the previous and last update times with the current time.
          * It is thread-safe and should be called before any rendering operations.
          */
@@ -233,7 +233,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
          * <p>
          * This method resizes the render area to the specified size. It is thread-safe and
          * is designed to be used with the {@link Render} interface.
-         * 
+         *
          * @param newWidth The new width of the render area
          * @param newHeight The new height of the render area
          * @return This object, for chaining purposes
@@ -246,7 +246,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
                 // Create new images
                 BufferedImage newRenderImage = new BufferedImage(width, height, imageType);
                 BufferedImage newReadyImage = new BufferedImage(width, height, imageType);
-                
+
                 // Copy contents of old images to new ones
                 Graphics2D tempG = newRenderImage.createGraphics();
                 setupGraphics(tempG);
@@ -254,27 +254,27 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
                     tempG.drawImage(renderImage, 0, 0, width, height, null);
                 }
                 tempG.dispose();
-                
+
                 tempG = newReadyImage.createGraphics();
                 setupGraphics(tempG);
                 if (readyImage != null) {
                     tempG.drawImage(readyImage, 0, 0, width, height, null);
                 }
                 tempG.dispose();
-                
+
                 // Replace old images and graphics contexts
                 BufferedImage oldRender = renderImage;
                 BufferedImage oldReady = readyImage;
                 Graphics2D oldG = g;
                 Graphics2D oldReadyG = readyG;
-                
+
                 renderImage = newRenderImage;
                 readyImage = newReadyImage;
                 g = renderImage.createGraphics();
                 readyG = readyImage.createGraphics();
                 setupGraphics(g);
                 setupGraphics(readyG);
-                
+
                 // Dispose old resources
                 if (oldG != null) oldG.dispose();
                 if (oldReadyG != null) oldReadyG.dispose();
@@ -362,7 +362,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
                     render.paint(g2d);
                     render.updateReadyImage();
                 }
-                
+
                 SwingUtilities.invokeLater(() -> panel.repaint());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -411,7 +411,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
     protected void repaint() {
         getPanel().repaint();
     }
-    
+
     /**
      * Automatically called when the audio samples buffer is updated.
      */

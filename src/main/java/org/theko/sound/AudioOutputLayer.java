@@ -86,20 +86,20 @@ import org.theko.sound.util.TimeUtilities;
  * {@link AudioBackendException}, and {@link BackendNotOpenException} for various error
  * conditions, such as unsupported audio formats or attempting to operate on a closed
  * backend.
- * 
+ *
  * @see AudioOutputBackend
  * @see AudioNode
- * 
+ *
  * @since 0.2.0-beta
  * @author Theko
  */
 public class AudioOutputLayer implements AutoCloseable,
         ListenersManageable<OutputLayerEvent, OutputLayerListener, OutputLayerEventType> {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(AudioOutputLayer.class);
 
     private static final int TIME_FORMAT_PRECISION = 4;
-    
+
     private boolean isOpened = false;
     private final AtomicBoolean reopenInProgress = new AtomicBoolean(false);
 
@@ -138,7 +138,7 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Constructs an {@code AudioOutputLayer} with the specified audio output backend.
-     * 
+     *
      * @param aobInfo The {@link AudioBackendInfo} of the audio output backend to use
      * @throws IllegalArgumentException If the audio output backend info is null
      * @throws AudioBackendCreationException If an error occurs while creating the audio output backend
@@ -177,7 +177,7 @@ public class AudioOutputLayer implements AutoCloseable,
         eventMap.put(OutputLayerEventType.STARTED, OutputLayerListener::onStarted);
         eventMap.put(OutputLayerEventType.STOPPED, OutputLayerListener::onStopped);
         eventMap.put(OutputLayerEventType.FLUSHED, OutputLayerListener::onFlushed);
-        eventMap.put(OutputLayerEventType.DRAINED, OutputLayerListener::onDrained);        
+        eventMap.put(OutputLayerEventType.DRAINED, OutputLayerListener::onDrained);
         eventMap.put(OutputLayerEventType.UNDERRUN, OutputLayerListener::onUnderrun);
         eventMap.put(OutputLayerEventType.PLAYBACK_INTERRUPTED, OutputLayerListener::onPlaybackInterrupted);
         eventMap.put(OutputLayerEventType.LENGTH_MISMATCH, OutputLayerListener::onLengthMismatch);
@@ -187,15 +187,15 @@ public class AudioOutputLayer implements AutoCloseable,
         eventMap.put(OutputLayerEventType.REOPEN_FAILED, OutputLayerListener::onReopenFailed);
         eventDispatcher.setEventMap(eventMap);
     }
-    
+
     private OutputLayerEvent getEvent() {
         int outBufferSize = (aob != null && aob.isOpen() ? aob.getBufferSize() : -1);
         return new OutputLayerEvent(this, outBufferSize);
     }
-    
+
     /**
      * Constructs an {@code AudioOutputLayer} with the default audio output backend for the platform.
-     * 
+     *
      * @throws IllegalArgumentException If the default audio output backend is null
      * @throws AudioBackendCreationException If an error occurs while creating the audio output backend
      * @throws AudioBackendNotFoundException If the specified audio output backend is not found
@@ -204,12 +204,12 @@ public class AudioOutputLayer implements AutoCloseable,
         this(AudioBackends.getPlatformBackend());
     }
 
-    
+
     /**
      * Opens the audio output with the specified port, format, and buffer size.
      * If the port is null, the default output port will be used.
      * This method also tries to use best matching audio format, if the given format is not supported.
-     * 
+     *
      * @param port The {@link AudioPort} to be used
      * @param audioFormat The {@link AudioFormat} for audio data
      * @param bufferSize The size of the buffer for audio data, defined by {@link AudioMeasure}
@@ -263,9 +263,9 @@ public class AudioOutputLayer implements AutoCloseable,
 
         calculateLengths(sourceFormat, selectedFormat, bufferSizeInFrames);
 
-        String renderBufferSizeStr; 
+        String renderBufferSizeStr;
         String outputBufferSizeStr;
-        
+
         renderBufferSizeStr = AudioMeasure.ofFrames(renderBufferSize).onFormat(sourceFormat).getDetailedString();
         outputBufferSizeStr = AudioMeasure.ofFrames(outputBufferSize).onFormat(selectedFormat).getDetailedString();
 
@@ -277,7 +277,7 @@ public class AudioOutputLayer implements AutoCloseable,
         outputLog.append("  Render buffer size (playback): ").append(renderBufferSizeStr).append(",\n");
         outputLog.append("  Output buffer size: ").append(outputBufferSizeStr).append(",\n");
         outputLog.append("  Buffer time: ").append(FormatUtilities.formatTime(bufferTimeMicros*1000, TIME_FORMAT_PRECISION)).append(".\n");
-        
+
         try {
             this.openedFormat = aob.open(targetPort, selectedFormat, rawLength);
             if (openedFormat == null) {
@@ -296,7 +296,7 @@ public class AudioOutputLayer implements AutoCloseable,
         }
 
         outputLog.append("  Opened Format: ").append(openedFormat.toString()).append(",\n");
-        
+
         renderBufferSizeStr = AudioMeasure.ofFrames(renderBufferSize).onFormat(sourceFormat).getDetailedString();
         outputBufferSizeStr = AudioMeasure.ofFrames(outputBufferSize).onFormat(selectedFormat).getDetailedString();
 
@@ -373,7 +373,7 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Opens the audio output with the specified port, format, and buffer size.
-     * 
+     *
      * @param port The {@link AudioPort} to be used
      * @param audioFormat The {@link AudioFormat} for audio data
      * @param bufferSize The {@link AudioMeasure} representing the buffer size
@@ -388,7 +388,7 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Opens the audio output with the specified port and format.
-     * 
+     *
      * @param port The {@link AudioPort} to be used
      * @param audioFormat The {@link AudioFormat} for audio data
      * @throws UnsupportedAudioFormatException If the specified audio format is not supported
@@ -402,7 +402,7 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Opens the audio output with the specified format, and default output port.
-     * 
+     *
      * @param audioFormat The {@link AudioFormat} for audio data
      * @throws UnsupportedAudioFormatException If the specified audio format is not supported
      * @throws IllegalArgumentException If the audio format is null
@@ -420,7 +420,7 @@ public class AudioOutputLayer implements AutoCloseable,
 
     /**
      * Checks if the audio output is open.
-     * 
+     *
      * @return True if the audio output is open, false otherwise
      */
     public boolean isOpen() {
@@ -431,7 +431,7 @@ public class AudioOutputLayer implements AutoCloseable,
      * Starts the audio output, processing audio data from the root node.
      * Creates a playback thread and starts it.
      * The thread is set as a daemon thread to not block JVM exit.
-     * 
+     *
      * @throws AudioBackendException If an error occurs while starting the backend
      * @throws RuntimeException If the playback thread cannot be started
      */
@@ -441,7 +441,7 @@ public class AudioOutputLayer implements AutoCloseable,
             throw new BackendNotOpenException("Audio output layer is not open.");
         }
         aob.start();
-        
+
         playbackThread = ThreadUtilities.startThread(
             "AudioOutputLayer-Playback",
             AOL_PLAYBACK_THREAD.threadType,
@@ -450,7 +450,7 @@ public class AudioOutputLayer implements AutoCloseable,
             // Do not catch exceptions here, they will be caught in playback().
             // Critical exceptions can stop the playback thread.
         );
-        if (playbackThread == null) 
+        if (playbackThread == null)
             throw new RuntimeException(
                 "Failed to start AudioOutputLayer-Playback. Thread is null."
             );
@@ -492,7 +492,7 @@ public class AudioOutputLayer implements AutoCloseable,
     /**
      * Closes the audio output, stopping the playback thread and closing the backend.
      * Stop can take some time, so it is recommended to call it in a separate thread.
-     * 
+     *
      * @throws AudioBackendException If an error occurs while closing the backend
      */
     @Override
@@ -665,7 +665,7 @@ public class AudioOutputLayer implements AutoCloseable,
     }
 
     private static class ProcessingException extends RuntimeException {
-        
+
         public ProcessingException(String message, Throwable cause) {
             super(message, cause);
         }
@@ -710,7 +710,7 @@ public class AudioOutputLayer implements AutoCloseable,
                     // Initialize buffers again
                     if (lengthMismatchCounter < AOL_MAX_LENGTH_MISMATCHES) {
                         sampleBuffer = new float[openedFormat.getChannels()][renderBufferSize];
-                        
+
                         renderDurNs = System.nanoTime() - renderStartNs;
                         TimeUtilities.waitNanosPrecise(bufferNsWait - renderDurNs);
                         continue;
@@ -747,11 +747,11 @@ public class AudioOutputLayer implements AutoCloseable,
             } catch (BackendNotOpenException ex) {
                 logger.info("Backend is closed.");
                 eventDispatcher.dispatch(OutputLayerEventType.UNCHECKED_CLOSE, getEvent());
-                return;  
+                return;
             } catch (DeviceInvalidatedException | DeviceInactiveException ex) {
                 logger.error("Device is invalidated or inactive.", ex);
                 eventDispatcher.dispatch(OutputLayerEventType.DEVICE_INVALIDATED, getEvent());
-                
+
                 if (reopenInProgress.compareAndSet(false, true)) {
                     ThreadUtilities.startThread("AudioOutputLayer-Reopen", ThreadType.VIRTUAL, Thread.NORM_PRIORITY, true, () -> {
                         try {
@@ -775,7 +775,7 @@ public class AudioOutputLayer implements AutoCloseable,
             } catch (LengthMismatchException ex) {
                 // Already logged
                 throw new RuntimeException(ex);
-            } catch (ProcessingException ex) { 
+            } catch (ProcessingException ex) {
                 logger.error("Processing error.", ex);
                 eventDispatcher.dispatch(OutputLayerEventType.PLAYBACK_EXCEPTION, getEvent());
                 throw ex;

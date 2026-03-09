@@ -20,10 +20,10 @@ package org.theko.sound.effects;
  * Represents a function that builds an {@link AudioEffect}.
  * <p>
  * Use implementations of this interface to create audio effects with specific parameters or settings.
- * 
+ *
  * @see AudioEffect
  * @see #getEffect()
- * 
+ *
  * @since 0.3.0-beta
  * @author Theko
  */
@@ -32,7 +32,7 @@ public interface AudioEffectBuilder {
 
     /**
      * Returns an {@link AudioEffect} representing this effect function.
-     * 
+     *
      * @return an instance of {@link AudioEffect}
      */
     AudioEffect getEffect();

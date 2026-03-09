@@ -24,7 +24,7 @@ import org.theko.sound.controls.FloatControl;
 /**
  * A real-time audio effect that delays the audio signal on each channel.
  * The delay amount can be adjusted for each channel.
- * 
+ *
  * @author Theko
  * @since 0.2.4-beta
  */
@@ -32,7 +32,7 @@ public class ChannelDelayEffect extends AudioEffect {
 
     protected final FloatControl delayLeft = new FloatControl("Delay Left", 0.0f, 5.0f, 0.0f);
     protected final FloatControl delayRight = new FloatControl("Delay Right", 0.0f, 5.0f, 0.0f);
-    
+
     protected final List<AudioControl> delayControls = List.of(delayLeft, delayRight);
 
     // Internal delay buffers for each channel

@@ -22,19 +22,19 @@ import org.theko.sound.effects.AudioEffect;
  * Represents a node in the audio processing graph.
  * <p>Each node can process audio samples and is responsible for rendering
  * its output into the provided sample buffer.
- * 
+ *
  * @since 0.2.0-beta
  * @author Theko
- * 
+ *
  * @see AudioMixer
  * @see AudioEffect
  */
 @FunctionalInterface
 public interface AudioNode {
-    
+
     /**
      * Renders the audio node's output into the provided sample buffer.
-     * 
+     *
      * @param samples The sample buffer to render into
      * @param sampleRate The sample rate of the audio
      */

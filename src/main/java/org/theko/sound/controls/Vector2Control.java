@@ -48,11 +48,11 @@ public class Vector2Control extends AudioControl {
     public Vector2Control(String name) {
         this(name, -1.0f, 1.0f);
     }
-    
+
     public FloatControl getXControl() {
         return xControl;
     }
-    
+
     public FloatControl getYControl() {
         return yControl;
     }
@@ -60,7 +60,7 @@ public class Vector2Control extends AudioControl {
     public float getX() {
         return xControl.getValue();
     }
-    
+
     public float getY() {
         return yControl.getValue();
     }
@@ -68,7 +68,7 @@ public class Vector2Control extends AudioControl {
     public void setX(float x) {
         xControl.setValue(x);
     }
-    
+
     public void setY(float y) {
         yControl.setValue(y);
     }

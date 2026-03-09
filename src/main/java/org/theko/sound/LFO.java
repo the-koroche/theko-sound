@@ -29,24 +29,24 @@ import org.theko.sound.controls.FloatControl;
 /**
  * Low Frequency Oscillator (LFO) for modulating audio parameters over time.
  * <p>
- * An LFO generates periodic waveforms that can be applied to any {@link AudioControl} 
- * or group of controls in an audio system. This allows dynamic modulation of parameters 
- * such as volume, filter cutoff, pitch, or any custom effect parameter. 
+ * An LFO generates periodic waveforms that can be applied to any {@link AudioControl}
+ * or group of controls in an audio system. This allows dynamic modulation of parameters
+ * such as volume, filter cutoff, pitch, or any custom effect parameter.
  * <p><b>Example usage:</b>
  * <pre>{@code
  * // Create an LFO that modulates a specific control
  * FloatControl cutoff = new FloatControl("Filter Cutoff", 20f, 20000f, 1000f);
  * LFO lfo = new LFO(List.of(cutoff));
- * 
+ *
  * // Configure parameters
  * lfo.getSpeed().setValue(0.5f);
  * lfo.getAmount().setValue(0.8f);
  * lfo.getWaveformType().setEnumValue(WaveformType.SINE);
- * 
+ *
  * // Start the LFO
  * lfo.start();
  * }</pre>
- * 
+ *
  * @since 0.2.3-beta
  * @author Theko
  */
@@ -76,7 +76,7 @@ public class LFO implements Controllable {
 
     /**
      * Creates a new LFO with the specified controls and update interval.
-     * 
+     *
      * @param controls the list of {@link AudioControl} objects this LFO will modulate
      * @param updateTime the update interval in milliseconds
      */
@@ -87,7 +87,7 @@ public class LFO implements Controllable {
 
     /**
      * Creates a new LFO with the specified controls and the default update interval.
-     * 
+     *
      * @param controls the list of {@link AudioControl} objects this LFO will modulate
      */
     public LFO(List<AudioControl> controls) {
@@ -151,7 +151,7 @@ public class LFO implements Controllable {
      * Background process that continuously updates control values.
      * <p>
      * Should only be called internally by the automation system.
-     * 
+     *
      */
     protected void process() {
         long startTime = System.nanoTime();
@@ -171,7 +171,7 @@ public class LFO implements Controllable {
 
     /**
      * Calculates the LFO output value at a given time.
-     * 
+     *
      * @param time time in seconds since the LFO started
      * @return the computed LFO value
      */

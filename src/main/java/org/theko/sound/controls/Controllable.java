@@ -23,14 +23,14 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * The Controllable interface provides methods for managing and retrieving 
- * audio control objects within a class. It uses reflection to dynamically 
- * access fields of the implementing class that are instances of AudioControl 
- * or its subclasses. This interface includes methods to retrieve all 
+ * The Controllable interface provides methods for managing and retrieving
+ * audio control objects within a class. It uses reflection to dynamically
+ * access fields of the implementing class that are instances of AudioControl
+ * or its subclasses. This interface includes methods to retrieve all
  * controls, as well as specific types of controls by name.
  *
- * <p>Note: The {@code getAllControls()} method uses reflection to access 
- * declared fields, which may be subject to security restrictions. If a field 
+ * <p>Note: The {@code getAllControls()} method uses reflection to access
+ * declared fields, which may be subject to security restrictions. If a field
  * is inaccessible, an empty list is returned.
  *
  * <p>Usage example:
@@ -47,7 +47,7 @@ import java.util.List;
  * @see AudioControl
  * @see FloatControl
  * @see BooleanControl
- * 
+ *
  * @since 0.1.4-beta
  * @author Theko
  */
@@ -89,14 +89,14 @@ public interface Controllable {
     /**
      * Retrieves a specific AudioControl by its name.
      *
-     * This method iterates over all available audio controls obtained from 
-     * {@link #getAllControls()} and checks if any control's name matches 
-     * the specified name. If a match is found, the corresponding 
+     * This method iterates over all available audio controls obtained from
+     * {@link #getAllControls()} and checks if any control's name matches
+     * the specified name. If a match is found, the corresponding
      * AudioControl is returned. If no matching control is found,
      * the method returns null.
      *
      * @param name The name of the AudioControl to be retrieved
-     * @return The AudioControl with the specified name, or null if no 
+     * @return The AudioControl with the specified name, or null if no
      *         such control exists.
      */
     default AudioControl getControl(String name) {
@@ -111,14 +111,14 @@ public interface Controllable {
     /**
      * Retrieves a FloatControl by its name.
      *
-     * This method iterates over all available audio controls obtained from 
-     * {@link #getAllControls()} and checks if any control is both a FloatControl 
-     * and its name matches the specified name. If a match is found, the 
+     * This method iterates over all available audio controls obtained from
+     * {@link #getAllControls()} and checks if any control is both a FloatControl
+     * and its name matches the specified name. If a match is found, the
      * corresponding FloatControl is returned. If no matching control is found,
      * the method returns null.
      *
      * @param name The name of the FloatControl to be retrieved
-     * @return The FloatControl with the specified name, or null if no 
+     * @return The FloatControl with the specified name, or null if no
      *         such control exists.
      */
     default FloatControl getFloatControl(String name) {

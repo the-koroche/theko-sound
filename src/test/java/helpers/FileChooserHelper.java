@@ -22,11 +22,11 @@ public final class FileChooserHelper {
 
     private static final String lastOpenedFilePath = System.getProperty("java.io.tmpdir") + "/TSoundEx_FCH_LastOpenedFile.txt";
     private static File lastOpened = getLastOpened();
-    
+
     private static File getLastOpened() {
         Path path = Path.of(lastOpenedFilePath);
         if (!Files.exists(path)) return null;
-        
+
         try {
             String savedPath = Files.readString(path, StandardCharsets.UTF_8).trim();
             if (savedPath.isEmpty()) return null;
@@ -86,7 +86,7 @@ public final class FileChooserHelper {
 
         FileNameExtensionFilter filter = createFilter(name + " files", extensions);
         List<FileNameExtensionFilter> additionalFileFilters = createChoosableFilters(additionalFilters);
-        
+
         if (filter != null) {
             chooser.setFileFilter(filter);
             for (FileNameExtensionFilter f : additionalFileFilters) {

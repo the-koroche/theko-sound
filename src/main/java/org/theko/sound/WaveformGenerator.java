@@ -18,19 +18,19 @@ package org.theko.sound;
 
 /**
  * Utility class for generating waveforms.
- * 
+ *
  * @since 0.2.3-beta
  * @author Theko
  */
 public class WaveformGenerator {
-    
+
     private WaveformGenerator() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
     /**
      * Generates a waveform based on the specified type and value.
-     * 
+     *
      * @param type The waveform type
      * @param value The value to generate the waveform for
      * @return The generated waveform value

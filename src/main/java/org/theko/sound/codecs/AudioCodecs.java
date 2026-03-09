@@ -30,14 +30,14 @@ import org.theko.sound.AudioClassRegister;
  * The {@code AudioCodecs} class is responsible for managing and providing access to audio codec information.
  * It maintains a collection of registered audio codecs and provides methods to retrieve codec information
  * by name or file extension, as well as to instantiate codec objects.
- * 
+ *
  * <p>This class uses reflection to discover and register all available audio codecs that are annotated
  * with {@code AudioCodecType}. It ensures thread-safe access to the collection of codecs.
- * 
+ *
  * <p>This class is not meant to be instantiated and provides all its functionality through static methods.
- * 
+ *
  * <p><strong>Thread Safety:</strong> The collection of codecs is synchronized to ensure thread-safe access.
- * 
+ *
  * @since 0.1.3-beta
  * @author Theko
  */
@@ -76,7 +76,7 @@ public final class AudioCodecs {
         }
     }
 
-    
+
     /**
      * Retrieve an AudioCodecInfo by its name. The name is case-insensitive.
      *
@@ -118,11 +118,11 @@ public final class AudioCodecs {
 
     /**
      * Instantiate an audio codec from its respective metadata.
-     * 
+     *
      * <p>This method takes an instance of {@link AudioCodecInfo} as an argument and returns an instance of
      * the corresponding audio codec class. If any errors occur during the instantiation process, an
      * {@link AudioCodecCreationException} is thrown.
-     * 
+     *
      * @param codecInfo the metadata of the audio codec to instantiate
      * @return an instance of the audio codec class
      * @throws AudioCodecCreationException if there is an error instantiating the codec

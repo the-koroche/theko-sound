@@ -19,9 +19,9 @@ package org.theko.sound;
 
 /**
  * Represents different types of waveforms.
- * 
+ *
  * @see WaveformGenerator
- * 
+ *
  * @since 0.2.3-beta
  * @author Theko
  */
@@ -40,7 +40,7 @@ public enum WaveformType {
      * Sawtooth waveform.
      */
     SAWTOOTH,
-    
+
     /**
      * Triangle waveform.
      */

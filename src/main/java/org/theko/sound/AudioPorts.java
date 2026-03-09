@@ -29,12 +29,12 @@ import org.theko.sound.util.AudioPortUtilities;
 /**
  * Represents a collection of audio ports.
  * Supports filtering by flow, format, and active status.
- * 
+ *
  * @author Theko
  * @since 0.2.3-beta
  */
 public class AudioPorts extends ArrayList<AudioPort> {
-    
+
     public AudioPorts(Collection<AudioPort> ports) {
         super(ports);
     }
@@ -48,7 +48,7 @@ public class AudioPorts extends ArrayList<AudioPort> {
     public AudioPorts filter(AudioFormat audioFormat) {
         return new AudioPorts(super.stream()
             .filter( p -> {
-                Class<? extends AudioBackend> backendClass = 
+                Class<? extends AudioBackend> backendClass =
                     AudioPortUtilities.getBackendByLinkType(p.getLink().getClass());
                 if (backendClass == null) return false;
                 try {

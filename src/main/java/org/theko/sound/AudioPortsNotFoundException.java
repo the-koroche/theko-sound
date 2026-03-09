@@ -20,12 +20,12 @@ package org.theko.sound;
  * Exception thrown to indicate that the required audio ports could not be found.
  * This exception can be used to signal issues related to missing or unavailable
  * audio ports in the system.
- * 
+ *
  * @since 0.1.0-beta
  * @author Theko
  */
 public class AudioPortsNotFoundException extends Exception {
-    
+
     public AudioPortsNotFoundException() {
         super();
     }

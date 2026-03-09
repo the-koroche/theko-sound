@@ -28,10 +28,10 @@ import org.theko.sound.samples.SamplesValidation;
  * <p>
  * It designed to process multiple audio channels at the same time, without the need to create a new filter for each channel.
  * @param <T> the type of audio filter used for each channel
- * 
+ *
  * @see AudioFilter
  * @see CascadeFilter
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */
@@ -40,7 +40,7 @@ public class ChannelSplittedFilter<T extends AudioFilter> {
 
     /**
      * Creates a channel splintered filter with the provided list of filters.
-     * 
+     *
      * @param filters the list of filters to use for each channel
      * @throws NullPointerException if the filters list is null
      * @throws IllegalArgumentException if the filters list is empty or contains null elements
@@ -60,7 +60,7 @@ public class ChannelSplittedFilter<T extends AudioFilter> {
 
     /**
      * Creates a channel splintered filter with a single filter copied for each channel.
-     * 
+     *
      * @param filter the filter to use for each channel
      * @param channels the number of channels (filters) to use
      * @throws NullPointerException if the filter is null
@@ -74,7 +74,7 @@ public class ChannelSplittedFilter<T extends AudioFilter> {
     /**
      * Recreates the channel splintered filter with a new list of filters.
      * The provided filter is copied for each channel, and the new filters are stored in the internal list.
-     * 
+     *
      * @param filter the new filter to use for each channel
      * @param channels the number of channels (filters) to use
      * @throws NullPointerException if the filter is null
@@ -94,7 +94,7 @@ public class ChannelSplittedFilter<T extends AudioFilter> {
 
     /**
      * Processes a single audio sample using the filter at the specified channel.
-     * 
+     *
      * @param sample the input sample
      * @param channel the channel (filter) to use
      * @param sampleRate the sample rate in Hz
@@ -106,7 +106,7 @@ public class ChannelSplittedFilter<T extends AudioFilter> {
 
     /**
      * Processes an array of audio samples and writes the processed samples to the provided output array.
-     * 
+     *
      * @param samples the input samples
      * @param output the output samples
      * @param channel the channel (filter) to use
@@ -118,7 +118,7 @@ public class ChannelSplittedFilter<T extends AudioFilter> {
 
     /**
      * Processes an array of audio samples and writes the processed samples to the provided output array.
-     * 
+     *
      * @param samples the input samples
      * @param output the output samples
      * @param sampleRate the sample rate in Hz
@@ -137,7 +137,7 @@ public class ChannelSplittedFilter<T extends AudioFilter> {
 
     /**
      * Returns the number of channels (filters) used by this filter.
-     * 
+     *
      * @return the number of channels used by this filter
      */
     public int getChannelCount() {
@@ -146,7 +146,7 @@ public class ChannelSplittedFilter<T extends AudioFilter> {
 
     /**
      * Returns the filter used by the specified channel.
-     * 
+     *
      * @param channel the channel to retrieve the filter from
      * @return the filter used by the specified channel
      * @throws IndexOutOfBoundsException if the channel is out of range
@@ -158,10 +158,10 @@ public class ChannelSplittedFilter<T extends AudioFilter> {
     /**
      * Returns an unmodifiable list of the filters used by this channel
      * splitted filter. The list contains one filter per channel.
-     * 
+     *
      * @return an unmodifiable list of the filters used by this channel
      * splitted filter
-     * 
+     *
      */
     public List<T> getFilters() {
         return Collections.unmodifiableList(filters);

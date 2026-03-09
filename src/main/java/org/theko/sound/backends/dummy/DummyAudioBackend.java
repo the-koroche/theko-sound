@@ -44,12 +44,12 @@ import org.theko.sound.UnsupportedAudioFormatException;
  * It provides one dummy input port and one dummy output port, both supporting the
  * standard {@link AudioFormat#NORMAL_QUALITY_FORMAT}. Format checks always succeed
  * as long as the port is not null.
- * 
+ *
  * <p>
  * Note: Input backend functionality is not implemented yet and will throw
  * {@link UnsupportedOperationException}.
- * 
- * 
+ *
+ *
  * @author Theko
  * @since 0.2.4-beta
  */
@@ -103,11 +103,11 @@ public class DummyAudioBackend implements AudioBackend {
             AtomicReference<AudioFormat> closestFormat) {
         if (port == null || audioFormat == null) return false;
 
-        int sampleRate = audioFormat.getSampleRate() >= 0 ? audioFormat.getSampleRate() 
+        int sampleRate = audioFormat.getSampleRate() >= 0 ? audioFormat.getSampleRate()
                         : AudioFormat.NORMAL_QUALITY_FORMAT.getSampleRate();
-        int channels = audioFormat.getChannels() >= 0 ? audioFormat.getChannels() 
+        int channels = audioFormat.getChannels() >= 0 ? audioFormat.getChannels()
                         : AudioFormat.NORMAL_QUALITY_FORMAT.getChannels();
-        int bitsPerSample = audioFormat.getBitsPerSample() >= 0 ? audioFormat.getBitsPerSample() 
+        int bitsPerSample = audioFormat.getBitsPerSample() >= 0 ? audioFormat.getBitsPerSample()
                         : AudioFormat.NORMAL_QUALITY_FORMAT.getBitsPerSample();
         bitsPerSample += (8 - bitsPerSample % 8) % 8; // round to nearest multiple of 8
 

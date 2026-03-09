@@ -28,7 +28,7 @@ public class CircularReferenceMixerTest {
         a = new AudioMixer();
         b = new AudioMixer();
         c = new AudioMixer();
-        
+
         System.out.println("Testing A -> B -> C -> A");
         try {
             a.addInput(b);
@@ -44,7 +44,7 @@ public class CircularReferenceMixerTest {
         b = new AudioMixer();
         c = new AudioMixer();
         d = new AudioMixer();
-        
+
         System.out.println("Testing A -> B -> C -> D -> A");
         try {
             a.addInput(b);

@@ -23,7 +23,7 @@ import org.theko.sound.properties.ThreadType;
 
 /**
  * Utility class for creating threads.
- * 
+ *
  * @author Theko
  * @since 0.2.0-beta
  */
@@ -37,8 +37,7 @@ public final class ThreadUtilities {
 
     /**
      * Creates a new thread with default name.
-     * 
-     * @param name The name of the thread. If null, the default name will be used
+     *
      * @param type The type of thread to create
      * @param task The task to run in the thread
      * @return The created thread
@@ -49,7 +48,7 @@ public final class ThreadUtilities {
 
     /**
      * Creates a new thread.
-     * 
+     *
      * @param name The name of the thread. If null, the default name will be used
      * @param type The type of thread to create
      * @param task The task to run in the thread
@@ -62,7 +61,7 @@ public final class ThreadUtilities {
 
     /**
      * Creates a new thread.
-     * 
+     *
      * @param name The name of the thread. If null, the default name will be used
      * @param type The type of thread to create
      * @param priority The priority of the thread
@@ -74,13 +73,13 @@ public final class ThreadUtilities {
         return startThread(name, type, priority, true, task);
     }
 
-    
+
     /**
      * Creates a new thread with the specified name, type, priority, daemon status, and task.
      * <p>
      * Virtual threads does not support daemon and priority, and they will be ignored.
      * If the thread type is not supported, it will fallback to platform thread.
-     * 
+     *
      * @param name The name of the thread. If null, the default name will be used
      * @param type The type of thread to create
      * @param priority The priority of the thread

@@ -26,26 +26,26 @@ import java.util.stream.Stream;
  * A utility class for managing a collection of {@link AudioControl} objects.
  * It provides methods to add, remove, change and retrieve controls by type and name.
  * This class is thread-safe, and uses {@link CopyOnWriteArrayList} to ensure thread-safety.
- * 
+ *
  * <p>This class can be used to group controls by category, such as controlling
  * a specific audio effect or instrument.
- * 
+ *
  * @see AudioControl
  * @see FloatControl
- * 
+ *
  * @since 0.2.1-beta
  * @author Theko
  */
 @SuppressWarnings("rawtypes")
 public class AudioControlGroup {
-    
+
     protected final List<FloatControl> floatControls = new CopyOnWriteArrayList<>();
     protected final List<BooleanControl> booleanControls = new CopyOnWriteArrayList<>();
     protected final List<EnumControl> enumControls = new CopyOnWriteArrayList<>();
 
     /**
      * Constructs an AudioControlGroup from a list of controls.
-     * 
+     *
      * @param controls A list of AudioControl objects
      */
     public AudioControlGroup(List<AudioControl> controls) {
@@ -61,7 +61,7 @@ public class AudioControlGroup {
     /**
      * Adds a control to the group.
      * If the control type is not Float, Boolean or Enum, it is ignored.
-     * 
+     *
      * @param control The control to add
      */
     public void addControl(AudioControl control) {
@@ -79,7 +79,7 @@ public class AudioControlGroup {
 
     /**
      * Removes a control from the group.
-     * 
+     *
      * @param control The control to remove
      */
     public void removeControl(AudioControl control) {
@@ -130,7 +130,7 @@ public class AudioControlGroup {
 
     /**
      * Applies a value to all Float controls in the group.
-     * 
+     *
      * @param value The value to apply
      */
     public void applyFloat(float value) {
@@ -141,7 +141,7 @@ public class AudioControlGroup {
 
     /**
      * Applies a value to all Boolean controls in the group.
-     * 
+     *
      * @param value The value to apply
      */
     public void applyBoolean(boolean value) {
@@ -152,7 +152,7 @@ public class AudioControlGroup {
 
     /**
      * Applies a value to all Enum controls in the group.
-     * 
+     *
      * @param value The value to apply
      */
     public void applyEnum(int value) {

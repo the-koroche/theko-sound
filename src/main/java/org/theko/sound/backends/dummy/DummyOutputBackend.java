@@ -28,10 +28,10 @@ import org.theko.sound.util.TimeUtilities;
 
 /**
  * A dummy audio output backend.
- * 
+ *
  * This class is used to simulate an audio output backend for testing purposes.
  * It implements the {@link AudioOutputBackend} interface and provides all the necessary methods.
- * 
+ *
  * @author Theko
  * @since 0.2.4-beta
  */
@@ -70,7 +70,7 @@ public class DummyOutputBackend extends DummyAudioBackend implements AudioOutput
         this.bufferSize = bufferSize;
         this.format = audioFormat;
         this.port = port;
-        
+
         return audioFormat;
     }
 
@@ -131,7 +131,7 @@ public class DummyOutputBackend extends DummyAudioBackend implements AudioOutput
     public int write(byte[] data, int offset, int length) throws AudioBackendException {
         if (!isOpen()) throw new BackendNotOpenException("Cannot write. Backend is not open.");
         if (data == null) throw new NullPointerException("Data buffer is null.");
-        if (offset < 0 || length < 0 || offset + length > data.length) 
+        if (offset < 0 || length < 0 || offset + length > data.length)
             throw new IndexOutOfBoundsException("Invalid offset or length.");
 
         int bytesWritten = 0;

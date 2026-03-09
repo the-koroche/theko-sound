@@ -36,12 +36,12 @@ public final class TimeUtilities {
     private TimeUtilities() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
-    
+
     /**
      * Waits for the specified amount of time in microseconds with high precision.
      * This method is designed to be more precise than {@link Thread#sleep(long)} and {@link Object#wait(long)}.
      * It uses busy waiting and {@link LockSupport#parkNanos(long)} to wait for the specified amount of time.
-     * 
+     *
      * @param micros The amount of time to wait in microseconds
      * @throws InterruptedException when the thread is interrupted while waiting
      */
@@ -54,7 +54,7 @@ public final class TimeUtilities {
      * Waits for the specified amount of time in nanoseconds with high precision.
      * This method is designed to be more precise than {@link Thread#sleep(long)} and {@link Object#wait(long)}.
      * It uses busy waiting and {@link LockSupport#parkNanos(long)} to wait for the specified amount of time.
-     * 
+     *
      * @param nanos The amount of time to wait in nanoseconds
      * @throws InterruptedException when the thread is interrupted while waiting
      */
@@ -87,7 +87,7 @@ public final class TimeUtilities {
      * Waits for the specified amount of time in nanoseconds using busy waiting.
      * This method is designed to be more precise than {@link Thread#sleep(long)} and {@link Object#wait(long)}.
      * It uses busy waiting and {@link Thread#onSpinWait()} to wait for the specified amount of time.
-     * 
+     *
      * @param nanos The amount of time to wait in nanoseconds
      * @throws InterruptedException when the thread is interrupted while waiting
      */

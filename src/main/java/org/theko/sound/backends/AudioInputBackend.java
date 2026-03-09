@@ -22,10 +22,10 @@ import org.theko.sound.AudioPort;
  * The {@code AudioInputBackend} interface represents an audio input backend capable of
  * handling audio data input operations. It extends {@link AudioBackend} and {@link AutoCloseable}
  * for initialization, control, and resource management.
- * 
+ *
  * <p>Implementations of this interface should provide mechanisms to open and close the backend,
  * manage audio data flow, and retrieve backend-related information.
- * 
+ *
  * <p>Key functionalities include:
  * <ul>
  *   <li>Opening the backend for audio input with specified port and format.</li>
@@ -33,14 +33,14 @@ import org.theko.sound.AudioPort;
  *   <li>Reading audio data into a buffer.</li>
  *   <li>Retrieving audio backend information such as buffer size and latency.</li>
  * </ul>
- * 
+ *
  * @see AudioBackend
  * @see AutoCloseable
  * @see AudioBackendException
  * @see AudioPort
  * @see AudioFormat
  * @see AudioOutputBackend
- * 
+ *
  * @since 0.1.0-beta
  * @author Theko
  */

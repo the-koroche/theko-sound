@@ -19,18 +19,18 @@ package org.theko.sound;
 /**
  * This exception is thrown to indicate that an unsupported audio encoding
  * format has been encountered.
- * 
+ *
  * <p>
  * The {@code UnsupportedAudioEncodingException} class extends the
  * {@code Exception} class and provides constructors to create an exception
  * instance with a custom message, a cause, or both.
- * 
- * 
+ *
+ *
  * <p>
  * This exception can be used in scenarios where audio processing or decoding
  * encounters an encoding format that is not supported by the application.
- * 
- * 
+ *
+ *
  * @since 0.1.0-beta
  * @author Theko
  */

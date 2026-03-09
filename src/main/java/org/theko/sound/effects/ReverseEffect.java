@@ -18,12 +18,12 @@ package org.theko.sound.effects;
 
 /**
  * This effect reverses the audio samples.
- * 
+ *
  * @since 0.2.5-beta
  * @author Theko
  */
 public class ReverseEffect extends AudioEffect {
-    
+
     public ReverseEffect() {
         super(Type.REALTIME);
     }

@@ -38,7 +38,7 @@ public class SoundPlayer extends SoundSource {
 
     /**
      * Creates a new SoundPlayer with the specified audio output layer.
-     * 
+     *
      * @param outputLine The audio output layer to use
      */
     public SoundPlayer(AudioOutputLayer outputLine) {
@@ -64,7 +64,7 @@ public class SoundPlayer extends SoundSource {
 
     /**
      * Creates a new SoundPlayer with the default audio output layer and opens the specified audio file.
-     * 
+     *
      * @param file The audio file to open
      */
     public SoundPlayer(File file) {
@@ -78,7 +78,7 @@ public class SoundPlayer extends SoundSource {
 
     /**
      * Creates a new SoundPlayer with the default audio output layer and opens the specified audio file path.
-     * 
+     *
      * @param file The audio file to open
      */
     public SoundPlayer(String file) {
@@ -92,7 +92,7 @@ public class SoundPlayer extends SoundSource {
 
     /**
      * Opens the specified audio file and configures the audio output layer to use the specified audio port and buffer size.
-     * 
+     *
      * @param file The audio file to open
      * @param port The audio port to use
      * @param bufferSize The buffer size to use
@@ -116,7 +116,7 @@ public class SoundPlayer extends SoundSource {
 
     /**
      * Opens the specified audio file and configures the audio output layer to use the specified audio port.
-     * 
+     *
      * @param file The audio file to open
      * @param port The audio port to use
      * @throws FileNotFoundException If the specified audio file is not found
@@ -139,7 +139,7 @@ public class SoundPlayer extends SoundSource {
 
     /**
      * Reopens the audio output layer with the same port and format as before.
-     * 
+     *
      * @throws AudioBackendException If an error occurs while reopening the backend
      * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output
      * @throws UnsupportedAudioFormatException If the specified audio format is not supported
@@ -152,7 +152,7 @@ public class SoundPlayer extends SoundSource {
     /**
      * Opens an audio file and decodes it into samples data.
      * Opens the audio output layer with the specified format.
-     * 
+     *
      * @param file The audio file to open
      * @throws FileNotFoundException If the audio file is not found
      * @throws AudioCodecNotFoundException If the audio codec is not found
@@ -177,7 +177,7 @@ public class SoundPlayer extends SoundSource {
     /**
      * Opens an audio file and decodes it into samples data.
      * Opens the audio output layer with the specified format.
-     * 
+     *
      * @param file The audio file path to open
      * @throws FileNotFoundException If the audio file is not found
      * @throws AudioCodecNotFoundException If the audio codec is not found
@@ -189,7 +189,7 @@ public class SoundPlayer extends SoundSource {
 
     /**
      * Checks if the audio output layer is open.
-     * 
+     *
      * @return True if the audio output layer is open, false otherwise
      */
     public boolean isOpen() {
@@ -204,7 +204,7 @@ public class SoundPlayer extends SoundSource {
 
     /**
      * Starts the playback of the sound source and waits for it to finish.
-     * 
+     *
      * @throws InterruptedException If the playback is interrupted
      */
     public void startAndWait() throws InterruptedException {
@@ -214,7 +214,7 @@ public class SoundPlayer extends SoundSource {
 
     /**
      * Waits for the playback of the sound source to finish.
-     * 
+     *
      * @throws InterruptedException If the playback is interrupted
      */
     public void waitUntilEnded() throws InterruptedException {
@@ -232,7 +232,7 @@ public class SoundPlayer extends SoundSource {
             throw new RuntimeException("Failed to stop audio output layer.", e);
         }
     }
-    
+
     @Override
     public void close() {
         super.close();

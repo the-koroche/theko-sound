@@ -51,27 +51,27 @@ public class Vector3Control extends AudioControl {
     public Vector3Control(String name) {
         this(name, -1.0f, 1.0f);
     }
-    
+
     public FloatControl getXControl() {
         return xControl;
     }
-    
+
     public FloatControl getYControl() {
         return yControl;
     }
-    
+
     public FloatControl getZControl() {
         return zControl;
     }
-    
+
     public float getX() {
         return xControl.getValue();
     }
-    
+
     public float getY() {
         return yControl.getValue();
     }
-    
+
     public float getZ() {
         return zControl.getValue();
     }

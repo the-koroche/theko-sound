@@ -47,17 +47,17 @@ import org.theko.sound.util.PlatformUtilities.Platform;
  * <p>
  * This backend is responsible for initializing and shutting down the WASAPI native library,
  * enumerating available audio ports, checking format support, and providing access to audio input/output backends.
- * 
+ *
  * <p>
  * The backend loads the native WASAPI DLL on class initialization and manages the lifecycle of the native resources.
  * It supports querying all available audio ports, filtering by flow and format, and retrieving default ports.
- * 
+ *
  * <p>
  * Note: Input backend functionality is not realized and will throw {@link UnsupportedOperationException}.
  *
  * @author Theko
  * @since 0.2.3-beta
- * 
+ *
  * @see AudioBackend
  * @see AudioPort
  * @see AudioFlow
@@ -284,4 +284,4 @@ public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISh
     private synchronized native AudioPort[] nGetAllPorts(long backendContextPtr);
     private synchronized native AudioPort nGetDefaultPort(long backendContextPtr, AudioFlow flow);
     private synchronized native boolean nIsFormatSupported(AudioPort port, AudioFormat audioFormat, AtomicReference<AudioFormat> closestFormat);
-} 
+}

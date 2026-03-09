@@ -44,19 +44,19 @@ import org.theko.sound.UnsupportedAudioFormatException;
  * The {@code JavaSoundBackend} class is an implementation of the {@link AudioBackend} interface
  * that uses the Java Sound API to interact with audio hardware. It provides methods to
  * retrieve audio ports, check port compatibility, and access input and output backends.
- * 
+ *
  * <p>This class is annotated with {@link AudioBackendType} to specify its name and version.
  * It supports both input and output audio flows and handles audio formats through the
  * Java Sound API.
- * 
+ *
  * <p>This class is designed to work seamlessly with the Java Sound API, providing a bridge
  * between custom audio abstractions and the underlying audio hardware.
- * 
+ *
  * @see AudioBackend
  * @see AudioPort
  * @see AudioFlow
  * @see AudioFormat
- * 
+ *
  * @since 0.1.0-beta
  * @author Theko
  */
@@ -84,7 +84,7 @@ public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundIn
     public boolean isAvailableOnThisPlatform() {
         return isAvailableInThisScope;
     }
-    
+
     @Override
     public Collection<AudioPort> getAllPorts() {
         List<AudioPort> ports = new ArrayList<>();
@@ -244,7 +244,7 @@ public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundIn
         Encoding[] encodings = {Encoding.PCM_FLOAT, Encoding.PCM_SIGNED, Encoding.PCM_UNSIGNED};
 
         List<AudioFormat> sortedFormats = new ArrayList<>();
-        
+
         // Generate combinations of audio format properties
         for (int ch : channels) {
             for (int bits : bitDepths) {
@@ -306,7 +306,7 @@ public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundIn
             case PCM_FLOAT: return javax.sound.sampled.AudioFormat.Encoding.PCM_FLOAT;
             case PCM_SIGNED: return javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED;
             case PCM_UNSIGNED: return javax.sound.sampled.AudioFormat.Encoding.PCM_UNSIGNED;
-            default: 
+            default:
                 logger.debug("Encoding not supported: {}", encoding);
                 throw new UnsupportedAudioFormatException("Encoding not supported: " + encoding);
         }

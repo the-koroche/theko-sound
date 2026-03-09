@@ -21,12 +21,12 @@ import org.theko.sound.SoundSource;
 
 /**
  * Listener for {@link SoundSource} events.
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */
 public interface SoundSourceListener extends Listener<SoundSourceEvent> {
-    
+
     /**
      * Called when a sound source is opened, and is ready to be played.
      * @param event the event with the sound source

@@ -28,14 +28,14 @@ import org.theko.sound.events.AudioControlListener;
 /**
  * The {@code AudioControl} class serves as an abstract base class for audio control components.
  * It provides a common structure for managing audio controls with a name property.
- * 
+ *
  * <p>This class is intended to be extended by specific types of audio controls.
  * Subclasses must implement additional functionality as required.
- * 
+ *
  * @see BooleanControl
  * @see FloatControl
  * @see Controllable
- * 
+ *
  * @since 0.1.2-beta
  * @author Theko
  */
@@ -70,9 +70,9 @@ public abstract class AudioControl implements
     /**
      * Retrieves a normalized version of the control's name.
      * This is useful for comparing names without worrying about whitespace, case, or diacritics.
-     * 
+     *
      * <p>Normalization is performed using the {@link Normalizer} class with the NFD form.
-     * 
+     *
      * @return The normalized name of the control
      */
     public String getComparableName() {
@@ -82,7 +82,7 @@ public abstract class AudioControl implements
     /**
      * Checks if the specified name matches the normalized name of the control.
      * This is useful for comparing names without worrying about whitespace, case, or diacritics.
-     * 
+     *
      * @param name The name to compare with the control's name
      * @return true if the names match, false otherwise
      */

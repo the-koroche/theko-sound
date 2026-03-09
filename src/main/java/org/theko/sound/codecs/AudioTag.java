@@ -21,11 +21,11 @@ package org.theko.sound.codecs;
  * It provides predefined constants for common audio metadata fields such as title,
  * album, artist, and more. This class allows you to store and manipulate metadata
  * information for audio files.
- * 
+ *
  * <p>Each {@code AudioTag} instance consists of a key and a value, where the key
  * represents the metadata field (e.g., "Title") and the value represents the
  * corresponding data (e.g., "Song Name").
- * 
+ *
  * @since 0.1.3-beta
  * @author Theko
  */
@@ -53,7 +53,7 @@ public class AudioTag {
 
     /**
      * Retrieves the key of the audio metadata tag.
-     * 
+     *
      * @return Key of the audio metadata tag
      */
     public String getKey() {
@@ -62,7 +62,7 @@ public class AudioTag {
 
     /**
      * Retrieves the value associated with the audio metadata tag.
-     * 
+     *
      * @return Value associated with the audio metadata tag
      */
     public String getValue() {

@@ -29,18 +29,18 @@ import org.theko.sound.backends.BackendNotOpenException;
  * The {@code JavaSoundOutput} class is an implementation of the {@link AudioOutputBackend}
  * interface that uses Java Sound API to manage audio output. It extends the {@link JavaSoundBackend}
  * class and provides functionality for opening, closing, and controlling audio output lines.
- * 
+ *
  * <p>This class manages a {@link SourceDataLine} for audio playback and supports operations
  * such as starting, stopping, flushing, draining, and writing audio data. It also provides
  * methods to retrieve information about the audio line, such as buffer size, frame position,
  * and latency.
- * 
+ *
  * <p>Key features include:
  * <ul>
  *   <li>Opening and configuring audio output lines with specified {@link AudioPort} and {@link AudioFormat}.</li>
  *   <li>Support for querying the current audio port and checking the state of the audio line.</li>
  * </ul>
- * 
+ *
  * <p>Usage example:
  * <pre>{@code
  * JavaSoundOutput output = new JavaSoundOutput();
@@ -50,14 +50,14 @@ import org.theko.sound.backends.BackendNotOpenException;
  * output.stop();
  * output.close();
  * }</pre>
- * 
+ *
  * <p>Note: This class throws {@link AudioBackendException} for various error conditions,
  * such as unsupported audio formats or attempting to operate on a closed backend.
- * 
+ *
  * @see AudioOutputBackend
  * @see JavaSoundBackend
  * @see SourceDataLine
- * 
+ *
  * @since 0.1.0-beta
  * @author Theko
  */

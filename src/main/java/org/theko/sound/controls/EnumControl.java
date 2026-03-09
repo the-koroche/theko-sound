@@ -22,18 +22,18 @@ import org.theko.sound.events.AudioControlEventType;
 /**
  * The {@code EnumControl} class represents a control that manages a value from an enumeration.
  * Useful for selecting filter types, waveform types, etc.
- * 
+ *
  * <p>Example usage:
  * <pre>
  * EnumControl<BandType> bandTypeControl = new EnumControl<>("FilterType", BandType.PEAKING);
  * bandTypeControl.setValue(1.0f); // selects last enum constant
  * BandType current = bandTypeControl.getEnumValue();
  * </pre>
- * 
+ *
  * @param <T> The type of the enum values managed by this control
- * 
+ *
  * @see AudioControl
- * 
+ *
  * @since 0.2.1-beta
  * @author Theko
  */
@@ -44,7 +44,7 @@ public class EnumControl<T extends Enum<T>> extends AudioControl {
 
     /**
      * Constructs an {@code EnumControl} for the specified enum type and default value.
-     * 
+     *
      * @param name The name of the control
      * @param defaultValue The default enum value
      */
@@ -57,7 +57,7 @@ public class EnumControl<T extends Enum<T>> extends AudioControl {
     /**
      * Sets the enum value to the specified index. If the index is out of range,
      * it will be clamped to the nearest valid index.
-     * 
+     *
      * @param index The index of the enum value to set
      */
     public void setValue(int index) {
@@ -72,7 +72,7 @@ public class EnumControl<T extends Enum<T>> extends AudioControl {
      * Sets the enum value to the specified normalized value (between 0.0 and 1.0).
      * The index of the enum value is calculated as follows: {@code (int)(normalizedValue * (enumValues.length - 1) + 0.5f}.
      * If the index is out of range, it will be clamped to the nearest valid index.
-     * 
+     *
      * @param normalizedValue The normalized value to set the enum value from
      */
     public void setValue(float normalizedValue) {
@@ -82,7 +82,7 @@ public class EnumControl<T extends Enum<T>> extends AudioControl {
 
     /**
      * Sets the enum value of this control to the given value.
-     * 
+     *
      * @param newValue The new enum value to set
      */
     public void setEnumValue(T newValue) {
@@ -111,7 +111,7 @@ public class EnumControl<T extends Enum<T>> extends AudioControl {
      * where 0 represents the first enum constant and 1 represents the last enum constant.
      * <p>
      * The normalized value is calculated as follows: {@code (float)(getEnumIndex()) / (enumValues.length - 1)}.
-     * 
+     *
      * @return The normalized value of this control
      */
     public float getNormalized() {

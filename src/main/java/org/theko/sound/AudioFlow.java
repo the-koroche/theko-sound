@@ -18,14 +18,14 @@ package org.theko.sound;
 
 /**
  * Represents the direction of audio flow, either input (IN) or output (OUT).
- * 
+ *
  * @see AudioPort
- * 
+ *
  * @since 0.1.0-beta
  * @author Theko
  */
 public enum AudioFlow {
-    
+
     /** Audio input flow (e.g., recording from a microphone). */
     IN,
     /** Audio output flow (e.g., playing sound through speakers). */

@@ -35,9 +35,9 @@ import org.theko.sound.util.MathUtilities;
  * A class that represents a waveform visualizer.
  * It can be used to display the waveform of an audio stream,
  * with a configurable gain, weight, color, and duration.
- * 
+ *
  * @see AudioVisualizer
- * 
+ *
  * @since 0.2.1-beta
  * @author Theko
  */
@@ -47,7 +47,7 @@ public class WaveformVisualizer extends AudioVisualizer {
 
     // Audio-specific controls
     protected final FloatControl gainControl = new FloatControl("Gain", 0.0f, 2.0f, 1.0f);
-    
+
     // GUI fields
     protected float strokeWeight = 1.0f;
     protected Color waveformColor = Color.LIGHT_GRAY;
@@ -259,7 +259,7 @@ public class WaveformVisualizer extends AudioVisualizer {
     /**
      * Constructs a new {@code WaveformVisualizer} with the specified frame rate.
      * @param frameRate The frame rate of the audio visualizer
-     * @param resizeDelayMs The delay in milliseconds at which the render area is resized
+     * @param resizeDelay The delay in milliseconds at which the render area is resized
      */
     public WaveformVisualizer(float frameRate, int resizeDelay) {
         super(Type.REALTIME, frameRate, resizeDelay);
@@ -381,7 +381,7 @@ public class WaveformVisualizer extends AudioVisualizer {
             totalFrames += buf[0].length;
         }
 
-        // Create a result array 
+        // Create a result array
         int resultFrames = Math.min(totalFrames, requiredSamples);
         if (recentAudioWindow == null || lastRequiredSamples != resultFrames || recentAudioWindow.length != channels) {
             logger.trace("Creating recent audio window: {}x{}", channels, resultFrames);
@@ -416,7 +416,7 @@ public class WaveformVisualizer extends AudioVisualizer {
 
         return offset;
     }
-    
+
 
     @Override
     protected void onEnd() {

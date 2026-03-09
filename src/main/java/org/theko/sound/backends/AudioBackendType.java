@@ -24,13 +24,13 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Annotation to define metadata for audio backend types.
  * This annotation is intended to be used on classes that implement the {@code AudioBackend} interface.
- * 
+ *
  * <p>Attributes:
  * <ul>
  *   <li>{@code name} - Specifies the name of the audio backend type. This is a required attribute.</li>
  *   <li>{@code version} - Specifies the version of the audio backend type. Defaults to "1.0" if not provided.</li>
  * </ul>
- * 
+ *
  * <p>Usage:
  * <pre>
  * &#64;AudioBackendType(name = "ExampleBackend", version = "2.0")
@@ -38,16 +38,16 @@ import java.lang.annotation.RetentionPolicy;
  *     // Implementation details
  * }
  * </pre>
- * 
+ *
  * <p>Retention Policy:
  * This annotation is retained at runtime, allowing it to be accessed via reflection.
- * 
+ *
  * <p>Target:
  * This annotation can only be applied to types (classes, interfaces, etc.).
- * 
+ *
  * @see AudioBackend
  * @see AudioBackendInfo
- * 
+ *
  * @since 0.1.0-beta
  * @author Theko
  */

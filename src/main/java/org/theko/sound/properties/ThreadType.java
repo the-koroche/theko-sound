@@ -18,9 +18,9 @@ package org.theko.sound.properties;
 
 /**
  * An enum representing the type of a thread (virtual or platform).
- * 
+ *
  * @see AudioSystemProperties
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */

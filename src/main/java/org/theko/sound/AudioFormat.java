@@ -23,21 +23,21 @@ import org.theko.sound.util.FormatUtilities;
 
 /**
  * Represents an audio format with various properties such as sample rate, bit depth,
- * number of channels, encoding type, and endianness. This class provides utility 
+ * number of channels, encoding type, and endianness. This class provides utility
  * methods to analyze and manipulate audio format properties.
- * 
- * <p>AudioFormat instances are immutable and include computed properties such as 
+ *
+ * <p>AudioFormat instances are immutable and include computed properties such as
  * frame size (bytes per frame) and byte rate (bytes per second).
- * 
- * <p>Supported encodings are defined in the {@link Encoding} enum, which includes 
+ *
+ * <p>Supported encodings are defined in the {@link Encoding} enum, which includes
  * PCM (signed, unsigned, and float), ULAW, and ALAW formats.
- * 
+ *
  * <h2>Usage Example:</h2>
  * <pre>{@code
  * AudioFormat format = new AudioFormat(44100, 16, 2, AudioFormat.Encoding.PCM_SIGNED, true);
  * System.out.println(format);
  * }</pre>
- * 
+ *
  * <h2>Key Features:</h2>
  * <ul>
  *   <li>Validation of input parameters to ensure valid audio format configurations.</li>
@@ -45,45 +45,72 @@ import org.theko.sound.util.FormatUtilities;
  *   <li>Support for creating new AudioFormat instances with modified encoding or endianness.</li>
  *   <li>Equality and hash code implementations for comparing audio formats.</li>
  * </ul>
- * 
+ *
  * @see Encoding
- * 
+ *
  * @since 0.1.0-beta
  * @author Theko
  */
 public class AudioFormat implements Serializable {
 
     private static final int BITS_PER_SEC_PRECISION = 2; // Precision for formatting bits per second
-    
-    public static final AudioFormat LOWEST_QUALITY_FORMAT = 
-        new AudioFormat(8000, 8, 1, Encoding.PCM_UNSIGNED, false);
-    public static final AudioFormat LOW_QUALITY_FORMAT = 
-        new AudioFormat(22500, 8, 1, Encoding.PCM_UNSIGNED, false);
-    public static final AudioFormat NORMAL_QUALITY_FORMAT = 
-        new AudioFormat(44100, 16, 2, Encoding.PCM_SIGNED, false);
-    public static final AudioFormat HIGH_QUALITY_FORMAT = 
-        new AudioFormat(48000, 16, 2, Encoding.PCM_SIGNED, false);
-    public static final AudioFormat ULTRA_QUALITY_FORMAT = 
-        new AudioFormat(48000, 32, 2, Encoding.PCM_FLOAT, false);
+
+    /** 8 kHz, 8-bit, mono, unsigned PCM (very low quality, small size). */
+    public static final AudioFormat LOWEST_QUALITY_FORMAT =
+            new AudioFormat(8000, 8, 1, Encoding.PCM_UNSIGNED, false);
+
+    /** 22.05 kHz, 8-bit, mono, unsigned PCM (low quality, small size). */
+    public static final AudioFormat LOW_QUALITY_FORMAT =
+            new AudioFormat(22050, 8, 1, Encoding.PCM_UNSIGNED, false);
+
+    /** 44.1 kHz, 16-bit, stereo, signed PCM (CD-quality audio). */
+    public static final AudioFormat NORMAL_QUALITY_FORMAT =
+            new AudioFormat(44100, 16, 2, Encoding.PCM_SIGNED, false);
+
+    /** 48 kHz, 16-bit, stereo, signed PCM (studio-quality audio). */
+    public static final AudioFormat HIGH_QUALITY_FORMAT =
+            new AudioFormat(48000, 16, 2, Encoding.PCM_SIGNED, false);
+
+    /** 48 kHz, 32-bit, stereo, float PCM (high-fidelity, suitable for DSP processing). */
+    public static final AudioFormat ULTRA_QUALITY_FORMAT =
+            new AudioFormat(48000, 32, 2, Encoding.PCM_FLOAT, false);
 
     private final int sampleRate;
     private final int bitsPerSample;
     private final int channels;
     private final Encoding encoding;
     private final boolean bigEndian;
-    
+
     // Computed properties
     private final int frameSize; // bytes per frame
     private final int byteRate;  // bytes per second
 
     /**
      * Supported audio encodings.
+     * <p>This enum defines the basic encoding formats for audio samples.
+     *
+     * <ul>
+     *     <li>{@link #PCM_UNSIGNED} Pulse-code modulation, unsigned integer samples.</li>
+     *     <li>{@link #PCM_SIGNED} Pulse-code modulation, signed integer samples.</li>
+     *     <li>{@link #PCM_FLOAT} Pulse-code modulation, floating-point samples.</li>
+     *     <li>{@link #ULAW} 8-bit logarithmic μ-law encoding (commonly used in telephony).</li>
+     *     <li>{@link #ALAW} 8-bit logarithmic A-law encoding (commonly used in telephony).</li>
+     * </ul>
      */
     public enum Encoding {
+        /** PCM unsigned integer samples. */
         PCM_UNSIGNED,
+
+        /** PCM signed integer samples. */
         PCM_SIGNED,
+
+        /** PCM floating-point samples. */
         PCM_FLOAT,
+
+        /** 8-bit μ-law encoded samples. */
         ULAW,
+
+        /** 8-bit A-law encoded samples. */
         ALAW
     }
 
@@ -121,7 +148,7 @@ public class AudioFormat implements Serializable {
         if (channels <= 0) throw new IllegalArgumentException("Number of channels must be positive.");
         if (frameSize <= 0) throw new IllegalArgumentException("Frame size must be positive.");
         if (byteRate <= 0) throw new IllegalArgumentException("Byte rate must be positive.");
-        
+
         this.sampleRate = sampleRate;
         this.bitsPerSample = bitsPerSample;
         this.channels = channels;

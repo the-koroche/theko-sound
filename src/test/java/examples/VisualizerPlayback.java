@@ -46,7 +46,7 @@ public class VisualizerPlayback {
 
     private class OverlayPanel extends JPanel {
         Font font = new Font("Monospaced", Font.BOLD, 14);
-        
+
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
@@ -101,9 +101,9 @@ public class VisualizerPlayback {
 
             ResamplerEffect resampler = new ResamplerEffect(new CubicResampleMethod());
             player.setResamplerEffect(resampler);
-            
+
             AudioMixer mixer = player.getInnerMixer();
-            
+
             bitcrusher = new BitcrusherEffect();
             bitcrusher.getBitdepth().setValue(6);
             bitcrusher.getSampleRateReduction().setValue(4000f);
@@ -310,7 +310,7 @@ public class VisualizerPlayback {
 
     private void message(String msg) {
         message = msg;
-        messageTimestamp = System.currentTimeMillis();   
+        messageTimestamp = System.currentTimeMillis();
     }
 
     public static void main(String[] args) {

@@ -24,10 +24,10 @@ import org.theko.sound.controls.FloatControl;
 /**
  * BitcrusherEffect is an audio effect that reduces the bit depth and sample rate of audio samples,
  * creating a lo-fi, distorted sound characteristic of bitcrushing.
- * 
+ *
  * This effect can be applied to audio samples in real-time, allowing for creative sound design
  * and manipulation.
- * 
+ *
  * @author Theko
  * @since 0.2.0-beta
  */

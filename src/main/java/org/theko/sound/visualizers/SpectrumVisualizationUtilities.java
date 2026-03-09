@@ -21,7 +21,7 @@ import java.util.Arrays;
 /**
  * Utility class for spectrum visualization with interpolation methods,
  * and position mapping.
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */
@@ -29,14 +29,14 @@ public final class SpectrumVisualizationUtilities {
 
     /**
      * Calculates the positions for a given array, given a width and scale factor.
-     * The positions are calculated by taking the logarithm of the index plus one, 
+     * The positions are calculated by taking the logarithm of the index plus one,
      * normalizing it to the range [0, 1], and then scaling it to the range [0, width - 1].
      * The result is stored in the given outPositions array.
-     * 
+     *
      * @param outPositions the array to store the calculated positions
      * @param width the width of the range to scale to
      * @param scale the scale factor to apply to the normalized positions
-     * 
+     *
      * @throws IllegalArgumentException if the positions array is null or empty,
      *                               or if the width is less than or equal to 0,
      *                               or if the scale is less than or equal to 0
@@ -69,7 +69,7 @@ public final class SpectrumVisualizationUtilities {
      * @param inputSpectrum the input spectrum to map
      * @param positions the positions array to use for mapping
      * @param interpolatedSpectrumOut the output spectrum to map to
-     * 
+     *
      * @throws IllegalArgumentException if the input spectrum, positions array, or output spectrum is null or empty
      */
     public static void mapSpectrumNearest(float[] inputSpectrum, float[] positions, float[] interpolatedSpectrumOut) {
@@ -113,7 +113,7 @@ public final class SpectrumVisualizationUtilities {
      * @param inputSpectrum the input spectrum to map
      * @param positions the positions array to use for mapping
      * @param interpolatedSpectrumOut the output spectrum to map to
-     * 
+     *
      * @throws IllegalArgumentException if the input spectrum, positions array, or output spectrum is null or empty
      */
     public static void mapSpectrumLinear(float[] inputSpectrum, float[] positions, float[] interpolatedSpectrumOut) {
@@ -163,7 +163,7 @@ public final class SpectrumVisualizationUtilities {
      * @param inputSpectrum the input spectrum to map
      * @param positions the positions array to use for mapping
      * @param out the output spectrum to map to
-     * 
+     *
      * @throws IllegalArgumentException if the input spectrum, positions array, or output spectrum is null or empty
      */
     public static void mapSpectrumCubic(
@@ -237,17 +237,17 @@ public final class SpectrumVisualizationUtilities {
      * @param fixedWidthBarCount the number of fixed width bars to divide the window into
      * @param fixedWidthBarWidth the width of each fixed width bar as a fraction of the window width
      * @param interpolatedSpectrumOut the output spectrum to map to
-     * 
+     *
      * @throws IllegalArgumentException if the input spectrum, positions array, or output spectrum is null or empty,
      *                               or if the window width is less than or equal to 0,
      *                               or if the fixed width bar count is less than or equal to 0
      */
     public static void mapSpectrumFixedWidth(
-        float[] inputSpectrum, 
+        float[] inputSpectrum,
         float[] positions,
-        int windowWidth, 
-        int fixedWidthBarCount, 
-        float fixedWidthBarWidth, 
+        int windowWidth,
+        int fixedWidthBarCount,
+        float fixedWidthBarWidth,
         float[] interpolatedSpectrumOut
     ) {
         if (inputSpectrum == null || inputSpectrum.length == 0) {

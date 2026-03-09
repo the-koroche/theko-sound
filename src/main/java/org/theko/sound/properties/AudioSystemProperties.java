@@ -34,9 +34,9 @@ import org.theko.sound.util.PlatformUtilities.Platform;
 /**
  * AudioSystemProperties holds the configuration properties for the audio system.
  * It includes thread types, priorities, resampling methods, mixer settings, and other.
- * 
+ *
  * This class is immutable and provides static access to the properties.
- * 
+ *
  * @since 0.2.0-beta
  */
 public final class AudioSystemProperties {
@@ -103,7 +103,7 @@ public final class AudioSystemProperties {
         if (value == null) {
             return defaultValue;
         }
-        
+
         String lowerCaseValue = value.toLowerCase(Locale.US);
         switch (lowerCaseValue) {
             case "true", "yes", "on", "1", "enabled" -> { return true; }
@@ -180,7 +180,7 @@ public final class AudioSystemProperties {
         if (value == null || value.isBlank()) {
             return defaultValue;
         }
-        
+
         try {
             return AudioMeasure.of(value);
         } catch (NumberFormatException ex) {
@@ -257,7 +257,7 @@ public final class AudioSystemProperties {
 
     public static final AudioMeasure AOL_DEFAULT_BUFFER = getAudioMeasure(
         "org.theko.sound.outputLayer.defaultBuffer", AudioMeasure.ofFrames(2048));
-    
+
     public static final ResampleMethod AOL_RESAMPLER = getResampleMethod(
         "org.theko.sound.outputLayer.resampler", new LinearResampleMethod());
 

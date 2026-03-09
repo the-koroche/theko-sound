@@ -35,7 +35,7 @@ import org.theko.sound.codecs.formats.WAVECodec;
  *
  * @since 0.2.0-beta
  * @author Theko
- * 
+ *
  * @see AudioBackend
  * @see AudioCodec
  */

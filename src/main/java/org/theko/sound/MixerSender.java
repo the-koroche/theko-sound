@@ -37,22 +37,22 @@ import org.theko.sound.util.AudioBufferUtilities;
  * <pre>
  * AudioMixer sourceMixer = new AudioMixer();
  * AudioMixer targetMixer = new AudioMixer();
- * 
+ *
  * sourceMixer.addEffect(new AudioEffect()); // This effect's output will be included in MixerSender
  * sourceMixer.addEffect(new MixerSender(targetMixer)); // MixerSender forwards current chain samples to targetMixer
  * sourceMixer.addEffect(new AudioEffect()); // This effect's output will NOT be included in MixerSender
  * </pre>
- * 
+ *
  * @see AudioMixer
  * @see AudioEffect
- * 
+ *
  * @author Theko
  * @since 0.2.4-beta
  */
 public class MixerSender extends AudioEffect {
 
     private static final Logger logger = LoggerFactory.getLogger(MixerSender.class);
-    
+
     protected AudioMixer targetMixer;
     protected AudioNode senderInputNode = new SenderPlayback();
     protected volatile float[][] effectSamples;
@@ -76,7 +76,7 @@ public class MixerSender extends AudioEffect {
     }
 
     protected final List<AudioControl> mixerControls = List.of(gain, pan);
-    
+
     /**
      * Constructs a new {@code MixerSender} with the specified {@link AudioMixer}.
      * @param mixer The audio mixer to get audio samples from
@@ -94,7 +94,7 @@ public class MixerSender extends AudioEffect {
     public MixerSender() {
         this(null);
     }
-    
+
     @Override
     protected void effectRender(float[][] samples, int sampleRate) {
         if (effectSamples == null || effectSamples.length != samples.length || effectSamples[0].length != samples[0].length) {
@@ -126,7 +126,7 @@ public class MixerSender extends AudioEffect {
     /**
      * Returns the gain control for this mixer sender.
      * The gain control allows adjusting the volume of the audio samples sent to the target node.
-     * 
+     *
      * @return The FloatControl representing the gain control of the mixer sender
      */
     public FloatControl getGainControl() {
@@ -136,7 +136,7 @@ public class MixerSender extends AudioEffect {
     /**
      * Returns the pan control for this mixer sender.
      * The pan control allows adjusting the left-right balance of the audio samples sent to the target node.
-     * 
+     *
      * @return The FloatControl representing the pan control of the mixer sender
      */
     public FloatControl getPanControl() {
@@ -147,7 +147,7 @@ public class MixerSender extends AudioEffect {
     /**
      * Returns the audio samples that have been processed by the mixer sender
      * and are ready to be sent to the target node.
-     * 
+     *
      * @return The audio samples that have been processed by the mixer sender
      */
     public float[][] getEffectSamples() {
@@ -158,7 +158,7 @@ public class MixerSender extends AudioEffect {
      * Returns the audio node that is responsible for sending audio samples to the mixer.
      * This node is the source of the audio samples that are processed by the mixer sender,
      * and is added as an input to the mixer when the mixer sender is started.
-     * 
+     *
      * @return The audio node responsible for sending audio samples to the mixer
      */
     public AudioNode getSenderNode() {
@@ -167,7 +167,7 @@ public class MixerSender extends AudioEffect {
 
     /**
      * Returns the audio mixer that receives the audio samples from this mixer sender.
-     * 
+     *
      * @return The destination audio mixer where processed samples are sent
      */
     public AudioMixer getTargetMixer() {

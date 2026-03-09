@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * This class is responsible for managing the thread pool used to execute
  * the automation event loop. It is responsible for starting and shutting
  * down the thread pool.
- * 
+ *
  * @see Automation
  *
  * @since 0.2.4-beta
@@ -74,7 +74,7 @@ class AutomationsThreadPool {
      * Submits a task to the thread pool used to execute the automation event loop.
      * If the task is null, this method does nothing. If the pool is shutting down by the shutdown hook, the task is ignored.
      * If the pool is shutdown, it is restarted before submitting the task.
-     * 
+     *
      * @param task The task to submit to the thread pool
      */
     public static void submit(Runnable task) {
@@ -101,7 +101,7 @@ class AutomationsThreadPool {
      * This method is thread-safe and idempotent, meaning it can be called
      * multiple times without side effects. If the pool is already shutting down,
      * this method does nothing.
-     * 
+     *
      * <p>When shutting down the pool, the following steps are taken:
      * <ul>
      *   <li>The pool is marked as shutting down.</li>
@@ -109,7 +109,7 @@ class AutomationsThreadPool {
      *   <li>If the pool does not terminate within 500 milliseconds, the pool is
      *       forced to shut down using {@link ExecutorService#shutdownNow()}.</li>
      * </ul>
-     * 
+     *
      * @throws InterruptedException if the thread is interrupted while waiting for the pool to
      *             shut down. In this case, the thread is interrupted, and the pool is
      *             immediately shut down using {@link ExecutorService#shutdownNow()}.

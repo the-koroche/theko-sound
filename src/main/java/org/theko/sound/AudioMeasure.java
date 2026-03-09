@@ -26,7 +26,7 @@ import org.theko.sound.util.FormatUtilities;
  * Represents a measure of audio data, such as a number of frames, samples, bytes, or seconds.
  * It can be created using the static methods {@code ofFrames}, {@code ofSamples}, {@code ofBytes}, or {@code ofSeconds},
  * and can be converted to other units using the methods {@code getFrames}, {@code getSamples}, {@code getBytes}, or {@code getSeconds}.
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */
@@ -66,7 +66,7 @@ public class AudioMeasure {
 
     /**
      * Sets the audio format for this audio measure.
-     * 
+     *
      * @param format The audio format
      * @return This audio measure
      */
@@ -78,7 +78,7 @@ public class AudioMeasure {
 
     /**
      * Creates an audio measure for the specified number of frames.
-     * 
+     *
      * @param frames The number of frames
      * @return An audio measure for the specified number of frames
      */
@@ -88,7 +88,7 @@ public class AudioMeasure {
 
     /**
      * Creates an audio measure for the specified number of samples.
-     * 
+     *
      * @param samples The number of samples
      * @return An audio measure for the specified number of samples
      */
@@ -98,7 +98,7 @@ public class AudioMeasure {
 
     /**
      * Creates an audio measure for the specified number of bytes.
-     * 
+     *
      * @param bytes The number of bytes
      * @return An audio measure for the specified number of bytes
      */
@@ -108,7 +108,7 @@ public class AudioMeasure {
 
     /**
      * Creates an audio measure for the specified number of seconds.
-     * 
+     *
      * @param seconds The number of seconds
      * @return An audio measure for the specified number of seconds
      */
@@ -205,7 +205,7 @@ public class AudioMeasure {
 
     /**
      * Returns the value of this audio measure in frames.
-     * 
+     *
      * @return The value of this audio measure in frames
      */
     public long getFrames() {
@@ -221,7 +221,7 @@ public class AudioMeasure {
 
     /**
      * Returns the value of this audio measure in samples.
-     * 
+     *
      * @return The value of this audio measure in samples
      */
     public long getSamples() {
@@ -237,7 +237,7 @@ public class AudioMeasure {
 
     /**
      * Returns the value of this audio measure in bytes.
-     * 
+     *
      * @return The value of this audio measure in bytes
      */
     public long getBytes() {
@@ -253,7 +253,7 @@ public class AudioMeasure {
 
     /**
      * Returns the value of this audio measure in seconds.
-     * 
+     *
      * @return The value of this audio measure in seconds
      */
     public double getSeconds() {

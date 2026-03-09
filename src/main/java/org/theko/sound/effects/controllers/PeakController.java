@@ -28,7 +28,7 @@ import org.theko.sound.util.MathUtilities;
  * This controller provides two controls: peak amount and peak decay speed.
  * The peak amount control determines the amount by which the peak value is scaled.
  * The peak decay speed control determines the speed at which the peak value decays over time.
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */
@@ -60,7 +60,7 @@ public class PeakController extends EffectController {
      * Returns the peak amount control.
      * This control allows adjusting the overall gain.
      * A value of 1.0 will pass the peak amount through unchanged, while a value of -2.0 will invert the peak amount.
-     * 
+     *
      * @return The FloatControl representing the peak amount control
      */
     public FloatControl getPeakAmountControl() {
@@ -71,7 +71,7 @@ public class PeakController extends EffectController {
      * Returns the peak decay speed control.
      * This control allows adjusting the speed at which the peak value decays.
      * A value of 0.0 will cause the peak value to never decay, while a value of 1.0 will cause the peak value to decay immediately.
-     * 
+     *
      * @return The FloatControl representing the peak decay speed control
      */
     public FloatControl getPeakDecayControl() {
@@ -82,7 +82,7 @@ public class PeakController extends EffectController {
      * Returns the current peak value with decay applied.
      * The peak value is the maximum volume of the audio signal in the range [0, 1],
      * where 0 represents silence and 1 represents maximum volume.
-     * 
+     *
      * @return The current peak value of the peak controller
      */
     public float getPeakValue() {

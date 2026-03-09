@@ -31,7 +31,7 @@ import org.theko.sound.backends.BackendNotOpenException;
 /**
  * {@code WASAPISharedOutput} is an implementation of the {@link AudioOutputBackend} interface
  * that provides audio output backend functionality using the Windows Audio Session API (WASAPI) in shared mode.
- * 
+ *
  * @see WASAPISharedBackend
  *
  * @author Theko
@@ -92,7 +92,7 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
 
     /**
      * Checks if the audio output backend is started.
-     * 
+     *
      * @return True if the backend is started and opened, false otherwise
      * @throws AudioBackendException If an error occurs during the operation
      */
@@ -217,7 +217,7 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
             return port;
         }
     }
-    
+
     private synchronized native long nOpen(AudioPort port, AudioFormat audioFormat, int bufferSize, AtomicReference<AudioFormat> audioFormatRef);
     private synchronized native void nClose(long outputContextPtr);
     private synchronized native void nStart(long outputContextPtr);

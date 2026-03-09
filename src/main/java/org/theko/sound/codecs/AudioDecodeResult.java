@@ -24,9 +24,9 @@ import org.theko.sound.AudioFormat;
 /**
  * Represents the result of decoding an audio file, including the decoded audio data,
  * its format, associated tags, and codec information.
- * 
+ *
  * @see AudioCodec
- * 
+ *
  * @since 0.1.3-beta
  * @author Theko
  */

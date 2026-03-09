@@ -20,12 +20,12 @@ package org.theko.sound.codecs;
  * Represents an exception that occurs during audio codec operations.
  * This exception can be used to indicate various issues related to
  * encoding, decoding, or processing audio data.
- * 
+ *
  * @since 0.1.3-beta
  * @author Theko
  */
 public class AudioCodecException extends Exception {
-    
+
     public AudioCodecException() {
         super();
     }

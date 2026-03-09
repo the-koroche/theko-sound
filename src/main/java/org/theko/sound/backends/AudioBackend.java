@@ -30,13 +30,13 @@ import org.theko.sound.UnsupportedAudioFormatException;
  * The {@code AudioBackend} interface represents a generic audio backend that can handle
  * audio input and output operations. It provides methods for initializing the backend,
  * retrieving available audio ports, and checking port compatibility with specific audio formats.
- * 
- * <p>This interface is intended to be implemented by classes that interact with 
+ *
+ * <p>This interface is intended to be implemented by classes that interact with
  * software audio backends, providing a standardized way to manage audio input and output.
- * 
+ *
  * <p>Implementations of this interface should define the behavior for interacting with
  * audio input and output backends, as well as managing audio ports.
- * 
+ *
  * @see AudioPort
  * @see AudioFlow
  * @see AudioFormat
@@ -45,7 +45,7 @@ import org.theko.sound.UnsupportedAudioFormatException;
  * @see AudioBackendException
  * @see AudioPortsNotFoundException
  * @see UnsupportedAudioFormatException
- * 
+ *
  * @since 0.1.0-beta
  * @author Theko
  */
@@ -140,7 +140,7 @@ public interface AudioBackend {
      */
     Optional<AudioPort> getDefaultPort(AudioFlow flow)
         throws AudioPortsNotFoundException;
-        
+
     /**
      * Retrieves the audio port that supports the specified audio flow and audio format.
      *
@@ -150,9 +150,9 @@ public interface AudioBackend {
      * @throws AudioPortsNotFoundException if no matching ports are available
      * @throws UnsupportedAudioFormatException if the format is not supported by the backend or ports
      */
-    Optional<AudioPort> getPort(AudioFlow flow, AudioFormat audioFormat) 
+    Optional<AudioPort> getPort(AudioFlow flow, AudioFormat audioFormat)
         throws AudioPortsNotFoundException, UnsupportedAudioFormatException;
-    
+
     /**
      * Returns the input backend associated with this audio backend, allowing
      * for access to input-specific controls or metadata.

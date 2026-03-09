@@ -27,8 +27,8 @@ import java.util.Objects;
  * For example, on Windows libraries typically end with {@code .dll},
  * while on macOS they end with {@code .dylib}, and on Unix-like systems
  * with {@code .so}.
- * 
- * 
+ *
+ *
  * @since 0.2.3-beta
  * @author Theko
  */
@@ -62,7 +62,7 @@ public final class PlatformUtilities {
         Architecture(int bits) { this.bits = bits; }
         public int getBits() { return bits; }
     }
-    
+
     private PlatformUtilities() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
@@ -118,7 +118,7 @@ public final class PlatformUtilities {
 
     /**
      * Retrieves the detected platform.
-     * 
+     *
      * @return The detected platform
      */
     public static Platform getPlatform() {
@@ -127,7 +127,7 @@ public final class PlatformUtilities {
 
     /**
      * Retrieves the detected architecture.
-     * 
+     *
      * @return The detected architecture
      */
     public static Architecture getArchitecture() {
@@ -136,7 +136,7 @@ public final class PlatformUtilities {
 
     /**
      * Retrieves the default library extension for the current platform ("dll", "dylib", "so", etc.).
-     * 
+     *
      * @return The default library extension
      */
     public static String getDefaultLibraryExtension() {
@@ -152,7 +152,7 @@ public final class PlatformUtilities {
 
     /**
      * Retrieves the default library prefix for the current platform ("", "lib", etc.).
-     * 
+     *
      * @return The default library prefix
      */
     public static String getDefaultLibraryPrefix() {
@@ -180,7 +180,7 @@ public final class PlatformUtilities {
      * - name + "." + incorrect suffix → prefix + name (w/o incorrect suffix) + suffix
      * - otherwise → name
      * </pre>
-     * 
+     *
      * @param name The library name to format
      * @return The formatted library name
      */

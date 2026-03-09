@@ -22,7 +22,7 @@ package org.theko.sound.dsp;
  * <p>
  * This implementation uses the Cooley-Tukey radix-2 decimation-in-time algorithm and operates in-place
  * on the provided arrays. The input arrays must have a length that is a power of two.
- * 
+ *
  * <p>
  * Usage example:
  * <pre>
@@ -31,9 +31,9 @@ package org.theko.sound.dsp;
  * FFT.fft(real, imag); // Computes the FFT
  * FFT.ifft(real, imag); // Computes the inverse FFT
  * </pre>
- * 
+ *
  * This class cannot be instantiated.
- * 
+ *
  * @since 0.1.3-beta
  * @author Theko
  */
@@ -101,18 +101,18 @@ public class FFT {
     }
 
     /**
-     * Computes the inverse Fast Fourier Transform (IFFT) of the given real and 
-     * imaginary components of a complex sequence. This method modifies the input 
+     * Computes the inverse Fast Fourier Transform (IFFT) of the given real and
+     * imaginary components of a complex sequence. This method modifies the input
      * arrays in place to perform the transformation.
      *
      * <p>The method first negates the imaginary parts, calls the FFT method,
-     * and then scales down the real and imaginary components by dividing them 
-     * by the length of the input arrays. Finally, it negates the imaginary 
+     * and then scales down the real and imaginary components by dividing them
+     * by the length of the input arrays. Finally, it negates the imaginary
      * parts again to complete the inverse transformation.
      *
-     * @param real the array containing the real parts of the complex input and 
+     * @param real the array containing the real parts of the complex input and
      *             output.
-     * @param imag the array containing the imaginary parts of the complex input 
+     * @param imag the array containing the imaginary parts of the complex input
      *             and output.
      */
     public static void ifft(float[] real, float[] imag) {

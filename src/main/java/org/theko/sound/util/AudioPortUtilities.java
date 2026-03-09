@@ -28,7 +28,7 @@ import org.theko.sound.backends.wasapi.WASAPISharedBackend;
 
 /**
  * Utility class to map audio port link types to audio backends.
- * 
+ *
  * @since 0.2.3-beta
  * @author Theko
  */
@@ -41,14 +41,14 @@ public final class AudioPortUtilities {
         backends.put(WASAPIPortHandle.class, WASAPISharedBackend.class);
         backends.put(DummyPortLink.class, DummyAudioBackend.class);
     }
-    
+
     private AudioPortUtilities() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
     /**
      * Returns the audio backend class associated with the specified audio port link type.
-     * 
+     *
      * @param link The audio port link type
      * @return The audio backend class, or null if not found
      */

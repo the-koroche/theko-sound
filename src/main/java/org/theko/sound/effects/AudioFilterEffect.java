@@ -18,12 +18,12 @@ package org.theko.sound.effects;
 
 import java.util.List;
 
-import org.theko.sound.dsp.ChannelSplittedFilter;
-import org.theko.sound.dsp.FilterType;
 import org.theko.sound.controls.AudioControl;
 import org.theko.sound.controls.BooleanControl;
 import org.theko.sound.controls.FloatControl;
 import org.theko.sound.dsp.CascadeFilter;
+import org.theko.sound.dsp.ChannelSplittedFilter;
+import org.theko.sound.dsp.FilterType;
 
 /**
  * A basic audio filter effect that applies low-pass, high-pass, or band-pass filtering to an audio signal.
@@ -44,7 +44,7 @@ public class AudioFilterEffect extends AudioEffect {
 
     private static final int SINGLE_PASS_ORDERS = 4;
     private static final int DOUBLE_PASS_ORDERS = 8;
-    
+
     protected final FloatControl cutoff = new FloatControl("Cutoff", 10, 22000, 1000);
     protected final FloatControl bandwidth = new FloatControl("Bandwidth", 0.1f, 3.0f, 1.92f);
     protected final FloatControl gain = new FloatControl("Gain", 0.0f, 2.0f, 1.0f);
@@ -54,7 +54,7 @@ public class AudioFilterEffect extends AudioEffect {
     protected final FloatControl bandPass = new FloatControl("Band Pass", 0.0f, 1.0f, 0.0f);
 
     protected final BooleanControl doublePass = new BooleanControl("Double Pass", false);
-    
+
     protected final List<AudioControl> filterControls = List.of(
         cutoff, bandwidth, gain,
         lowPass, highPass, bandPass,
@@ -71,18 +71,21 @@ public class AudioFilterEffect extends AudioEffect {
     private boolean lastDoublePass = false;
     private int lastSampleRate = -1;
     private int lastChannels = -1;
-    
+
+    /**
+     * Creates a new instance of the {@link AudioFilterEffect} class.
+     */
     public AudioFilterEffect() {
         super(Type.REALTIME);
         addEffectControls(filterControls);
-        
-        createNewFilters(2 /* channels */);
-    }    
+
+        createNewFilters(2 /* default channels */);
+    }
 
     /**
      * Returns the cutoff control of the audio filter effect.
      * This control allows adjusting the cutoff frequency of the filter in Hz.
-     * 
+     *
      * @return The FloatControl representing the cutoff control of the audio filter effect
      */
     public FloatControl getCutoffControl() {
@@ -92,7 +95,7 @@ public class AudioFilterEffect extends AudioEffect {
     /**
      * Returns the bandwidth control of the audio filter effect.
      * This control allows adjusting the bandwidth of the filter in octaves.
-     * 
+     *
      * @return The FloatControl representing the bandwidth control of the audio filter effect
      */
     public FloatControl getBandwidthControl() {
@@ -102,7 +105,7 @@ public class AudioFilterEffect extends AudioEffect {
     /**
      * Returns the gain control of the audio filter effect.
      * This control allows adjusting the overall gain of the filter, with a value of 1.0 being unity gain.
-     * 
+     *
      * @return The FloatControl representing the gain control of the audio filter effect
      */
     public FloatControl getGainControl() {
@@ -113,7 +116,7 @@ public class AudioFilterEffect extends AudioEffect {
      * Returns the low-pass control of the audio filter effect.
      * This control allows adjusting the proportion of low frequencies passed through the filter.
      * A value of 1.0 will pass all low frequencies, while a value of 0.0 will pass none.
-     * 
+     *
      * @return The FloatControl representing the low-pass control of the audio filter effect
      */
     public FloatControl getLowPassControl() {
@@ -124,7 +127,7 @@ public class AudioFilterEffect extends AudioEffect {
      * Returns the high-pass control of the audio filter effect.
      * This control allows adjusting the proportion of high frequencies passed through the filter.
      * A value of 1.0 will pass all high frequencies, while a value of 0.0 will pass none.
-     * 
+     *
      * @return The FloatControl representing the high-pass control of the audio filter effect
      */
     public FloatControl getHighPassControl() {
@@ -135,7 +138,7 @@ public class AudioFilterEffect extends AudioEffect {
      * Returns the band-pass control of the audio filter effect.
      * This control allows adjusting the proportion of midrange frequencies passed through the filter.
      * A value of 1.0 will pass all midrange frequencies, while a value of 0.0 will pass none.
-     * 
+     *
      * @return The FloatControl representing the band-pass control of the audio filter effect
      */
     public FloatControl getBandPassControl() {
@@ -146,7 +149,7 @@ public class AudioFilterEffect extends AudioEffect {
      * Returns the double-pass control of the audio filter effect.
      * This control allows enabling or disabling double-pass filtering, which can
      * provide a more intense filtering effect.
-     * 
+     *
      * @return The BooleanControl representing the double-pass control of the audio filter effect
      */
     public BooleanControl getDoublePassControl() {
@@ -158,7 +161,7 @@ public class AudioFilterEffect extends AudioEffect {
         float cutoffVal = cutoff.getValue();
         float bandwidthVal = bandwidth.getValue();
         float gainVal = gain.getValue();
-        
+
         if (lastChannels != samples.length ||
             lastDoublePass != doublePass.getValue()) {
             createNewFilters(samples.length);
@@ -184,7 +187,7 @@ public class AudioFilterEffect extends AudioEffect {
 
     /**
      * Creates new filters for the effect, based on the given number of channels and whether double pass is enabled.
-     * 
+     *
      * @param channels the number of channels to create filters for
      */
     protected void createNewFilters(int channels) {
@@ -197,7 +200,7 @@ public class AudioFilterEffect extends AudioEffect {
     /**
      * Updates the filters used by the effect with the given cutoff frequency, bandwidth, and gain.
      * The update is only performed if the sample rate has changed, to avoid unnecessary computation.
-     * 
+     *
      * @param cutoff the cutoff frequency
      * @param bandwidth the bandwidth
      * @param gain the gain
@@ -224,9 +227,9 @@ public class AudioFilterEffect extends AudioEffect {
 
     private boolean isDirty(int sampleRate) {
         return lastCutoff != cutoff.getValue() ||
-                lastBandwidth != bandwidth.getValue() || 
-                lastGain != gain.getValue() || 
-                lastSampleRate != sampleRate || 
+                lastBandwidth != bandwidth.getValue() ||
+                lastGain != gain.getValue() ||
+                lastSampleRate != sampleRate ||
                 lastDoublePass != doublePass.getValue();
     }
 }

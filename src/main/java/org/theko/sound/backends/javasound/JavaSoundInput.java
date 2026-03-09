@@ -61,7 +61,7 @@ import org.theko.sound.backends.BackendNotOpenException;
  * @see TargetDataLine
  * @see AudioPort
  * @see AudioFormat
- * 
+ *
  * @since 0.1.2-beta
  * @author Theko
  */

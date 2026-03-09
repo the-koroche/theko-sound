@@ -20,14 +20,14 @@ package org.theko.sound;
  * This exception is thrown when there is a mismatch in the number of channels
  * expected and the number of channels provided in an audio processing operation.
  * It extends the Exception class to provide specific context for channel count mismatches.
- * 
+ *
  * @see LengthMismatchException
- * 
+ *
  * @since 0.2.0-beta
  * @author Theko
  */
 public class ChannelsCountMismatchException extends Exception {
-    
+
     public ChannelsCountMismatchException() {
         super();
     }

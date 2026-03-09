@@ -48,7 +48,7 @@ public abstract class AudioCodec {
 
     /**
      * Calls the decode method.
-     * 
+     *
      * @param is the input stream containing the audio data to decode
      * @return the decoded audio data, format, and metadata
      * @throws AudioCodecException if the input stream is not a valid audio file for this codec

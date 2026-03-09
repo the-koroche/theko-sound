@@ -21,14 +21,14 @@ import org.theko.sound.util.AudioBufferUtilities;
 /**
  * Utility class for validating audio samples.
  * Samples validation checks if the provided 2D float array represents valid audio samples.
- * 
+ *
  * @see AudioBufferUtilities
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */
 public final class SamplesValidation {
-    
+
     /**
      * Enumeration of possible validation results for audio samples.
      */
@@ -46,7 +46,7 @@ public final class SamplesValidation {
     /**
      * Checks if two 2D float arrays (matrices) represent valid audio samples.
      * This method checks if both arrays have the same number of channels, and if each channel has the same number of samples.
-     * 
+     *
      * @param a The first 2D float array to check
      * @param b The second 2D float array to check
      * @return An enumeration value indicating the result of the validation check
@@ -55,7 +55,7 @@ public final class SamplesValidation {
     public static DimensionsResult checkSamplesDimensions(float[][] a, float[][] b) {
         if (a == null || b == null) return DimensionsResult.INVALID_SAMPLES;
         if (a.length != b.length) return DimensionsResult.NOT_MATCH_CHANNELS;
-        
+
         for (int i = 0; i < a.length; i++) {
             if (a[i] == null || b[i] == null) {
                 return DimensionsResult.INVALID_CHANNELS;
@@ -63,14 +63,14 @@ public final class SamplesValidation {
                 return DimensionsResult.NOT_MATCH_SAMPLES;
             }
         }
-        
+
         return DimensionsResult.EXACT;
     }
 
     /**
      * Checks if two 1D float arrays (vectors) represent valid audio samples.
      * This method checks if both arrays have the same number of samples.
-     * 
+     *
      * @param a The first 1D float array to check
      * @param b The second 1D float array to check
      * @return An enumeration value indicating the result of the validation check

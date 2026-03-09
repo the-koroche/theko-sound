@@ -25,10 +25,10 @@ import org.theko.sound.util.AudioBufferUtilities;
 /**
  * Represents an audio effect that allows for real-time audio positioning
  * through gain and pan controls.
- * 
+ *
  * This effect can be applied to audio samples to adjust their perceived
  * position in the stereo field.
- * 
+ *
  * @author Theko
  * @since 0.2.1-beta
  */

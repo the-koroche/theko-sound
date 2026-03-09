@@ -18,9 +18,9 @@ package org.theko.sound.generators;
 
 /**
  * Represents a noise generator, which generates random audio samples.
- * 
+ *
  * @see AudioGenerator
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */

@@ -22,17 +22,17 @@ import org.theko.sound.controls.AudioControl;
 /**
  * Event for {@link AudioControl} events.
  * It contains the audio control that triggered the event.
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */
 public class AudioControlEvent extends Event {
-    
+
     private final AudioControl audioControl;
 
     /**
      * Constructs an {@link AudioControlEvent} with the given audio control.
-     * 
+     *
      * @param audioControl the audio control
      */
     public AudioControlEvent(AudioControl audioControl) {

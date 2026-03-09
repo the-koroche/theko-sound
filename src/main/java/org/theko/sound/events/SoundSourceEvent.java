@@ -22,17 +22,17 @@ import org.theko.sound.SoundSource;
 /**
  * Event for {@link SoundSource} events.
  * It contains the sound source that triggered the event.
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */
 public class SoundSourceEvent extends Event {
-    
+
     private final SoundSource soundSource;
-    
+
     /**
      * Constructs a new SoundSourceEvent with the given sound source.
-     * 
+     *
      * @param soundSource The sound source that triggered the event
      */
     public SoundSourceEvent(SoundSource soundSource) {
@@ -41,7 +41,7 @@ public class SoundSourceEvent extends Event {
 
     /**
      * Returns the sound source that triggered the event.
-     * 
+     *
      * @return The sound source
      */
     public SoundSource getSoundSource() {

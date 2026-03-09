@@ -26,7 +26,7 @@ import org.theko.sound.resamplers.ResampleMethod;
  * ResamplerEffect is an audio effect that allows for real-time resampling of audio samples.
  * It uses a specified resampling method to adjust the speed of the audio playback.
  * The length of the output audio may differ from the input depending on the resampling factor.
- * 
+ *
  * @since 0.2.0-beta
  * @author Theko
  */
@@ -54,7 +54,7 @@ public class ResamplerEffect extends AudioEffect implements VaryingSizeEffect {
         if (speedControl.getValue() == 1.0f) {
             return;
         }
-        
+
         float[][] resampled = resampler.resample(samples, speedControl.getValue());
 
         int channels = Math.min(samples.length, resampled.length);

@@ -20,7 +20,7 @@ package org.theko.sound.resamplers;
  * Interface representing a resampling algorithm for audio data.
  * Implementations of this interface define how to resample an input array
  * of audio samples to a specified target length.
- * 
+ *
  * @since 0.1.4-beta
  * @author Theko
  */

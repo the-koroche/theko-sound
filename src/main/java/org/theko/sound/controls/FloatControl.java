@@ -24,19 +24,19 @@ import org.theko.sound.util.MathUtilities;
  * The {@code FloatControl} class represents a control for managing a floating-point value
  * within a specified range. It extends the {@code AudioControl} class and provides methods
  * to set, retrieve, and normalize the value.
- * 
+ *
  * <p>This class is useful for controlling parameters such as volume, pitch, or other
  * audio-related properties that require a floating-point range.
- * 
+ *
  * <p>Example usage:
  * <pre>
  * FloatControl volumeControl = new FloatControl("Volume", 0.0f, 1.0f, 0.5f);
  * volumeControl.setValue(0.8f);
  * float normalizedValue = volumeControl.getNormalized();
  * </pre>
- * 
+ *
  * @see AudioControl
- * 
+ *
  * @since 0.1.2-beta
  * @author Theko
  */
@@ -45,7 +45,7 @@ public class FloatControl extends AudioControl {
     protected float value;
     protected final float min, max;
 
-    
+
     public FloatControl(String name, float min, float max, float value) {
         super(name);
         this.min = min;
@@ -56,7 +56,7 @@ public class FloatControl extends AudioControl {
     /**
      * Sets the value of this control to the given value, ensuring that the
      * new value is within the range of {@code min} and {@code max}.
-     * 
+     *
      * @param value The new value for this control
      */
     public void setValue(float value) {
@@ -70,17 +70,17 @@ public class FloatControl extends AudioControl {
      * If the value is outside of this range, it will be clamped to fit within the range.
      * <p>
      * The resulting value will be remapped to the range of {@code min} to {@code max}.
-     * 
+     *
      * @param value The normalized value to set this control to
      */
     public void setNormalized(float value) {
         this.value = MathUtilities.remapClamped(value, 0f, 1f, min, max);
         eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGED, new AudioControlEvent(this));
     }
-    
+
     /**
      * Retrieves the current value of this control.
-     * 
+     *
      * @return The current value of this control
      */
     public float getValue() {
@@ -89,7 +89,7 @@ public class FloatControl extends AudioControl {
 
     /**
      * Retrieves the minimum bound of the range for this control.
-     * 
+     *
      * @return The minimum value that this control can have
      */
     public float getMin() {
@@ -99,7 +99,7 @@ public class FloatControl extends AudioControl {
 
     /**
      * Retrieves the maximum bound of the range for this control.
-     * 
+     *
      * @return The maximum value that this control can have
      */
     public float getMax() {
@@ -109,7 +109,7 @@ public class FloatControl extends AudioControl {
     /**
      * Retrieves the normalized value of this control within the range [0, 1],
      * where 0 represents the minimum value and 1 represents the maximum value.
-     * 
+     *
      * @return The normalized value of this control
      */
     public float getNormalized() {
@@ -119,7 +119,7 @@ public class FloatControl extends AudioControl {
     /**
      * Returns a string representation of the FloatControl object, displaying the name of the control,
      * its current value, and its minimum and maximum bounds.
-     * 
+     *
      * @return A string that represents the float control
      */
     @Override

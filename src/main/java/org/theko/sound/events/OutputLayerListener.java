@@ -21,7 +21,7 @@ import org.theko.sound.AudioOutputLayer;
 
 /**
  * Listener for {@link AudioOutputLayer} events.
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */

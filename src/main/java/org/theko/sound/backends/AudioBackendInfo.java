@@ -18,9 +18,9 @@ package org.theko.sound.backends;
 
 /**
  * Represents information about an audio backend, including its name, description, supported input/output capabilities,
- * and the class type of the audio backend. This class extracts metadata from 
+ * and the class type of the audio backend. This class extracts metadata from
  * the provided audio backend class, which must be annotated with {@link AudioBackendType}.
- * 
+ *
  * <p>Usage:
  * <pre>
  * {@code
@@ -30,7 +30,7 @@ package org.theko.sound.backends;
  * System.out.println(info); // Prints: AudioBackendInfo{name, description, input/output capabilities}
  * }
  * </pre>
- * 
+ *
  * @since 0.1.0-beta
  * @author Theko
  */

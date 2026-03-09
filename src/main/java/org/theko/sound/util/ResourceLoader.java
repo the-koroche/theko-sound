@@ -30,15 +30,15 @@ import org.theko.sound.AudioClassRegister;
  * <p>
  * This class provides methods to load resources as streams or files.
  * It ensures that the resource name is valid and exists in the classpath.
- * 
- * 
+ *
+ *
  * @see AudioClassRegister
  *
  * @since 0.2.0-beta
  * @author Theko
  */
 public final class ResourceLoader {
-    
+
     private ResourceLoader() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }

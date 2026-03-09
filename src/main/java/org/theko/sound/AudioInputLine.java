@@ -13,8 +13,8 @@ import org.theko.sound.util.AudioBufferUtilities;
 /**
  * Represents an audio input line in the audio system.
  * It provides methods for opening, closing, and rendering audio data.
- * 
- * @since v2.3.1
+ *
+ * @since 0.2.3-beta
  * @author Theko
  */
 public class AudioInputLine implements AudioNode {
@@ -25,19 +25,28 @@ public class AudioInputLine implements AudioNode {
     private AudioFormat audioFormat;
     private int bufferSize;
 
+    /**
+     * Creates an audio input line with the specified audio input backend.
+     * @param aib The audio input backend to be used by the line
+     */
     public AudioInputLine(AudioInputBackend aib) {
         if (aib == null) throw new IllegalArgumentException("Audio input backend cannot be null.");
         this.aib = aib;
         logger.debug("Created audio input line with backend: {}", aib.getClass().getSimpleName());
     }
 
-    public AudioInputLine () throws AudioBackendCreationException, AudioBackendNotFoundException {
+    /**
+     * Creates an audio input line with the default audio input backend.
+     * @throws AudioBackendCreationException If the default audio input backend cannot be instantiated
+     * @throws AudioBackendNotFoundException If the default audio input backend is not found
+     */
+    public AudioInputLine() throws AudioBackendCreationException, AudioBackendNotFoundException {
         this(AudioBackends.getInputBackend(AudioBackends.getPlatformBackend()));
     }
 
     /**
      * Opens the audio input line with the specified port, format, and buffer size.
-     * 
+     *
      * @param port The {@link AudioPort} to be used
      * @param audioFormat The {@link AudioFormat} for audio data
      * @param bufferSize The buffer size as an {@link AudioMeasure}
@@ -59,14 +68,14 @@ public class AudioInputLine implements AudioNode {
         }
     }
 
-    /** 
+    /**
      * Opens the audio input line with the specified port and format.
-     * 
+     *
      * @param port The {@link AudioPort} to be used
      * @param audioFormat The {@link AudioFormat} for audio data
      * @throws AudioBackendException If an error occurs while opening the backend
      */
-    public void open (AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
+    public void open(AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
         this.open(port, audioFormat, AudioMeasure.ofFrames(2048));
     }
 
@@ -77,7 +86,7 @@ public class AudioInputLine implements AudioNode {
      * @throws AudioPortsNotFoundException If no compatible audio ports are available
      * @throws UnsupportedAudioFormatException If the specified audio format is not supported
      */
-    public void open (AudioFormat audioFormat) throws AudioBackendException, AudioPortsNotFoundException, UnsupportedAudioFormatException {
+    public void open(AudioFormat audioFormat) throws AudioBackendException, AudioPortsNotFoundException, UnsupportedAudioFormatException {
         this.open(null, audioFormat);
     }
 
@@ -85,7 +94,7 @@ public class AudioInputLine implements AudioNode {
      * Checks if the audio input line is open.
      * @return True if the audio input line is open, false otherwise
      */
-    public boolean isOpen () {
+    public boolean isOpen() {
         return aib.isOpen();
     }
 
@@ -93,7 +102,7 @@ public class AudioInputLine implements AudioNode {
      * Starts the audio input line.
      * @throws AudioBackendException If an error occurs while starting the backend
      */
-    public void start () throws AudioBackendException {
+    public void start() throws AudioBackendException {
         aib.start();
     }
 
@@ -101,7 +110,7 @@ public class AudioInputLine implements AudioNode {
      * Stops the audio input line.
      * @throws AudioBackendException If an error occurs while stopping the backend
      */
-    public void stop () throws AudioBackendException {
+    public void stop() throws AudioBackendException {
         aib.stop();
     }
 
@@ -109,7 +118,7 @@ public class AudioInputLine implements AudioNode {
      * Flushes the audio input buffer, discarding any buffered data.
      * @throws AudioBackendException If an error occurs while flushing the buffer
      */
-    public void flush () throws AudioBackendException {
+    public void flush() throws AudioBackendException {
         aib.flush();
     }
 
@@ -117,19 +126,19 @@ public class AudioInputLine implements AudioNode {
      * Drains the audio input buffer, ensuring all buffered data is processed.
      * @throws AudioBackendException If an error occurs while draining the buffer
      */
-    public void drain () throws AudioBackendException {
+    public void drain() throws AudioBackendException {
         aib.drain();
     }
 
     /**
      * Renders the specified audio data into the audio input line.
-     * 
+     *
      * @param samples The audio data to be rendered
      * @param sampleRate The sample rate of the audio data
      * @throws AudioBackendException If an error occurs while rendering the audio data
      */
     @Override
-    public void render (float[][] samples, int sampleRate) throws AudioBackendException {
+    public void render(float[][] samples, int sampleRate) throws AudioBackendException {
         int length = samples[0].length;
         int buffLength = length * audioFormat.getFrameSize();
         byte[] buffer = new byte[buffLength];
@@ -147,7 +156,7 @@ public class AudioInputLine implements AudioNode {
      * Closes the audio input line.
      * @throws AudioBackendException If an error occurs while closing the backend
      */
-    public void close () throws AudioBackendException {
+    public void close() throws AudioBackendException {
         aib.close();
     }
 

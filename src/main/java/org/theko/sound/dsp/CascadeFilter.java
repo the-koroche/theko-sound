@@ -26,19 +26,19 @@ import org.theko.sound.controls.FloatControl;
  * Cascade is a digital audio filter that processes mono channel audio samples using a configurable
  * cascade of biquad filter stages. The filter supports adjustable cutoff frequency, bandwidth, and gain,
  * and can be created with different filter types (e.g., low-pass, high-pass) via the FilterType argument.
- * 
+ *
  * <p>
  * The filter order must be an even number between 2 and 8, corresponding to the number of biquad stages used.
  * Each stage processes the output of the previous stage, allowing for higher-order filtering.
- * 
+ *
  * <p>
  * The filter exposes controls for cutoff, bandwidth, and gain, which can be accessed and modified
  * at runtime. Coefficients are updated based on the current control values and the provided sample rate.
- * 
+ *
  * @see ChannelSplittedFilter
  * @see BiquadStage
  * @see FilterType
- * 
+ *
  * @since 0.2.3-beta
  * @author Theko
  */
@@ -55,7 +55,7 @@ public class CascadeFilter implements AudioFilter, Controllable {
 
     /**
      * Constructs a new AudioFilter with the specified filter type and order.
-     * 
+     *
      * @param filterType the type of filter to apply
      * @param order      the order of the filter (must be an even number between 2 and 8)
      */
@@ -74,7 +74,7 @@ public class CascadeFilter implements AudioFilter, Controllable {
 
     /**
      * Returns the cutoff control for the filter.
-     * 
+     *
      * @return the cutoff control
      */
     public FloatControl getCutoffControl() {
@@ -83,7 +83,7 @@ public class CascadeFilter implements AudioFilter, Controllable {
 
     /**
      * Returns the bandwidth control for the filter.
-     * 
+     *
      * @return the bandwidth control
      */
     public FloatControl getBandwidthControl() {
@@ -92,7 +92,7 @@ public class CascadeFilter implements AudioFilter, Controllable {
 
     /**
      * Returns the gain control for the filter.
-     * 
+     *
      * @return the gain control
      */
     public FloatControl getGainControl() {
@@ -101,7 +101,7 @@ public class CascadeFilter implements AudioFilter, Controllable {
 
     /**
      * Returns the cutoff frequency of the filter.
-     * 
+     *
      * @return the cutoff frequency in Hz
      */
     public float getCutoff() {
@@ -110,7 +110,7 @@ public class CascadeFilter implements AudioFilter, Controllable {
 
     /**
      * Sets the cutoff frequency of the filter.
-     * 
+     *
      * @param cutoff the cutoff frequency in Hz
      */
     public void setCutoff(float cutoff) {
@@ -119,7 +119,7 @@ public class CascadeFilter implements AudioFilter, Controllable {
 
     /**
      * Returns the bandwidth of the filter.
-     * 
+     *
      * @return the bandwidth in Hz
      */
     public float getBandwidth() {
@@ -128,7 +128,7 @@ public class CascadeFilter implements AudioFilter, Controllable {
 
     /**
      * Sets the bandwidth of the filter.
-     * 
+     *
      * @param bandwidth the bandwidth in Hz
      */
     public void setBandwidth(float bandwidth) {
@@ -137,7 +137,7 @@ public class CascadeFilter implements AudioFilter, Controllable {
 
     /**
      * Returns the linear gain multiplier of the filter.
-     * 
+     *
      * @return the gain multiplier
      */
     public float getGain() {
@@ -146,7 +146,7 @@ public class CascadeFilter implements AudioFilter, Controllable {
 
     /**
      * Sets the linear gain multiplier of the filter.
-     * 
+     *
      * @param gain the gain multiplier
      */
     public void setGain(float gain) {
@@ -155,7 +155,7 @@ public class CascadeFilter implements AudioFilter, Controllable {
 
     /**
      * Returns the filter type of the filter.
-     * 
+     *
      * @return the filter type
      */
     public FilterType getFilterType() {
@@ -164,7 +164,7 @@ public class CascadeFilter implements AudioFilter, Controllable {
 
     /**
      * Returns the order of the filter.
-     * 
+     *
      * @return the order of the filter
      */
     public int getOrder() {
@@ -175,7 +175,7 @@ public class CascadeFilter implements AudioFilter, Controllable {
      * Sets the parameters of the filter for each channel separately.
      * This method does not update the filter coefficients.
      * Use the {@link #update(int)} method to update the filter coefficients.
-     * 
+     *
      * @param cutoff the cutoff frequency in Hz
      * @param bandwidth the bandwidth in Hz
      * @param gain the linear gain multiplier
@@ -203,7 +203,7 @@ public class CascadeFilter implements AudioFilter, Controllable {
 
     /**
      * Updates the filter coefficients for each channel based on the provided parameters.
-     * 
+     *
      * @param cutoff the cutoff frequency in Hz
      * @param bandwidth the bandwidth in octaves
      * @param gain the linear gain multiplier
@@ -243,7 +243,7 @@ public class CascadeFilter implements AudioFilter, Controllable {
         copy.setParameters(cutoff.getValue(), bandwidth.getValue(), gain.getValue());
         return copy;
     }
-    
+
     @Override
     public List<AudioControl> getAllControls() {
         return filterControls;

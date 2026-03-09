@@ -24,10 +24,10 @@ import org.theko.sound.AudioFormat;
 /**
  * Represents the result of an audio encoding process, containing the encoded file data,
  * audio format, associated tags, and codec information.
- * 
+ *
  * @see AudioDecodeResult
  * @see AudioCodec
- * 
+ *
  * @since 0.1.3-beta
  * @author Theko
  */

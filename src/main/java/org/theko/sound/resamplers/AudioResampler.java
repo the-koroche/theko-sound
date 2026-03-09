@@ -28,12 +28,12 @@ import org.theko.sound.util.MathUtilities;
  * It supports resampling audio at different speeds using a speed multiplier.
  * The class includes methods for converting audio data between byte arrays
  * and float samples, applying time scaling.
- * 
+ *
  * @since 0.1.1-beta
  * @author Theko
  */
 public class AudioResampler {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(AudioResampler.class);
 
     /**
@@ -50,7 +50,7 @@ public class AudioResampler {
 
     /**
      * Constructs an AudioResampler with the specified resample method.
-     * 
+     *
      * @param resamplerMethod The resample method to use for audio resampling
      */
     public AudioResampler(ResampleMethod resamplerMethod) {
@@ -67,7 +67,7 @@ public class AudioResampler {
 
     /**
      * Resamples the given audio samples to a new length.
-     * 
+     *
      * @param samples The audio samples to resample, represented as a 2D float array
      * @param speedMultiplier The speed multiplier for the resampling process
      * @return A 2D float array containing the resampled audio samples
@@ -79,7 +79,7 @@ public class AudioResampler {
 
     /**
      * Resamples the given audio samples to a new length.
-     * 
+     *
      * @param samples The audio samples to resample, represented as a 2D float array
      * @param newLength The target length of the resampled audio samples
      * @return A 2D float array containing the resampled audio samples
@@ -94,7 +94,7 @@ public class AudioResampler {
 
     /**
      * Resamples the given audio samples to a new length.
-     * 
+     *
      * @param samples The audio samples to resample, represented as a 2D float array
      * @param output The output array to store the resampled audio samples, with new length
      * @param speedMultiplier The speed multiplier for the resampling process
@@ -103,10 +103,10 @@ public class AudioResampler {
     public void resample(float[][] samples, float[][] output, float speedMultiplier) {
         resample(samples, output, (int) (samples[0].length / speedMultiplier));
     }
-    
+
     /**
      * Resamples the given audio samples to a new length.
-     * 
+     *
      * @param samples The audio samples to resample, represented as a 2D float array
      * @param output The output array to store the resampled audio samples, with new length
      * @param newLength The target length of the resampled audio samples
@@ -130,7 +130,7 @@ public class AudioResampler {
     }
 
     private boolean timeScale(float[] input, float[] output, int newLength) {
-        if (input.length == newLength) 
+        if (input.length == newLength)
             return false;
 
         if (newLength <= 0)

@@ -21,10 +21,10 @@ package org.theko.sound.resamplers;
  * using Catmull-Rom splines for smooth interpolation.
  * This method is suitable for high-quality audio resampling,
  * providing a good balance between performance and quality.
- * 
+ *
  * @since 0.2.0-beta
  * @author Theko
- * 
+ *
  * @see ResampleMethod
  * @see LinearResampleMethod
  */

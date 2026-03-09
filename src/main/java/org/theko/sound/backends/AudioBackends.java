@@ -66,7 +66,7 @@ import org.theko.sound.util.PlatformUtilities.Platform;
  * @see AudioBackendType
  * @see AudioInputBackend
  * @see AudioOutputBackend
- * 
+ *
  * @since 0.1.0-beta
  * @author Theko
  */
@@ -113,7 +113,7 @@ public final class AudioBackends {
                 logger.info("Found audio backend without information: " + audioBackendClass.getSimpleName());
             }
         }
-        
+
         try {
             detectPlatformBackends(false /* allow different backends for input and output */);
         } catch (AudioBackendNotFoundException | AudioBackendCreationException e) {
@@ -178,7 +178,7 @@ public final class AudioBackends {
         if (audioBackendInfo == null) {
             throw new IllegalArgumentException("Audio backend info cannot be null.");
         }
-        
+
         try {
             Constructor<? extends AudioBackend> constructor = audioBackendInfo.getBackendClass().getDeclaredConstructor();
             if (!Modifier.isAbstract(audioBackendInfo.getBackendClass().getModifiers())
@@ -290,7 +290,7 @@ public final class AudioBackends {
         if (audioBackendInfo == null) {
             throw new IllegalArgumentException("Audio backend info cannot be null.");
         }
-        
+
         if (!audioBackendInfo.supportsOutput()) {
             logger.error("Audio backend '{}' does not support output.", audioBackendInfo.getBackendClass().getSimpleName());
             throw new AudioBackendNotFoundException("Audio backend '" + audioBackendInfo.getBackendClass().getSimpleName() + "' does not support output.");
@@ -319,7 +319,7 @@ public final class AudioBackends {
         return Collections.unmodifiableCollection(audioBackends);
     }
 
-    
+
     /**
      * Detects and selects platform-specific audio backends that support the desired
      * features. This method is private and intended for internal use only.
@@ -381,7 +381,7 @@ public final class AudioBackends {
 
         logger.warn("Fallback backend selected: JavaSound (duplex mode = {})", requireDuplex);
     }
-    
+
     /**
      * Retrieves the default audio backend for output that is available on the current platform.
      * <p>

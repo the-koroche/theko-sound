@@ -24,31 +24,31 @@ import org.theko.sound.util.MathUtilities;
 
 /**
  * Utility class providing methods for working with audio controls.
- * 
+ *
  * <p>This class is a holder for static utility methods related to audio controls.
  * It provides methods to retrieve the value of an audio control as a float,
  * and to set the value of an audio control from a float.
- * 
+ *
  * <p>This class is not intended to be instantiated.
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */
 public final class AudioControlUtilities {
-    
+
     private AudioControlUtilities() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
     /**
      * Retrieves the value of an audio control as a float.
-     * 
+     *
      * <p>This method is useful for retrieving the value of an audio control without knowing its type.
      * It will return the value of the control as a float in the range of 0.0 to 1.0.
      * If the control is of type FloatControl, it will return the value directly.
      * If the control is of type BooleanControl, it will return 1.0 if the control is enabled, 0.0 if disabled.
      * If the control is of type EnumControl, it will return the index of the enum constant as a float.
-     * 
+     *
      * @param control The audio control to retrieve the value from
      * @return The value of the audio control as a float
      * @throws IllegalArgumentException If the control type is unsupported
@@ -70,13 +70,13 @@ public final class AudioControlUtilities {
 
     /**
      * Sets the value of an audio control from a float.
-     * 
+     *
      * <p>This method is useful for setting the value of an audio control without knowing its type.
      * It will set the value of the control from a float in the range of 0.0 to 1.0.
      * If the control is of type FloatControl, it will set the value directly.
      * If the control is of type BooleanControl, it will set the control to enabled if the value is greater than 0.5, disabled otherwise.
      * If the control is of type EnumControl, it will set the enum index from the float value.
-     * 
+     *
      * @param control The audio control to set the value from
      * @param value The float representing the value to set
      * @throws IllegalArgumentException If the control type is unsupported
@@ -99,7 +99,7 @@ public final class AudioControlUtilities {
     /**
      * Creates a custom FloatControl with the specified name, minimum, and maximum values.
      * The control will use the supplier to retrieve the current value of the control, and the consumer to set the value of the control.
-     * 
+     *
      * @param name The name of the custom FloatControl
      * @param min The minimum value of the control
      * @param max The maximum value of the control
@@ -140,7 +140,7 @@ public final class AudioControlUtilities {
     /**
      * Creates a custom BooleanControl with the specified name, supplier to retrieve the current value of the control,
      * and consumer to set the value of the control.
-     * 
+     *
      * @param name The name of the custom BooleanControl
      * @param supplier The supplier to retrieve the current value of the control
      * @param consumer The consumer to set the value of the control
@@ -179,7 +179,7 @@ public final class AudioControlUtilities {
     /**
      * Creates a custom EnumControl with the specified name, enum class, supplier to retrieve the current index of the control,
      * and consumer to set the index of the control.
-     * 
+     *
      * @param name The name of the custom EnumControl
      * @param enumClass The enum class of the control
      * @param supplier The supplier to retrieve the current index of the control

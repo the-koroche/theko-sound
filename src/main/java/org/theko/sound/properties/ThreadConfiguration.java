@@ -21,11 +21,11 @@ import org.theko.sound.util.ThreadUtilities;
 /**
  * Configuration for a thread.
  * It includes the thread type and priority.
- * 
+ *
  * @see AudioSystemProperties
  * @see ThreadType
  * @see ThreadUtilities
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */

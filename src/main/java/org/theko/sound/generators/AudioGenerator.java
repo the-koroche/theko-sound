@@ -21,14 +21,19 @@ import org.theko.sound.AudioNode;
 /**
  * Represents an audio generator abstract class, which is used to generate audio samples.
  * Implementations of this class should override the {@link #render(float[][], int)} method.
- * 
+ *
  * @see AudioNode
  * @see NoiseGenerator
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */
 public abstract class AudioGenerator implements AudioNode {
+
+    /**
+     * Default constructor.
+     */
+    public AudioGenerator() {}
 
     @Override
     public abstract void render(float[][] samples, int sampleRate);

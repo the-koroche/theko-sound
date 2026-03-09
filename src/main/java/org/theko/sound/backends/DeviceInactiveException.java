@@ -18,20 +18,20 @@ package org.theko.sound.backends;
 
 /**
  * An exception that is thrown when an audio device is inactive (disabled, unplugged, etc).
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */
 public class DeviceInactiveException extends DeviceException {
-    
+
     public DeviceInactiveException(String message) {
         super(message);
     }
-    
+
     public DeviceInactiveException(Throwable cause) {
         super(cause);
     }
-    
+
     public DeviceInactiveException(String message, Throwable cause) {
         super(message, cause);
     }

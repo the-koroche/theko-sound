@@ -22,10 +22,10 @@ import org.theko.sound.controls.FloatControl;
  * StereoWidthEffect is an audio effect that adjusts the stereo width of audio samples.
  * It allows for real-time manipulation of the stereo field, enhancing or narrowing the perceived
  * spatial width of the sound.
- * 
+ *
  * This effect can be applied to audio samples in real-time, making it useful for creative sound design
  * and spatial audio applications.
- * 
+ *
  * @since 0.2.1-beta
  * @author Theko
  */

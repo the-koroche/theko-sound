@@ -38,7 +38,7 @@ import org.theko.sound.AudioPort;
  * @see AudioBackend
  * @see AutoCloseable
  * @see AudioBackendException
- * 
+ *
  * @since 0.1.0-beta
  * @author Theko
  */
@@ -169,7 +169,7 @@ public interface AudioOutputBackend extends AudioBackend, AutoCloseable {
      * @throws BackendNotOpenException If the audio output is not open
      */
     long getMicrosecondLatency() throws AudioBackendException;
-    
+
     /**
      * Returns the currently active audio port.
      *

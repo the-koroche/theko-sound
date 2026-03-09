@@ -18,22 +18,22 @@ package org.theko.sound.dsp;
 
 /**
  * A class that provides static methods for generating window functions used in digital signal processing (DSP).
- * 
+ *
  * <p>
  * Window functions are commonly applied to signals to reduce spectral leakage when performing Fourier transforms.
  * Each window type provides a different trade-off between main lobe width and side lobe attenuation.
- * 
- * 
+ *
+ *
  * <p>
  * Usage example:
  * <pre>
  * float[] samples = ...; // audio data
  * float[] windowedSamples = WindowFunction.apply(samples, WindowType.HANN);
  * </pre>
- * 
- * 
+ *
+ *
  * @see WindowType
- * 
+ *
  * @since 0.1.4-beta
  * @author Theko
  */
@@ -45,7 +45,7 @@ public final class WindowFunction {
 
     /**
      * Applies a window function to the given data.
-     * 
+     *
      * @param data the input array of samples to be windowed
      * @param type the type of window function to apply
      * @return a new array containing the windowed samples
@@ -61,7 +61,7 @@ public final class WindowFunction {
 
     /**
      * Modifies the given array of samples by applying a window function.
-     * 
+     *
      * @param data the input array of samples to be windowed, in float[channel][sample] format
      * @param type the type of window function to apply
      * @return the modified array of samples
@@ -75,7 +75,7 @@ public final class WindowFunction {
 
     /**
      * Applies a window function to the given data.
-     * 
+     *
      * @param data the input array of samples to be windowed, in float[channel][sample] format
      * @param type the type of window function to apply
      * @return a new array containing the windowed samples
@@ -96,7 +96,7 @@ public final class WindowFunction {
 
     /**
      * Generates a window function of the specified type and size.
-     * 
+     *
      * @param type the type of window function to generate
      * @param size the size of the window to generate
      * @return a new array containing the generated window function coefficients
@@ -107,7 +107,7 @@ public final class WindowFunction {
 
     /**
      * Generates a window function of the specified type and size.
-     * 
+     *
      * @param type the type of window function to generate
      * @param size the size of the window to generate
      * @param param the parameter value for the window function
@@ -123,7 +123,7 @@ public final class WindowFunction {
 
     /**
      * Generates a window function of the specified type and size.
-     * 
+     *
      * @param type the type of window function to generate
      * @param size the size of the window to generate
      * @return a single float window value
@@ -134,7 +134,7 @@ public final class WindowFunction {
 
     /**
      * Generates a window function of the specified type and size.
-     * 
+     *
      * @param type the type of window function to generate
      * @param size the size of the window to generate
      * @param param the parameter value for the window function
@@ -219,7 +219,7 @@ public final class WindowFunction {
      * <p>
      * This factor compensates for the average amplitude loss caused by the window function.
      * It is typically used to normalize the output after windowing.
-     * 
+     *
      *
      * @param type the window type
      * @return the compensation factor (multiplier)

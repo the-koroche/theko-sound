@@ -26,12 +26,12 @@ import org.theko.sound.samples.SamplesValidation;
  * It includes operations such as padding, copying, cloning, filling, reversing, polarity inversion,
  * channel swapping, gain adjustment, panning, and normalization. Methods are provided both for
  * mutating existing arrays and creating new arrays with the modified data.
- * 
+ *
  * @since 0.3.0-beta
  * @author Theko
  */
 public final class AudioBufferUtilities {
-    
+
     private AudioBufferUtilities() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
@@ -40,7 +40,7 @@ public final class AudioBufferUtilities {
      * Pads a 2D float array to a new specified length in both dimensions.
      * If the original array is smaller than the new dimensions, it will be padded
      * with either the last available element in each row or with a default value (0.0f).
-     * 
+     *
      * @param original The original 2D float array to pad
      * @param newLengthD1 The new length for the first dimension (rows)
      * @param newLengthD2 The new length for the second dimension (columns)
@@ -72,7 +72,7 @@ public final class AudioBufferUtilities {
             float[] row = new float[newLengthD2];
             float[] srcRow = i < original.length ? original[i] : null;
 
-            float fillValue = fillNewWithLast 
+            float fillValue = fillNewWithLast
                     ? (srcRow != null && srcRow.length > 0 ? srcRow[srcRow.length - 1] : lastOriginalValue)
                     : defaultValue;
 
@@ -119,7 +119,7 @@ public final class AudioBufferUtilities {
      * Creates a deep copy of a 2D float array (matrix).
      * Each channel in the source array is cloned separately.
      * The resulting array is a new object with identical contents to the source array.
-     * 
+     *
      * @param source The source 2D float array to clone
      * @return A new 2D float array containing a deep copy of the source array
      * @throws IllegalArgumentException if the source array is null or empty
@@ -136,7 +136,7 @@ public final class AudioBufferUtilities {
     /**
      * Fills a 2D float array (matrix) with a specified value.
      * This method sets all elements in each channel to the specified value.
-     * 
+     *
      * @param samples The 2D float array to fill with the specified value
      * @param value The value to fill the array with
      * @throws IllegalArgumentException if the samples array is null or empty
@@ -154,7 +154,7 @@ public final class AudioBufferUtilities {
      * Reverses the polarity of the audio samples.
      * This method negates each sample in the provided 1D float array.
      * The output array is filled with the negated values.
-     * 
+     *
      * @param samples The audio samples to reverse polarity
      * @param output The output array to fill with negated values
      * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match
@@ -172,7 +172,7 @@ public final class AudioBufferUtilities {
      * Reverses the polarity of the audio samples.
      * This method negates each sample in the provided 1D float array.
      * The output array is filled with the negated values.
-     * 
+     *
      * @param samples The audio samples to reverse polarity
      * @return A new 1D float array with negated values
      * @throws IllegalArgumentException if the samples array is null or empty
@@ -189,7 +189,7 @@ public final class AudioBufferUtilities {
     /**
      * Reverses the polarity of the audio samples.
      * This method negates each sample in the provided 2D float array and writes the negated values to the provided output array.
-     * 
+     *
      * @param samples The audio samples to reverse polarity
      * @param output The output array to fill with negated values
      * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match
@@ -209,7 +209,7 @@ public final class AudioBufferUtilities {
      * Reverses the polarity of the audio samples.
      * This method negates each sample in the provided 2D float array.
      * The output array is filled with the negated values.
-     * 
+     *
      * @param samples The audio samples to reverse polarity
      * @return A new 2D float array with negated values
      * @throws IllegalArgumentException if the samples array is null or empty
@@ -230,7 +230,7 @@ public final class AudioBufferUtilities {
      * Swaps the channels of the audio samples.
      * This method reverses the order of channels in the provided 2D float array.
      * The output array is filled with the swapped channels.
-     * 
+     *
      * @param samples The audio samples to swap channels
      * @param output The output array to fill with swapped channels
      * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match
@@ -248,7 +248,7 @@ public final class AudioBufferUtilities {
      * Swaps the channels of the audio samples.
      * This method reverses the order of channels in the provided 2D float array.
      * The output array is filled with the swapped channels.
-     * 
+     *
      * @param samples The audio samples to swap channels
      * @return A new 2D float array with swapped channels
      * @throws IllegalArgumentException if the samples array is null or empty
@@ -265,7 +265,7 @@ public final class AudioBufferUtilities {
     /**
      * Reverses the order of samples in the provided 1D float array.
      * This method fills the output array with the reversed samples.
-     * 
+     *
      * @param samples The audio samples to reverse
      * @param output The output array to fill with reversed samples
      * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match
@@ -282,7 +282,7 @@ public final class AudioBufferUtilities {
     /**
      * Reverses the order of samples in the provided 1D float array.
      * This method creates a new 1D float array with the reversed samples.
-     * 
+     *
      * @param samples The audio samples to reverse
      * @return A new 1D float array with reversed samples
      * @throws IllegalArgumentException if the samples array is null or empty
@@ -299,7 +299,7 @@ public final class AudioBufferUtilities {
     /**
      * Reverses the order of samples in the provided 2D float array.
      * This method fills the output array with the reversed samples.
-     * 
+     *
      * @param samples The audio samples to reverse
      * @param output The output array to fill with reversed samples
      * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match
@@ -318,7 +318,7 @@ public final class AudioBufferUtilities {
     /**
      * Reverses the order of samples in the provided 2D float array.
      * This method creates a new 2D float array with the reversed samples.
-     * 
+     *
      * @param samples The audio samples to reverse
      * @return A new 2D float array with reversed samples
      * @throws IllegalArgumentException if the samples array is null or empty
@@ -341,7 +341,7 @@ public final class AudioBufferUtilities {
      * Calculates the maximum absolute volume of the audio samples.
      * This method iterates through all samples in the provided 1D float array
      * and returns the maximum absolute value found.
-     * 
+     *
      * @param samples The audio samples to analyze, represented as a 1D float array
      * @return The maximum absolute volume as a float
      * @throws IllegalArgumentException if the samples array is null or empty
@@ -359,7 +359,7 @@ public final class AudioBufferUtilities {
      * Calculates the maximum absolute volume of the audio samples.
      * This method iterates through all samples in the provided 2D float array
      * and returns the maximum absolute value found.
-     * 
+     *
      * @param samples The audio samples to analyze, represented as a 2D float array
      * @return The maximum absolute volume as a float
      * @throws IllegalArgumentException if the samples array is null or empty
@@ -379,7 +379,7 @@ public final class AudioBufferUtilities {
      * Calculates the average absolute volume of the audio samples.
      * This method iterates through all samples in the provided 1D float array
      * and returns the average absolute value found.
-     * 
+     *
      * @param samples The audio samples to analyze, represented as a 1D float array
      * @return The average absolute volume as a float
      * @throws IllegalArgumentException if the samples array is null or empty
@@ -399,7 +399,7 @@ public final class AudioBufferUtilities {
      * Calculates the average absolute volume of the audio samples.
      * This method iterates through all samples in the provided 2D float array
      * and returns the average absolute value found.
-     * 
+     *
      * @param samples The audio samples to analyze, represented as a 2D float array
      * @return The average absolute volume as a float
      * @throws IllegalArgumentException if the samples array is null or empty
@@ -421,7 +421,7 @@ public final class AudioBufferUtilities {
      * Normalizes the audio samples to a maximum absolute volume of 1.0.
      * This method scales each sample in the provided 1D float array by the maximum absolute volume.
      * The output array is filled with the normalized samples.
-     * 
+     *
      * @param samples The audio samples to normalize, represented as a 1D float array
      * @param output The output array to fill with normalized samples
      * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match
@@ -443,7 +443,7 @@ public final class AudioBufferUtilities {
      * Normalizes the audio samples to a maximum absolute volume of 1.0.
      * This method scales each sample in the provided 1D float array by the maximum absolute volume.
      * The output array is filled with the normalized samples.
-     * 
+     *
      * @param samples The audio samples to normalize, represented as a 1D float array
      * @return A new 1D float array with normalized samples
      * @throws IllegalArgumentException if the samples array is null or empty
@@ -465,7 +465,7 @@ public final class AudioBufferUtilities {
      * Normalizes the audio samples to a maximum absolute volume of 1.0.
      * This method scales each sample in the provided 2D float array by the maximum absolute volume.
      * The output array is filled with the normalized samples.
-     * 
+     *
      * @param samples The audio samples to normalize, represented as a 2D float array
      * @param output The output array to fill with normalized samples
      * @throws IllegalArgumentException if the samples or output array is null or empty or if dimensions do not match
@@ -489,7 +489,7 @@ public final class AudioBufferUtilities {
      * Normalizes the audio samples to a maximum absolute volume of 1.0.
      * This method scales each sample in the provided 2D float array by the maximum absolute volume.
      * The output array is filled with the normalized samples.
-     * 
+     *
      * @param samples The audio samples to normalize, represented as a 2D float array
      * @return A new 2D float array with normalized samples
      * @throws IllegalArgumentException if the samples array is null or empty
@@ -514,7 +514,7 @@ public final class AudioBufferUtilities {
      * Adjusts the gain of the audio samples.
      * This method scales each sample in the provided 1D float array by the specified gain.
      * The output array is filled with the adjusted samples.
-     * 
+     *
      * @param samples The audio samples to adjust, represented as a 1D float array
      * @param output The output array to fill with adjusted samples
      * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged
@@ -533,7 +533,7 @@ public final class AudioBufferUtilities {
      * Adjusts the gain of the audio samples.
      * This method scales each sample in the provided 1D float array by the specified gain.
      * The output array is filled with the adjusted samples.
-     * 
+     *
      * @param samples The audio samples to adjust, represented as a 1D float array
      * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged
      * @return A new 1D float array with adjusted samples
@@ -552,7 +552,7 @@ public final class AudioBufferUtilities {
      * Adjusts the gain of the audio samples.
      * This method scales each sample in the provided 2D float array by the specified gain.
      * The output array is filled with the adjusted samples.
-     * 
+     *
      * @param samples The audio samples to adjust, represented as a 2D float array
      * @param output The output array to fill with adjusted samples
      * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged
@@ -573,7 +573,7 @@ public final class AudioBufferUtilities {
      * Adjusts the gain of the audio samples.
      * This method scales each sample in the provided 2D float array by the specified gain.
      * The output array is filled with the adjusted samples.
-     * 
+     *
      * @param samples The audio samples to adjust, represented as a 2D float array
      * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged
      * @return A new 2D float array with adjusted samples
@@ -590,7 +590,7 @@ public final class AudioBufferUtilities {
         }
         return adjusted;
     }
-    
+
     /**
      * Adjusts the gain and pan of the audio samples.
      * This method scales each sample in the provided 2D float array by the specified gain and pan values.
@@ -598,7 +598,7 @@ public final class AudioBufferUtilities {
      * <p>If the samples contain more than two channels (i.e., stereo),
      * then the pan value is applied only to the left and right channels;
      * additional channels remain unaffected.
-     * 
+     *
      * @param samples The audio samples to adjust, represented as a 2D float array
      * @param output The output array to fill with adjusted samples
      * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged
@@ -627,7 +627,7 @@ public final class AudioBufferUtilities {
         if (pan != 0.0f) {
             float angle = (float)((pan + 1.0f) * Math.PI / 4.0f);
             leftVol  = (float)Math.cos(angle);
-            rightVol = (float)Math.sin(angle); 
+            rightVol = (float)Math.sin(angle);
         }
 
         for (int ch = 0; ch < samples.length; ch++) {
@@ -645,7 +645,7 @@ public final class AudioBufferUtilities {
      * Returns the volume for a given channel.
      * This method applies the gain and pan values to a channel and returns the resulting volume.
      * If channel index is out of range (stereo), it returns the gain value.
-     * 
+     *
      * @param ch The channel to calculate the volume for (0 or 1)
      * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged
      * @param leftVol The volume for the left channel
@@ -665,7 +665,7 @@ public final class AudioBufferUtilities {
      * <p>If the samples contain more than two channels (i.e., stereo),
      * then the pan value is applied only to the left and right channels;
      * additional channels remain unaffected.
-     * 
+     *
      * @param samples The audio samples to adjust, represented as a 2D float array
      * @param gain The gain value to apply. A value of 1.0f leaves the volume unchanged
      * @param pan The pan value to apply. A value of 0.0f is center, -1.0f is left, and 1.0f is right

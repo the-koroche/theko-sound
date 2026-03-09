@@ -78,7 +78,7 @@ import org.theko.sound.util.AudioBufferUtilities;
  * @see Playback
  * @see AudioMixer
  * @see ResamplerEffect
- * 
+ *
  * @since 0.2.0-beta
  * @author Theko
  */
@@ -91,7 +91,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     private float[][] samplesData;
     private AudioFormat audioFormat;
     private AudioTags tags;
-    
+
     protected AudioMixer innerMixer;
     protected ResamplerEffect resamplerEffect;
     protected final FloatControl speedControl = new FloatControl("Speed", 0.0f, 50f, 1.0f);
@@ -131,7 +131,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
                     return;
                 }
             }
-            
+
             for (int ch = 0; ch < samples.length; ch++) {
                 float[] src = (ch < samplesData.length) ? samplesData[ch] : null;
                 for (int i = 0; i < length; i++) {
@@ -149,7 +149,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
 
     /**
      * Constructs a new {@code SoundSource} object and opens the specified audio file.
-     * 
+     *
      * @param file The audio file to open
      * @throws FileNotFoundException If the audio file is not found
      * @throws AudioCodecNotFoundException If the audio codec is not found
@@ -162,7 +162,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
 
     /**
      * Constructs a new {@code SoundSource} object and opens the specified audio file.
-     * 
+     *
      * @param file The audio file path to open
      * @throws FileNotFoundException If the audio file is not found
      * @throws AudioCodecNotFoundException If the audio codec is not found
@@ -228,10 +228,10 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
         if (innerMixer == null) {
             innerMixer = new AudioMixer();
 
-            innerMixer.getPostGainControl().addConsumer(AudioControlEventType.VALUE_CHANGED, (type, event) -> 
+            innerMixer.getPostGainControl().addConsumer(AudioControlEventType.VALUE_CHANGED, (type, event) ->
                     dispatch(SoundSourceEventType.VOLUME_CHANGE));
 
-            innerMixer.getPanControl().addConsumer(AudioControlEventType.VALUE_CHANGED, (type, event) -> 
+            innerMixer.getPanControl().addConsumer(AudioControlEventType.VALUE_CHANGED, (type, event) ->
                     dispatch(SoundSourceEventType.PAN_CHANGE));
         } else if (playback != null) {
             innerMixer.removeInput(playback);
@@ -327,7 +327,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
         return innerMixer.getPostGainControl();
     }
 
-    /** 
+    /**
      * @return The inner mixer of the sound source
      */
     public AudioMixer getInnerMixer() {
@@ -345,14 +345,14 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * Sets the resampler effect of the sound source, sets the speed control value, and returns {@code true} if successful.
      * If the old resampler effect is the same as the new resampler effect, nothing is done, and {@code true} is returned.
      * If the new resampler effect cannot be added to the inner mixer, {@code false} is returned.
-     * 
+     *
      * @param newResamplerEffect The resampler effect to set, cannot be null
      * @throws IllegalArgumentException if the new resampler effect is null
      */
     public boolean setResamplerEffect(ResamplerEffect newResamplerEffect) {
         if (newResamplerEffect == null)
             throw new IllegalArgumentException("Resampler effect cannot be null.");
-        if (this.resamplerEffect == newResamplerEffect) 
+        if (this.resamplerEffect == newResamplerEffect)
             return true;
 
         if (this.resamplerEffect != null) {
@@ -385,7 +385,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     public boolean isLooping() {
         return loop;
     }
-    
+
     /**
      * @return The pan control of the sound source
      */
@@ -569,7 +569,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
                 logger.error("Failed to decode audio file: {}", file.getName());
                 throw new AudioCodecException("Failed to decode audio file: " + file.getName());
             }
-            
+
             this.samplesData = decodeResult.getSamples();
             this.audioFormat = decodeResult.getAudioFormat();
             this.tags = decodeResult.getTags();

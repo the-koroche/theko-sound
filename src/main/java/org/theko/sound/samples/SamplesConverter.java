@@ -46,7 +46,7 @@ import org.theko.sound.AudioFormat;
  * <p><b>Important Notes:</b>
  * <ul>
  *   <li>Unsupported audio encodings will throw {@link IllegalArgumentException}.</li>
- *   <li>Methods that return arrays will allocate new memory for the result; 
+ *   <li>Methods that return arrays will allocate new memory for the result;
  *       methods with preallocated arrays reuse existing memory to reduce GC pressure.</li>
  * </ul>
  *
@@ -59,7 +59,7 @@ import org.theko.sound.AudioFormat;
  *
  * @see AudioFormat
  * @see ByteBuffer
- * 
+ *
  * @since 0.1.2-beta
  * @author Theko
  */
@@ -165,7 +165,7 @@ public final class SamplesConverter {
         if (outputSamples.length != channels || outputSamples[0] == null || outputSamples[0].length != sampleCount) {
             throw new IllegalArgumentException("Output samples array must have 'channels' rows and 'sampleCount' columns.");
         }
-        
+
         ByteBuffer buffer = ByteBuffer.wrap(data).order(isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
 
         switch (audioFormat.getEncoding()) {
@@ -177,7 +177,7 @@ public final class SamplesConverter {
                     }
                 }
                 break;
-                
+
             case PCM_SIGNED:
                 if (bytesPerSample == 2) {
                     ShortBuffer shortBuffer = buffer.asShortBuffer();
@@ -206,7 +206,7 @@ public final class SamplesConverter {
                     }
                 }
                 break;
-                
+
             case PCM_FLOAT:
                 if (bytesPerSample == 4) {
                     FloatBuffer floatBuffer = buffer.asFloatBuffer();
@@ -226,7 +226,7 @@ public final class SamplesConverter {
                     buffer.position(buffer.position() + sampleCount * channels * 8);
                 }
                 break;
-                
+
             case ULAW:
                 for (int i = 0; i < sampleCount; i++) {
                     for (int ch = 0; ch < channels; ch++) {
@@ -234,7 +234,7 @@ public final class SamplesConverter {
                     }
                 }
                 break;
-                
+
             case ALAW:
                 for (int i = 0; i < sampleCount; i++) {
                     for (int ch = 0; ch < channels; ch++) {
@@ -242,7 +242,7 @@ public final class SamplesConverter {
                     }
                 }
                 break;
-                
+
             default:
                 throw new IllegalArgumentException("Unsupported encoding: " + audioFormat.getEncoding());
         }
@@ -310,13 +310,13 @@ public final class SamplesConverter {
                     }
                 }
                 break;
-                
+
             case PCM_SIGNED:
                 if (bytesPerSample == 2) {
                     ShortBuffer shortBuffer = buffer.asShortBuffer();
                     for (int i = 0; i < samplesLength; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            short value = (short) Math.max(Short.MIN_VALUE, 
+                            short value = (short) Math.max(Short.MIN_VALUE,
                                     Math.min(Short.MAX_VALUE, Math.round(samples[ch][i] * 32768.0f)));
                             shortBuffer.put(value);
                         }
@@ -338,7 +338,7 @@ public final class SamplesConverter {
                     }
                 }
                 break;
-                
+
             case PCM_FLOAT:
                 if (bytesPerSample == 4) {
                     FloatBuffer floatBuffer = buffer.asFloatBuffer();
@@ -358,7 +358,7 @@ public final class SamplesConverter {
                     buffer.position(buffer.position() + samplesLength * channels * 8);
                 }
                 break;
-                
+
             case ULAW:
                 for (int i = 0; i < samplesLength; i++) {
                     for (int ch = 0; ch < channels; ch++) {
@@ -366,7 +366,7 @@ public final class SamplesConverter {
                     }
                 }
                 break;
-                
+
             case ALAW:
                 for (int i = 0; i < samplesLength; i++) {
                     for (int ch = 0; ch < channels; ch++) {
@@ -374,12 +374,12 @@ public final class SamplesConverter {
                     }
                 }
                 break;
-                
+
             default:
                 throw new IllegalArgumentException("Unsupported encoding: " + targetFormat.getEncoding());
         }
     }
-    
+
     private static float ulawToFloat(ByteBuffer buffer) {
         int ulawByte = buffer.get() & 0xFF;
         int sign = (ulawByte & 0x80) != 0 ? -1 : 1;

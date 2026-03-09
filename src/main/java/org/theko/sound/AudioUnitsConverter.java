@@ -90,7 +90,7 @@ public final class AudioUnitsConverter {
      * The conversion formula is: linear = 10^(decibels/20)
      * <p>
      * Returns 0.0 if decibels is Double.NEGATIVE_INFINITY.
-     * 
+     *
      * @param decibels The decibel value to convert
      * @return The linear amplitude multiplier
      */
@@ -105,7 +105,7 @@ public final class AudioUnitsConverter {
      * The conversion formula is: decibels = 20 * log10(linear)
      * <p>
      * Returns Double.NEGATIVE_INFINITY if linear is 0.0 or negative.
-     * 
+     *
      * @param linear The linear amplitude multiplier to convert
      * @return The decibel value
      */

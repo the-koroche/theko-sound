@@ -21,18 +21,18 @@ import org.theko.sound.samples.SamplesValidation;
 /**
  * Interface for audio filters that process single audio samples.
  * Audio filters can be used to filter audio samples in real-time applications.
- * 
+ *
  * <p>This interface provides methods for processing single audio samples and arrays of audio samples.
- * 
+ *
  * @see BiquadStage
  * @see CascadeFilter
  * @see ChannelSplittedFilter
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */
 public interface AudioFilter {
-    
+
     /**
      * Processes a single audio sample.
      * @param sample the input sample
@@ -41,10 +41,10 @@ public interface AudioFilter {
      */
     float process(float sample, int sampleRate);
 
-    
+
     /**
      * Processes an array of audio samples and writes the processed samples to the provided output array.
-     * 
+     *
      * @param samples the input samples
      * @param output the output samples
      * @param sampleRate the sample rate in Hz
@@ -60,7 +60,7 @@ public interface AudioFilter {
             output[i] = process(samples[i], sampleRate);
         }
     }
-    
+
     /**
      * Creates a copy of the filter.
      * Implementations should return a deep copy, to avoid side effects.

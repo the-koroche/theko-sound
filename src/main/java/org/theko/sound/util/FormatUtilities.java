@@ -24,7 +24,7 @@ import org.theko.sound.properties.ThreadConfiguration;
 /**
  * Utility class for formatting data in a human-readable way.
  * It includes methods for formatting bytes, pointers, and thread information.
- * 
+ *
  * @since 0.2.3-beta
  * @author Theko
  */
@@ -56,14 +56,14 @@ public final class FormatUtilities {
 
     public static final long MINUTES = 60L;
     public static final long HOURS = 60 * MINUTES;
-    
+
     private FormatUtilities() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
 
     /**
      * Formats bytes in a human-readable way using the specified unit system.
-     * 
+     *
      * @param bytes The number of bytes to format
      * @param binary True to use binary units, false to use decimal units
      * @param precision The number of decimal places to use
@@ -75,7 +75,7 @@ public final class FormatUtilities {
 
     /**
      * Formats bytes in a human-readable way using decimal units.
-     * 
+     *
      * @param bytes The number of bytes to format
      * @param precision The number of decimal places to use
      * @return The formatted string
@@ -86,7 +86,7 @@ public final class FormatUtilities {
 
     /**
      * Formats bytes in a human-readable way using binary units.
-     * 
+     *
      * @param bytes The number of bytes to format
      * @param precision The number of decimal places to use
      * @return The formatted string
@@ -102,7 +102,7 @@ public final class FormatUtilities {
 
     /**
      * Formats bytes in a human-readable way using decimal units.
-     * 
+     *
      * @param bytes The number of bytes to format
      * @param precision The number of decimal places to use
      * @return The formatted string
@@ -118,7 +118,7 @@ public final class FormatUtilities {
 
     /**
      * Formats bits in a human-readable way using decimal units.
-     * 
+     *
      * @param bits The number of bits to format
      * @param precision The number of decimal places to use
      * @return The formatted string
@@ -134,12 +134,12 @@ public final class FormatUtilities {
 
     /**
      * Formats a time in seconds to a human-readable string.
-     * 
+     *
      * <p>
      * For times greater than or equal to 2 minutes, the format is "hh:mm:ss(.xxx)" or "mm:ss(.xxx)".
      * For times less than 2 minutes, the format is "xx.xxx ms", "xx.xxx us", or "xx.xxx ns".
-     * 
-     * 
+     *
+     *
      * @param ns The time in nanoseconds to format
      * @param precision The number of decimal places to use
      * @return The formatted string
@@ -182,7 +182,7 @@ public final class FormatUtilities {
 
     /**
      * Formats time in a human-readable way from microseconds.
-     * 
+     *
      * @param us The number of microseconds to format
      * @param precision The number of decimal places to use
      * @return The formatted string
@@ -193,7 +193,7 @@ public final class FormatUtilities {
 
     /**
      * Formats time in a human-readable way from milliseconds.
-     * 
+     *
      * @param ms The number of milliseconds to format
      * @param precision The number of decimal places to use
      * @return The formatted string
@@ -204,7 +204,7 @@ public final class FormatUtilities {
 
     /**
      * Formats time in a human-readable way from seconds.
-     * 
+     *
      * @param sec The number of seconds to format
      * @param precision The number of decimal places to use
      * @return The formatted string
@@ -216,11 +216,11 @@ public final class FormatUtilities {
     /**
      * Returns a string representation of the given double value with adaptive formatting.
      * <p>
-     * The number is rounded to the specified number of decimal places.  
+     * The number is rounded to the specified number of decimal places.
      * Trailing zeros and an unnecessary decimal point are removed, so the result
      * may be shorter than the requested precision. If the rounded value is an integer,
      * it is formatted without a fractional part.
-     * 
+     *
      *
      * <p>Examples (with {@code precision = 3}):
      * <ul>
@@ -239,7 +239,7 @@ public final class FormatUtilities {
 
         double factor = Math.pow(10, precision);
         double rounded = Math.round(value * factor) / factor;
-        
+
         if (rounded == (long) rounded) {
             return String.format("%d", (long) rounded);
         }
@@ -256,7 +256,7 @@ public final class FormatUtilities {
 
     /**
      * Formats a pointer in a human-readable way, using the format "0xXXXXXXXXXXXXXXXX".
-     * 
+     *
      * @param pointer The pointer to format
      * @return The formatted string
      */
@@ -266,7 +266,7 @@ public final class FormatUtilities {
 
     /**
      * Formats thread information in a human-readable way.
-     * 
+     *
      * @param threadConfig The thread config to format
      * @return The formatted string
      */
@@ -276,22 +276,22 @@ public final class FormatUtilities {
 
     /**
      * Formats thread information in a human-readable way.
-     * 
+     *
      * @param isPlatform True if the thread is a platform thread, false if it's a virtual thread
      * @param priority The priority of the thread
      * @return The formatted string
-     */ 
+     */
     public static String formatThreadInfo(boolean isPlatform, int priority) {
         return String.format("(%s, %d)", (isPlatform ? "Platform" : "Virtual"), priority);
     }
 
     /**
      * Formats thread information in a human-readable way.
-     * 
+     *
      * @param type The type of the thread (virtual or platform)
      * @param priority The priority of the thread
      * @return The formatted string
-     */ 
+     */
     public static String formatThreadInfo(ThreadType type, int priority) {
         return String.format("(%s, %d)", type.toString(), priority);
     }

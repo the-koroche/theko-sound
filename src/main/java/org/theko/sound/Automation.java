@@ -30,10 +30,10 @@ import org.theko.sound.util.MathUtilities;
  * Represents an automation of audio controls over time.
  * It stores a list of keypoints (time, value, tension) which are used to interpolate the control values over time.
  * The automation can be played, looped, and scaled.
- * 
+ *
  * @see AudioControlGroup
  * @see Keypoint
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */
@@ -52,7 +52,7 @@ public class Automation {
     /**
      * Represents a keypoint in an automation.
      * It stores the time, value, and tension of the keypoint.
-     * 
+     *
      * @since 0.2.4-beta
      * @author Theko
      */
@@ -83,7 +83,7 @@ public class Automation {
 
     /**
      * Creates an automation with the given keypoints and controls.
-     * 
+     *
      * @param keypoints The keypoints of the automation
      * @param controls The controls of the automation
      * @param updateTime The update time of the automation in milliseconds
@@ -101,7 +101,7 @@ public class Automation {
 
     /**
      * Creates an automation with the given keypoints and controls.
-     * 
+     *
      * @param keypoints The keypoints of the automation
      * @param controls The controls of the automation
      */
@@ -111,7 +111,7 @@ public class Automation {
 
     /**
      * Creates an automation with the given controls.
-     * 
+     *
      * @param controls The controls of the automation
      */
     public Automation(List<AudioControl> controls) {
@@ -127,7 +127,7 @@ public class Automation {
 
     /**
      * Adds a control to the automation.
-     * 
+     *
      * @param control The control to add
      */
     public void addControl(AudioControl control) {
@@ -136,7 +136,7 @@ public class Automation {
 
     /**
      * Removes a control from the automation.
-     * 
+     *
      * @param control The control to remove
      */
     public void removeControl(AudioControl control) {
@@ -145,7 +145,7 @@ public class Automation {
 
     /**
      * Adds a keypoint to the automation at the given time with the given value and tension.
-     * 
+     *
      * @param time The time of the keypoint in seconds
      * @param value The value of the keypoint
      * @param tension The tension of the keypoint
@@ -156,7 +156,7 @@ public class Automation {
 
     /**
      * Adds a keypoint to the automation.
-     * 
+     *
      * @param keypoint The keypoint to add
      */
     public void addKeypoint(Keypoint keypoint) {
@@ -165,7 +165,7 @@ public class Automation {
 
     /**
      * Removes a keypoint from the automation.
-     * 
+     *
      * @param keypoint The keypoint to remove
      */
     public void removeKeypoint(Keypoint keypoint) {
@@ -176,7 +176,7 @@ public class Automation {
      * Returns an unmodifiable list of all keypoints in the automation.
      * This list is a copy of the internal list and is not updated when the automation is modified.
      * It is intended for use in rendering the automation or other forms of visualization.
-     * 
+     *
      * @return An unmodifiable list of keypoints
      */
     public List<Keypoint> getKeypoints() {
@@ -186,7 +186,7 @@ public class Automation {
     /**
      * Starts the playback of the automation.
      * If the automation is already playing, this method does nothing.
-     * 
+     *
      * @see #stop()
      * @see #loop()
      * @see #unloop()
@@ -201,7 +201,7 @@ public class Automation {
     /**
      * Stops the playback of the automation.
      * If the automation is not playing, this method does nothing.
-     * 
+     *
      * @see #play()
      * @see #loop()
      * @see #unloop()
@@ -212,7 +212,7 @@ public class Automation {
 
     /**
      * Returns whether the automation is currently playing.
-     * 
+     *
      * @return true if the automation is playing, false otherwise
      */
     public boolean isPlaying() {
@@ -222,7 +222,7 @@ public class Automation {
     /**
      * Sets the automation to loop indefinitely when it reaches the end.
      * This method doesn't start the playback of the automation.
-     * 
+     *
      * @see #play()
      * @see #stop()
      * @see #unloop()
@@ -235,7 +235,7 @@ public class Automation {
      * Disables the looping of the automation.
      * When the automation is no longer looping, it will stop when it reaches the end.
      * This method doesn't start the playback of the automation.
-     * 
+     *
      * @see #play()
      * @see #stop()
      * @see #loop()
@@ -248,7 +248,7 @@ public class Automation {
      * Returns the duration of the automation in seconds.
      * This method will return the maximum time value of all keypoints in the automation.
      * If the automation has no keypoints, it will return 0.0f.
-     * 
+     *
      * @return The duration of the automation in seconds
      */
     public float getDuration() {
@@ -262,7 +262,7 @@ public class Automation {
      * Returns the maximum value of all keypoints in the automation.
      * This method will return the maximum value of all keypoints in the automation.
      * If the automation has no keypoints, it will return 0.0f.
-     * 
+     *
      * @return The maximum value of all keypoints in the automation
      */
     public float getMaxValue() {
@@ -276,7 +276,7 @@ public class Automation {
      * Returns the minimum value of all keypoints in the automation.
      * This method will return the minimum value of all keypoints in the automation.
      * If the automation has no keypoints, it will return 0.0f.
-     * 
+     *
      * @return The minimum value of all keypoints in the automation
      */
     public float getMinValue() {
@@ -291,7 +291,7 @@ public class Automation {
      * This method allows for jumping to a specific time in the automation.
      * The automation will start playing from the specified time when the next {@link #play()} call is made.
      * If the automation is already playing, this method will stop the automation and reset it to the specified time.
-     * 
+     *
      * @param time The time to set the automation to in seconds
      */
     public void setTime(float time) {
@@ -316,7 +316,7 @@ public class Automation {
      * A time scale of 1.0f will play the automation at its normal speed.
      * A time scale of 2.0f will play the automation at twice its normal speed.
      * A time scale of 0.5f will play the automation at half its normal speed.
-     * 
+     *
      * @param scale The time scale of the automation
      */
     public void setTimeScale(float scale) {
@@ -325,7 +325,7 @@ public class Automation {
 
     /**
      * Returns the time scale of the automation.
-     * 
+     *
      * @return The time scale of the automation
      */
     public float getTimeScale() {
@@ -337,7 +337,7 @@ public class Automation {
      * It updates the playhead and controls the effects based on the automation's time scale and current time.
      * It also handles looping and stopping the automation when the end is reached.
      * This method is called by the automation's thread and should not be called directly by the user.
-     * 
+     *
      * @see #play()
      * @see #stop()
      * @see #isPlaying()
@@ -381,7 +381,7 @@ public class Automation {
 
     /**
      * Retrieves the value of the automation at the given time.
-     * 
+     *
      * @param time The time to retrieve the value for
      * @return The value of the automation at the given time
      * @see #getValue(float)

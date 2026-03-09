@@ -20,7 +20,7 @@ import org.theko.sound.SoundSource;
 
 /**
  * Event types for {@link SoundSource} events.
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */

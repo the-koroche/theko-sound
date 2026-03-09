@@ -20,7 +20,7 @@ import org.theko.sound.backends.AudioPortLink;
 
 /**
  * A dummy audio port link implementation.
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */

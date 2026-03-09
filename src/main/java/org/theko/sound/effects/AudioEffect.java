@@ -32,7 +32,7 @@ import org.theko.sound.samples.SamplesValidation;
 /**
  * AudioEffect is an abstract class representing an audio effect that can be applied to audio samples.
  * It implements the AudioNode interface and provides controls for mixing level and enabling/disabling the effect.
- * 
+ *
  * @since 0.1.3-beta
  * @author Theko
  */
@@ -74,7 +74,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
 
     /**
      * Constructs an AudioEffect with the specified type.
-     * 
+     *
      * @param type The type of the audio effect, must not be null
      */
     public AudioEffect(Type type) {
@@ -84,7 +84,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
     /**
      * Returns the mix level control for this audio effect.
      * The mix level controls the amount of effect applied to the audio samples.
-     * 
+     *
      * @return The FloatControl representing the mix level
      */
     public FloatControl getMixLevelControl() {
@@ -94,7 +94,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
     /**
      * Returns the enable control for this audio effect.
      * The enable control allows toggling the effect on or off.
-     * 
+     *
      * @return The BooleanControl representing the enable state of the effect
      */
     public BooleanControl getEnableControl() {
@@ -163,7 +163,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
         if (!SamplesValidation.checkLength(samples)) {
             throw new RuntimeException(new LengthMismatchException("Samples length must be the same for all channels."));
         }
- 
+
         float[][] effectBuffer = samples;
         if (shouldMix) {
             // Create a copy of the input samples to apply the effect on, so we can mix it back with the original samples later
@@ -184,13 +184,13 @@ public abstract class AudioEffect implements AudioNode, Controllable {
             }
         }
     }
-    
+
     /**
      * Applies the specific audio effect to the provided samples.
      * This method is called by the {@link #render(float[][], int)} or {@link #renderWithMixing(float[][], int)}
      * method after validating the input samples.
      * Subclasses must implement this method to define the actual effect processing logic.
-     * 
+     *
      * @param samples The audio samples to process
      * @param sampleRate The sample rate of the audio
      */
@@ -198,7 +198,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
 
     /**
      * Returns the type of the audio effect.
-     * 
+     *
      * @return The type of the audio effect, either REALTIME or OFFLINE_PROCESSING
      */
     public Type getType() {
@@ -217,7 +217,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
 
     /**
      * Adds a list of controls to the list of all controls for this audio effect.
-     * 
+     *
      * @param controls The list of controls to add
      * @throws IllegalArgumentException if the controls list is null or contains null elements
      */
@@ -232,7 +232,7 @@ public abstract class AudioEffect implements AudioNode, Controllable {
 
     /**
      * Adds a control to the list of all controls for this audio effect.
-     * 
+     *
      * @param control The control to add
      * @return true if the control was added successfully, false if the control was already present in the list
      * @throws IllegalArgumentException if the control is null

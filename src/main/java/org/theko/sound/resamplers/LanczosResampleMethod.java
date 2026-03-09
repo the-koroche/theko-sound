@@ -20,7 +20,7 @@ package org.theko.sound.resamplers;
  * LanczosResampleMethod implements a Lanczos resampling algorithm.
  * This method uses the Lanczos kernel for interpolation,
  * known for its high-quality interpolation in audio and image processing.
- * 
+ *
  * @since 0.1.4-beta
  * @author Theko
  */
@@ -35,7 +35,7 @@ public class LanczosResampleMethod implements ResampleMethod {
     public LanczosResampleMethod() {
         this(3);
     }
-    
+
     @Override
     public void resample(float[] input, float[] output, int targetLength) {
         int inLen = input.length;

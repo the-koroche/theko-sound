@@ -18,10 +18,10 @@ package org.theko.sound.dsp;
 
 /**
  * Represents a second-order Butterworth filter.
- * 
+ *
  * @see AudioFilter
  * @see CascadeFilter
- * 
+ *
  * @since 0.2.3-beta
  * @author Theko
  */
@@ -170,7 +170,7 @@ public class BiquadStage implements AudioFilter {
      * Processes a single audio sample using the filter's current
      * coefficients. The filter's coefficients are smoothly updated
      * to the target coefficients using the SMOOTH_FACTOR.
-     * 
+     *
      * @param input the audio sample to process
      * @param sampleRate the sample rate of the input
      * @return the processed audio sample
@@ -197,7 +197,7 @@ public class BiquadStage implements AudioFilter {
 
         return y0;
     }
-    
+
     /**
      * Creates a copy of the filter using the current coefficients.
      * @return a copy of the filter

@@ -20,12 +20,12 @@ package org.theko.sound.backends;
  * Represents an exception that occurs in the context of audio backend operations.
  * This is a runtime exception that can be used to signal issues related to
  * audio backend functionality.
- * 
+ *
  * @since 0.1.0-beta
  * @author Theko
  */
 public class AudioBackendException extends RuntimeException {
-    
+
     public AudioBackendException() {
         super();
     }

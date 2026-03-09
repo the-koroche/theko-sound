@@ -20,14 +20,14 @@ package org.theko.sound;
  * This exception is thrown when there is a mismatch in the expected length of an audio sample array
  * and the actual length provided. It extends the Exception class to provide specific context for
  * length mismatches in audio processing operations.
- * 
+ *
  * @see ChannelsCountMismatchException
- * 
+ *
  * @since 0.2.0-beta
  * @author Theko
  */
 public class LengthMismatchException extends Exception {
-    
+
     public LengthMismatchException() {
         super();
     }

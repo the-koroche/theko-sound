@@ -23,10 +23,10 @@ import org.theko.sound.events.AudioControlEventType;
  * The {@code BooleanControl} class represents a type of {@link AudioControl}
  * that holds a boolean value. It provides methods to set and retrieve the
  * boolean value, as well as a string representation of the control.
- * 
+ *
  * <p>This class is typically used to manage audio-related boolean settings,
  * such as enabling or disabling a feature.
- * 
+ *
  * @since 0.1.2-beta
  * @author Theko
  */
@@ -38,10 +38,10 @@ public class BooleanControl extends AudioControl {
         super(name);
         this.value = value;
     }
-    
+
     /**
      * Sets the boolean value of this BooleanControl to the given value.
-     * 
+     *
      * @param value The boolean value to set. If true, the control is enabled; if false, the control is disabled
      */
     public void setValue(boolean value) {
@@ -51,7 +51,7 @@ public class BooleanControl extends AudioControl {
 
     /**
      * Retrieves the current boolean value of this BooleanControl.
-     * 
+     *
      * @return The current boolean value of this BooleanControl
      */
     public boolean getValue() {
@@ -61,7 +61,7 @@ public class BooleanControl extends AudioControl {
     /**
      * Returns a string representation of the BooleanControl object, displaying the name of the control
      * and the boolean value.
-     * 
+     *
      * @return A string that represents the boolean control
      */
     @Override

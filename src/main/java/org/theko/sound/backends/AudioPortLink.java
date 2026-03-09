@@ -20,9 +20,9 @@ import org.theko.sound.AudioPort;
 
 /**
  * Marker interface for audio ports links.
- * 
+ *
  * @see AudioPort
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */

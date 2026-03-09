@@ -24,7 +24,7 @@ import org.theko.sound.controls.FloatControl;
 /**
  * A simple saturator effect.
  * It uses the hyperbolic tangent function to saturate the audio signal.
- * 
+ *
  * @since 0.2.1-beta
  * @author Theko
  */

@@ -121,13 +121,13 @@ public class Envelope implements Controllable {
     /** @return the release tension control */
     public FloatControl getReleaseTension() { return releaseTension; }
 
-    
+
     /**
      * Calculates the envelope value at a given time.
-     * 
+     *
      * <p>This method applies the envelope's attack, hold, decay, sustain, and release stages
      * to calculate the envelope value at the given time.
-     * 
+     *
      * @param time the time at which to calculate the envelope value
      * @return the envelope value at the given time (0.0 to 1.0)
      */

@@ -34,9 +34,9 @@ import javax.swing.Timer;
  * A utility class for visualizing the history of an {@link AudioControl} over time.
  * <p>
  * It can be used to visualize the history of any control, such as a volume control or a filter cutoff.
- * 
+ *
  * @see AudioControl
- * 
+ *
  * @author Theko
  * @since 0.2.4-beta
  */
@@ -86,7 +86,7 @@ public class ControlVisualizer extends JPanel {
         if (frameRate <= 0) throw new IllegalArgumentException("frameRate must be greater than 0");
         this.control = control;
         this.frameRate = frameRate;
-        
+
         this.historyMaxSamples = Math.max(1, (int) (historyMaxTime * frameRate));
         historySamples = new float[historyMaxSamples];
 
@@ -117,14 +117,14 @@ public class ControlVisualizer extends JPanel {
      */
     protected void updateHistory() {
         float value = AudioControlUtilities.getValueAsFloat(control);
-        
+
         if (value < historyMinValue) historyMinValue = value;
         if (value > historyMaxValue) historyMaxValue = value;
-        
+
         historySamples[historyIndex] = value;
         historyIndex = (historyIndex + 1) % historyMaxSamples;
         if (historyCount < historyMaxSamples) historyCount++;
-        
+
         if (historyIndex % 4 == 0) {
             getRange();
         }
@@ -133,7 +133,7 @@ public class ControlVisualizer extends JPanel {
     /**
      * Retrieves the minimum and maximum values from the history array and updates
      * {@link #historyMinValue} and {@link #historyMaxValue} accordingly.
-     * 
+     *
      * <p>Called automatically by the timer at the frame rate set in the constructor.
      * <p>If the range is very small (less than 0.001f), it is artificially expanded to
      * be centered around the midpoint of the range, with a range of 1.0f.
@@ -144,7 +144,7 @@ public class ControlVisualizer extends JPanel {
             historyMaxValue = 0;
             return;
         }
-        
+
         historyMinValue = Float.POSITIVE_INFINITY;
         historyMaxValue = Float.NEGATIVE_INFINITY;
         for (int i = 0; i < historyCount; i++) {
@@ -153,7 +153,7 @@ public class ControlVisualizer extends JPanel {
             if (v < historyMinValue) historyMinValue = v;
             if (v > historyMaxValue) historyMaxValue = v;
         }
-        
+
         if (Math.abs(historyMaxValue - historyMinValue) < 0.001f) {
             float center = (historyMaxValue + historyMinValue) / 2;
             historyMinValue = center - 0.5f;
@@ -199,7 +199,7 @@ public class ControlVisualizer extends JPanel {
 
     /**
      * Draws a grid on the given graphics context.
-     * 
+     *
      * @param g2d the graphics context to draw on
      * @param w the width of the component
      * @param h the height of the component
@@ -209,7 +209,7 @@ public class ControlVisualizer extends JPanel {
      */
     protected void drawGrid(Graphics2D g2d, int w, int h, float actualMin, float actualMax, float range) {
         g2d.setColor(gridColor);
-        
+
         for (int i = 0; i <= gridLines; i++) {
             float value = actualMin + i * (range) / gridLines;
             int y = (int) (h - (value - actualMin) * h / range);
@@ -222,7 +222,7 @@ public class ControlVisualizer extends JPanel {
 
     /**
      * Draws a path representing the history of values on the given graphics context.
-     * 
+     *
      * @param g2d the graphics context to draw on
      * @param w the width of the component
      * @param h the height of the component
@@ -262,7 +262,7 @@ public class ControlVisualizer extends JPanel {
     /**
      * Draws a line representing the current value on the given graphics context.
      * <p>The line is drawn at the y position corresponding to the current value.
-     * 
+     *
      * @param g2d the graphics context to draw on
      * @param w the width of the component
      * @param h the height of the component
@@ -281,7 +281,7 @@ public class ControlVisualizer extends JPanel {
     /**
      * Draws the current value of the associated control as a text on the given graphics context.
      * <p>The text is drawn at the bottom right corner of the component.
-     * 
+     *
      * @param g2d the graphics context to draw on
      * @param w the width of the component
      * @param h the height of the component
@@ -299,7 +299,7 @@ public class ControlVisualizer extends JPanel {
 
         g2d.setColor(valueTextBackgroundColor);
         g2d.fillRect(x - 2, y - textHeight, textWidth + 4, textHeight + 2);
-        
+
         g2d.setColor(valueTextColor);
         g2d.drawString(valueText, x, y);
     }
@@ -314,24 +314,24 @@ public class ControlVisualizer extends JPanel {
      * Sets the maximum time period in seconds for which the control value history is kept.
      * <p>A minimum value of 0.2f is enforced to prevent very short history periods.
      * <p>Setting this value to -1 will use a default value of 60.0f equivalent to 1 minute.
-     * 
+     *
      * @param historyTime the maximum time period in seconds for which the control value history is kept
      */
     public void setHistoryMaxTime(float historyTime) {
         if (historyTime == -1) historyTime = 60.0f;
         if (historyTime < 0.2f) historyTime = 0.2f;
         this.historyMaxTime = historyTime;
-        
+
         this.historyMaxSamples = Math.max(1, (int) (historyTime * frameRate));
         float[] newHistory = new float[historyMaxSamples];
-        
+
         // Copy old history samples to new array
         int copyCount = Math.min(historyCount, historyMaxSamples);
         for (int i = 0; i < copyCount; i++) {
             int oldIndex = (historyIndex - copyCount + i + historySamples.length) % historySamples.length;
             newHistory[i] = historySamples[oldIndex];
         }
-        
+
         this.historySamples = newHistory;
         this.historyIndex = copyCount % historyMaxSamples;
         this.historyCount = copyCount;
@@ -340,7 +340,7 @@ public class ControlVisualizer extends JPanel {
 
     /**
      * Retrieves the maximum time period in seconds for which the control value history is kept.
-     * 
+     *
      * @return The maximum history time period in seconds
      */
     public float getHistoryMaxTime() {
@@ -370,7 +370,7 @@ public class ControlVisualizer extends JPanel {
     public boolean isValueLineVisible() {
         return drawValueLine;
     }
-    
+
     public void setValueLineWidth(float width) {
         this.valueLineWidth = Math.max(0.5f, width);
         this.valueLineStroke = new BasicStroke(valueLineWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
@@ -379,7 +379,7 @@ public class ControlVisualizer extends JPanel {
     public float getValueLineWidth() {
         return valueLineWidth;
     }
-    
+
     public void setValueLineColor(Color color) {
         Objects.requireNonNull(color);
         this.valueLineColor = color;
@@ -388,7 +388,7 @@ public class ControlVisualizer extends JPanel {
     public Color getValueLineColor() {
         return valueLineColor;
     }
-    
+
     public void setGridVisible(boolean drawGrid) {
         this.drawGrid = drawGrid;
     }
@@ -414,7 +414,7 @@ public class ControlVisualizer extends JPanel {
     public Color getGridColor() {
         return gridColor;
     }
-    
+
     public void setValueTextVisible(boolean drawValueText) {
         this.drawValueText = drawValueText;
     }

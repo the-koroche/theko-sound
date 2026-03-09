@@ -20,12 +20,12 @@ import java.io.File;
 
 /**
  * Utility class for common file operations.
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */
 public final class FileUtilities {
-    
+
     private FileUtilities() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
     }
@@ -35,7 +35,7 @@ public final class FileUtilities {
      * <p>
      * If the {@code dir} is {@code null} or not a directory, this method
      * returns {@code false}.
-     * 
+     *
      *
      * @param dir   the directory to search in (may be {@code null})
      * @param names the file names to check (must not be {@code null})

@@ -23,13 +23,13 @@ import org.theko.sound.controls.FloatControl;
 
 /**
  * The AudioLimiter class is a real-time audio effect that applies dynamic range compression
- * to audio signals. It limits the amplitude of the audio signal to prevent clipping and 
+ * to audio signals. It limits the amplitude of the audio signal to prevent clipping and
  * distortion, while also providing soft saturation for smoother transitions.
- * 
+ *
  * <p>This class uses an attack-sustain-release (ASR) envelope to control the gain reduction
  * dynamically, ensuring a natural-sounding compression effect. The limiter has configurable
  * parameters for gain, soft saturation threshold, limiter ceiling, and envelope timing.
- * 
+ *
  * <p>Usage:
  * <pre>
  * AudioFormat format = new AudioFormat(44100, 16, 2, true, false);
@@ -38,27 +38,54 @@ import org.theko.sound.controls.FloatControl;
  * limiter.getLimiterCeiling().setValue(-1.0f); // Set limiter ceiling to -1 dB
  * float[][] processedSamples = limiter.process(inputSamples);
  * </pre>
- * 
+ *
  * @see AudioEffect
  * @see FloatControl
- * 
+ *
  * @since 0.1.4-beta
  * @author Theko
  */
 public class AudioLimiter extends AudioEffect {
-    protected final FloatControl gain = 
+
+    /**
+     * The gain control for the audio limiter (-24dB to 24dB).
+     */
+    protected final FloatControl gain =
             new FloatControl("Gain", -24.0f, 24.0f, 0.0f); // dB
-    protected final FloatControl softSaturationThreshold = 
+
+    /**
+     * The soft saturation threshold control for the audio limiter (-12dB to 0dB).
+     */
+    protected final FloatControl softSaturationThreshold =
             new FloatControl("Soft Saturation Threshold", -12.0f, 0.0f, -6.0f); // dB
-    protected final FloatControl limiterCeiling = 
+
+    /**
+     * The limiter ceiling control for the audio limiter (-20dB to 0dB).
+     */
+    protected final FloatControl limiterCeiling =
             new FloatControl("Limiter Ceiling", -20.0f, 0.0f, -0.1f); // dB
-    protected final FloatControl envelopeAttack = 
+
+    /**
+     * The envelope attack control for the audio limiter (0.001s to 1.0s).
+     */
+    protected final FloatControl envelopeAttack =
             new FloatControl("Envelope Attack", 0.001f, 1.0f, 0.01f); // seconds
-    protected final FloatControl envelopeRelease = 
+
+    /**
+     * The envelope release control for the audio limiter (0.01s to 3.0s).
+     */
+    protected final FloatControl envelopeRelease =
             new FloatControl("Envelope Release", 0.01f, 3.0f, 0.1f); // seconds
-    protected final FloatControl envelopeSustain = 
+
+    /**
+     * The envelope sustain control for the audio limiter (0.0s to 1.0s).
+     */
+    protected final FloatControl envelopeSustain =
             new FloatControl("Envelope Sustain", 0.0f, 1.0f, 0.0f); // seconds
 
+    /**
+     * The list of controls for the audio limiter.
+     */
     protected final List<AudioControl> limiterControls = List.of(
         gain,
         softSaturationThreshold,
@@ -84,7 +111,7 @@ public class AudioLimiter extends AudioEffect {
     public FloatControl getLimiterCeiling() {
         return limiterCeiling;
     }
-    
+
     public FloatControl getAttack() {
         return envelopeAttack;
     }
@@ -101,18 +128,18 @@ public class AudioLimiter extends AudioEffect {
     protected void effectRender(float[][] samples, int sampleRate) {
         int channels = samples.length;
         int length = samples[0].length;
-    
+
         float linearGain = (float) Math.pow(10.0, gain.getValue() / 20.0);
         float softThreshold = (float) Math.pow(10.0, softSaturationThreshold.getValue() / 20.0);
         float ceiling = (float) Math.pow(10.0, limiterCeiling.getValue() / 20.0);
-    
+
         float attackCoeff = (float) Math.exp(-1.0 / (sampleRate * getAttack().getValue()));
         float releaseCoeff = (float) Math.exp(-1.0 / (sampleRate * getRelease().getValue()));
         float sustainSamples = getSustain().getValue() * sampleRate;
-    
+
         float envelopeValue = 1.0f;
         float sustainCounter = 0.0f;
-    
+
         for (int i = 0; i < length; i++) {
             // Calculate the maximum absolute value across all channels
             float maxAbs = 0.0f;
@@ -120,9 +147,9 @@ public class AudioLimiter extends AudioEffect {
                 float value = samples[ch][i] * linearGain;
                 maxAbs = Math.max(maxAbs, Math.abs(value));
             }
-    
+
             float gainReduction = 1.0f;
-    
+
             if (maxAbs > softThreshold) {
                 if (maxAbs > ceiling) {
                     // Hard limiter
@@ -134,7 +161,7 @@ public class AudioLimiter extends AudioEffect {
                     gainReduction = (float) (1.0 / (1.0 + excess * excess));
                 }
             }
-    
+
             if (gainReduction < envelopeValue) {
                 envelopeValue = attackCoeff * (envelopeValue - gainReduction) + gainReduction;
                 sustainCounter = sustainSamples; // Reset sustain counter on attack
@@ -145,7 +172,7 @@ public class AudioLimiter extends AudioEffect {
                     envelopeValue = releaseCoeff * (envelopeValue - 1.0f) + 1.0f;
                 }
             }
-    
+
             // Apply gain reduction to all channels
             for (int ch = 0; ch < channels; ch++) {
                 samples[ch][i] *= linearGain * envelopeValue;

@@ -20,7 +20,7 @@ package org.theko.sound.util;
  * Utility class for mathematical operations related to audio processing.
  * <p>This class provides methods for remapping values between ranges, linear interpolation,
  * and quantization of floating-point values.
- * 
+ *
  * @since 0.2.0-beta
  * @author Theko
  */
@@ -138,7 +138,7 @@ public final class MathUtilities {
     }
 
     /** Clamps a value within a specified range.
-     * 
+     *
      * @param x The value to clamp
      * @param min The minimum value of the range
      * @param max The maximum value of the range
@@ -149,7 +149,7 @@ public final class MathUtilities {
     }
 
     /** Clamps a value within a specified range.
-     * 
+     *
      * @param x The value to clamp
      * @param min The minimum value of the range
      * @param max The maximum value of the range
@@ -160,7 +160,7 @@ public final class MathUtilities {
     }
 
     /** Clamps a value within a specified range.
-     * 
+     *
      * @param x The value to clamp
      * @param min The minimum value of the range
      * @param max The maximum value of the range
@@ -218,7 +218,7 @@ public final class MathUtilities {
     /**
      * Returns the hyperbolic cotangent of a number.
      * The hyperbolic cotangent is defined as 1/tanh(x).
-     * 
+     *
      * @param x The number
      * @return The hyperbolic cotangent
      */
@@ -229,7 +229,7 @@ public final class MathUtilities {
     /**
      * Returns the hyperbolic secant of a given number.
      * The hyperbolic secant is defined as 1/cosh(x).
-     * 
+     *
      * @param x The number
      * @return The hyperbolic secant of the number
      */
@@ -240,7 +240,7 @@ public final class MathUtilities {
     /**
      * Returns the hyperbolic cosecant of a given number.
      * The hyperbolic cosecant is defined as 1/sinh(x).
-     * 
+     *
      * @param x The number
      * @return The hyperbolic cosecant of the number
      */

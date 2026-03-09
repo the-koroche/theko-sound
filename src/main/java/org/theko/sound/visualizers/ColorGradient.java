@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Represents a linear color gradient.
  * Allows retrieving interpolated colors based on a normalized value or a float index.
- * 
+ *
  * @since 0.2.3-beta
  * @author Theko
  */
@@ -152,7 +152,7 @@ public class ColorGradient {
     public static final ColorGradient OCEAN_COLOR_MAP = fromColors(OCEAN_COLORS);
 
     private int[] colors;
-    
+
     private ColorGradient() {}
 
     /**
@@ -180,7 +180,7 @@ public class ColorGradient {
         for (int i = 0; i < colors.size(); i++) {
             gradient.colors[i] = colors.get(i).getRGB();
         }
-        
+
         if (gradient.colors == null || gradient.colors.length == 0) {
             throw new IllegalArgumentException("Color array cannot be null, or empty.");
         }

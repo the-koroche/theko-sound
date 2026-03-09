@@ -21,7 +21,7 @@ import java.io.IOException;
 /**
  * Thrown by the {@link ResourceLoader} class, when a resource is not found.
  * This exception extends {@link IOException}.
- * 
+ *
  * @since 0.2.4-beta
  * @author Theko
  */

@@ -20,12 +20,12 @@ package org.theko.sound.resamplers;
  * The LinearResampler class implements the ResamplerMethod interface and provides
  * functionality to resample an input array of floating-point audio samples to a
  * specified target length using linear interpolation.
- * 
+ *
  * @since 0.1.4-beta
  * @author Theko
  */
 public class LinearResampleMethod implements ResampleMethod {
-    
+
     @Override
     public void resample(float[] input, float[] output, int targetLength) {
         float scale = (float) input.length / targetLength;
@@ -33,7 +33,7 @@ public class LinearResampleMethod implements ResampleMethod {
             float pos = i * scale;
             int i0 = (int) pos;
             float t = pos - i0;
-            
+
             if (i0 < 0) {
                 output[i] = input[0];
             } else if (i0 >= input.length - 1) {
