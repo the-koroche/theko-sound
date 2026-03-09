@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-package utility;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -97,9 +95,9 @@ public class JNIClassCacheGenerator {
             }
             """;
 
-    public static String generate(Class<?> cls) {
+    public static String generate(Class<?> cls, String cppClassName) {
         StringBuilder sb = new StringBuilder();
-        String cppClassName = "Java_" + cls.getName().replace('.', '_').replace('$', '_');
+        cppClassName = (cppClassName == null || cppClassName.isEmpty()) ? ("Java_" + sanitize(cls.getName())) : cppClassName;
         String jniClassName = cls.getName().replace('.', '/');
 
         // Auto-generated comment
@@ -173,7 +171,7 @@ public class JNIClassCacheGenerator {
                 sb.append(indent(3)).append(constructorFieldName(c))
                         .append(" = env->GetMethodID(clazz_local, \"<init>\", \"")
                         .append(constructorJNISignature(c)).append("\");\n");
-                    
+
                 // Check if constructor is valid
                 sb.append(multilineIndent(String.format(CHECK_CODE, constructorFieldName(c), "Failed to get constructor '" + c.toString() + "'", ""), 3));
             }
@@ -192,7 +190,7 @@ public class JNIClassCacheGenerator {
                 sb.append(indent(3)).append(name)
                         .append(" = env->").append(targetMethod).append("(clazz_local, \"").append(f.getName()).append("\", \"")
                         .append(JNISignature(f.getType())).append("\");\n");
-                    
+
                 // Check if field is valid
                 sb.append(multilineIndent(String.format(CHECK_CODE, name, "Failed to get field '" + f.getName() + "'", ""), 3));
             }
@@ -214,7 +212,7 @@ public class JNIClassCacheGenerator {
                 sb.append(indent(3)).append(methodFieldName(m))
                         .append(" = env->").append(targetMethod).append("(clazz_local, \"").append(m.getName())
                         .append("\", \"").append(methodJNISignature(m)).append("\");\n");
-                
+
                 // Check if method is valid
                 sb.append(multilineIndent(String.format(CHECK_CODE, methodFieldName(m), "Failed to get method '" + m.getName() + "'", ""), 3));
             }
@@ -229,7 +227,6 @@ public class JNIClassCacheGenerator {
                     env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Failed to create global class reference");
                     return;
                 }
-
                 initialized = true;
                 """;
 
@@ -345,7 +342,7 @@ public class JNIClassCacheGenerator {
 
                 Class<?> ret = m.getReturnType();
                 String retJNI = JNIType(ret);
-                
+
                 boolean isStatic = Modifier.isStatic(m.getModifiers());
                 String callTarget = isStatic ? "self->clazz" : "obj";
                 // Generate JNI method call name
@@ -363,7 +360,7 @@ public class JNIClassCacheGenerator {
                 String fabricName = overloadedMethods.contains(m) ? m.getName() + "__" + methodParameterSignature(m) : m.getName();
                 sb.append(indent(2)).append("inline static ").append(retJNI).append(" ").append(fabricName).append("(JNIEnv* env");
                 if (!isStatic) sb.append(", jobject obj");
-                
+
                 int idx = 0;
                 for (Parameter p : m.getParameters()) {
                     sb.append(", ").append(JNIType(p.getType())).append(" ").append(PARAM_PREFIX).append(idx++);
