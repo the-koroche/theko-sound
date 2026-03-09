@@ -165,6 +165,8 @@ public class VisualizerPlayback {
         if (audioFile == null)
             return false;
 
+        boolean wasPlaying = player.isPlaying();
+
         if (background) {
             String frameTitle = frame.getTitle();
             frame.setTitle("Opening...");
@@ -174,7 +176,8 @@ public class VisualizerPlayback {
                 @Override
                 protected Void doInBackground() throws Exception {
                     player.open(audioFile);
-                    player.start();
+                    if (wasPlaying)
+                        player.start();
                     trackInfo = getTrackInfo(player);
                     return null;
                 }
@@ -192,7 +195,8 @@ public class VisualizerPlayback {
             worker.execute();
         } else {
             player.open(audioFile);
-            player.start();
+            if (wasPlaying)
+                player.start();
             trackInfo = getTrackInfo(player);
         }
         return true;
