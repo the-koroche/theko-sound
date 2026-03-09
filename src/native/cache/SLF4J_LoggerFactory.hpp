@@ -8,7 +8,7 @@
 #include <memory>
 
 // Target class: org/slf4j/LoggerFactory
-class Java_org_slf4j_LoggerFactory {
+class SLF4J_LoggerFactory {
     private:
         static inline JavaVM* jvm = nullptr;
 
@@ -60,7 +60,7 @@ class Java_org_slf4j_LoggerFactory {
         jmethodID mtd__getILoggerFactory; // public static org.slf4j.ILoggerFactory org.slf4j.LoggerFactory.getILoggerFactory()
         jmethodID mtd__equals_java_lang_Object; // public boolean java.lang.Object.equals(java.lang.Object)
 
-        Java_org_slf4j_LoggerFactory(JNIEnv* env) {
+        SLF4J_LoggerFactory(JNIEnv* env) {
             initialized = false; // Reinitialize
             if (!env) return;
             jclass clazz_local = env->FindClass("org/slf4j/LoggerFactory");
@@ -262,12 +262,11 @@ class Java_org_slf4j_LoggerFactory {
                 env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Failed to create global class reference");
                 return;
             }
-            
             initialized = true;
         }
 
     public:
-        ~Java_org_slf4j_LoggerFactory() {
+        ~SLF4J_LoggerFactory() {
             if (clazz) {
                 bool attached = false;
                 JNIEnv* env = getEnv(&attached);
@@ -285,17 +284,17 @@ class Java_org_slf4j_LoggerFactory {
             return clazz && initialized;
         }
 
-        static Java_org_slf4j_LoggerFactory* get(JNIEnv* env) {
+        static SLF4J_LoggerFactory* get(JNIEnv* env) {
             if (!env) return nullptr;
-            if (!Java_org_slf4j_LoggerFactory::jvm) {
-                env->GetJavaVM(&Java_org_slf4j_LoggerFactory::jvm);
+            if (!SLF4J_LoggerFactory::jvm) {
+                env->GetJavaVM(&SLF4J_LoggerFactory::jvm);
             }
             static std::mutex mtx;
-            static std::unique_ptr<Java_org_slf4j_LoggerFactory> instance;
+            static std::unique_ptr<SLF4J_LoggerFactory> instance;
         
             std::lock_guard<std::mutex> lock(mtx);
             if (!instance || !instance->isValid()) {
-                instance.reset(new Java_org_slf4j_LoggerFactory(env));
+                instance.reset(new SLF4J_LoggerFactory(env));
             }
             return instance.get();
         }
@@ -307,156 +306,156 @@ class Java_org_slf4j_LoggerFactory {
 
         // Field getters
         inline static jfieldID getfld__CODES_PREFIX(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__CODES_PREFIX;
         }
         inline static jfieldID getfld__NO_PROVIDERS_URL(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__NO_PROVIDERS_URL;
         }
         inline static jfieldID getfld__IGNORED_BINDINGS_URL(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__IGNORED_BINDINGS_URL;
         }
         inline static jfieldID getfld__MULTIPLE_BINDINGS_URL(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__MULTIPLE_BINDINGS_URL;
         }
         inline static jfieldID getfld__VERSION_MISMATCH(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__VERSION_MISMATCH;
         }
         inline static jfieldID getfld__SUBSTITUTE_LOGGER_URL(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__SUBSTITUTE_LOGGER_URL;
         }
         inline static jfieldID getfld__LOGGER_NAME_MISMATCH_URL(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__LOGGER_NAME_MISMATCH_URL;
         }
         inline static jfieldID getfld__REPLAY_URL(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__REPLAY_URL;
         }
         inline static jfieldID getfld__UNSUCCESSFUL_INIT_URL(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__UNSUCCESSFUL_INIT_URL;
         }
         inline static jfieldID getfld__UNSUCCESSFUL_INIT_MSG(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__UNSUCCESSFUL_INIT_MSG;
         }
         inline static jfieldID getfld__PROVIDER_PROPERTY_KEY(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__PROVIDER_PROPERTY_KEY;
         }
         inline static jfieldID getfld__UNINITIALIZED(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__UNINITIALIZED;
         }
         inline static jfieldID getfld__ONGOING_INITIALIZATION(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__ONGOING_INITIALIZATION;
         }
         inline static jfieldID getfld__FAILED_INITIALIZATION(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__FAILED_INITIALIZATION;
         }
         inline static jfieldID getfld__SUCCESSFUL_INITIALIZATION(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__SUCCESSFUL_INITIALIZATION;
         }
         inline static jfieldID getfld__NOP_FALLBACK_INITIALIZATION(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__NOP_FALLBACK_INITIALIZATION;
         }
         inline static jfieldID getfld__INITIALIZATION_STATE(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__INITIALIZATION_STATE;
         }
         inline static jfieldID getfld__SUBST_PROVIDER(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__SUBST_PROVIDER;
         }
         inline static jfieldID getfld__NOP_FALLBACK_SERVICE_PROVIDER(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__NOP_FALLBACK_SERVICE_PROVIDER;
         }
         inline static jfieldID getfld__DETECT_LOGGER_NAME_MISMATCH_PROPERTY(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__DETECT_LOGGER_NAME_MISMATCH_PROPERTY;
         }
         inline static jfieldID getfld__JAVA_VENDOR_PROPERTY(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__JAVA_VENDOR_PROPERTY;
         }
         inline static jfieldID getfld__DETECT_LOGGER_NAME_MISMATCH(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__DETECT_LOGGER_NAME_MISMATCH;
         }
         inline static jfieldID getfld__PROVIDER(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__PROVIDER;
         }
         inline static jfieldID getfld__API_COMPATIBILITY_LIST(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__API_COMPATIBILITY_LIST;
         }
         inline static jfieldID getfld__STATIC_LOGGER_BINDER_PATH(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__STATIC_LOGGER_BINDER_PATH;
         }
 
         // Constructor getters
         inline static jmethodID getctor__(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->ctor__;
         }
 
         // Method getters
         inline static jmethodID getmtd__getLogger_java_lang_String(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getLogger_java_lang_String;
         }
         inline static jmethodID getmtd__getLogger_java_lang_Class(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getLogger_java_lang_Class;
         }
         inline static jmethodID getmtd__getILoggerFactory(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getILoggerFactory;
         }
         inline static jmethodID getmtd__equals_java_lang_Object(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__equals_java_lang_Object;
         }
@@ -464,7 +463,7 @@ class Java_org_slf4j_LoggerFactory {
         // Fabric methods for constructors
         // Instance creation method for private org.slf4j.LoggerFactory()
         inline static jobject createInstance(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__;
             if (!ctor) return nullptr;
@@ -474,7 +473,7 @@ class Java_org_slf4j_LoggerFactory {
         // Method wrappers
         // Fabric method for public static org.slf4j.Logger org.slf4j.LoggerFactory.getLogger(java.lang.String)
         inline static jobject getLogger__java_lang_String(JNIEnv* env, jstring v0) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getLogger_java_lang_String;
             if (!mtd) return nullptr;
@@ -483,7 +482,7 @@ class Java_org_slf4j_LoggerFactory {
 
         // Fabric method for public static org.slf4j.Logger org.slf4j.LoggerFactory.getLogger(java.lang.Class)
         inline static jobject getLogger__java_lang_Class(JNIEnv* env, jobject v0) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getLogger_java_lang_Class;
             if (!mtd) return nullptr;
@@ -492,7 +491,7 @@ class Java_org_slf4j_LoggerFactory {
 
         // Fabric method for public static org.slf4j.ILoggerFactory org.slf4j.LoggerFactory.getILoggerFactory()
         inline static jobject getILoggerFactory(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getILoggerFactory;
             if (!mtd) return nullptr;
@@ -501,7 +500,7 @@ class Java_org_slf4j_LoggerFactory {
 
         // Fabric method for public boolean java.lang.Object.equals(java.lang.Object)
         inline static jboolean equals(JNIEnv* env, jobject obj, jobject v0) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__equals_java_lang_Object;
             if (!mtd) return JNI_FALSE;
@@ -510,7 +509,7 @@ class Java_org_slf4j_LoggerFactory {
 
         // Fabric field get for public static final java.lang.String org.slf4j.LoggerFactory.PROVIDER_PROPERTY_KEY
         inline static jstring getField__PROVIDER_PROPERTY_KEY(JNIEnv* env) {
-            Java_org_slf4j_LoggerFactory* self = get(env);
+            SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jfieldID fld = self->fld__PROVIDER_PROPERTY_KEY;
             if (!fld) return nullptr;

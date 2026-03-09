@@ -8,7 +8,7 @@
 #include <memory>
 
 // Target class: org/theko/sound/AudioFormat$Encoding
-class Java_org_theko_sound_AudioFormat_Encoding {
+class ThekoSound_AudioFormat_Encoding {
     private:
         static inline JavaVM* jvm = nullptr;
 
@@ -38,7 +38,7 @@ class Java_org_theko_sound_AudioFormat_Encoding {
         jmethodID mtd__values; // public static org.theko.sound.AudioFormat$Encoding[] org.theko.sound.AudioFormat$Encoding.values()
         jmethodID mtd__valueOf_java_lang_String; // public static org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.valueOf(java.lang.String)
 
-        Java_org_theko_sound_AudioFormat_Encoding(JNIEnv* env) {
+        ThekoSound_AudioFormat_Encoding(JNIEnv* env) {
             initialized = false; // Reinitialize
             if (!env) return;
             jclass clazz_local = env->FindClass("org/theko/sound/AudioFormat$Encoding");
@@ -108,12 +108,11 @@ class Java_org_theko_sound_AudioFormat_Encoding {
                 env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Failed to create global class reference");
                 return;
             }
-            
             initialized = true;
         }
 
     public:
-        ~Java_org_theko_sound_AudioFormat_Encoding() {
+        ~ThekoSound_AudioFormat_Encoding() {
             if (clazz) {
                 bool attached = false;
                 JNIEnv* env = getEnv(&attached);
@@ -131,17 +130,17 @@ class Java_org_theko_sound_AudioFormat_Encoding {
             return clazz && initialized;
         }
 
-        static Java_org_theko_sound_AudioFormat_Encoding* get(JNIEnv* env) {
+        static ThekoSound_AudioFormat_Encoding* get(JNIEnv* env) {
             if (!env) return nullptr;
-            if (!Java_org_theko_sound_AudioFormat_Encoding::jvm) {
-                env->GetJavaVM(&Java_org_theko_sound_AudioFormat_Encoding::jvm);
+            if (!ThekoSound_AudioFormat_Encoding::jvm) {
+                env->GetJavaVM(&ThekoSound_AudioFormat_Encoding::jvm);
             }
             static std::mutex mtx;
-            static std::unique_ptr<Java_org_theko_sound_AudioFormat_Encoding> instance;
+            static std::unique_ptr<ThekoSound_AudioFormat_Encoding> instance;
         
             std::lock_guard<std::mutex> lock(mtx);
             if (!instance || !instance->isValid()) {
-                instance.reset(new Java_org_theko_sound_AudioFormat_Encoding(env));
+                instance.reset(new ThekoSound_AudioFormat_Encoding(env));
             }
             return instance.get();
         }
@@ -153,46 +152,46 @@ class Java_org_theko_sound_AudioFormat_Encoding {
 
         // Field getters
         inline static jfieldID getfld__PCM_UNSIGNED(JNIEnv* env) {
-            Java_org_theko_sound_AudioFormat_Encoding* self = get(env);
+            ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__PCM_UNSIGNED;
         }
         inline static jfieldID getfld__PCM_SIGNED(JNIEnv* env) {
-            Java_org_theko_sound_AudioFormat_Encoding* self = get(env);
+            ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__PCM_SIGNED;
         }
         inline static jfieldID getfld__PCM_FLOAT(JNIEnv* env) {
-            Java_org_theko_sound_AudioFormat_Encoding* self = get(env);
+            ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__PCM_FLOAT;
         }
         inline static jfieldID getfld__ULAW(JNIEnv* env) {
-            Java_org_theko_sound_AudioFormat_Encoding* self = get(env);
+            ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__ULAW;
         }
         inline static jfieldID getfld__ALAW(JNIEnv* env) {
-            Java_org_theko_sound_AudioFormat_Encoding* self = get(env);
+            ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__ALAW;
         }
 
         // Constructor getters
         inline static jmethodID getctor__java_lang_String__int(JNIEnv* env) {
-            Java_org_theko_sound_AudioFormat_Encoding* self = get(env);
+            ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->ctor__java_lang_String__int;
         }
 
         // Method getters
         inline static jmethodID getmtd__values(JNIEnv* env) {
-            Java_org_theko_sound_AudioFormat_Encoding* self = get(env);
+            ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__values;
         }
         inline static jmethodID getmtd__valueOf_java_lang_String(JNIEnv* env) {
-            Java_org_theko_sound_AudioFormat_Encoding* self = get(env);
+            ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__valueOf_java_lang_String;
         }
@@ -200,7 +199,7 @@ class Java_org_theko_sound_AudioFormat_Encoding {
         // Fabric methods for constructors
         // Instance creation method for private org.theko.sound.AudioFormat$Encoding(java.lang.String,int)
         inline static jobject createInstance(JNIEnv* env, jstring v0, jint v1) {
-            Java_org_theko_sound_AudioFormat_Encoding* self = get(env);
+            ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__java_lang_String__int;
             if (!ctor) return nullptr;
@@ -210,7 +209,7 @@ class Java_org_theko_sound_AudioFormat_Encoding {
         // Method wrappers
         // Fabric method for public static org.theko.sound.AudioFormat$Encoding[] org.theko.sound.AudioFormat$Encoding.values()
         inline static jobjectArray values(JNIEnv* env) {
-            Java_org_theko_sound_AudioFormat_Encoding* self = get(env);
+            ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__values;
             if (!mtd) return nullptr;
@@ -219,7 +218,7 @@ class Java_org_theko_sound_AudioFormat_Encoding {
 
         // Fabric method for public static org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.valueOf(java.lang.String)
         inline static jobject valueOf__java_lang_String(JNIEnv* env, jstring v0) {
-            Java_org_theko_sound_AudioFormat_Encoding* self = get(env);
+            ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__valueOf_java_lang_String;
             if (!mtd) return nullptr;
@@ -228,7 +227,7 @@ class Java_org_theko_sound_AudioFormat_Encoding {
 
         // Fabric field get for public static final org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.PCM_UNSIGNED
         inline static jobject getField__PCM_UNSIGNED(JNIEnv* env) {
-            Java_org_theko_sound_AudioFormat_Encoding* self = get(env);
+            ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jfieldID fld = self->fld__PCM_UNSIGNED;
             if (!fld) return nullptr;
@@ -237,7 +236,7 @@ class Java_org_theko_sound_AudioFormat_Encoding {
 
         // Fabric field get for public static final org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.PCM_SIGNED
         inline static jobject getField__PCM_SIGNED(JNIEnv* env) {
-            Java_org_theko_sound_AudioFormat_Encoding* self = get(env);
+            ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jfieldID fld = self->fld__PCM_SIGNED;
             if (!fld) return nullptr;
@@ -246,7 +245,7 @@ class Java_org_theko_sound_AudioFormat_Encoding {
 
         // Fabric field get for public static final org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.PCM_FLOAT
         inline static jobject getField__PCM_FLOAT(JNIEnv* env) {
-            Java_org_theko_sound_AudioFormat_Encoding* self = get(env);
+            ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jfieldID fld = self->fld__PCM_FLOAT;
             if (!fld) return nullptr;
@@ -255,7 +254,7 @@ class Java_org_theko_sound_AudioFormat_Encoding {
 
         // Fabric field get for public static final org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.ULAW
         inline static jobject getField__ULAW(JNIEnv* env) {
-            Java_org_theko_sound_AudioFormat_Encoding* self = get(env);
+            ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jfieldID fld = self->fld__ULAW;
             if (!fld) return nullptr;
@@ -264,7 +263,7 @@ class Java_org_theko_sound_AudioFormat_Encoding {
 
         // Fabric field get for public static final org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.ALAW
         inline static jobject getField__ALAW(JNIEnv* env) {
-            Java_org_theko_sound_AudioFormat_Encoding* self = get(env);
+            ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jfieldID fld = self->fld__ALAW;
             if (!fld) return nullptr;

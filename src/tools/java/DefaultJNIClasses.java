@@ -45,8 +45,10 @@ public class DefaultJNIClasses {
         );
 
         classes.stream()
+            .sorted((a, b) -> a.cls.getCanonicalName().compareTo(b.cls.getCanonicalName()))
             .forEach(info -> {
                 String path = "src/native/cache/" + info.outName + ".hpp";
+                System.out.println("Generating: " + info.cls.getCanonicalName() + " -> " + path);
                 writeString(path, JNIClassCacheGenerator.generate(info.cls, info.outName));
             });
     }

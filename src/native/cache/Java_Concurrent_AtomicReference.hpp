@@ -8,7 +8,7 @@
 #include <memory>
 
 // Target class: java/util/concurrent/atomic/AtomicReference
-class Java_java_util_concurrent_atomic_AtomicReference {
+class Java_Concurrent_AtomicReference {
     private:
         static inline JavaVM* jvm = nullptr;
 
@@ -60,7 +60,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
         jmethodID mtd__setPlain_java_lang_Object; // public final void java.util.concurrent.atomic.AtomicReference.setPlain(java.lang.Object)
         jmethodID mtd__equals_java_lang_Object; // public boolean java.lang.Object.equals(java.lang.Object)
 
-        Java_java_util_concurrent_atomic_AtomicReference(JNIEnv* env) {
+        Java_Concurrent_AtomicReference(JNIEnv* env) {
             initialized = false; // Reinitialize
             if (!env) return;
             jclass clazz_local = env->FindClass("java/util/concurrent/atomic/AtomicReference");
@@ -262,12 +262,11 @@ class Java_java_util_concurrent_atomic_AtomicReference {
                 env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Failed to create global class reference");
                 return;
             }
-            
             initialized = true;
         }
 
     public:
-        ~Java_java_util_concurrent_atomic_AtomicReference() {
+        ~Java_Concurrent_AtomicReference() {
             if (clazz) {
                 bool attached = false;
                 JNIEnv* env = getEnv(&attached);
@@ -285,17 +284,17 @@ class Java_java_util_concurrent_atomic_AtomicReference {
             return clazz && initialized;
         }
 
-        static Java_java_util_concurrent_atomic_AtomicReference* get(JNIEnv* env) {
+        static Java_Concurrent_AtomicReference* get(JNIEnv* env) {
             if (!env) return nullptr;
-            if (!Java_java_util_concurrent_atomic_AtomicReference::jvm) {
-                env->GetJavaVM(&Java_java_util_concurrent_atomic_AtomicReference::jvm);
+            if (!Java_Concurrent_AtomicReference::jvm) {
+                env->GetJavaVM(&Java_Concurrent_AtomicReference::jvm);
             }
             static std::mutex mtx;
-            static std::unique_ptr<Java_java_util_concurrent_atomic_AtomicReference> instance;
+            static std::unique_ptr<Java_Concurrent_AtomicReference> instance;
         
             std::lock_guard<std::mutex> lock(mtx);
             if (!instance || !instance->isValid()) {
-                instance.reset(new Java_java_util_concurrent_atomic_AtomicReference(env));
+                instance.reset(new Java_Concurrent_AtomicReference(env));
             }
             return instance.get();
         }
@@ -307,156 +306,156 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Field getters
         inline static jfieldID getfld__serialVersionUID(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__serialVersionUID;
         }
         inline static jfieldID getfld__VALUE(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__VALUE;
         }
         inline static jfieldID getfld__value(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__value;
         }
 
         // Constructor getters
         inline static jmethodID getctor__java_lang_Object(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->ctor__java_lang_Object;
         }
         inline static jmethodID getctor__(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->ctor__;
         }
 
         // Method getters
         inline static jmethodID getmtd__get(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__get;
         }
         inline static jmethodID getmtd__toString(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__toString;
         }
         inline static jmethodID getmtd__set_java_lang_Object(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__set_java_lang_Object;
         }
         inline static jmethodID getmtd__getOpaque(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getOpaque;
         }
         inline static jmethodID getmtd__setOpaque_java_lang_Object(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__setOpaque_java_lang_Object;
         }
         inline static jmethodID getmtd__getAcquire(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getAcquire;
         }
         inline static jmethodID getmtd__setRelease_java_lang_Object(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__setRelease_java_lang_Object;
         }
         inline static jmethodID getmtd__compareAndSet_java_lang_Object__java_lang_Object(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__compareAndSet_java_lang_Object__java_lang_Object;
         }
         inline static jmethodID getmtd__compareAndExchange_java_lang_Object__java_lang_Object(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__compareAndExchange_java_lang_Object__java_lang_Object;
         }
         inline static jmethodID getmtd__compareAndExchangeAcquire_java_lang_Object__java_lang_Object(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__compareAndExchangeAcquire_java_lang_Object__java_lang_Object;
         }
         inline static jmethodID getmtd__compareAndExchangeRelease_java_lang_Object__java_lang_Object(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__compareAndExchangeRelease_java_lang_Object__java_lang_Object;
         }
         inline static jmethodID getmtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object;
         }
         inline static jmethodID getmtd__weakCompareAndSet_java_lang_Object__java_lang_Object(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__weakCompareAndSet_java_lang_Object__java_lang_Object;
         }
         inline static jmethodID getmtd__weakCompareAndSetAcquire_java_lang_Object__java_lang_Object(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__weakCompareAndSetAcquire_java_lang_Object__java_lang_Object;
         }
         inline static jmethodID getmtd__weakCompareAndSetRelease_java_lang_Object__java_lang_Object(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__weakCompareAndSetRelease_java_lang_Object__java_lang_Object;
         }
         inline static jmethodID getmtd__getAndSet_java_lang_Object(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getAndSet_java_lang_Object;
         }
         inline static jmethodID getmtd__weakCompareAndSetVolatile_java_lang_Object__java_lang_Object(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__weakCompareAndSetVolatile_java_lang_Object__java_lang_Object;
         }
         inline static jmethodID getmtd__lazySet_java_lang_Object(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__lazySet_java_lang_Object;
         }
         inline static jmethodID getmtd__getAndUpdate_java_util_function_UnaryOperator(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getAndUpdate_java_util_function_UnaryOperator;
         }
         inline static jmethodID getmtd__updateAndGet_java_util_function_UnaryOperator(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__updateAndGet_java_util_function_UnaryOperator;
         }
         inline static jmethodID getmtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator;
         }
         inline static jmethodID getmtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator;
         }
         inline static jmethodID getmtd__getPlain(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getPlain;
         }
         inline static jmethodID getmtd__setPlain_java_lang_Object(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__setPlain_java_lang_Object;
         }
         inline static jmethodID getmtd__equals_java_lang_Object(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__equals_java_lang_Object;
         }
@@ -464,7 +463,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
         // Fabric methods for constructors
         // Instance creation method for public java.util.concurrent.atomic.AtomicReference(java.lang.Object)
         inline static jobject createInstance(JNIEnv* env, jobject v0) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__java_lang_Object;
             if (!ctor) return nullptr;
@@ -473,7 +472,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Instance creation method for public java.util.concurrent.atomic.AtomicReference()
         inline static jobject createInstance(JNIEnv* env) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__;
             if (!ctor) return nullptr;
@@ -483,7 +482,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
         // Method wrappers
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.get()
         inline static jobject get(JNIEnv* env, jobject obj) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__get;
             if (!mtd) return nullptr;
@@ -492,7 +491,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public java.lang.String java.util.concurrent.atomic.AtomicReference.toString()
         inline static jstring toString(JNIEnv* env, jobject obj) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__toString;
             if (!mtd) return nullptr;
@@ -501,7 +500,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.set(java.lang.Object)
         inline static void set(JNIEnv* env, jobject obj, jobject v0) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return;
             jmethodID mtd = self->mtd__set_java_lang_Object;
             if (!mtd) return;
@@ -510,7 +509,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getOpaque()
         inline static jobject getOpaque(JNIEnv* env, jobject obj) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getOpaque;
             if (!mtd) return nullptr;
@@ -519,7 +518,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.setOpaque(java.lang.Object)
         inline static void setOpaque(JNIEnv* env, jobject obj, jobject v0) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return;
             jmethodID mtd = self->mtd__setOpaque_java_lang_Object;
             if (!mtd) return;
@@ -528,7 +527,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAcquire()
         inline static jobject getAcquire(JNIEnv* env, jobject obj) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getAcquire;
             if (!mtd) return nullptr;
@@ -537,7 +536,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.setRelease(java.lang.Object)
         inline static void setRelease(JNIEnv* env, jobject obj, jobject v0) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return;
             jmethodID mtd = self->mtd__setRelease_java_lang_Object;
             if (!mtd) return;
@@ -546,7 +545,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.compareAndSet(java.lang.Object,java.lang.Object)
         inline static jboolean compareAndSet(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__compareAndSet_java_lang_Object__java_lang_Object;
             if (!mtd) return JNI_FALSE;
@@ -555,7 +554,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.compareAndExchange(java.lang.Object,java.lang.Object)
         inline static jobject compareAndExchange(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__compareAndExchange_java_lang_Object__java_lang_Object;
             if (!mtd) return nullptr;
@@ -564,7 +563,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.compareAndExchangeAcquire(java.lang.Object,java.lang.Object)
         inline static jobject compareAndExchangeAcquire(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__compareAndExchangeAcquire_java_lang_Object__java_lang_Object;
             if (!mtd) return nullptr;
@@ -573,7 +572,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.compareAndExchangeRelease(java.lang.Object,java.lang.Object)
         inline static jobject compareAndExchangeRelease(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__compareAndExchangeRelease_java_lang_Object__java_lang_Object;
             if (!mtd) return nullptr;
@@ -582,7 +581,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetPlain(java.lang.Object,java.lang.Object)
         inline static jboolean weakCompareAndSetPlain(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object;
             if (!mtd) return JNI_FALSE;
@@ -591,7 +590,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSet(java.lang.Object,java.lang.Object)
         inline static jboolean weakCompareAndSet(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__weakCompareAndSet_java_lang_Object__java_lang_Object;
             if (!mtd) return JNI_FALSE;
@@ -600,7 +599,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetAcquire(java.lang.Object,java.lang.Object)
         inline static jboolean weakCompareAndSetAcquire(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__weakCompareAndSetAcquire_java_lang_Object__java_lang_Object;
             if (!mtd) return JNI_FALSE;
@@ -609,7 +608,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetRelease(java.lang.Object,java.lang.Object)
         inline static jboolean weakCompareAndSetRelease(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__weakCompareAndSetRelease_java_lang_Object__java_lang_Object;
             if (!mtd) return JNI_FALSE;
@@ -618,7 +617,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndSet(java.lang.Object)
         inline static jobject getAndSet(JNIEnv* env, jobject obj, jobject v0) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getAndSet_java_lang_Object;
             if (!mtd) return nullptr;
@@ -627,7 +626,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetVolatile(java.lang.Object,java.lang.Object)
         inline static jboolean weakCompareAndSetVolatile(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__weakCompareAndSetVolatile_java_lang_Object__java_lang_Object;
             if (!mtd) return JNI_FALSE;
@@ -636,7 +635,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.lazySet(java.lang.Object)
         inline static void lazySet(JNIEnv* env, jobject obj, jobject v0) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return;
             jmethodID mtd = self->mtd__lazySet_java_lang_Object;
             if (!mtd) return;
@@ -645,7 +644,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndUpdate(java.util.function.UnaryOperator)
         inline static jobject getAndUpdate(JNIEnv* env, jobject obj, jobject v0) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getAndUpdate_java_util_function_UnaryOperator;
             if (!mtd) return nullptr;
@@ -654,7 +653,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.updateAndGet(java.util.function.UnaryOperator)
         inline static jobject updateAndGet(JNIEnv* env, jobject obj, jobject v0) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__updateAndGet_java_util_function_UnaryOperator;
             if (!mtd) return nullptr;
@@ -663,7 +662,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndAccumulate(java.lang.Object,java.util.function.BinaryOperator)
         inline static jobject getAndAccumulate(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator;
             if (!mtd) return nullptr;
@@ -672,7 +671,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.accumulateAndGet(java.lang.Object,java.util.function.BinaryOperator)
         inline static jobject accumulateAndGet(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator;
             if (!mtd) return nullptr;
@@ -681,7 +680,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getPlain()
         inline static jobject getPlain(JNIEnv* env, jobject obj) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getPlain;
             if (!mtd) return nullptr;
@@ -690,7 +689,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.setPlain(java.lang.Object)
         inline static void setPlain(JNIEnv* env, jobject obj, jobject v0) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return;
             jmethodID mtd = self->mtd__setPlain_java_lang_Object;
             if (!mtd) return;
@@ -699,7 +698,7 @@ class Java_java_util_concurrent_atomic_AtomicReference {
 
         // Fabric method for public boolean java.lang.Object.equals(java.lang.Object)
         inline static jboolean equals(JNIEnv* env, jobject obj, jobject v0) {
-            Java_java_util_concurrent_atomic_AtomicReference* self = get(env);
+            Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__equals_java_lang_Object;
             if (!mtd) return JNI_FALSE;

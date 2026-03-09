@@ -21,8 +21,8 @@
 #include <cstdarg>
 #include <cstdlib>
 #include <cstdio>
-#include "cache/org_slf4j_LoggerCache.hpp"
-#include "cache/org_slf4j_LoggerFactoryCache.hpp"
+#include "cache/SLF4J_Logger.hpp"
+#include "cache/SLF4J_LoggerFactory.hpp"
 #include "helper_utilities.hpp"
 
 class Logger {
@@ -61,8 +61,8 @@ public:
      * The name string is deleted from the local reference after it is used.
      */
     Logger(JNIEnv* env, const char* name) {
-        auto loggerCache = Java_org_slf4j_Logger::get(env);
-        auto factoryCache = Java_org_slf4j_LoggerFactory::get(env);
+        auto loggerCache = SLF4J_Logger::get(env);
+        auto factoryCache = SLF4J_LoggerFactory::get(env);
         jstring jname = env->NewStringUTF(name);
         
         jobject localLogger = factoryCache->getLogger__java_lang_String(env, jname);
@@ -84,7 +84,7 @@ public:
     void trace(JNIEnv* env, const char* msg, ...) {
         va_list args;
         va_start(args, msg);
-        log(env, Java_org_slf4j_Logger::getmtd__trace_java_lang_String(env), msg, args);
+        log(env, SLF4J_Logger::getmtd__trace_java_lang_String(env), msg, args);
         va_end(args);
     }
 
@@ -98,7 +98,7 @@ public:
     void debug(JNIEnv* env, const char* msg, ...) {
         va_list args;
         va_start(args, msg);
-        log(env, Java_org_slf4j_Logger::getmtd__debug_java_lang_String(env), msg, args);
+        log(env, SLF4J_Logger::getmtd__debug_java_lang_String(env), msg, args);
         va_end(args);
     }
 
@@ -112,7 +112,7 @@ public:
     void info(JNIEnv* env, const char* msg, ...) {
         va_list args;
         va_start(args, msg);
-        log(env, Java_org_slf4j_Logger::getmtd__info_java_lang_String(env), msg, args);
+        log(env, SLF4J_Logger::getmtd__info_java_lang_String(env), msg, args);
         va_end(args);
     }
 
@@ -126,7 +126,7 @@ public:
     void warn(JNIEnv* env, const char* msg, ...) {
         va_list args;
         va_start(args, msg);
-        log(env, Java_org_slf4j_Logger::getmtd__warn_java_lang_String(env), msg, args);
+        log(env, SLF4J_Logger::getmtd__warn_java_lang_String(env), msg, args);
         va_end(args);
     }
 
@@ -140,7 +140,7 @@ public:
     void error(JNIEnv* env, const char* msg, ...) {
         va_list args;
         va_start(args, msg);
-        log(env, Java_org_slf4j_Logger::getmtd__error_java_lang_String(env), msg, args);
+        log(env, SLF4J_Logger::getmtd__error_java_lang_String(env), msg, args);
         va_end(args);
     }
 

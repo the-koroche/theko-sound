@@ -29,16 +29,16 @@
 #include "wasapi_utils.hpp"
 #include "helper_utilities.hpp"
 
-#include "cache/org_theko_sound_AudioFlowCache.hpp"
-#include "cache/org_theko_sound_AudioPortCache.hpp"
-#include "cache/org_theko_sound_AudioFormatCache.hpp"
-#include "cache/org_theko_sound_AudioFormat_EncodingCache.hpp"
-#include "cache/org_theko_sound_backends_wasapi_WASAPIPortHandleCache.hpp"
+#include "cache/ThekoSound_AudioFlow.hpp"
+#include "cache/ThekoSound_AudioPort.hpp"
+#include "cache/ThekoSound_AudioFormat.hpp"
+#include "cache/ThekoSound_AudioFormat_Encoding.hpp"
+#include "cache/ThekoSound_WASAPIPortHandle.hpp"
 
-#include "cache/org_theko_sound_UnsupportedAudioFormatExceptionCache.hpp"
-#include "cache/org_theko_sound_UnsupportedAudioEncodingExceptionCache.hpp"
-#include "cache/org_theko_sound_backends_AudioBackendExceptionCache.hpp"
-#include "cache/java_lang_RuntimeExceptionCache.hpp"
+#include "cache/ThekoSound_UnsupportedAudioFormatException.hpp"
+#include "cache/ThekoSound_UnsupportedAudioEncodingException.hpp"
+#include "cache/ThekoSound_AudioBackendException.hpp"
+#include "cache/Java_RuntimeException.hpp"
 
 #include "logger.hpp"
 #include "logger_manager.hpp"
@@ -71,7 +71,7 @@ static jobject WAVEFORMATEX_to_AudioFormat(JNIEnv* env, const WAVEFORMATEX* wave
             formatTag = WAVE_FORMAT_IEEE_FLOAT;
         } else {
             logger->warn(env, "Unsupported WAVEFORMATEXTENSIBLE subformat.");
-            env->ThrowNew(Java_org_theko_sound_UnsupportedAudioFormatException::getClazz(env), 
+            env->ThrowNew(ThekoSound_UnsupportedAudioFormatException::getClazz(env), 
                 "Unsupported WAVEFORMATEXTENSIBLE subformat.");
             return nullptr;
         }
@@ -90,23 +90,23 @@ static jobject WAVEFORMATEX_to_AudioFormat(JNIEnv* env, const WAVEFORMATEX* wave
 
     jobject jAudioEncoding = nullptr;
     if (isFloat) {
-        jAudioEncoding = Java_org_theko_sound_AudioFormat_Encoding::getField__PCM_FLOAT(env);
+        jAudioEncoding = ThekoSound_AudioFormat_Encoding::getField__PCM_FLOAT(env);
         logger->trace(env, "Audio Format encoding: PCM_FLOAT");
     } else if (isPcm) {
         if (bits == 8) {
-            jAudioEncoding = Java_org_theko_sound_AudioFormat_Encoding::getField__PCM_UNSIGNED(env);
+            jAudioEncoding = ThekoSound_AudioFormat_Encoding::getField__PCM_UNSIGNED(env);
             logger->trace(env, "Audio Format encoding: PCM_UNSIGNED");
         } else {
-            jAudioEncoding = Java_org_theko_sound_AudioFormat_Encoding::getField__PCM_SIGNED(env);
+            jAudioEncoding = ThekoSound_AudioFormat_Encoding::getField__PCM_SIGNED(env);
             logger->trace(env, "Audio Format encoding: PCM_SIGNED");
         }
     } else {
         logger->error(env, "Unsupported audio format tag.");
-        env->ThrowNew(Java_org_theko_sound_UnsupportedAudioFormatException::getClazz(env), "Unsupported audio format tag.");
+        env->ThrowNew(ThekoSound_UnsupportedAudioFormatException::getClazz(env), "Unsupported audio format tag.");
         return nullptr;
     }
 
-    jobject jAudioFormat = Java_org_theko_sound_AudioFormat::createInstance(env, sampleRate, bits, channels, jAudioEncoding, bigEndian);
+    jobject jAudioFormat = ThekoSound_AudioFormat::createInstance(env, sampleRate, bits, channels, jAudioEncoding, bigEndian);
     logger->trace(env, "Created Java AudioFormat object. Pointer: %s", FORMAT_PTR(jAudioFormat));
 
     return jAudioFormat;
@@ -128,36 +128,36 @@ static WAVEFORMATEX* AudioFormat_to_WAVEFORMATEX(JNIEnv* env, jobject audioForma
 
     if (!audioFormat) return nullptr;
 
-    int sampleRate = Java_org_theko_sound_AudioFormat::getSampleRate(env, audioFormat);
-    int bits = Java_org_theko_sound_AudioFormat::getBitsPerSample(env, audioFormat);
-    int channels = Java_org_theko_sound_AudioFormat::getChannels(env, audioFormat);
-    jobject audioEncoding = Java_org_theko_sound_AudioFormat::getEncoding(env, audioFormat);
+    int sampleRate = ThekoSound_AudioFormat::getSampleRate(env, audioFormat);
+    int bits = ThekoSound_AudioFormat::getBitsPerSample(env, audioFormat);
+    int channels = ThekoSound_AudioFormat::getChannels(env, audioFormat);
+    jobject audioEncoding = ThekoSound_AudioFormat::getEncoding(env, audioFormat);
 
     logger->trace(env, "SampleRate=%d, Bits=%d, Channels=%d, AudioEncoding=%p", sampleRate, bits, channels, audioEncoding);
 
     if (!audioEncoding) {
         logger->error(env, "Unsupported audio format encoding.");
-        env->ThrowNew(Java_org_theko_sound_UnsupportedAudioEncodingException::getClazz(env), "Unsupported audio format encoding.");
+        env->ThrowNew(ThekoSound_UnsupportedAudioEncodingException::getClazz(env), "Unsupported audio format encoding.");
         return nullptr;
     }
 
-    bool isFloat = env->IsSameObject(audioEncoding, Java_org_theko_sound_AudioFormat_Encoding::getField__PCM_FLOAT(env));
-    bool isPcm = env->IsSameObject(audioEncoding, Java_org_theko_sound_AudioFormat_Encoding::getField__PCM_UNSIGNED(env)) ||
-            env->IsSameObject(audioEncoding, Java_org_theko_sound_AudioFormat_Encoding::getField__PCM_SIGNED(env));
+    bool isFloat = env->IsSameObject(audioEncoding, ThekoSound_AudioFormat_Encoding::getField__PCM_FLOAT(env));
+    bool isPcm = env->IsSameObject(audioEncoding, ThekoSound_AudioFormat_Encoding::getField__PCM_UNSIGNED(env)) ||
+            env->IsSameObject(audioEncoding, ThekoSound_AudioFormat_Encoding::getField__PCM_SIGNED(env));
 
     const char* encodingName = isFloat ? "PCM_FLOAT" : isPcm ? "PCM_SIGNED" : "Unsupported";
     logger->trace(env, "Audio encoding: %s", encodingName);
 
     if (!isFloat && !isPcm) {
         logger->error(env, "Unsupported audio format encoding.");
-        env->ThrowNew(Java_org_theko_sound_UnsupportedAudioEncodingException::getClazz(env), "Unsupported audio format encoding.");
+        env->ThrowNew(ThekoSound_UnsupportedAudioEncodingException::getClazz(env), "Unsupported audio format encoding.");
         return nullptr;
     }
 
     WAVEFORMATEX* format = (WAVEFORMATEX*)CoTaskMemAlloc(sizeof(WAVEFORMATEX));
     if (!format) {
         logger->error(env, "Memory allocation failed.");
-        env->ThrowNew(Java_java_lang_RuntimeException::getClazz(env), "Memory allocation failed.");
+        env->ThrowNew(Java_RuntimeException::getClazz(env), "Memory allocation failed.");
         return nullptr;
     }
     memset(format, 0, sizeof(WAVEFORMATEX));
@@ -249,7 +249,7 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     HRESULT hr = pDevice->OpenPropertyStore(STGM_READ, &pProps);
     if (FAILED(hr)) {
         logger->warn(env, "Failed to open property store (%s).", fmtHR(hr));
-        env->ThrowNew(Java_org_theko_sound_backends_AudioBackendException::getClazz(env), "Failed to open property store.");
+        env->ThrowNew(ThekoSound_AudioBackendException::getClazz(env), "Failed to open property store.");
         return nullptr;
     }
 
@@ -300,12 +300,12 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     if (!jHandle) {
         const char* msg = "Failed to obtain WASAPI device ID";
         logger->error(env, msg);
-        env->ThrowNew(Java_org_theko_sound_backends_AudioBackendException::getClazz(env), msg);
+        env->ThrowNew(ThekoSound_AudioBackendException::getClazz(env), msg);
         return nullptr;
     }
 
     // Create WASAPI native handle
-    jobject jNativeHandleObj = Java_org_theko_sound_backends_wasapi_WASAPIPortHandle::createInstance(env, jHandle);
+    jobject jNativeHandleObj = ThekoSound_WASAPIPortHandle::createInstance(env, jHandle);
     logger->trace(env, "Created WASAPI native handle. Pointer: %s", FORMAT_PTR(jNativeHandleObj));
 
     // Get flow
@@ -319,14 +319,14 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
         endpoint->Release();
 
         if (flow == eRender) {
-            jFlowObj = Java_org_theko_sound_AudioFlow::getField__OUT(env);
+            jFlowObj = ThekoSound_AudioFlow::getField__OUT(env);
         } else if (flow == eCapture) {
-            jFlowObj = Java_org_theko_sound_AudioFlow::getField__IN(env);
+            jFlowObj = ThekoSound_AudioFlow::getField__IN(env);
         }
         logger->trace(env, "Obtained audio flow: %s", flow == eRender ? "Render" : "Capture");
     } else {
         logger->error(env, "Failed to get flow (%s).", fmtHR(hr));
-        env->ThrowNew(Java_org_theko_sound_backends_AudioBackendException::getClazz(env), "Failed to get flow.");
+        env->ThrowNew(ThekoSound_AudioBackendException::getClazz(env), "Failed to get flow.");
         return nullptr;
     }
     
@@ -335,7 +335,7 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     hr = pDevice->GetState(&state);
     if (FAILED(hr)) {
         logger->error(env, "Failed to get device state (%s).", fmtHR(hr));
-        env->ThrowNew(Java_org_theko_sound_backends_AudioBackendException::getClazz(env), "Failed to get device state.");
+        env->ThrowNew(ThekoSound_AudioBackendException::getClazz(env), "Failed to get device state.");
         return nullptr;
     }
 
@@ -348,7 +348,7 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     if (!mixFormat && isActive) {
         const char* msg = "Failed to get mix format";
         logger->error(env, msg);
-        env->ThrowNew(Java_org_theko_sound_backends_AudioBackendException::getClazz(env), msg);
+        env->ThrowNew(ThekoSound_AudioBackendException::getClazz(env), msg);
         return nullptr;
     } else if (!mixFormat && !isActive) {
         logger->debug(env, "Device is not active, and mix format is not available.");
@@ -359,7 +359,7 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
     logger->trace(env, "Created AudioFormat. Pointer: %s", FORMAT_PTR(jAudioMixFormat));
 
     // Create AudioPort
-    jobject jAudioPort = Java_org_theko_sound_AudioPort::createInstance(env, jNativeHandleObj, jFlowObj, jIsActive, jAudioMixFormat,
+    jobject jAudioPort = ThekoSound_AudioPort::createInstance(env, jNativeHandleObj, jFlowObj, jIsActive, jAudioMixFormat,
             jName, jManufacturer, jVersion, jDescription);
     logger->trace(env, "Created AudioPort. Pointer: %s", FORMAT_PTR(jAudioPort));
 
@@ -384,19 +384,19 @@ static jobject IMMDevice_to_AudioPort(JNIEnv* env, IMMDevice* pDevice) {
 static IMMDevice* AudioPort_to_IMMDevice(JNIEnv* env, jobject jAudioPort) {
     Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPIBridge.AudioPort -> IMMDevice");
 
-    if (!jAudioPort || !env->IsInstanceOf(jAudioPort, Java_org_theko_sound_AudioPort::getClazz(env))) {
+    if (!jAudioPort || !env->IsInstanceOf(jAudioPort, ThekoSound_AudioPort::getClazz(env))) {
         logger->warn(env, "Invalid or null AudioPort.");
         return nullptr;
     }
 
-    jobject jNativeHandle = Java_org_theko_sound_AudioPort::getLink(env, jAudioPort);
-    if (!jNativeHandle || !env->IsInstanceOf(jNativeHandle, Java_org_theko_sound_backends_wasapi_WASAPIPortHandle::getClazz(env))) {
+    jobject jNativeHandle = ThekoSound_AudioPort::getLink(env, jAudioPort);
+    if (!jNativeHandle || !env->IsInstanceOf(jNativeHandle, ThekoSound_WASAPIPortHandle::getClazz(env))) {
         logger->warn(env, "Invalid or null native handle.");
         if (jNativeHandle) env->DeleteLocalRef(jNativeHandle);
         return nullptr;
     }
 
-    jstring jHandle = Java_org_theko_sound_backends_wasapi_WASAPIPortHandle::getHandle(env, jNativeHandle);
+    jstring jHandle = ThekoSound_WASAPIPortHandle::getHandle(env, jNativeHandle);
     
     if (!jHandle) {
         env->DeleteLocalRef(jNativeHandle);
@@ -416,7 +416,7 @@ static IMMDevice* AudioPort_to_IMMDevice(JNIEnv* env, jobject jAudioPort) {
 
         if (!SUCCEEDED(hr)) {
             logger->error(env, "Failed to get audio device (%s).", fmtHR(hr));
-            env->ThrowNew(Java_org_theko_sound_backends_AudioBackendException::getClazz(env), "Failed to get audio device.");
+            env->ThrowNew(ThekoSound_AudioBackendException::getClazz(env), "Failed to get audio device.");
             pDevice = nullptr;
         } else {
             logger->debug(env, "Obtained IMMDevice. Handle: %ls", wHandle);

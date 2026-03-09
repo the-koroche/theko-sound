@@ -34,9 +34,9 @@
 #include "helper_utilities.hpp"
 
 #include "org_theko_sound_backends_wasapi_WASAPISharedOutput.h"
-#include "cache/java_util_concurrent_atomic_AtomicReferenceCache.hpp"
-#include "cache/org_theko_sound_backends_DeviceInvalidatedExceptionCache.hpp"
-#include "cache/org_theko_sound_backends_DeviceInactiveExceptionCache.hpp"
+#include "cache/Java_Concurrent_AtomicReference.hpp"
+#include "cache/ThekoSound_DeviceInvalidatedException.hpp"
+#include "cache/ThekoSound_DeviceInactiveException.hpp"
 
 #include "wasapi_utils.hpp"
 #include "wasapi_bridge.hpp"
@@ -235,7 +235,7 @@ extern "C" {
         cleanupContext(env, logger, ctx);
         logger->trace(env, "Output context cleaned up, throwing exception...");
 
-        env->ThrowNew(Java_org_theko_sound_backends_AudioBackendException::getClazz(env), msg);
+        env->ThrowNew(ThekoSound_AudioBackendException::getClazz(env), msg);
     }
 
     inline void logNotifierMessages(JNIEnv* env, Logger* logger, OutputContext* ctx) {
@@ -392,7 +392,7 @@ extern "C" {
             cleanupAndThrowError(env, logger, context, E_FAIL, "Failed to create audio format.");
             return 0;
         }
-        Java_java_util_concurrent_atomic_AtomicReference::set(env, jAtomicRefFormat, jAudioFormat);
+        Java_Concurrent_AtomicReference::set(env, jAtomicRefFormat, jAudioFormat);
 
         logger->debug(env, "Opened WASAPI output. ContextPtr: %s", FORMAT_PTR(context));
 
@@ -579,7 +579,7 @@ extern "C" {
             if (FAILED(hr) || deviceState != DEVICE_STATE_ACTIVE) {
                 logNotifierMessages(env, logger, context);
                 logger->warn(env, "Device invalidated during drain, state=%lu (%s).", deviceState, fmtHR(hr));
-                env->ThrowNew(Java_org_theko_sound_backends_DeviceInvalidatedException::getClazz(env), "Device invalidated during drain");
+                env->ThrowNew(ThekoSound_DeviceInvalidatedException::getClazz(env), "Device invalidated during drain");
                 break;
             }
             
@@ -588,7 +588,7 @@ extern "C" {
                 logNotifierMessages(env, logger, context);
                 if (hr == AUDCLNT_E_DEVICE_INVALIDATED) {
                     logger->error(env, "Device invalidated during drain (%s).", fmtHR(hr));
-                    env->ThrowNew(Java_org_theko_sound_backends_DeviceInvalidatedException::getClazz(env), "Device invalidated during drain");
+                    env->ThrowNew(ThekoSound_DeviceInvalidatedException::getClazz(env), "Device invalidated during drain");
                     break;
                 }
                 logger->error(env, "GetCurrentPadding failed during drain (%s).", fmtHR(hr));
@@ -647,7 +647,7 @@ extern "C" {
                 logNotifierMessages(env, logger, context);
                 logger->error(env, "Audio device not active, state=%lu", deviceState);
                 env->ReleaseByteArrayElements(buffer, src, JNI_ABORT);
-                env->ThrowNew(Java_org_theko_sound_backends_DeviceInactiveException::getClazz(env), "Audio device not active.");
+                env->ThrowNew(ThekoSound_DeviceInactiveException::getClazz(env), "Audio device not active.");
                 return -1;
             }
 
@@ -659,12 +659,12 @@ extern "C" {
                 if (hr == AUDCLNT_E_DEVICE_INVALIDATED) {
                     logger->error(env, "Device invalidated during write, in GetCurrentPadding (%s).", fmtHR(hr));
                     env->ReleaseByteArrayElements(buffer, src, JNI_ABORT);
-                    env->ThrowNew(Java_org_theko_sound_backends_DeviceInvalidatedException::getClazz(env), "Device invalidated during write, in GetCurrentPadding.");
+                    env->ThrowNew(ThekoSound_DeviceInvalidatedException::getClazz(env), "Device invalidated during write, in GetCurrentPadding.");
                     return -1;
                 }
                 logger->error(env, "GetCurrentPadding in write failed (%s).", fmtHR(hr));
                 env->ReleaseByteArrayElements(buffer, src, JNI_ABORT);
-                env->ThrowNew(Java_org_theko_sound_backends_AudioBackendException::getClazz(env), "GetCurrentPadding in write failed.");
+                env->ThrowNew(ThekoSound_AudioBackendException::getClazz(env), "GetCurrentPadding in write failed.");
                 return -1;
             }
             availableFrames = context->bufferFrameCount - padding;
@@ -728,7 +728,7 @@ extern "C" {
         HRESULT hr = context->audioClient->GetCurrentPadding(&padding);
         if (FAILED(hr)) {
             logger->error(env, "Failed to get WASAPI output buffer (%s).", fmtHR(hr));
-            env->ThrowNew(Java_org_theko_sound_backends_AudioBackendException::getClazz(env), "Failed to get WASAPI output buffer.");
+            env->ThrowNew(ThekoSound_AudioBackendException::getClazz(env), "Failed to get WASAPI output buffer.");
             return -1;
         }
 
@@ -753,7 +753,8 @@ extern "C" {
         return (jint)context->bufferFrameCount;
     }
 
-    JNIEXPORT jlong JNICALL Java_org_theko_sound_backends_wasapi_WASAPISharedOutput_nGetFramePosition
+    JNIEXPORT jlong JNICALL
+    Java_org_theko_sound_backends_wasapi_WASAPISharedOutput_nGetFramePosition
     (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nGetFramePosition");
         auto context = (OutputContext*)ptr;
@@ -774,7 +775,8 @@ extern "C" {
         return (jlong)position;
     }
 
-    JNIEXPORT jlong JNICALL Java_org_theko_sound_backends_wasapi_WASAPISharedOutput_nGetMicrosecondLatency
+    JNIEXPORT jlong JNICALL
+    Java_org_theko_sound_backends_wasapi_WASAPISharedOutput_nGetMicrosecondLatency
     (JNIEnv* env, jobject obj, jlong ptr) {
         Logger* logger = LoggerManager::getManager()->getLogger(env, "NATIVE: WASAPISharedOutput.nGetMicrosecondLatency");
         auto context = (OutputContext*)ptr;
@@ -787,7 +789,7 @@ extern "C" {
         HRESULT hr = context->audioClient->GetStreamLatency(&latency);
         if (FAILED(hr)) {
             logger->warn(env, "Failed to get WASAPI output latency (%s).", fmtHR(hr));
-            env->ThrowNew(Java_org_theko_sound_backends_AudioBackendException::getClazz(env), "Failed to get WASAPI output latency.");
+            env->ThrowNew(ThekoSound_AudioBackendException::getClazz(env), "Failed to get WASAPI output latency.");
             return -1;
         } else if (SUCCEEDED(hr) && latency > 0) {
             // latency in 100-ns (1e-7 sec), converted to microseconds (1e-6 sec)
@@ -816,7 +818,7 @@ extern "C" {
         IMMDevice* device = context->outputDevice;
         if (!device) {
             logger->error(env, "Failed to get IMMDevice.");
-            env->ThrowNew(Java_org_theko_sound_backends_AudioBackendException::getClazz(env), "Failed to get IMMDevice.");
+            env->ThrowNew(ThekoSound_AudioBackendException::getClazz(env), "Failed to get IMMDevice.");
             return nullptr;
         }
 
@@ -824,7 +826,7 @@ extern "C" {
 
         if (!jAudioPort) {
             logger->error(env, "Failed to convert IMMDevice to AudioPort.");
-            env->ThrowNew(Java_org_theko_sound_backends_AudioBackendException::getClazz(env), "Failed to convert IMMDevice to AudioPort.");
+            env->ThrowNew(ThekoSound_AudioBackendException::getClazz(env), "Failed to convert IMMDevice to AudioPort.");
             return nullptr;
         }
         

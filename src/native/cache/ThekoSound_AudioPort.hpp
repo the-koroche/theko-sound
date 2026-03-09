@@ -8,7 +8,7 @@
 #include <memory>
 
 // Target class: org/theko/sound/AudioPort
-class Java_org_theko_sound_AudioPort {
+class ThekoSound_AudioPort {
     private:
         static inline JavaVM* jvm = nullptr;
 
@@ -45,14 +45,14 @@ class Java_org_theko_sound_AudioPort {
         jmethodID mtd__toString; // public java.lang.String org.theko.sound.AudioPort.toString()
         jmethodID mtd__isActive; // public boolean org.theko.sound.AudioPort.isActive()
         jmethodID mtd__getVersion; // public java.lang.String org.theko.sound.AudioPort.getVersion()
-        jmethodID mtd__getLinkAsString; // public java.lang.String org.theko.sound.AudioPort.getLinkAsString()
         jmethodID mtd__getDescription; // public java.lang.String org.theko.sound.AudioPort.getDescription()
         jmethodID mtd__getMixFormat; // public org.theko.sound.AudioFormat org.theko.sound.AudioPort.getMixFormat()
-        jmethodID mtd__getFlow; // public org.theko.sound.AudioFlow org.theko.sound.AudioPort.getFlow()
-        jmethodID mtd__getLink; // public org.theko.sound.backends.AudioPortLink org.theko.sound.AudioPort.getLink()
+        jmethodID mtd__getLinkAsString; // public java.lang.String org.theko.sound.AudioPort.getLinkAsString()
         jmethodID mtd__getVendor; // public java.lang.String org.theko.sound.AudioPort.getVendor()
+        jmethodID mtd__getLink; // public org.theko.sound.backends.AudioPortLink org.theko.sound.AudioPort.getLink()
+        jmethodID mtd__getFlow; // public org.theko.sound.AudioFlow org.theko.sound.AudioPort.getFlow()
 
-        Java_org_theko_sound_AudioPort(JNIEnv* env) {
+        ThekoSound_AudioPort(JNIEnv* env) {
             initialized = false; // Reinitialize
             if (!env) return;
             jclass clazz_local = env->FindClass("org/theko/sound/AudioPort");
@@ -163,12 +163,6 @@ class Java_org_theko_sound_AudioPort {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getVersion'");
                 return;
             }
-            mtd__getLinkAsString = env->GetMethodID(clazz_local, "getLinkAsString", "()Ljava/lang/String;");
-            if (!mtd__getLinkAsString) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getLinkAsString'");
-                return;
-            }
             mtd__getDescription = env->GetMethodID(clazz_local, "getDescription", "()Ljava/lang/String;");
             if (!mtd__getDescription) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
@@ -181,10 +175,16 @@ class Java_org_theko_sound_AudioPort {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getMixFormat'");
                 return;
             }
-            mtd__getFlow = env->GetMethodID(clazz_local, "getFlow", "()Lorg/theko/sound/AudioFlow;");
-            if (!mtd__getFlow) {
+            mtd__getLinkAsString = env->GetMethodID(clazz_local, "getLinkAsString", "()Ljava/lang/String;");
+            if (!mtd__getLinkAsString) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getFlow'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getLinkAsString'");
+                return;
+            }
+            mtd__getVendor = env->GetMethodID(clazz_local, "getVendor", "()Ljava/lang/String;");
+            if (!mtd__getVendor) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getVendor'");
                 return;
             }
             mtd__getLink = env->GetMethodID(clazz_local, "getLink", "()Lorg/theko/sound/backends/AudioPortLink;");
@@ -193,10 +193,10 @@ class Java_org_theko_sound_AudioPort {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getLink'");
                 return;
             }
-            mtd__getVendor = env->GetMethodID(clazz_local, "getVendor", "()Ljava/lang/String;");
-            if (!mtd__getVendor) {
+            mtd__getFlow = env->GetMethodID(clazz_local, "getFlow", "()Lorg/theko/sound/AudioFlow;");
+            if (!mtd__getFlow) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getVendor'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getFlow'");
                 return;
             }
 
@@ -206,12 +206,11 @@ class Java_org_theko_sound_AudioPort {
                 env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Failed to create global class reference");
                 return;
             }
-            
             initialized = true;
         }
 
     public:
-        ~Java_org_theko_sound_AudioPort() {
+        ~ThekoSound_AudioPort() {
             if (clazz) {
                 bool attached = false;
                 JNIEnv* env = getEnv(&attached);
@@ -229,17 +228,17 @@ class Java_org_theko_sound_AudioPort {
             return clazz && initialized;
         }
 
-        static Java_org_theko_sound_AudioPort* get(JNIEnv* env) {
+        static ThekoSound_AudioPort* get(JNIEnv* env) {
             if (!env) return nullptr;
-            if (!Java_org_theko_sound_AudioPort::jvm) {
-                env->GetJavaVM(&Java_org_theko_sound_AudioPort::jvm);
+            if (!ThekoSound_AudioPort::jvm) {
+                env->GetJavaVM(&ThekoSound_AudioPort::jvm);
             }
             static std::mutex mtx;
-            static std::unique_ptr<Java_org_theko_sound_AudioPort> instance;
+            static std::unique_ptr<ThekoSound_AudioPort> instance;
         
             std::lock_guard<std::mutex> lock(mtx);
             if (!instance || !instance->isValid()) {
-                instance.reset(new Java_org_theko_sound_AudioPort(env));
+                instance.reset(new ThekoSound_AudioPort(env));
             }
             return instance.get();
         }
@@ -251,124 +250,124 @@ class Java_org_theko_sound_AudioPort {
 
         // Field getters
         inline static jfieldID getfld__name(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__name;
         }
         inline static jfieldID getfld__vendor(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__vendor;
         }
         inline static jfieldID getfld__version(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__version;
         }
         inline static jfieldID getfld__description(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__description;
         }
         inline static jfieldID getfld__flow(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__flow;
         }
         inline static jfieldID getfld__isActive(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__isActive;
         }
         inline static jfieldID getfld__mixFormat(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__mixFormat;
         }
         inline static jfieldID getfld__link(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__link;
         }
 
         // Constructor getters
         inline static jmethodID getctor__org_theko_sound_backends_AudioPortLink__org_theko_sound_AudioFlow__boolean__org_theko_sound_AudioFormat__java_lang_String__java_lang_String__java_lang_String__java_lang_String(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->ctor__org_theko_sound_backends_AudioPortLink__org_theko_sound_AudioFlow__boolean__org_theko_sound_AudioFormat__java_lang_String__java_lang_String__java_lang_String__java_lang_String;
         }
         inline static jmethodID getctor__org_theko_sound_backends_AudioPortLink__org_theko_sound_AudioFlow__boolean__org_theko_sound_AudioFormat__java_lang_String__java_lang_String(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->ctor__org_theko_sound_backends_AudioPortLink__org_theko_sound_AudioFlow__boolean__org_theko_sound_AudioFormat__java_lang_String__java_lang_String;
         }
         inline static jmethodID getctor__org_theko_sound_backends_AudioPortLink__org_theko_sound_AudioFlow__org_theko_sound_AudioFormat__java_lang_String__java_lang_String__java_lang_String__java_lang_String(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->ctor__org_theko_sound_backends_AudioPortLink__org_theko_sound_AudioFlow__org_theko_sound_AudioFormat__java_lang_String__java_lang_String__java_lang_String__java_lang_String;
         }
 
         // Method getters
         inline static jmethodID getmtd__getName(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getName;
         }
         inline static jmethodID getmtd__equals_java_lang_Object(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__equals_java_lang_Object;
         }
         inline static jmethodID getmtd__toString(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__toString;
         }
         inline static jmethodID getmtd__isActive(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__isActive;
         }
         inline static jmethodID getmtd__getVersion(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getVersion;
         }
-        inline static jmethodID getmtd__getLinkAsString(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__getLinkAsString;
-        }
         inline static jmethodID getmtd__getDescription(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getDescription;
         }
         inline static jmethodID getmtd__getMixFormat(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getMixFormat;
         }
-        inline static jmethodID getmtd__getFlow(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+        inline static jmethodID getmtd__getLinkAsString(JNIEnv* env) {
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__getFlow;
+            return self->mtd__getLinkAsString;
+        }
+        inline static jmethodID getmtd__getVendor(JNIEnv* env) {
+            ThekoSound_AudioPort* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__getVendor;
         }
         inline static jmethodID getmtd__getLink(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getLink;
         }
-        inline static jmethodID getmtd__getVendor(JNIEnv* env) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+        inline static jmethodID getmtd__getFlow(JNIEnv* env) {
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__getVendor;
+            return self->mtd__getFlow;
         }
 
         // Fabric methods for constructors
         // Instance creation method for public org.theko.sound.AudioPort(org.theko.sound.backends.AudioPortLink,org.theko.sound.AudioFlow,boolean,org.theko.sound.AudioFormat,java.lang.String,java.lang.String,java.lang.String,java.lang.String)
         inline static jobject createInstance(JNIEnv* env, jobject v0, jobject v1, jboolean v2, jobject v3, jstring v4, jstring v5, jstring v6, jstring v7) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__org_theko_sound_backends_AudioPortLink__org_theko_sound_AudioFlow__boolean__org_theko_sound_AudioFormat__java_lang_String__java_lang_String__java_lang_String__java_lang_String;
             if (!ctor) return nullptr;
@@ -377,7 +376,7 @@ class Java_org_theko_sound_AudioPort {
 
         // Instance creation method for public org.theko.sound.AudioPort(org.theko.sound.backends.AudioPortLink,org.theko.sound.AudioFlow,boolean,org.theko.sound.AudioFormat,java.lang.String,java.lang.String)
         inline static jobject createInstance(JNIEnv* env, jobject v0, jobject v1, jboolean v2, jobject v3, jstring v4, jstring v5) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__org_theko_sound_backends_AudioPortLink__org_theko_sound_AudioFlow__boolean__org_theko_sound_AudioFormat__java_lang_String__java_lang_String;
             if (!ctor) return nullptr;
@@ -386,7 +385,7 @@ class Java_org_theko_sound_AudioPort {
 
         // Instance creation method for public org.theko.sound.AudioPort(org.theko.sound.backends.AudioPortLink,org.theko.sound.AudioFlow,org.theko.sound.AudioFormat,java.lang.String,java.lang.String,java.lang.String,java.lang.String)
         inline static jobject createInstance(JNIEnv* env, jobject v0, jobject v1, jobject v2, jstring v3, jstring v4, jstring v5, jstring v6) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__org_theko_sound_backends_AudioPortLink__org_theko_sound_AudioFlow__org_theko_sound_AudioFormat__java_lang_String__java_lang_String__java_lang_String__java_lang_String;
             if (!ctor) return nullptr;
@@ -396,7 +395,7 @@ class Java_org_theko_sound_AudioPort {
         // Method wrappers
         // Fabric method for public java.lang.String org.theko.sound.AudioPort.getName()
         inline static jstring getName(JNIEnv* env, jobject obj) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getName;
             if (!mtd) return nullptr;
@@ -405,7 +404,7 @@ class Java_org_theko_sound_AudioPort {
 
         // Fabric method for public boolean org.theko.sound.AudioPort.equals(java.lang.Object)
         inline static jboolean equals(JNIEnv* env, jobject obj, jobject v0) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__equals_java_lang_Object;
             if (!mtd) return JNI_FALSE;
@@ -414,7 +413,7 @@ class Java_org_theko_sound_AudioPort {
 
         // Fabric method for public java.lang.String org.theko.sound.AudioPort.toString()
         inline static jstring toString(JNIEnv* env, jobject obj) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__toString;
             if (!mtd) return nullptr;
@@ -423,7 +422,7 @@ class Java_org_theko_sound_AudioPort {
 
         // Fabric method for public boolean org.theko.sound.AudioPort.isActive()
         inline static jboolean isActive(JNIEnv* env, jobject obj) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isActive;
             if (!mtd) return JNI_FALSE;
@@ -432,25 +431,16 @@ class Java_org_theko_sound_AudioPort {
 
         // Fabric method for public java.lang.String org.theko.sound.AudioPort.getVersion()
         inline static jstring getVersion(JNIEnv* env, jobject obj) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getVersion;
             if (!mtd) return nullptr;
             return (jstring) env->CallObjectMethod(obj, mtd);
         }
 
-        // Fabric method for public java.lang.String org.theko.sound.AudioPort.getLinkAsString()
-        inline static jstring getLinkAsString(JNIEnv* env, jobject obj) {
-            Java_org_theko_sound_AudioPort* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__getLinkAsString;
-            if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
-        }
-
         // Fabric method for public java.lang.String org.theko.sound.AudioPort.getDescription()
         inline static jstring getDescription(JNIEnv* env, jobject obj) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getDescription;
             if (!mtd) return nullptr;
@@ -459,38 +449,47 @@ class Java_org_theko_sound_AudioPort {
 
         // Fabric method for public org.theko.sound.AudioFormat org.theko.sound.AudioPort.getMixFormat()
         inline static jobject getMixFormat(JNIEnv* env, jobject obj) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getMixFormat;
             if (!mtd) return nullptr;
             return env->CallObjectMethod(obj, mtd);
         }
 
-        // Fabric method for public org.theko.sound.AudioFlow org.theko.sound.AudioPort.getFlow()
-        inline static jobject getFlow(JNIEnv* env, jobject obj) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+        // Fabric method for public java.lang.String org.theko.sound.AudioPort.getLinkAsString()
+        inline static jstring getLinkAsString(JNIEnv* env, jobject obj) {
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__getFlow;
+            jmethodID mtd = self->mtd__getLinkAsString;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
+            return (jstring) env->CallObjectMethod(obj, mtd);
+        }
+
+        // Fabric method for public java.lang.String org.theko.sound.AudioPort.getVendor()
+        inline static jstring getVendor(JNIEnv* env, jobject obj) {
+            ThekoSound_AudioPort* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__getVendor;
+            if (!mtd) return nullptr;
+            return (jstring) env->CallObjectMethod(obj, mtd);
         }
 
         // Fabric method for public org.theko.sound.backends.AudioPortLink org.theko.sound.AudioPort.getLink()
         inline static jobject getLink(JNIEnv* env, jobject obj) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getLink;
             if (!mtd) return nullptr;
             return env->CallObjectMethod(obj, mtd);
         }
 
-        // Fabric method for public java.lang.String org.theko.sound.AudioPort.getVendor()
-        inline static jstring getVendor(JNIEnv* env, jobject obj) {
-            Java_org_theko_sound_AudioPort* self = get(env);
+        // Fabric method for public org.theko.sound.AudioFlow org.theko.sound.AudioPort.getFlow()
+        inline static jobject getFlow(JNIEnv* env, jobject obj) {
+            ThekoSound_AudioPort* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__getVendor;
+            jmethodID mtd = self->mtd__getFlow;
             if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
+            return env->CallObjectMethod(obj, mtd);
         }
 
     // End of class declaration

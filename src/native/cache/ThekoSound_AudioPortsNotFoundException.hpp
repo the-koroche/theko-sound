@@ -8,7 +8,7 @@
 #include <memory>
 
 // Target class: org/theko/sound/AudioPortsNotFoundException
-class Java_org_theko_sound_AudioPortsNotFoundException {
+class ThekoSound_AudioPortsNotFoundException {
     private:
         static inline JavaVM* jvm = nullptr;
 
@@ -37,7 +37,7 @@ class Java_org_theko_sound_AudioPortsNotFoundException {
         jmethodID mtd__getMessage; // public java.lang.String java.lang.Throwable.getMessage()
         jmethodID mtd__equals_java_lang_Object; // public boolean java.lang.Object.equals(java.lang.Object)
 
-        Java_org_theko_sound_AudioPortsNotFoundException(JNIEnv* env) {
+        ThekoSound_AudioPortsNotFoundException(JNIEnv* env) {
             initialized = false; // Reinitialize
             if (!env) return;
             jclass clazz_local = env->FindClass("org/theko/sound/AudioPortsNotFoundException");
@@ -99,12 +99,11 @@ class Java_org_theko_sound_AudioPortsNotFoundException {
                 env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Failed to create global class reference");
                 return;
             }
-            
             initialized = true;
         }
 
     public:
-        ~Java_org_theko_sound_AudioPortsNotFoundException() {
+        ~ThekoSound_AudioPortsNotFoundException() {
             if (clazz) {
                 bool attached = false;
                 JNIEnv* env = getEnv(&attached);
@@ -122,17 +121,17 @@ class Java_org_theko_sound_AudioPortsNotFoundException {
             return clazz && initialized;
         }
 
-        static Java_org_theko_sound_AudioPortsNotFoundException* get(JNIEnv* env) {
+        static ThekoSound_AudioPortsNotFoundException* get(JNIEnv* env) {
             if (!env) return nullptr;
-            if (!Java_org_theko_sound_AudioPortsNotFoundException::jvm) {
-                env->GetJavaVM(&Java_org_theko_sound_AudioPortsNotFoundException::jvm);
+            if (!ThekoSound_AudioPortsNotFoundException::jvm) {
+                env->GetJavaVM(&ThekoSound_AudioPortsNotFoundException::jvm);
             }
             static std::mutex mtx;
-            static std::unique_ptr<Java_org_theko_sound_AudioPortsNotFoundException> instance;
+            static std::unique_ptr<ThekoSound_AudioPortsNotFoundException> instance;
         
             std::lock_guard<std::mutex> lock(mtx);
             if (!instance || !instance->isValid()) {
-                instance.reset(new Java_org_theko_sound_AudioPortsNotFoundException(env));
+                instance.reset(new ThekoSound_AudioPortsNotFoundException(env));
             }
             return instance.get();
         }
@@ -144,39 +143,39 @@ class Java_org_theko_sound_AudioPortsNotFoundException {
 
         // Constructor getters
         inline static jmethodID getctor__java_lang_String__java_lang_Throwable(JNIEnv* env) {
-            Java_org_theko_sound_AudioPortsNotFoundException* self = get(env);
+            ThekoSound_AudioPortsNotFoundException* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->ctor__java_lang_String__java_lang_Throwable;
         }
         inline static jmethodID getctor__java_lang_Throwable(JNIEnv* env) {
-            Java_org_theko_sound_AudioPortsNotFoundException* self = get(env);
+            ThekoSound_AudioPortsNotFoundException* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->ctor__java_lang_Throwable;
         }
         inline static jmethodID getctor__java_lang_String(JNIEnv* env) {
-            Java_org_theko_sound_AudioPortsNotFoundException* self = get(env);
+            ThekoSound_AudioPortsNotFoundException* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->ctor__java_lang_String;
         }
         inline static jmethodID getctor__(JNIEnv* env) {
-            Java_org_theko_sound_AudioPortsNotFoundException* self = get(env);
+            ThekoSound_AudioPortsNotFoundException* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->ctor__;
         }
 
         // Method getters
         inline static jmethodID getmtd__toString(JNIEnv* env) {
-            Java_org_theko_sound_AudioPortsNotFoundException* self = get(env);
+            ThekoSound_AudioPortsNotFoundException* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__toString;
         }
         inline static jmethodID getmtd__getMessage(JNIEnv* env) {
-            Java_org_theko_sound_AudioPortsNotFoundException* self = get(env);
+            ThekoSound_AudioPortsNotFoundException* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getMessage;
         }
         inline static jmethodID getmtd__equals_java_lang_Object(JNIEnv* env) {
-            Java_org_theko_sound_AudioPortsNotFoundException* self = get(env);
+            ThekoSound_AudioPortsNotFoundException* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__equals_java_lang_Object;
         }
@@ -184,7 +183,7 @@ class Java_org_theko_sound_AudioPortsNotFoundException {
         // Fabric methods for constructors
         // Instance creation method for public org.theko.sound.AudioPortsNotFoundException(java.lang.String,java.lang.Throwable)
         inline static jobject createInstance(JNIEnv* env, jstring v0, jobject v1) {
-            Java_org_theko_sound_AudioPortsNotFoundException* self = get(env);
+            ThekoSound_AudioPortsNotFoundException* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__java_lang_String__java_lang_Throwable;
             if (!ctor) return nullptr;
@@ -193,7 +192,7 @@ class Java_org_theko_sound_AudioPortsNotFoundException {
 
         // Instance creation method for public org.theko.sound.AudioPortsNotFoundException(java.lang.Throwable)
         inline static jobject createInstance(JNIEnv* env, jobject v0) {
-            Java_org_theko_sound_AudioPortsNotFoundException* self = get(env);
+            ThekoSound_AudioPortsNotFoundException* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__java_lang_Throwable;
             if (!ctor) return nullptr;
@@ -202,7 +201,7 @@ class Java_org_theko_sound_AudioPortsNotFoundException {
 
         // Instance creation method for public org.theko.sound.AudioPortsNotFoundException(java.lang.String)
         inline static jobject createInstance(JNIEnv* env, jstring v0) {
-            Java_org_theko_sound_AudioPortsNotFoundException* self = get(env);
+            ThekoSound_AudioPortsNotFoundException* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__java_lang_String;
             if (!ctor) return nullptr;
@@ -211,7 +210,7 @@ class Java_org_theko_sound_AudioPortsNotFoundException {
 
         // Instance creation method for public org.theko.sound.AudioPortsNotFoundException()
         inline static jobject createInstance(JNIEnv* env) {
-            Java_org_theko_sound_AudioPortsNotFoundException* self = get(env);
+            ThekoSound_AudioPortsNotFoundException* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__;
             if (!ctor) return nullptr;
@@ -221,7 +220,7 @@ class Java_org_theko_sound_AudioPortsNotFoundException {
         // Method wrappers
         // Fabric method for public java.lang.String java.lang.Throwable.toString()
         inline static jstring toString(JNIEnv* env, jobject obj) {
-            Java_org_theko_sound_AudioPortsNotFoundException* self = get(env);
+            ThekoSound_AudioPortsNotFoundException* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__toString;
             if (!mtd) return nullptr;
@@ -230,7 +229,7 @@ class Java_org_theko_sound_AudioPortsNotFoundException {
 
         // Fabric method for public java.lang.String java.lang.Throwable.getMessage()
         inline static jstring getMessage(JNIEnv* env, jobject obj) {
-            Java_org_theko_sound_AudioPortsNotFoundException* self = get(env);
+            ThekoSound_AudioPortsNotFoundException* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getMessage;
             if (!mtd) return nullptr;
@@ -239,7 +238,7 @@ class Java_org_theko_sound_AudioPortsNotFoundException {
 
         // Fabric method for public boolean java.lang.Object.equals(java.lang.Object)
         inline static jboolean equals(JNIEnv* env, jobject obj, jobject v0) {
-            Java_org_theko_sound_AudioPortsNotFoundException* self = get(env);
+            ThekoSound_AudioPortsNotFoundException* self = get(env);
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__equals_java_lang_Object;
             if (!mtd) return JNI_FALSE;
