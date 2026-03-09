@@ -63,8 +63,8 @@
 
     <properties>
         <java.version>17</java.version>
-        <exec.unix>sh</exec.unix>
-        <exec.windows>cmd</exec.windows>
+        <exec.unix>make</exec.unix>
+        <exec.windows>mingw32-make</exec.windows>
     </properties>
 
     <build>
@@ -157,6 +157,21 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>run-make</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${exec.command}</executable>
+                            <arguments>
+                                <argument>all</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
@@ -179,7 +194,6 @@
         </plugins>
     </build>
 
-    <!-- Profiles are only for natives build -->
     <profiles>
         <profile>
             <id>unix</id>
