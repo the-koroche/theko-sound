@@ -73,13 +73,13 @@ public class JNIClassCacheGenerator {
     private static final String SINGLETON_GET = """
             static %s* get(JNIEnv* env) {
                 if (!env) return nullptr;
-                if (!%s::jvm) {
-                    env->GetJavaVM(&%s::jvm);
-                }
                 static std::mutex mtx;
                 static std::unique_ptr<%s> instance;
 
                 std::lock_guard<std::mutex> lock(mtx);
+                if (!%s::jvm) {
+                    env->GetJavaVM(&%s::jvm);
+                }
                 if (!instance || !instance->isValid()) {
                     instance.reset(new %s(env));
                 }
@@ -118,36 +118,48 @@ public class JNIClassCacheGenerator {
         sb.append(indent(1)).append("private:\n");
         sb.append(indent(2)).append("static inline JavaVM* jvm = nullptr;\n\n");
         sb.append(multilineIndent(GET_JAVAVM, 2)).append("\n");
-        sb.append(indent(2)).append("bool initialized = false; // True if all values are initialized\n");
+        sb.append(indent(2)).append("bool initialized = false; // True if all values are initialized\n\n");
+        sb.append(indent(2)).append("// jclass cache\n");
         sb.append(indent(2)).append("jclass clazz;\n");
 
         // Fields of type jclass
         Field[] fields = cls.getDeclaredFields();
-        for (Field f : fields) {
-            if (f.isSynthetic()) continue;
-            sb.append(indent(2)).append("jfieldID ").append(fieldName(f))
-                    .append("; // ").append(f.toString()).append("\n");
+        if (fields.length > 0) {
+            sb.append(indent(2)).append("// jfieldID cache\n");
+            for (Field f : fields) {
+                if (f.isSynthetic()) continue;
+                sb.append(indent(2)).append("// ").append(fieldInfo(f)).append("\n");
+                sb.append(indent(2)).append("jfieldID ").append(fieldName(f)).append(";\n");
+            }
+            sb.append("\n");
         }
 
         // Constructors
         Constructor<?>[] ctors = cls.getDeclaredConstructors();
-        for (Constructor<?> ctor : ctors) {
-            if (ctor.isSynthetic()) continue;
-            sb.append(indent(2)).append("jmethodID ").append(constructorFieldName(ctor))
-                    .append("; // ").append(ctor.toString()).append("\n");
+        if (ctors.length > 0) {
+            sb.append(indent(2)).append("//jmethodID constructor cache\n");
+            for (Constructor<?> ctor : ctors) {
+                if (ctor.isSynthetic()) continue;
+                sb.append(indent(2)).append("// ").append(constructorInfo(ctor)).append("\n");
+                sb.append(indent(2)).append("jmethodID ").append(constructorFieldName(ctor)).append(";\n");
+            }
+            sb.append("\n");
         }
 
         // Public methods
         Set<String> seenMethods = new HashSet<>(); // to avoid duplicates
         Method[] methods = cls.getMethods();
         List<Method> overloadedMethods = findOverloaded(methods);
-        for (Method m : methods) {
-            if (isIgnoredMethod(m)) continue;
-            String key = methodKey(m);
-            if (!seenMethods.add(key)) continue;
+        if (methods.length > 0) {
+            sb.append(indent(2)).append("// jmethodID cache\n");
+            for (Method m : methods) {
+                if (isIgnoredMethod(m)) continue;
+                String key = methodKey(m);
+                if (!seenMethods.add(key)) continue;
 
-            sb.append(indent(2)).append("jmethodID ").append(methodFieldName(m))
-                    .append("; // ").append(m.toString()).append("\n");
+                sb.append(indent(2)).append("// ").append(methodInfo(m)).append("\n");
+                sb.append(indent(2)).append("jmethodID ").append(methodFieldName(m)).append(";\n");
+            }
         }
 
         // Class constructor
@@ -159,7 +171,10 @@ public class JNIClassCacheGenerator {
 
         // Get jclass for this class
         sb.append(indent(3)).append("jclass clazz_local = env->FindClass(\"").append(jniClassName).append("\");\n");
-        sb.append(multilineIndent(String.format(CHECK_CODE, "clazz_local", "Failed to find class '" + cls.getName() + "'", ""), 3));
+        sb.append(indent(3)).append("if (!clazz_local) {\n");
+        sb.append(indent(4)).append("env->ThrowNew(env->FindClass(\"java/lang/RuntimeException\"), \"Failed to find class '").append(jniClassName).append("'\");\n");
+        sb.append(indent(4)).append("return;\n");
+        sb.append(indent(3)).append("}\n");
         sb.append("\n");
 
         // Obtain all constructors jmethodIDs
@@ -469,36 +484,51 @@ public class JNIClassCacheGenerator {
                 .collect(Collectors.joining("__"));
     }
 
-    private static String constructorJNISignature(Constructor<?> c) {
-        return "(" + Arrays.stream(c.getParameterTypes())
+    private static String constructorJNISignature(Constructor<?> ctor) {
+        return "(" + Arrays.stream(ctor.getParameterTypes())
                 .map(JNIClassCacheGenerator::JNISignature)
                 .collect(Collectors.joining()) + ")V";
     }
 
+    private static String constructorInfo(Constructor<?> ctor) {
+        String params = Arrays.stream(ctor.getParameterTypes())
+                .map(JNIClassCacheGenerator::getClassName)
+                .collect(Collectors.joining(", "));
+        
+        Class<?> declaring = ctor.getDeclaringClass();
+        String className = getClassName(declaring);
+        if (className == null) {
+            className = declaring.getName();
+        }
+
+        String visibility = visibilityString(ctor.getModifiers());
+        return String.format("%s %s(%s)", visibility, className, params);
+    }
+
     /* Methods */
-    private static String methodFieldName(Method m) {
-        String sig = methodParameterSignature(m);
+    private static String methodFieldName(Method method) {
+        String sig = methodParameterSignature(method);
         if (sig.isEmpty()) {
-            return "mtd__" + m.getName();
+            return "mtd__" + method.getName();
         } else {
-            return "mtd__" + m.getName() + "_" + sig;
+            return "mtd__" + method.getName() + "_" + sig;
         }
     }
 
-    private static String methodParameterSignature(Method m) {
-        return Arrays.stream(m.getParameterTypes())
+    private static String methodParameterSignature(Method method) {
+        return Arrays.stream(method.getParameterTypes())
                 .map(JNIClassCacheGenerator::typeToString)
                 .collect(Collectors.joining("__"));
     }
 
-    private static String methodJNISignature(Method m) {
-        return "(" + Arrays.stream(m.getParameterTypes())
+    private static String methodJNISignature(Method method) {
+        return "(" + Arrays.stream(method.getParameterTypes())
                 .map(JNIClassCacheGenerator::JNISignature)
-                .collect(Collectors.joining()) + ")" + JNISignature(m.getReturnType());
+                .collect(Collectors.joining()) + ")" + JNISignature(method.getReturnType());
     }
 
-    private static String methodKey(Method m) {
-        return m.getName() + methodParameterSignature(m);
+    private static String methodKey(Method method) {
+        return method.getName() + methodParameterSignature(method);
     }
 
     public static List<Method> findOverloaded(Method[] methods) {
@@ -510,14 +540,14 @@ public class JNIClassCacheGenerator {
                 .collect(Collectors.toList());
     }
 
-    private static boolean isIgnoredMethod(Method m) {
-        if (m.isSynthetic() || m.isBridge()) return true;
-        Class<?> owner = m.getDeclaringClass();
+    private static boolean isIgnoredMethod(Method method) {
+        if (method.isSynthetic() || method.isBridge()) return true;
+        Class<?> owner = method.getDeclaringClass();
 
-        if (owner == Object.class && !m.getName().equals("equals")) return true;
+        if (owner == Object.class && !method.getName().equals("equals")) return true;
         if (owner == Enum.class) return true;
             if (owner == Throwable.class) {
-        String name = m.getName();
+        String name = method.getName();
         if (name.equals("getMessage") || name.equals("toString")) return false;
             return true;
         }
@@ -525,12 +555,50 @@ public class JNIClassCacheGenerator {
         return false;
     }
 
+    private static String methodInfo(Method method) {
+        String params = Arrays.stream(method.getParameterTypes())
+                .map(JNIClassCacheGenerator::getClassName)
+                .collect(Collectors.joining(", "));
+
+        Class<?> type = method.getReturnType();
+        Class<?> owner = method.getDeclaringClass();
+        String visibility = visibilityString(method.getModifiers());
+
+        return String.format("%s %s %s.%s(%s)",
+                visibility,
+                getClassName(type),
+                getClassName(owner),
+                method.getName(),
+                params);
+    }
+
     /* Fields */
-    private static String fieldName(Field f) {
-        return "fld__" + sanitize(f.getName());
+    private static String fieldName(Field field) {
+        return "fld__" + sanitize(field.getName());
+    }
+
+    private static String fieldInfo(Field field) {
+        Class<?> type = field.getType();
+        Class<?> owner = field.getDeclaringClass();
+        String visibility = visibilityString(field.getModifiers());
+        return String.format("%s %s %s.%s", visibility, getClassName(type), getClassName(owner), field.getName());
+    }
+
+    /* Other Reflection helpers */
+    private static String getClassName(Class<?> type) {
+        String name = type.getCanonicalName();
+        if (name == null) name = type.getName();
+        return name;
     }
 
     /* Other JNI helpers */
+    private static String visibilityString(int mod) {
+        if (Modifier.isPublic(mod)) return "public";
+        if (Modifier.isProtected(mod)) return "protected";
+        if (Modifier.isPrivate(mod)) return "private";
+        return "package-private";
+    }
+
     private static String typeToString(Class<?> type) {
         if (type.isPrimitive()) {
             return type.getSimpleName(); // boolean, int, ...
@@ -613,7 +681,7 @@ public class JNIClassCacheGenerator {
     // String helpers
 
     private static String capitalize(String s) {
-        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+        return s.isEmpty() ? s : Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
 
     private static String sanitize(String s) {
