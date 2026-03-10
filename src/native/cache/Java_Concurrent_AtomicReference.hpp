@@ -28,45 +28,81 @@ class Java_Concurrent_AtomicReference {
         }
 
         bool initialized = false; // True if all values are initialized
+
+        // jclass cache
         jclass clazz;
-        jfieldID fld__serialVersionUID; // private static final long java.util.concurrent.atomic.AtomicReference.serialVersionUID
-        jfieldID fld__VALUE; // private static final java.lang.invoke.VarHandle java.util.concurrent.atomic.AtomicReference.VALUE
-        jfieldID fld__value; // private volatile java.lang.Object java.util.concurrent.atomic.AtomicReference.value
-        jmethodID ctor__java_lang_Object; // public java.util.concurrent.atomic.AtomicReference(java.lang.Object)
-        jmethodID ctor__; // public java.util.concurrent.atomic.AtomicReference()
-        jmethodID mtd__get; // public final java.lang.Object java.util.concurrent.atomic.AtomicReference.get()
-        jmethodID mtd__toString; // public java.lang.String java.util.concurrent.atomic.AtomicReference.toString()
-        jmethodID mtd__set_java_lang_Object; // public final void java.util.concurrent.atomic.AtomicReference.set(java.lang.Object)
-        jmethodID mtd__getOpaque; // public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getOpaque()
-        jmethodID mtd__setOpaque_java_lang_Object; // public final void java.util.concurrent.atomic.AtomicReference.setOpaque(java.lang.Object)
-        jmethodID mtd__getAcquire; // public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAcquire()
-        jmethodID mtd__setRelease_java_lang_Object; // public final void java.util.concurrent.atomic.AtomicReference.setRelease(java.lang.Object)
-        jmethodID mtd__compareAndSet_java_lang_Object__java_lang_Object; // public final boolean java.util.concurrent.atomic.AtomicReference.compareAndSet(java.lang.Object,java.lang.Object)
-        jmethodID mtd__compareAndExchange_java_lang_Object__java_lang_Object; // public final java.lang.Object java.util.concurrent.atomic.AtomicReference.compareAndExchange(java.lang.Object,java.lang.Object)
-        jmethodID mtd__compareAndExchangeAcquire_java_lang_Object__java_lang_Object; // public final java.lang.Object java.util.concurrent.atomic.AtomicReference.compareAndExchangeAcquire(java.lang.Object,java.lang.Object)
-        jmethodID mtd__compareAndExchangeRelease_java_lang_Object__java_lang_Object; // public final java.lang.Object java.util.concurrent.atomic.AtomicReference.compareAndExchangeRelease(java.lang.Object,java.lang.Object)
-        jmethodID mtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object; // public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetPlain(java.lang.Object,java.lang.Object)
-        jmethodID mtd__weakCompareAndSet_java_lang_Object__java_lang_Object; // public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSet(java.lang.Object,java.lang.Object)
-        jmethodID mtd__weakCompareAndSetAcquire_java_lang_Object__java_lang_Object; // public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetAcquire(java.lang.Object,java.lang.Object)
-        jmethodID mtd__weakCompareAndSetRelease_java_lang_Object__java_lang_Object; // public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetRelease(java.lang.Object,java.lang.Object)
-        jmethodID mtd__getAndSet_java_lang_Object; // public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndSet(java.lang.Object)
-        jmethodID mtd__weakCompareAndSetVolatile_java_lang_Object__java_lang_Object; // public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetVolatile(java.lang.Object,java.lang.Object)
-        jmethodID mtd__lazySet_java_lang_Object; // public final void java.util.concurrent.atomic.AtomicReference.lazySet(java.lang.Object)
-        jmethodID mtd__getAndUpdate_java_util_function_UnaryOperator; // public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndUpdate(java.util.function.UnaryOperator)
-        jmethodID mtd__updateAndGet_java_util_function_UnaryOperator; // public final java.lang.Object java.util.concurrent.atomic.AtomicReference.updateAndGet(java.util.function.UnaryOperator)
-        jmethodID mtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator; // public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndAccumulate(java.lang.Object,java.util.function.BinaryOperator)
-        jmethodID mtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator; // public final java.lang.Object java.util.concurrent.atomic.AtomicReference.accumulateAndGet(java.lang.Object,java.util.function.BinaryOperator)
-        jmethodID mtd__getPlain; // public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getPlain()
-        jmethodID mtd__setPlain_java_lang_Object; // public final void java.util.concurrent.atomic.AtomicReference.setPlain(java.lang.Object)
-        jmethodID mtd__equals_java_lang_Object; // public boolean java.lang.Object.equals(java.lang.Object)
+        // jfieldID cache
+        // private long java.util.concurrent.atomic.AtomicReference.serialVersionUID
+        jfieldID fld__serialVersionUID;
+        // private java.lang.invoke.VarHandle java.util.concurrent.atomic.AtomicReference.VALUE
+        jfieldID fld__VALUE;
+        // private java.lang.Object java.util.concurrent.atomic.AtomicReference.value
+        jfieldID fld__value;
+
+        //jmethodID constructor cache
+        // public java.util.concurrent.atomic.AtomicReference(java.lang.Object)
+        jmethodID ctor__java_lang_Object;
+        // public java.util.concurrent.atomic.AtomicReference()
+        jmethodID ctor__;
+
+        // jmethodID cache
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.get()
+        jmethodID mtd__get;
+        // public java.lang.String java.util.concurrent.atomic.AtomicReference.toString()
+        jmethodID mtd__toString;
+        // public void java.util.concurrent.atomic.AtomicReference.set(java.lang.Object)
+        jmethodID mtd__set_java_lang_Object;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getOpaque()
+        jmethodID mtd__getOpaque;
+        // public void java.util.concurrent.atomic.AtomicReference.setOpaque(java.lang.Object)
+        jmethodID mtd__setOpaque_java_lang_Object;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getAcquire()
+        jmethodID mtd__getAcquire;
+        // public void java.util.concurrent.atomic.AtomicReference.setRelease(java.lang.Object)
+        jmethodID mtd__setRelease_java_lang_Object;
+        // public boolean java.util.concurrent.atomic.AtomicReference.compareAndSet(java.lang.Object, java.lang.Object)
+        jmethodID mtd__compareAndSet_java_lang_Object__java_lang_Object;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.compareAndExchange(java.lang.Object, java.lang.Object)
+        jmethodID mtd__compareAndExchange_java_lang_Object__java_lang_Object;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.compareAndExchangeAcquire(java.lang.Object, java.lang.Object)
+        jmethodID mtd__compareAndExchangeAcquire_java_lang_Object__java_lang_Object;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.compareAndExchangeRelease(java.lang.Object, java.lang.Object)
+        jmethodID mtd__compareAndExchangeRelease_java_lang_Object__java_lang_Object;
+        // public boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetPlain(java.lang.Object, java.lang.Object)
+        jmethodID mtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object;
+        // public boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSet(java.lang.Object, java.lang.Object)
+        jmethodID mtd__weakCompareAndSet_java_lang_Object__java_lang_Object;
+        // public boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetAcquire(java.lang.Object, java.lang.Object)
+        jmethodID mtd__weakCompareAndSetAcquire_java_lang_Object__java_lang_Object;
+        // public boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetRelease(java.lang.Object, java.lang.Object)
+        jmethodID mtd__weakCompareAndSetRelease_java_lang_Object__java_lang_Object;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndSet(java.lang.Object)
+        jmethodID mtd__getAndSet_java_lang_Object;
+        // public boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetVolatile(java.lang.Object, java.lang.Object)
+        jmethodID mtd__weakCompareAndSetVolatile_java_lang_Object__java_lang_Object;
+        // public void java.util.concurrent.atomic.AtomicReference.lazySet(java.lang.Object)
+        jmethodID mtd__lazySet_java_lang_Object;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndUpdate(java.util.function.UnaryOperator)
+        jmethodID mtd__getAndUpdate_java_util_function_UnaryOperator;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.updateAndGet(java.util.function.UnaryOperator)
+        jmethodID mtd__updateAndGet_java_util_function_UnaryOperator;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndAccumulate(java.lang.Object, java.util.function.BinaryOperator)
+        jmethodID mtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.accumulateAndGet(java.lang.Object, java.util.function.BinaryOperator)
+        jmethodID mtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getPlain()
+        jmethodID mtd__getPlain;
+        // public void java.util.concurrent.atomic.AtomicReference.setPlain(java.lang.Object)
+        jmethodID mtd__setPlain_java_lang_Object;
+        // public boolean java.lang.Object.equals(java.lang.Object)
+        jmethodID mtd__equals_java_lang_Object;
 
         Java_Concurrent_AtomicReference(JNIEnv* env) {
             initialized = false; // Reinitialize
             if (!env) return;
             jclass clazz_local = env->FindClass("java/util/concurrent/atomic/AtomicReference");
             if (!clazz_local) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to find class 'java.util.concurrent.atomic.AtomicReference'");
+                env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Failed to find class 'java/util/concurrent/atomic/AtomicReference'");
                 return;
             }
 
@@ -286,13 +322,13 @@ class Java_Concurrent_AtomicReference {
 
         static Java_Concurrent_AtomicReference* get(JNIEnv* env) {
             if (!env) return nullptr;
-            if (!Java_Concurrent_AtomicReference::jvm) {
-                env->GetJavaVM(&Java_Concurrent_AtomicReference::jvm);
-            }
             static std::mutex mtx;
             static std::unique_ptr<Java_Concurrent_AtomicReference> instance;
         
             std::lock_guard<std::mutex> lock(mtx);
+            if (!Java_Concurrent_AtomicReference::jvm) {
+                env->GetJavaVM(&Java_Concurrent_AtomicReference::jvm);
+            }
             if (!instance || !instance->isValid()) {
                 instance.reset(new Java_Concurrent_AtomicReference(env));
             }

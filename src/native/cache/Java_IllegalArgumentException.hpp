@@ -28,23 +28,37 @@ class Java_IllegalArgumentException {
         }
 
         bool initialized = false; // True if all values are initialized
+
+        // jclass cache
         jclass clazz;
-        jfieldID fld__serialVersionUID; // private static final long java.lang.IllegalArgumentException.serialVersionUID
-        jmethodID ctor__java_lang_Throwable; // public java.lang.IllegalArgumentException(java.lang.Throwable)
-        jmethodID ctor__java_lang_String__java_lang_Throwable; // public java.lang.IllegalArgumentException(java.lang.String,java.lang.Throwable)
-        jmethodID ctor__java_lang_String; // public java.lang.IllegalArgumentException(java.lang.String)
-        jmethodID ctor__; // public java.lang.IllegalArgumentException()
-        jmethodID mtd__toString; // public java.lang.String java.lang.Throwable.toString()
-        jmethodID mtd__getMessage; // public java.lang.String java.lang.Throwable.getMessage()
-        jmethodID mtd__equals_java_lang_Object; // public boolean java.lang.Object.equals(java.lang.Object)
+        // jfieldID cache
+        // private long java.lang.IllegalArgumentException.serialVersionUID
+        jfieldID fld__serialVersionUID;
+
+        //jmethodID constructor cache
+        // public java.lang.IllegalArgumentException(java.lang.Throwable)
+        jmethodID ctor__java_lang_Throwable;
+        // public java.lang.IllegalArgumentException(java.lang.String, java.lang.Throwable)
+        jmethodID ctor__java_lang_String__java_lang_Throwable;
+        // public java.lang.IllegalArgumentException(java.lang.String)
+        jmethodID ctor__java_lang_String;
+        // public java.lang.IllegalArgumentException()
+        jmethodID ctor__;
+
+        // jmethodID cache
+        // public java.lang.String java.lang.Throwable.toString()
+        jmethodID mtd__toString;
+        // public java.lang.String java.lang.Throwable.getMessage()
+        jmethodID mtd__getMessage;
+        // public boolean java.lang.Object.equals(java.lang.Object)
+        jmethodID mtd__equals_java_lang_Object;
 
         Java_IllegalArgumentException(JNIEnv* env) {
             initialized = false; // Reinitialize
             if (!env) return;
             jclass clazz_local = env->FindClass("java/lang/IllegalArgumentException");
             if (!clazz_local) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to find class 'java.lang.IllegalArgumentException'");
+                env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Failed to find class 'java/lang/IllegalArgumentException'");
                 return;
             }
 
@@ -132,13 +146,13 @@ class Java_IllegalArgumentException {
 
         static Java_IllegalArgumentException* get(JNIEnv* env) {
             if (!env) return nullptr;
-            if (!Java_IllegalArgumentException::jvm) {
-                env->GetJavaVM(&Java_IllegalArgumentException::jvm);
-            }
             static std::mutex mtx;
             static std::unique_ptr<Java_IllegalArgumentException> instance;
         
             std::lock_guard<std::mutex> lock(mtx);
+            if (!Java_IllegalArgumentException::jvm) {
+                env->GetJavaVM(&Java_IllegalArgumentException::jvm);
+            }
             if (!instance || !instance->isValid()) {
                 instance.reset(new Java_IllegalArgumentException(env));
             }

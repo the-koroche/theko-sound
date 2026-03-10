@@ -28,22 +28,35 @@ class ThekoSound_AudioFlow {
         }
 
         bool initialized = false; // True if all values are initialized
+
+        // jclass cache
         jclass clazz;
-        jfieldID fld__IN; // public static final org.theko.sound.AudioFlow org.theko.sound.AudioFlow.IN
-        jfieldID fld__OUT; // public static final org.theko.sound.AudioFlow org.theko.sound.AudioFlow.OUT
-        jmethodID ctor__java_lang_String__int; // private org.theko.sound.AudioFlow(java.lang.String,int)
-        jmethodID mtd__toString; // public java.lang.String org.theko.sound.AudioFlow.toString()
-        jmethodID mtd__values; // public static org.theko.sound.AudioFlow[] org.theko.sound.AudioFlow.values()
-        jmethodID mtd__valueOf_java_lang_String; // public static org.theko.sound.AudioFlow org.theko.sound.AudioFlow.valueOf(java.lang.String)
-        jmethodID mtd__fromBoolean_boolean; // public static org.theko.sound.AudioFlow org.theko.sound.AudioFlow.fromBoolean(boolean)
+        // jfieldID cache
+        // public org.theko.sound.AudioFlow org.theko.sound.AudioFlow.IN
+        jfieldID fld__IN;
+        // public org.theko.sound.AudioFlow org.theko.sound.AudioFlow.OUT
+        jfieldID fld__OUT;
+
+        //jmethodID constructor cache
+        // private org.theko.sound.AudioFlow(java.lang.String, int)
+        jmethodID ctor__java_lang_String__int;
+
+        // jmethodID cache
+        // public java.lang.String org.theko.sound.AudioFlow.toString()
+        jmethodID mtd__toString;
+        // public org.theko.sound.AudioFlow[] org.theko.sound.AudioFlow.values()
+        jmethodID mtd__values;
+        // public org.theko.sound.AudioFlow org.theko.sound.AudioFlow.valueOf(java.lang.String)
+        jmethodID mtd__valueOf_java_lang_String;
+        // public org.theko.sound.AudioFlow org.theko.sound.AudioFlow.fromBoolean(boolean)
+        jmethodID mtd__fromBoolean_boolean;
 
         ThekoSound_AudioFlow(JNIEnv* env) {
             initialized = false; // Reinitialize
             if (!env) return;
             jclass clazz_local = env->FindClass("org/theko/sound/AudioFlow");
             if (!clazz_local) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to find class 'org.theko.sound.AudioFlow'");
+                env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Failed to find class 'org/theko/sound/AudioFlow'");
                 return;
             }
 
@@ -125,13 +138,13 @@ class ThekoSound_AudioFlow {
 
         static ThekoSound_AudioFlow* get(JNIEnv* env) {
             if (!env) return nullptr;
-            if (!ThekoSound_AudioFlow::jvm) {
-                env->GetJavaVM(&ThekoSound_AudioFlow::jvm);
-            }
             static std::mutex mtx;
             static std::unique_ptr<ThekoSound_AudioFlow> instance;
         
             std::lock_guard<std::mutex> lock(mtx);
+            if (!ThekoSound_AudioFlow::jvm) {
+                env->GetJavaVM(&ThekoSound_AudioFlow::jvm);
+            }
             if (!instance || !instance->isValid()) {
                 instance.reset(new ThekoSound_AudioFlow(env));
             }

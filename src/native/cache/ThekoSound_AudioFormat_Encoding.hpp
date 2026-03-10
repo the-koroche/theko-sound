@@ -28,23 +28,37 @@ class ThekoSound_AudioFormat_Encoding {
         }
 
         bool initialized = false; // True if all values are initialized
+
+        // jclass cache
         jclass clazz;
-        jfieldID fld__PCM_UNSIGNED; // public static final org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.PCM_UNSIGNED
-        jfieldID fld__PCM_SIGNED; // public static final org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.PCM_SIGNED
-        jfieldID fld__PCM_FLOAT; // public static final org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.PCM_FLOAT
-        jfieldID fld__ULAW; // public static final org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.ULAW
-        jfieldID fld__ALAW; // public static final org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.ALAW
-        jmethodID ctor__java_lang_String__int; // private org.theko.sound.AudioFormat$Encoding(java.lang.String,int)
-        jmethodID mtd__values; // public static org.theko.sound.AudioFormat$Encoding[] org.theko.sound.AudioFormat$Encoding.values()
-        jmethodID mtd__valueOf_java_lang_String; // public static org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.valueOf(java.lang.String)
+        // jfieldID cache
+        // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.Encoding.PCM_UNSIGNED
+        jfieldID fld__PCM_UNSIGNED;
+        // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.Encoding.PCM_SIGNED
+        jfieldID fld__PCM_SIGNED;
+        // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.Encoding.PCM_FLOAT
+        jfieldID fld__PCM_FLOAT;
+        // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.Encoding.ULAW
+        jfieldID fld__ULAW;
+        // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.Encoding.ALAW
+        jfieldID fld__ALAW;
+
+        //jmethodID constructor cache
+        // private org.theko.sound.AudioFormat.Encoding(java.lang.String, int)
+        jmethodID ctor__java_lang_String__int;
+
+        // jmethodID cache
+        // public org.theko.sound.AudioFormat.Encoding[] org.theko.sound.AudioFormat.Encoding.values()
+        jmethodID mtd__values;
+        // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.Encoding.valueOf(java.lang.String)
+        jmethodID mtd__valueOf_java_lang_String;
 
         ThekoSound_AudioFormat_Encoding(JNIEnv* env) {
             initialized = false; // Reinitialize
             if (!env) return;
             jclass clazz_local = env->FindClass("org/theko/sound/AudioFormat$Encoding");
             if (!clazz_local) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to find class 'org.theko.sound.AudioFormat$Encoding'");
+                env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Failed to find class 'org/theko/sound/AudioFormat$Encoding'");
                 return;
             }
 
@@ -132,13 +146,13 @@ class ThekoSound_AudioFormat_Encoding {
 
         static ThekoSound_AudioFormat_Encoding* get(JNIEnv* env) {
             if (!env) return nullptr;
-            if (!ThekoSound_AudioFormat_Encoding::jvm) {
-                env->GetJavaVM(&ThekoSound_AudioFormat_Encoding::jvm);
-            }
             static std::mutex mtx;
             static std::unique_ptr<ThekoSound_AudioFormat_Encoding> instance;
         
             std::lock_guard<std::mutex> lock(mtx);
+            if (!ThekoSound_AudioFormat_Encoding::jvm) {
+                env->GetJavaVM(&ThekoSound_AudioFormat_Encoding::jvm);
+            }
             if (!instance || !instance->isValid()) {
                 instance.reset(new ThekoSound_AudioFormat_Encoding(env));
             }

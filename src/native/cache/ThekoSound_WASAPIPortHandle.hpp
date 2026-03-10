@@ -28,20 +28,31 @@ class ThekoSound_WASAPIPortHandle {
         }
 
         bool initialized = false; // True if all values are initialized
+
+        // jclass cache
         jclass clazz;
-        jfieldID fld__handle; // private final java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.handle
-        jmethodID ctor__java_lang_String; // public org.theko.sound.backends.wasapi.WASAPIPortHandle(java.lang.String)
-        jmethodID mtd__equals_java_lang_Object; // public boolean org.theko.sound.backends.wasapi.WASAPIPortHandle.equals(java.lang.Object)
-        jmethodID mtd__toString; // public java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.toString()
-        jmethodID mtd__getHandle; // public java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.getHandle()
+        // jfieldID cache
+        // private java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.handle
+        jfieldID fld__handle;
+
+        //jmethodID constructor cache
+        // public org.theko.sound.backends.wasapi.WASAPIPortHandle(java.lang.String)
+        jmethodID ctor__java_lang_String;
+
+        // jmethodID cache
+        // public boolean org.theko.sound.backends.wasapi.WASAPIPortHandle.equals(java.lang.Object)
+        jmethodID mtd__equals_java_lang_Object;
+        // public java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.toString()
+        jmethodID mtd__toString;
+        // public java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.getHandle()
+        jmethodID mtd__getHandle;
 
         ThekoSound_WASAPIPortHandle(JNIEnv* env) {
             initialized = false; // Reinitialize
             if (!env) return;
             jclass clazz_local = env->FindClass("org/theko/sound/backends/wasapi/WASAPIPortHandle");
             if (!clazz_local) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to find class 'org.theko.sound.backends.wasapi.WASAPIPortHandle'");
+                env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Failed to find class 'org/theko/sound/backends/wasapi/WASAPIPortHandle'");
                 return;
             }
 
@@ -111,13 +122,13 @@ class ThekoSound_WASAPIPortHandle {
 
         static ThekoSound_WASAPIPortHandle* get(JNIEnv* env) {
             if (!env) return nullptr;
-            if (!ThekoSound_WASAPIPortHandle::jvm) {
-                env->GetJavaVM(&ThekoSound_WASAPIPortHandle::jvm);
-            }
             static std::mutex mtx;
             static std::unique_ptr<ThekoSound_WASAPIPortHandle> instance;
         
             std::lock_guard<std::mutex> lock(mtx);
+            if (!ThekoSound_WASAPIPortHandle::jvm) {
+                env->GetJavaVM(&ThekoSound_WASAPIPortHandle::jvm);
+            }
             if (!instance || !instance->isValid()) {
                 instance.reset(new ThekoSound_WASAPIPortHandle(env));
             }

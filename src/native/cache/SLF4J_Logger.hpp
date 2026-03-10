@@ -28,85 +28,159 @@ class SLF4J_Logger {
         }
 
         bool initialized = false; // True if all values are initialized
+
+        // jclass cache
         jclass clazz;
-        jfieldID fld__ROOT_LOGGER_NAME; // public static final java.lang.String org.slf4j.Logger.ROOT_LOGGER_NAME
-        jmethodID mtd__getName; // public abstract java.lang.String org.slf4j.Logger.getName()
-        jmethodID mtd__info_java_lang_String__java_lang_Object__java_lang_Object; // public abstract void org.slf4j.Logger.info(java.lang.String,java.lang.Object,java.lang.Object)
-        jmethodID mtd__info_java_lang_String__ArrayOf_java_lang_Object; // public abstract void org.slf4j.Logger.info(java.lang.String,java.lang.Object[])
-        jmethodID mtd__info_java_lang_String__java_lang_Throwable; // public abstract void org.slf4j.Logger.info(java.lang.String,java.lang.Throwable)
-        jmethodID mtd__info_java_lang_String__java_lang_Object; // public abstract void org.slf4j.Logger.info(java.lang.String,java.lang.Object)
-        jmethodID mtd__info_java_lang_String; // public abstract void org.slf4j.Logger.info(java.lang.String)
-        jmethodID mtd__info_org_slf4j_Marker__java_lang_String__java_lang_Throwable; // public abstract void org.slf4j.Logger.info(org.slf4j.Marker,java.lang.String,java.lang.Throwable)
-        jmethodID mtd__info_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object; // public abstract void org.slf4j.Logger.info(org.slf4j.Marker,java.lang.String,java.lang.Object[])
-        jmethodID mtd__info_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object; // public abstract void org.slf4j.Logger.info(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
-        jmethodID mtd__info_org_slf4j_Marker__java_lang_String__java_lang_Object; // public abstract void org.slf4j.Logger.info(org.slf4j.Marker,java.lang.String,java.lang.Object)
-        jmethodID mtd__info_org_slf4j_Marker__java_lang_String; // public abstract void org.slf4j.Logger.info(org.slf4j.Marker,java.lang.String)
-        jmethodID mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Throwable; // public abstract void org.slf4j.Logger.trace(org.slf4j.Marker,java.lang.String,java.lang.Throwable)
-        jmethodID mtd__trace_java_lang_String__ArrayOf_java_lang_Object; // public abstract void org.slf4j.Logger.trace(java.lang.String,java.lang.Object[])
-        jmethodID mtd__trace_java_lang_String__java_lang_Throwable; // public abstract void org.slf4j.Logger.trace(java.lang.String,java.lang.Throwable)
-        jmethodID mtd__trace_java_lang_String__java_lang_Object; // public abstract void org.slf4j.Logger.trace(java.lang.String,java.lang.Object)
-        jmethodID mtd__trace_java_lang_String__java_lang_Object__java_lang_Object; // public abstract void org.slf4j.Logger.trace(java.lang.String,java.lang.Object,java.lang.Object)
-        jmethodID mtd__trace_java_lang_String; // public abstract void org.slf4j.Logger.trace(java.lang.String)
-        jmethodID mtd__trace_org_slf4j_Marker__java_lang_String; // public abstract void org.slf4j.Logger.trace(org.slf4j.Marker,java.lang.String)
-        jmethodID mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Object; // public abstract void org.slf4j.Logger.trace(org.slf4j.Marker,java.lang.String,java.lang.Object)
-        jmethodID mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object; // public abstract void org.slf4j.Logger.trace(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
-        jmethodID mtd__trace_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object; // public abstract void org.slf4j.Logger.trace(org.slf4j.Marker,java.lang.String,java.lang.Object[])
-        jmethodID mtd__error_java_lang_String__java_lang_Throwable; // public abstract void org.slf4j.Logger.error(java.lang.String,java.lang.Throwable)
-        jmethodID mtd__error_java_lang_String__java_lang_Object__java_lang_Object; // public abstract void org.slf4j.Logger.error(java.lang.String,java.lang.Object,java.lang.Object)
-        jmethodID mtd__error_java_lang_String__ArrayOf_java_lang_Object; // public abstract void org.slf4j.Logger.error(java.lang.String,java.lang.Object[])
-        jmethodID mtd__error_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object; // public abstract void org.slf4j.Logger.error(org.slf4j.Marker,java.lang.String,java.lang.Object[])
-        jmethodID mtd__error_java_lang_String; // public abstract void org.slf4j.Logger.error(java.lang.String)
-        jmethodID mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Throwable; // public abstract void org.slf4j.Logger.error(org.slf4j.Marker,java.lang.String,java.lang.Throwable)
-        jmethodID mtd__error_java_lang_String__java_lang_Object; // public abstract void org.slf4j.Logger.error(java.lang.String,java.lang.Object)
-        jmethodID mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object; // public abstract void org.slf4j.Logger.error(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
-        jmethodID mtd__error_org_slf4j_Marker__java_lang_String; // public abstract void org.slf4j.Logger.error(org.slf4j.Marker,java.lang.String)
-        jmethodID mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object; // public abstract void org.slf4j.Logger.error(org.slf4j.Marker,java.lang.String,java.lang.Object)
-        jmethodID mtd__warn_java_lang_String; // public abstract void org.slf4j.Logger.warn(java.lang.String)
-        jmethodID mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object; // public abstract void org.slf4j.Logger.warn(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
-        jmethodID mtd__warn_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object; // public abstract void org.slf4j.Logger.warn(org.slf4j.Marker,java.lang.String,java.lang.Object[])
-        jmethodID mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Throwable; // public abstract void org.slf4j.Logger.warn(org.slf4j.Marker,java.lang.String,java.lang.Throwable)
-        jmethodID mtd__warn_java_lang_String__java_lang_Object; // public abstract void org.slf4j.Logger.warn(java.lang.String,java.lang.Object)
-        jmethodID mtd__warn_java_lang_String__java_lang_Throwable; // public abstract void org.slf4j.Logger.warn(java.lang.String,java.lang.Throwable)
-        jmethodID mtd__warn_java_lang_String__java_lang_Object__java_lang_Object; // public abstract void org.slf4j.Logger.warn(java.lang.String,java.lang.Object,java.lang.Object)
-        jmethodID mtd__warn_java_lang_String__ArrayOf_java_lang_Object; // public abstract void org.slf4j.Logger.warn(java.lang.String,java.lang.Object[])
-        jmethodID mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object; // public abstract void org.slf4j.Logger.warn(org.slf4j.Marker,java.lang.String,java.lang.Object)
-        jmethodID mtd__warn_org_slf4j_Marker__java_lang_String; // public abstract void org.slf4j.Logger.warn(org.slf4j.Marker,java.lang.String)
-        jmethodID mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object; // public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
-        jmethodID mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object; // public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String,java.lang.Object)
-        jmethodID mtd__debug_org_slf4j_Marker__java_lang_String; // public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String)
-        jmethodID mtd__debug_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object; // public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String,java.lang.Object[])
-        jmethodID mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Throwable; // public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String,java.lang.Throwable)
-        jmethodID mtd__debug_java_lang_String; // public abstract void org.slf4j.Logger.debug(java.lang.String)
-        jmethodID mtd__debug_java_lang_String__java_lang_Object; // public abstract void org.slf4j.Logger.debug(java.lang.String,java.lang.Object)
-        jmethodID mtd__debug_java_lang_String__java_lang_Object__java_lang_Object; // public abstract void org.slf4j.Logger.debug(java.lang.String,java.lang.Object,java.lang.Object)
-        jmethodID mtd__debug_java_lang_String__ArrayOf_java_lang_Object; // public abstract void org.slf4j.Logger.debug(java.lang.String,java.lang.Object[])
-        jmethodID mtd__debug_java_lang_String__java_lang_Throwable; // public abstract void org.slf4j.Logger.debug(java.lang.String,java.lang.Throwable)
-        jmethodID mtd__isTraceEnabled_org_slf4j_Marker; // public abstract boolean org.slf4j.Logger.isTraceEnabled(org.slf4j.Marker)
-        jmethodID mtd__isTraceEnabled; // public abstract boolean org.slf4j.Logger.isTraceEnabled()
-        jmethodID mtd__isEnabledForLevel_org_slf4j_event_Level; // public default boolean org.slf4j.Logger.isEnabledForLevel(org.slf4j.event.Level)
-        jmethodID mtd__makeLoggingEventBuilder_org_slf4j_event_Level; // public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.makeLoggingEventBuilder(org.slf4j.event.Level)
-        jmethodID mtd__isDebugEnabled; // public abstract boolean org.slf4j.Logger.isDebugEnabled()
-        jmethodID mtd__isDebugEnabled_org_slf4j_Marker; // public abstract boolean org.slf4j.Logger.isDebugEnabled(org.slf4j.Marker)
-        jmethodID mtd__isInfoEnabled_org_slf4j_Marker; // public abstract boolean org.slf4j.Logger.isInfoEnabled(org.slf4j.Marker)
-        jmethodID mtd__isInfoEnabled; // public abstract boolean org.slf4j.Logger.isInfoEnabled()
-        jmethodID mtd__isWarnEnabled_org_slf4j_Marker; // public abstract boolean org.slf4j.Logger.isWarnEnabled(org.slf4j.Marker)
-        jmethodID mtd__isWarnEnabled; // public abstract boolean org.slf4j.Logger.isWarnEnabled()
-        jmethodID mtd__isErrorEnabled_org_slf4j_Marker; // public abstract boolean org.slf4j.Logger.isErrorEnabled(org.slf4j.Marker)
-        jmethodID mtd__isErrorEnabled; // public abstract boolean org.slf4j.Logger.isErrorEnabled()
-        jmethodID mtd__atInfo; // public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atInfo()
-        jmethodID mtd__atDebug; // public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atDebug()
-        jmethodID mtd__atTrace; // public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atTrace()
-        jmethodID mtd__atError; // public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atError()
-        jmethodID mtd__atWarn; // public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atWarn()
-        jmethodID mtd__atLevel_org_slf4j_event_Level; // public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atLevel(org.slf4j.event.Level)
+        // jfieldID cache
+        // public java.lang.String org.slf4j.Logger.ROOT_LOGGER_NAME
+        jfieldID fld__ROOT_LOGGER_NAME;
+
+        // jmethodID cache
+        // public java.lang.String org.slf4j.Logger.getName()
+        jmethodID mtd__getName;
+        // public void org.slf4j.Logger.info(java.lang.String, java.lang.Object, java.lang.Object)
+        jmethodID mtd__info_java_lang_String__java_lang_Object__java_lang_Object;
+        // public void org.slf4j.Logger.info(java.lang.String, java.lang.Object[])
+        jmethodID mtd__info_java_lang_String__ArrayOf_java_lang_Object;
+        // public void org.slf4j.Logger.info(java.lang.String, java.lang.Throwable)
+        jmethodID mtd__info_java_lang_String__java_lang_Throwable;
+        // public void org.slf4j.Logger.info(java.lang.String, java.lang.Object)
+        jmethodID mtd__info_java_lang_String__java_lang_Object;
+        // public void org.slf4j.Logger.info(java.lang.String)
+        jmethodID mtd__info_java_lang_String;
+        // public void org.slf4j.Logger.info(org.slf4j.Marker, java.lang.String, java.lang.Throwable)
+        jmethodID mtd__info_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
+        // public void org.slf4j.Logger.info(org.slf4j.Marker, java.lang.String, java.lang.Object[])
+        jmethodID mtd__info_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
+        // public void org.slf4j.Logger.info(org.slf4j.Marker, java.lang.String, java.lang.Object, java.lang.Object)
+        jmethodID mtd__info_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
+        // public void org.slf4j.Logger.info(org.slf4j.Marker, java.lang.String, java.lang.Object)
+        jmethodID mtd__info_org_slf4j_Marker__java_lang_String__java_lang_Object;
+        // public void org.slf4j.Logger.info(org.slf4j.Marker, java.lang.String)
+        jmethodID mtd__info_org_slf4j_Marker__java_lang_String;
+        // public void org.slf4j.Logger.trace(org.slf4j.Marker, java.lang.String, java.lang.Throwable)
+        jmethodID mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
+        // public void org.slf4j.Logger.trace(java.lang.String)
+        jmethodID mtd__trace_java_lang_String;
+        // public void org.slf4j.Logger.trace(java.lang.String, java.lang.Object)
+        jmethodID mtd__trace_java_lang_String__java_lang_Object;
+        // public void org.slf4j.Logger.trace(java.lang.String, java.lang.Object, java.lang.Object)
+        jmethodID mtd__trace_java_lang_String__java_lang_Object__java_lang_Object;
+        // public void org.slf4j.Logger.trace(java.lang.String, java.lang.Object[])
+        jmethodID mtd__trace_java_lang_String__ArrayOf_java_lang_Object;
+        // public void org.slf4j.Logger.trace(java.lang.String, java.lang.Throwable)
+        jmethodID mtd__trace_java_lang_String__java_lang_Throwable;
+        // public void org.slf4j.Logger.trace(org.slf4j.Marker, java.lang.String)
+        jmethodID mtd__trace_org_slf4j_Marker__java_lang_String;
+        // public void org.slf4j.Logger.trace(org.slf4j.Marker, java.lang.String, java.lang.Object)
+        jmethodID mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Object;
+        // public void org.slf4j.Logger.trace(org.slf4j.Marker, java.lang.String, java.lang.Object[])
+        jmethodID mtd__trace_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
+        // public void org.slf4j.Logger.trace(org.slf4j.Marker, java.lang.String, java.lang.Object, java.lang.Object)
+        jmethodID mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
+        // public void org.slf4j.Logger.error(org.slf4j.Marker, java.lang.String, java.lang.Object)
+        jmethodID mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object;
+        // public void org.slf4j.Logger.error(org.slf4j.Marker, java.lang.String)
+        jmethodID mtd__error_org_slf4j_Marker__java_lang_String;
+        // public void org.slf4j.Logger.error(org.slf4j.Marker, java.lang.String, java.lang.Object, java.lang.Object)
+        jmethodID mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
+        // public void org.slf4j.Logger.error(java.lang.String)
+        jmethodID mtd__error_java_lang_String;
+        // public void org.slf4j.Logger.error(java.lang.String, java.lang.Object)
+        jmethodID mtd__error_java_lang_String__java_lang_Object;
+        // public void org.slf4j.Logger.error(java.lang.String, java.lang.Throwable)
+        jmethodID mtd__error_java_lang_String__java_lang_Throwable;
+        // public void org.slf4j.Logger.error(java.lang.String, java.lang.Object[])
+        jmethodID mtd__error_java_lang_String__ArrayOf_java_lang_Object;
+        // public void org.slf4j.Logger.error(org.slf4j.Marker, java.lang.String, java.lang.Object[])
+        jmethodID mtd__error_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
+        // public void org.slf4j.Logger.error(org.slf4j.Marker, java.lang.String, java.lang.Throwable)
+        jmethodID mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
+        // public void org.slf4j.Logger.error(java.lang.String, java.lang.Object, java.lang.Object)
+        jmethodID mtd__error_java_lang_String__java_lang_Object__java_lang_Object;
+        // public void org.slf4j.Logger.warn(org.slf4j.Marker, java.lang.String, java.lang.Object)
+        jmethodID mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object;
+        // public void org.slf4j.Logger.warn(org.slf4j.Marker, java.lang.String)
+        jmethodID mtd__warn_org_slf4j_Marker__java_lang_String;
+        // public void org.slf4j.Logger.warn(org.slf4j.Marker, java.lang.String, java.lang.Object, java.lang.Object)
+        jmethodID mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
+        // public void org.slf4j.Logger.warn(java.lang.String, java.lang.Object[])
+        jmethodID mtd__warn_java_lang_String__ArrayOf_java_lang_Object;
+        // public void org.slf4j.Logger.warn(java.lang.String)
+        jmethodID mtd__warn_java_lang_String;
+        // public void org.slf4j.Logger.warn(java.lang.String, java.lang.Object)
+        jmethodID mtd__warn_java_lang_String__java_lang_Object;
+        // public void org.slf4j.Logger.warn(java.lang.String, java.lang.Object, java.lang.Object)
+        jmethodID mtd__warn_java_lang_String__java_lang_Object__java_lang_Object;
+        // public void org.slf4j.Logger.warn(java.lang.String, java.lang.Throwable)
+        jmethodID mtd__warn_java_lang_String__java_lang_Throwable;
+        // public void org.slf4j.Logger.warn(org.slf4j.Marker, java.lang.String, java.lang.Throwable)
+        jmethodID mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
+        // public void org.slf4j.Logger.warn(org.slf4j.Marker, java.lang.String, java.lang.Object[])
+        jmethodID mtd__warn_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
+        // public void org.slf4j.Logger.debug(java.lang.String, java.lang.Object[])
+        jmethodID mtd__debug_java_lang_String__ArrayOf_java_lang_Object;
+        // public void org.slf4j.Logger.debug(java.lang.String, java.lang.Throwable)
+        jmethodID mtd__debug_java_lang_String__java_lang_Throwable;
+        // public void org.slf4j.Logger.debug(org.slf4j.Marker, java.lang.String)
+        jmethodID mtd__debug_org_slf4j_Marker__java_lang_String;
+        // public void org.slf4j.Logger.debug(java.lang.String, java.lang.Object, java.lang.Object)
+        jmethodID mtd__debug_java_lang_String__java_lang_Object__java_lang_Object;
+        // public void org.slf4j.Logger.debug(java.lang.String, java.lang.Object)
+        jmethodID mtd__debug_java_lang_String__java_lang_Object;
+        // public void org.slf4j.Logger.debug(java.lang.String)
+        jmethodID mtd__debug_java_lang_String;
+        // public void org.slf4j.Logger.debug(org.slf4j.Marker, java.lang.String, java.lang.Throwable)
+        jmethodID mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
+        // public void org.slf4j.Logger.debug(org.slf4j.Marker, java.lang.String, java.lang.Object[])
+        jmethodID mtd__debug_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
+        // public void org.slf4j.Logger.debug(org.slf4j.Marker, java.lang.String, java.lang.Object, java.lang.Object)
+        jmethodID mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
+        // public void org.slf4j.Logger.debug(org.slf4j.Marker, java.lang.String, java.lang.Object)
+        jmethodID mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object;
+        // public org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atWarn()
+        jmethodID mtd__atWarn;
+        // public org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atLevel(org.slf4j.event.Level)
+        jmethodID mtd__atLevel_org_slf4j_event_Level;
+        // public org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atInfo()
+        jmethodID mtd__atInfo;
+        // public org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atError()
+        jmethodID mtd__atError;
+        // public org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atTrace()
+        jmethodID mtd__atTrace;
+        // public org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atDebug()
+        jmethodID mtd__atDebug;
+        // public boolean org.slf4j.Logger.isEnabledForLevel(org.slf4j.event.Level)
+        jmethodID mtd__isEnabledForLevel_org_slf4j_event_Level;
+        // public boolean org.slf4j.Logger.isWarnEnabled(org.slf4j.Marker)
+        jmethodID mtd__isWarnEnabled_org_slf4j_Marker;
+        // public boolean org.slf4j.Logger.isWarnEnabled()
+        jmethodID mtd__isWarnEnabled;
+        // public boolean org.slf4j.Logger.isInfoEnabled(org.slf4j.Marker)
+        jmethodID mtd__isInfoEnabled_org_slf4j_Marker;
+        // public boolean org.slf4j.Logger.isInfoEnabled()
+        jmethodID mtd__isInfoEnabled;
+        // public org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.makeLoggingEventBuilder(org.slf4j.event.Level)
+        jmethodID mtd__makeLoggingEventBuilder_org_slf4j_event_Level;
+        // public boolean org.slf4j.Logger.isTraceEnabled(org.slf4j.Marker)
+        jmethodID mtd__isTraceEnabled_org_slf4j_Marker;
+        // public boolean org.slf4j.Logger.isTraceEnabled()
+        jmethodID mtd__isTraceEnabled;
+        // public boolean org.slf4j.Logger.isErrorEnabled()
+        jmethodID mtd__isErrorEnabled;
+        // public boolean org.slf4j.Logger.isErrorEnabled(org.slf4j.Marker)
+        jmethodID mtd__isErrorEnabled_org_slf4j_Marker;
+        // public boolean org.slf4j.Logger.isDebugEnabled()
+        jmethodID mtd__isDebugEnabled;
+        // public boolean org.slf4j.Logger.isDebugEnabled(org.slf4j.Marker)
+        jmethodID mtd__isDebugEnabled_org_slf4j_Marker;
 
         SLF4J_Logger(JNIEnv* env) {
             initialized = false; // Reinitialize
             if (!env) return;
             jclass clazz_local = env->FindClass("org/slf4j/Logger");
             if (!clazz_local) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to find class 'org.slf4j.Logger'");
+                env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Failed to find class 'org/slf4j/Logger'");
                 return;
             }
 
@@ -191,14 +265,8 @@ class SLF4J_Logger {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'trace'");
                 return;
             }
-            mtd__trace_java_lang_String__ArrayOf_java_lang_Object = env->GetMethodID(clazz_local, "trace", "(Ljava/lang/String;[Ljava/lang/Object;)V");
-            if (!mtd__trace_java_lang_String__ArrayOf_java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'trace'");
-                return;
-            }
-            mtd__trace_java_lang_String__java_lang_Throwable = env->GetMethodID(clazz_local, "trace", "(Ljava/lang/String;Ljava/lang/Throwable;)V");
-            if (!mtd__trace_java_lang_String__java_lang_Throwable) {
+            mtd__trace_java_lang_String = env->GetMethodID(clazz_local, "trace", "(Ljava/lang/String;)V");
+            if (!mtd__trace_java_lang_String) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'trace'");
                 return;
@@ -215,8 +283,14 @@ class SLF4J_Logger {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'trace'");
                 return;
             }
-            mtd__trace_java_lang_String = env->GetMethodID(clazz_local, "trace", "(Ljava/lang/String;)V");
-            if (!mtd__trace_java_lang_String) {
+            mtd__trace_java_lang_String__ArrayOf_java_lang_Object = env->GetMethodID(clazz_local, "trace", "(Ljava/lang/String;[Ljava/lang/Object;)V");
+            if (!mtd__trace_java_lang_String__ArrayOf_java_lang_Object) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'trace'");
+                return;
+            }
+            mtd__trace_java_lang_String__java_lang_Throwable = env->GetMethodID(clazz_local, "trace", "(Ljava/lang/String;Ljava/lang/Throwable;)V");
+            if (!mtd__trace_java_lang_String__java_lang_Throwable) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'trace'");
                 return;
@@ -233,26 +307,50 @@ class SLF4J_Logger {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'trace'");
                 return;
             }
-            mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "trace", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
-            if (!mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'trace'");
-                return;
-            }
             mtd__trace_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object = env->GetMethodID(clazz_local, "trace", "(Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V");
             if (!mtd__trace_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'trace'");
                 return;
             }
-            mtd__error_java_lang_String__java_lang_Throwable = env->GetMethodID(clazz_local, "error", "(Ljava/lang/String;Ljava/lang/Throwable;)V");
-            if (!mtd__error_java_lang_String__java_lang_Throwable) {
+            mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "trace", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
+            if (!mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'trace'");
+                return;
+            }
+            mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object = env->GetMethodID(clazz_local, "error", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V");
+            if (!mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'error'");
                 return;
             }
-            mtd__error_java_lang_String__java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "error", "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
-            if (!mtd__error_java_lang_String__java_lang_Object__java_lang_Object) {
+            mtd__error_org_slf4j_Marker__java_lang_String = env->GetMethodID(clazz_local, "error", "(Lorg/slf4j/Marker;Ljava/lang/String;)V");
+            if (!mtd__error_org_slf4j_Marker__java_lang_String) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'error'");
+                return;
+            }
+            mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "error", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
+            if (!mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'error'");
+                return;
+            }
+            mtd__error_java_lang_String = env->GetMethodID(clazz_local, "error", "(Ljava/lang/String;)V");
+            if (!mtd__error_java_lang_String) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'error'");
+                return;
+            }
+            mtd__error_java_lang_String__java_lang_Object = env->GetMethodID(clazz_local, "error", "(Ljava/lang/String;Ljava/lang/Object;)V");
+            if (!mtd__error_java_lang_String__java_lang_Object) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'error'");
+                return;
+            }
+            mtd__error_java_lang_String__java_lang_Throwable = env->GetMethodID(clazz_local, "error", "(Ljava/lang/String;Ljava/lang/Throwable;)V");
+            if (!mtd__error_java_lang_String__java_lang_Throwable) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'error'");
                 return;
@@ -269,88 +367,16 @@ class SLF4J_Logger {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'error'");
                 return;
             }
-            mtd__error_java_lang_String = env->GetMethodID(clazz_local, "error", "(Ljava/lang/String;)V");
-            if (!mtd__error_java_lang_String) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'error'");
-                return;
-            }
             mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Throwable = env->GetMethodID(clazz_local, "error", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V");
             if (!mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Throwable) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'error'");
                 return;
             }
-            mtd__error_java_lang_String__java_lang_Object = env->GetMethodID(clazz_local, "error", "(Ljava/lang/String;Ljava/lang/Object;)V");
-            if (!mtd__error_java_lang_String__java_lang_Object) {
+            mtd__error_java_lang_String__java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "error", "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
+            if (!mtd__error_java_lang_String__java_lang_Object__java_lang_Object) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'error'");
-                return;
-            }
-            mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "error", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
-            if (!mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'error'");
-                return;
-            }
-            mtd__error_org_slf4j_Marker__java_lang_String = env->GetMethodID(clazz_local, "error", "(Lorg/slf4j/Marker;Ljava/lang/String;)V");
-            if (!mtd__error_org_slf4j_Marker__java_lang_String) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'error'");
-                return;
-            }
-            mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object = env->GetMethodID(clazz_local, "error", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V");
-            if (!mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'error'");
-                return;
-            }
-            mtd__warn_java_lang_String = env->GetMethodID(clazz_local, "warn", "(Ljava/lang/String;)V");
-            if (!mtd__warn_java_lang_String) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'warn'");
-                return;
-            }
-            mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "warn", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
-            if (!mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'warn'");
-                return;
-            }
-            mtd__warn_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object = env->GetMethodID(clazz_local, "warn", "(Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V");
-            if (!mtd__warn_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'warn'");
-                return;
-            }
-            mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Throwable = env->GetMethodID(clazz_local, "warn", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V");
-            if (!mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Throwable) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'warn'");
-                return;
-            }
-            mtd__warn_java_lang_String__java_lang_Object = env->GetMethodID(clazz_local, "warn", "(Ljava/lang/String;Ljava/lang/Object;)V");
-            if (!mtd__warn_java_lang_String__java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'warn'");
-                return;
-            }
-            mtd__warn_java_lang_String__java_lang_Throwable = env->GetMethodID(clazz_local, "warn", "(Ljava/lang/String;Ljava/lang/Throwable;)V");
-            if (!mtd__warn_java_lang_String__java_lang_Throwable) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'warn'");
-                return;
-            }
-            mtd__warn_java_lang_String__java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "warn", "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
-            if (!mtd__warn_java_lang_String__java_lang_Object__java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'warn'");
-                return;
-            }
-            mtd__warn_java_lang_String__ArrayOf_java_lang_Object = env->GetMethodID(clazz_local, "warn", "(Ljava/lang/String;[Ljava/lang/Object;)V");
-            if (!mtd__warn_java_lang_String__ArrayOf_java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'warn'");
                 return;
             }
             mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object = env->GetMethodID(clazz_local, "warn", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V");
@@ -365,52 +391,52 @@ class SLF4J_Logger {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'warn'");
                 return;
             }
-            mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "debug", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
-            if (!mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object) {
+            mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "warn", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
+            if (!mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'debug'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'warn'");
                 return;
             }
-            mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object = env->GetMethodID(clazz_local, "debug", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V");
-            if (!mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object) {
+            mtd__warn_java_lang_String__ArrayOf_java_lang_Object = env->GetMethodID(clazz_local, "warn", "(Ljava/lang/String;[Ljava/lang/Object;)V");
+            if (!mtd__warn_java_lang_String__ArrayOf_java_lang_Object) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'debug'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'warn'");
                 return;
             }
-            mtd__debug_org_slf4j_Marker__java_lang_String = env->GetMethodID(clazz_local, "debug", "(Lorg/slf4j/Marker;Ljava/lang/String;)V");
-            if (!mtd__debug_org_slf4j_Marker__java_lang_String) {
+            mtd__warn_java_lang_String = env->GetMethodID(clazz_local, "warn", "(Ljava/lang/String;)V");
+            if (!mtd__warn_java_lang_String) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'debug'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'warn'");
                 return;
             }
-            mtd__debug_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object = env->GetMethodID(clazz_local, "debug", "(Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V");
-            if (!mtd__debug_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object) {
+            mtd__warn_java_lang_String__java_lang_Object = env->GetMethodID(clazz_local, "warn", "(Ljava/lang/String;Ljava/lang/Object;)V");
+            if (!mtd__warn_java_lang_String__java_lang_Object) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'debug'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'warn'");
                 return;
             }
-            mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Throwable = env->GetMethodID(clazz_local, "debug", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V");
-            if (!mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Throwable) {
+            mtd__warn_java_lang_String__java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "warn", "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
+            if (!mtd__warn_java_lang_String__java_lang_Object__java_lang_Object) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'debug'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'warn'");
                 return;
             }
-            mtd__debug_java_lang_String = env->GetMethodID(clazz_local, "debug", "(Ljava/lang/String;)V");
-            if (!mtd__debug_java_lang_String) {
+            mtd__warn_java_lang_String__java_lang_Throwable = env->GetMethodID(clazz_local, "warn", "(Ljava/lang/String;Ljava/lang/Throwable;)V");
+            if (!mtd__warn_java_lang_String__java_lang_Throwable) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'debug'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'warn'");
                 return;
             }
-            mtd__debug_java_lang_String__java_lang_Object = env->GetMethodID(clazz_local, "debug", "(Ljava/lang/String;Ljava/lang/Object;)V");
-            if (!mtd__debug_java_lang_String__java_lang_Object) {
+            mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Throwable = env->GetMethodID(clazz_local, "warn", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V");
+            if (!mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Throwable) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'debug'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'warn'");
                 return;
             }
-            mtd__debug_java_lang_String__java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "debug", "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
-            if (!mtd__debug_java_lang_String__java_lang_Object__java_lang_Object) {
+            mtd__warn_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object = env->GetMethodID(clazz_local, "warn", "(Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V");
+            if (!mtd__warn_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'debug'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'warn'");
                 return;
             }
             mtd__debug_java_lang_String__ArrayOf_java_lang_Object = env->GetMethodID(clazz_local, "debug", "(Ljava/lang/String;[Ljava/lang/Object;)V");
@@ -425,52 +451,94 @@ class SLF4J_Logger {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'debug'");
                 return;
             }
-            mtd__isTraceEnabled_org_slf4j_Marker = env->GetMethodID(clazz_local, "isTraceEnabled", "(Lorg/slf4j/Marker;)Z");
-            if (!mtd__isTraceEnabled_org_slf4j_Marker) {
+            mtd__debug_org_slf4j_Marker__java_lang_String = env->GetMethodID(clazz_local, "debug", "(Lorg/slf4j/Marker;Ljava/lang/String;)V");
+            if (!mtd__debug_org_slf4j_Marker__java_lang_String) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isTraceEnabled'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'debug'");
                 return;
             }
-            mtd__isTraceEnabled = env->GetMethodID(clazz_local, "isTraceEnabled", "()Z");
-            if (!mtd__isTraceEnabled) {
+            mtd__debug_java_lang_String__java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "debug", "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
+            if (!mtd__debug_java_lang_String__java_lang_Object__java_lang_Object) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isTraceEnabled'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'debug'");
+                return;
+            }
+            mtd__debug_java_lang_String__java_lang_Object = env->GetMethodID(clazz_local, "debug", "(Ljava/lang/String;Ljava/lang/Object;)V");
+            if (!mtd__debug_java_lang_String__java_lang_Object) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'debug'");
+                return;
+            }
+            mtd__debug_java_lang_String = env->GetMethodID(clazz_local, "debug", "(Ljava/lang/String;)V");
+            if (!mtd__debug_java_lang_String) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'debug'");
+                return;
+            }
+            mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Throwable = env->GetMethodID(clazz_local, "debug", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Throwable;)V");
+            if (!mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Throwable) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'debug'");
+                return;
+            }
+            mtd__debug_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object = env->GetMethodID(clazz_local, "debug", "(Lorg/slf4j/Marker;Ljava/lang/String;[Ljava/lang/Object;)V");
+            if (!mtd__debug_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'debug'");
+                return;
+            }
+            mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "debug", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V");
+            if (!mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'debug'");
+                return;
+            }
+            mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object = env->GetMethodID(clazz_local, "debug", "(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;)V");
+            if (!mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'debug'");
+                return;
+            }
+            mtd__atWarn = env->GetMethodID(clazz_local, "atWarn", "()Lorg/slf4j/spi/LoggingEventBuilder;");
+            if (!mtd__atWarn) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'atWarn'");
+                return;
+            }
+            mtd__atLevel_org_slf4j_event_Level = env->GetMethodID(clazz_local, "atLevel", "(Lorg/slf4j/event/Level;)Lorg/slf4j/spi/LoggingEventBuilder;");
+            if (!mtd__atLevel_org_slf4j_event_Level) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'atLevel'");
+                return;
+            }
+            mtd__atInfo = env->GetMethodID(clazz_local, "atInfo", "()Lorg/slf4j/spi/LoggingEventBuilder;");
+            if (!mtd__atInfo) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'atInfo'");
+                return;
+            }
+            mtd__atError = env->GetMethodID(clazz_local, "atError", "()Lorg/slf4j/spi/LoggingEventBuilder;");
+            if (!mtd__atError) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'atError'");
+                return;
+            }
+            mtd__atTrace = env->GetMethodID(clazz_local, "atTrace", "()Lorg/slf4j/spi/LoggingEventBuilder;");
+            if (!mtd__atTrace) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'atTrace'");
+                return;
+            }
+            mtd__atDebug = env->GetMethodID(clazz_local, "atDebug", "()Lorg/slf4j/spi/LoggingEventBuilder;");
+            if (!mtd__atDebug) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'atDebug'");
                 return;
             }
             mtd__isEnabledForLevel_org_slf4j_event_Level = env->GetMethodID(clazz_local, "isEnabledForLevel", "(Lorg/slf4j/event/Level;)Z");
             if (!mtd__isEnabledForLevel_org_slf4j_event_Level) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isEnabledForLevel'");
-                return;
-            }
-            mtd__makeLoggingEventBuilder_org_slf4j_event_Level = env->GetMethodID(clazz_local, "makeLoggingEventBuilder", "(Lorg/slf4j/event/Level;)Lorg/slf4j/spi/LoggingEventBuilder;");
-            if (!mtd__makeLoggingEventBuilder_org_slf4j_event_Level) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'makeLoggingEventBuilder'");
-                return;
-            }
-            mtd__isDebugEnabled = env->GetMethodID(clazz_local, "isDebugEnabled", "()Z");
-            if (!mtd__isDebugEnabled) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isDebugEnabled'");
-                return;
-            }
-            mtd__isDebugEnabled_org_slf4j_Marker = env->GetMethodID(clazz_local, "isDebugEnabled", "(Lorg/slf4j/Marker;)Z");
-            if (!mtd__isDebugEnabled_org_slf4j_Marker) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isDebugEnabled'");
-                return;
-            }
-            mtd__isInfoEnabled_org_slf4j_Marker = env->GetMethodID(clazz_local, "isInfoEnabled", "(Lorg/slf4j/Marker;)Z");
-            if (!mtd__isInfoEnabled_org_slf4j_Marker) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isInfoEnabled'");
-                return;
-            }
-            mtd__isInfoEnabled = env->GetMethodID(clazz_local, "isInfoEnabled", "()Z");
-            if (!mtd__isInfoEnabled) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isInfoEnabled'");
                 return;
             }
             mtd__isWarnEnabled_org_slf4j_Marker = env->GetMethodID(clazz_local, "isWarnEnabled", "(Lorg/slf4j/Marker;)Z");
@@ -485,10 +553,34 @@ class SLF4J_Logger {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isWarnEnabled'");
                 return;
             }
-            mtd__isErrorEnabled_org_slf4j_Marker = env->GetMethodID(clazz_local, "isErrorEnabled", "(Lorg/slf4j/Marker;)Z");
-            if (!mtd__isErrorEnabled_org_slf4j_Marker) {
+            mtd__isInfoEnabled_org_slf4j_Marker = env->GetMethodID(clazz_local, "isInfoEnabled", "(Lorg/slf4j/Marker;)Z");
+            if (!mtd__isInfoEnabled_org_slf4j_Marker) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isErrorEnabled'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isInfoEnabled'");
+                return;
+            }
+            mtd__isInfoEnabled = env->GetMethodID(clazz_local, "isInfoEnabled", "()Z");
+            if (!mtd__isInfoEnabled) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isInfoEnabled'");
+                return;
+            }
+            mtd__makeLoggingEventBuilder_org_slf4j_event_Level = env->GetMethodID(clazz_local, "makeLoggingEventBuilder", "(Lorg/slf4j/event/Level;)Lorg/slf4j/spi/LoggingEventBuilder;");
+            if (!mtd__makeLoggingEventBuilder_org_slf4j_event_Level) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'makeLoggingEventBuilder'");
+                return;
+            }
+            mtd__isTraceEnabled_org_slf4j_Marker = env->GetMethodID(clazz_local, "isTraceEnabled", "(Lorg/slf4j/Marker;)Z");
+            if (!mtd__isTraceEnabled_org_slf4j_Marker) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isTraceEnabled'");
+                return;
+            }
+            mtd__isTraceEnabled = env->GetMethodID(clazz_local, "isTraceEnabled", "()Z");
+            if (!mtd__isTraceEnabled) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isTraceEnabled'");
                 return;
             }
             mtd__isErrorEnabled = env->GetMethodID(clazz_local, "isErrorEnabled", "()Z");
@@ -497,40 +589,22 @@ class SLF4J_Logger {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isErrorEnabled'");
                 return;
             }
-            mtd__atInfo = env->GetMethodID(clazz_local, "atInfo", "()Lorg/slf4j/spi/LoggingEventBuilder;");
-            if (!mtd__atInfo) {
+            mtd__isErrorEnabled_org_slf4j_Marker = env->GetMethodID(clazz_local, "isErrorEnabled", "(Lorg/slf4j/Marker;)Z");
+            if (!mtd__isErrorEnabled_org_slf4j_Marker) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'atInfo'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isErrorEnabled'");
                 return;
             }
-            mtd__atDebug = env->GetMethodID(clazz_local, "atDebug", "()Lorg/slf4j/spi/LoggingEventBuilder;");
-            if (!mtd__atDebug) {
+            mtd__isDebugEnabled = env->GetMethodID(clazz_local, "isDebugEnabled", "()Z");
+            if (!mtd__isDebugEnabled) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'atDebug'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isDebugEnabled'");
                 return;
             }
-            mtd__atTrace = env->GetMethodID(clazz_local, "atTrace", "()Lorg/slf4j/spi/LoggingEventBuilder;");
-            if (!mtd__atTrace) {
+            mtd__isDebugEnabled_org_slf4j_Marker = env->GetMethodID(clazz_local, "isDebugEnabled", "(Lorg/slf4j/Marker;)Z");
+            if (!mtd__isDebugEnabled_org_slf4j_Marker) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'atTrace'");
-                return;
-            }
-            mtd__atError = env->GetMethodID(clazz_local, "atError", "()Lorg/slf4j/spi/LoggingEventBuilder;");
-            if (!mtd__atError) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'atError'");
-                return;
-            }
-            mtd__atWarn = env->GetMethodID(clazz_local, "atWarn", "()Lorg/slf4j/spi/LoggingEventBuilder;");
-            if (!mtd__atWarn) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'atWarn'");
-                return;
-            }
-            mtd__atLevel_org_slf4j_event_Level = env->GetMethodID(clazz_local, "atLevel", "(Lorg/slf4j/event/Level;)Lorg/slf4j/spi/LoggingEventBuilder;");
-            if (!mtd__atLevel_org_slf4j_event_Level) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'atLevel'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isDebugEnabled'");
                 return;
             }
 
@@ -564,13 +638,13 @@ class SLF4J_Logger {
 
         static SLF4J_Logger* get(JNIEnv* env) {
             if (!env) return nullptr;
-            if (!SLF4J_Logger::jvm) {
-                env->GetJavaVM(&SLF4J_Logger::jvm);
-            }
             static std::mutex mtx;
             static std::unique_ptr<SLF4J_Logger> instance;
         
             std::lock_guard<std::mutex> lock(mtx);
+            if (!SLF4J_Logger::jvm) {
+                env->GetJavaVM(&SLF4J_Logger::jvm);
+            }
             if (!instance || !instance->isValid()) {
                 instance.reset(new SLF4J_Logger(env));
             }
@@ -650,15 +724,10 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
         }
-        inline static jmethodID getmtd__trace_java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env) {
+        inline static jmethodID getmtd__trace_java_lang_String(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__trace_java_lang_String__ArrayOf_java_lang_Object;
-        }
-        inline static jmethodID getmtd__trace_java_lang_String__java_lang_Throwable(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__trace_java_lang_String__java_lang_Throwable;
+            return self->mtd__trace_java_lang_String;
         }
         inline static jmethodID getmtd__trace_java_lang_String__java_lang_Object(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
@@ -670,10 +739,15 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__trace_java_lang_String__java_lang_Object__java_lang_Object;
         }
-        inline static jmethodID getmtd__trace_java_lang_String(JNIEnv* env) {
+        inline static jmethodID getmtd__trace_java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__trace_java_lang_String;
+            return self->mtd__trace_java_lang_String__ArrayOf_java_lang_Object;
+        }
+        inline static jmethodID getmtd__trace_java_lang_String__java_lang_Throwable(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__trace_java_lang_String__java_lang_Throwable;
         }
         inline static jmethodID getmtd__trace_org_slf4j_Marker__java_lang_String(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
@@ -685,25 +759,45 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Object;
         }
-        inline static jmethodID getmtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
-        }
         inline static jmethodID getmtd__trace_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__trace_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
         }
+        inline static jmethodID getmtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
+        }
+        inline static jmethodID getmtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object;
+        }
+        inline static jmethodID getmtd__error_org_slf4j_Marker__java_lang_String(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__error_org_slf4j_Marker__java_lang_String;
+        }
+        inline static jmethodID getmtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
+        }
+        inline static jmethodID getmtd__error_java_lang_String(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__error_java_lang_String;
+        }
+        inline static jmethodID getmtd__error_java_lang_String__java_lang_Object(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__error_java_lang_String__java_lang_Object;
+        }
         inline static jmethodID getmtd__error_java_lang_String__java_lang_Throwable(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__error_java_lang_String__java_lang_Throwable;
-        }
-        inline static jmethodID getmtd__error_java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__error_java_lang_String__java_lang_Object__java_lang_Object;
         }
         inline static jmethodID getmtd__error_java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
@@ -715,75 +809,15 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__error_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
         }
-        inline static jmethodID getmtd__error_java_lang_String(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__error_java_lang_String;
-        }
         inline static jmethodID getmtd__error_org_slf4j_Marker__java_lang_String__java_lang_Throwable(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
         }
-        inline static jmethodID getmtd__error_java_lang_String__java_lang_Object(JNIEnv* env) {
+        inline static jmethodID getmtd__error_java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__error_java_lang_String__java_lang_Object;
-        }
-        inline static jmethodID getmtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
-        }
-        inline static jmethodID getmtd__error_org_slf4j_Marker__java_lang_String(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__error_org_slf4j_Marker__java_lang_String;
-        }
-        inline static jmethodID getmtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object;
-        }
-        inline static jmethodID getmtd__warn_java_lang_String(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__warn_java_lang_String;
-        }
-        inline static jmethodID getmtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
-        }
-        inline static jmethodID getmtd__warn_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__warn_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
-        }
-        inline static jmethodID getmtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Throwable(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
-        }
-        inline static jmethodID getmtd__warn_java_lang_String__java_lang_Object(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__warn_java_lang_String__java_lang_Object;
-        }
-        inline static jmethodID getmtd__warn_java_lang_String__java_lang_Throwable(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__warn_java_lang_String__java_lang_Throwable;
-        }
-        inline static jmethodID getmtd__warn_java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__warn_java_lang_String__java_lang_Object__java_lang_Object;
-        }
-        inline static jmethodID getmtd__warn_java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__warn_java_lang_String__ArrayOf_java_lang_Object;
+            return self->mtd__error_java_lang_String__java_lang_Object__java_lang_Object;
         }
         inline static jmethodID getmtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
@@ -795,45 +829,45 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__warn_org_slf4j_Marker__java_lang_String;
         }
-        inline static jmethodID getmtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env) {
+        inline static jmethodID getmtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
+            return self->mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
         }
-        inline static jmethodID getmtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object(JNIEnv* env) {
+        inline static jmethodID getmtd__warn_java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object;
+            return self->mtd__warn_java_lang_String__ArrayOf_java_lang_Object;
         }
-        inline static jmethodID getmtd__debug_org_slf4j_Marker__java_lang_String(JNIEnv* env) {
+        inline static jmethodID getmtd__warn_java_lang_String(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__debug_org_slf4j_Marker__java_lang_String;
+            return self->mtd__warn_java_lang_String;
         }
-        inline static jmethodID getmtd__debug_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env) {
+        inline static jmethodID getmtd__warn_java_lang_String__java_lang_Object(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__debug_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
+            return self->mtd__warn_java_lang_String__java_lang_Object;
         }
-        inline static jmethodID getmtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Throwable(JNIEnv* env) {
+        inline static jmethodID getmtd__warn_java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
+            return self->mtd__warn_java_lang_String__java_lang_Object__java_lang_Object;
         }
-        inline static jmethodID getmtd__debug_java_lang_String(JNIEnv* env) {
+        inline static jmethodID getmtd__warn_java_lang_String__java_lang_Throwable(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__debug_java_lang_String;
+            return self->mtd__warn_java_lang_String__java_lang_Throwable;
         }
-        inline static jmethodID getmtd__debug_java_lang_String__java_lang_Object(JNIEnv* env) {
+        inline static jmethodID getmtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Throwable(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__debug_java_lang_String__java_lang_Object;
+            return self->mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
         }
-        inline static jmethodID getmtd__debug_java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env) {
+        inline static jmethodID getmtd__warn_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__debug_java_lang_String__java_lang_Object__java_lang_Object;
+            return self->mtd__warn_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
         }
         inline static jmethodID getmtd__debug_java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
@@ -845,45 +879,80 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__debug_java_lang_String__java_lang_Throwable;
         }
-        inline static jmethodID getmtd__isTraceEnabled_org_slf4j_Marker(JNIEnv* env) {
+        inline static jmethodID getmtd__debug_org_slf4j_Marker__java_lang_String(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__isTraceEnabled_org_slf4j_Marker;
+            return self->mtd__debug_org_slf4j_Marker__java_lang_String;
         }
-        inline static jmethodID getmtd__isTraceEnabled(JNIEnv* env) {
+        inline static jmethodID getmtd__debug_java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__isTraceEnabled;
+            return self->mtd__debug_java_lang_String__java_lang_Object__java_lang_Object;
+        }
+        inline static jmethodID getmtd__debug_java_lang_String__java_lang_Object(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__debug_java_lang_String__java_lang_Object;
+        }
+        inline static jmethodID getmtd__debug_java_lang_String(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__debug_java_lang_String;
+        }
+        inline static jmethodID getmtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Throwable(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
+        }
+        inline static jmethodID getmtd__debug_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__debug_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
+        }
+        inline static jmethodID getmtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
+        }
+        inline static jmethodID getmtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object;
+        }
+        inline static jmethodID getmtd__atWarn(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__atWarn;
+        }
+        inline static jmethodID getmtd__atLevel_org_slf4j_event_Level(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__atLevel_org_slf4j_event_Level;
+        }
+        inline static jmethodID getmtd__atInfo(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__atInfo;
+        }
+        inline static jmethodID getmtd__atError(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__atError;
+        }
+        inline static jmethodID getmtd__atTrace(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__atTrace;
+        }
+        inline static jmethodID getmtd__atDebug(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__atDebug;
         }
         inline static jmethodID getmtd__isEnabledForLevel_org_slf4j_event_Level(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__isEnabledForLevel_org_slf4j_event_Level;
-        }
-        inline static jmethodID getmtd__makeLoggingEventBuilder_org_slf4j_event_Level(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__makeLoggingEventBuilder_org_slf4j_event_Level;
-        }
-        inline static jmethodID getmtd__isDebugEnabled(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__isDebugEnabled;
-        }
-        inline static jmethodID getmtd__isDebugEnabled_org_slf4j_Marker(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__isDebugEnabled_org_slf4j_Marker;
-        }
-        inline static jmethodID getmtd__isInfoEnabled_org_slf4j_Marker(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__isInfoEnabled_org_slf4j_Marker;
-        }
-        inline static jmethodID getmtd__isInfoEnabled(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__isInfoEnabled;
         }
         inline static jmethodID getmtd__isWarnEnabled_org_slf4j_Marker(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
@@ -895,45 +964,50 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__isWarnEnabled;
         }
-        inline static jmethodID getmtd__isErrorEnabled_org_slf4j_Marker(JNIEnv* env) {
+        inline static jmethodID getmtd__isInfoEnabled_org_slf4j_Marker(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__isErrorEnabled_org_slf4j_Marker;
+            return self->mtd__isInfoEnabled_org_slf4j_Marker;
+        }
+        inline static jmethodID getmtd__isInfoEnabled(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__isInfoEnabled;
+        }
+        inline static jmethodID getmtd__makeLoggingEventBuilder_org_slf4j_event_Level(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__makeLoggingEventBuilder_org_slf4j_event_Level;
+        }
+        inline static jmethodID getmtd__isTraceEnabled_org_slf4j_Marker(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__isTraceEnabled_org_slf4j_Marker;
+        }
+        inline static jmethodID getmtd__isTraceEnabled(JNIEnv* env) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__isTraceEnabled;
         }
         inline static jmethodID getmtd__isErrorEnabled(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__isErrorEnabled;
         }
-        inline static jmethodID getmtd__atInfo(JNIEnv* env) {
+        inline static jmethodID getmtd__isErrorEnabled_org_slf4j_Marker(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__atInfo;
+            return self->mtd__isErrorEnabled_org_slf4j_Marker;
         }
-        inline static jmethodID getmtd__atDebug(JNIEnv* env) {
+        inline static jmethodID getmtd__isDebugEnabled(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__atDebug;
+            return self->mtd__isDebugEnabled;
         }
-        inline static jmethodID getmtd__atTrace(JNIEnv* env) {
+        inline static jmethodID getmtd__isDebugEnabled_org_slf4j_Marker(JNIEnv* env) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__atTrace;
-        }
-        inline static jmethodID getmtd__atError(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__atError;
-        }
-        inline static jmethodID getmtd__atWarn(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__atWarn;
-        }
-        inline static jmethodID getmtd__atLevel_org_slf4j_event_Level(JNIEnv* env) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__atLevel_org_slf4j_event_Level;
+            return self->mtd__isDebugEnabled_org_slf4j_Marker;
         }
         // Method wrappers
         // Fabric method for public abstract java.lang.String org.slf4j.Logger.getName()
@@ -1044,22 +1118,13 @@ class SLF4J_Logger {
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
         }
 
-        // Fabric method for public abstract void org.slf4j.Logger.trace(java.lang.String,java.lang.Object[])
-        inline static void trace__java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env, jobject obj, jstring v0, jobjectArray v1) {
+        // Fabric method for public abstract void org.slf4j.Logger.trace(java.lang.String)
+        inline static void trace__java_lang_String(JNIEnv* env, jobject obj, jstring v0) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__trace_java_lang_String__ArrayOf_java_lang_Object;
+            jmethodID mtd = self->mtd__trace_java_lang_String;
             if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0, v1);
-        }
-
-        // Fabric method for public abstract void org.slf4j.Logger.trace(java.lang.String,java.lang.Throwable)
-        inline static void trace__java_lang_String__java_lang_Throwable(JNIEnv* env, jobject obj, jstring v0, jobject v1) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__trace_java_lang_String__java_lang_Throwable;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0, v1);
+            env->CallVoidMethod(obj, mtd, v0);
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.trace(java.lang.String,java.lang.Object)
@@ -1080,13 +1145,22 @@ class SLF4J_Logger {
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
         }
 
-        // Fabric method for public abstract void org.slf4j.Logger.trace(java.lang.String)
-        inline static void trace__java_lang_String(JNIEnv* env, jobject obj, jstring v0) {
+        // Fabric method for public abstract void org.slf4j.Logger.trace(java.lang.String,java.lang.Object[])
+        inline static void trace__java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env, jobject obj, jstring v0, jobjectArray v1) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__trace_java_lang_String;
+            jmethodID mtd = self->mtd__trace_java_lang_String__ArrayOf_java_lang_Object;
             if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0);
+            env->CallVoidMethod(obj, mtd, v0, v1);
+        }
+
+        // Fabric method for public abstract void org.slf4j.Logger.trace(java.lang.String,java.lang.Throwable)
+        inline static void trace__java_lang_String__java_lang_Throwable(JNIEnv* env, jobject obj, jstring v0, jobject v1) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__trace_java_lang_String__java_lang_Throwable;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0, v1);
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.trace(org.slf4j.Marker,java.lang.String)
@@ -1107,15 +1181,6 @@ class SLF4J_Logger {
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
         }
 
-        // Fabric method for public abstract void org.slf4j.Logger.trace(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
-        inline static void trace__org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobject v2, jobject v3) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0, v1, v2, v3);
-        }
-
         // Fabric method for public abstract void org.slf4j.Logger.trace(org.slf4j.Marker,java.lang.String,java.lang.Object[])
         inline static void trace__org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobjectArray v2) {
             SLF4J_Logger* self = get(env);
@@ -1125,6 +1190,60 @@ class SLF4J_Logger {
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
         }
 
+        // Fabric method for public abstract void org.slf4j.Logger.trace(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
+        inline static void trace__org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobject v2, jobject v3) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0, v1, v2, v3);
+        }
+
+        // Fabric method for public abstract void org.slf4j.Logger.error(org.slf4j.Marker,java.lang.String,java.lang.Object)
+        inline static void error__org_slf4j_Marker__java_lang_String__java_lang_Object(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobject v2) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0, v1, v2);
+        }
+
+        // Fabric method for public abstract void org.slf4j.Logger.error(org.slf4j.Marker,java.lang.String)
+        inline static void error__org_slf4j_Marker__java_lang_String(JNIEnv* env, jobject obj, jobject v0, jstring v1) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__error_org_slf4j_Marker__java_lang_String;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0, v1);
+        }
+
+        // Fabric method for public abstract void org.slf4j.Logger.error(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
+        inline static void error__org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobject v2, jobject v3) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0, v1, v2, v3);
+        }
+
+        // Fabric method for public abstract void org.slf4j.Logger.error(java.lang.String)
+        inline static void error__java_lang_String(JNIEnv* env, jobject obj, jstring v0) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__error_java_lang_String;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0);
+        }
+
+        // Fabric method for public abstract void org.slf4j.Logger.error(java.lang.String,java.lang.Object)
+        inline static void error__java_lang_String__java_lang_Object(JNIEnv* env, jobject obj, jstring v0, jobject v1) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__error_java_lang_String__java_lang_Object;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0, v1);
+        }
+
         // Fabric method for public abstract void org.slf4j.Logger.error(java.lang.String,java.lang.Throwable)
         inline static void error__java_lang_String__java_lang_Throwable(JNIEnv* env, jobject obj, jstring v0, jobject v1) {
             SLF4J_Logger* self = get(env);
@@ -1132,15 +1251,6 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__error_java_lang_String__java_lang_Throwable;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
-        }
-
-        // Fabric method for public abstract void org.slf4j.Logger.error(java.lang.String,java.lang.Object,java.lang.Object)
-        inline static void error__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env, jobject obj, jstring v0, jobject v1, jobject v2) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__error_java_lang_String__java_lang_Object__java_lang_Object;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0, v1, v2);
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.error(java.lang.String,java.lang.Object[])
@@ -1161,15 +1271,6 @@ class SLF4J_Logger {
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
         }
 
-        // Fabric method for public abstract void org.slf4j.Logger.error(java.lang.String)
-        inline static void error__java_lang_String(JNIEnv* env, jobject obj, jstring v0) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__error_java_lang_String;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0);
-        }
-
         // Fabric method for public abstract void org.slf4j.Logger.error(org.slf4j.Marker,java.lang.String,java.lang.Throwable)
         inline static void error__org_slf4j_Marker__java_lang_String__java_lang_Throwable(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobject v2) {
             SLF4J_Logger* self = get(env);
@@ -1179,112 +1280,13 @@ class SLF4J_Logger {
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
         }
 
-        // Fabric method for public abstract void org.slf4j.Logger.error(java.lang.String,java.lang.Object)
-        inline static void error__java_lang_String__java_lang_Object(JNIEnv* env, jobject obj, jstring v0, jobject v1) {
+        // Fabric method for public abstract void org.slf4j.Logger.error(java.lang.String,java.lang.Object,java.lang.Object)
+        inline static void error__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env, jobject obj, jstring v0, jobject v1, jobject v2) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__error_java_lang_String__java_lang_Object;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0, v1);
-        }
-
-        // Fabric method for public abstract void org.slf4j.Logger.error(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
-        inline static void error__org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobject v2, jobject v3) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0, v1, v2, v3);
-        }
-
-        // Fabric method for public abstract void org.slf4j.Logger.error(org.slf4j.Marker,java.lang.String)
-        inline static void error__org_slf4j_Marker__java_lang_String(JNIEnv* env, jobject obj, jobject v0, jstring v1) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__error_org_slf4j_Marker__java_lang_String;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0, v1);
-        }
-
-        // Fabric method for public abstract void org.slf4j.Logger.error(org.slf4j.Marker,java.lang.String,java.lang.Object)
-        inline static void error__org_slf4j_Marker__java_lang_String__java_lang_Object(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobject v2) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object;
+            jmethodID mtd = self->mtd__error_java_lang_String__java_lang_Object__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
-        }
-
-        // Fabric method for public abstract void org.slf4j.Logger.warn(java.lang.String)
-        inline static void warn__java_lang_String(JNIEnv* env, jobject obj, jstring v0) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__warn_java_lang_String;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0);
-        }
-
-        // Fabric method for public abstract void org.slf4j.Logger.warn(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
-        inline static void warn__org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobject v2, jobject v3) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0, v1, v2, v3);
-        }
-
-        // Fabric method for public abstract void org.slf4j.Logger.warn(org.slf4j.Marker,java.lang.String,java.lang.Object[])
-        inline static void warn__org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobjectArray v2) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__warn_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0, v1, v2);
-        }
-
-        // Fabric method for public abstract void org.slf4j.Logger.warn(org.slf4j.Marker,java.lang.String,java.lang.Throwable)
-        inline static void warn__org_slf4j_Marker__java_lang_String__java_lang_Throwable(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobject v2) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0, v1, v2);
-        }
-
-        // Fabric method for public abstract void org.slf4j.Logger.warn(java.lang.String,java.lang.Object)
-        inline static void warn__java_lang_String__java_lang_Object(JNIEnv* env, jobject obj, jstring v0, jobject v1) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__warn_java_lang_String__java_lang_Object;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0, v1);
-        }
-
-        // Fabric method for public abstract void org.slf4j.Logger.warn(java.lang.String,java.lang.Throwable)
-        inline static void warn__java_lang_String__java_lang_Throwable(JNIEnv* env, jobject obj, jstring v0, jobject v1) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__warn_java_lang_String__java_lang_Throwable;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0, v1);
-        }
-
-        // Fabric method for public abstract void org.slf4j.Logger.warn(java.lang.String,java.lang.Object,java.lang.Object)
-        inline static void warn__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env, jobject obj, jstring v0, jobject v1, jobject v2) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__warn_java_lang_String__java_lang_Object__java_lang_Object;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0, v1, v2);
-        }
-
-        // Fabric method for public abstract void org.slf4j.Logger.warn(java.lang.String,java.lang.Object[])
-        inline static void warn__java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env, jobject obj, jstring v0, jobjectArray v1) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__warn_java_lang_String__ArrayOf_java_lang_Object;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0, v1);
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.warn(org.slf4j.Marker,java.lang.String,java.lang.Object)
@@ -1305,74 +1307,74 @@ class SLF4J_Logger {
             env->CallVoidMethod(obj, mtd, v0, v1);
         }
 
-        // Fabric method for public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
-        inline static void debug__org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobject v2, jobject v3) {
+        // Fabric method for public abstract void org.slf4j.Logger.warn(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
+        inline static void warn__org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobject v2, jobject v3) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
+            jmethodID mtd = self->mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2, v3);
         }
 
-        // Fabric method for public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String,java.lang.Object)
-        inline static void debug__org_slf4j_Marker__java_lang_String__java_lang_Object(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobject v2) {
+        // Fabric method for public abstract void org.slf4j.Logger.warn(java.lang.String,java.lang.Object[])
+        inline static void warn__java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env, jobject obj, jstring v0, jobjectArray v1) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0, v1, v2);
-        }
-
-        // Fabric method for public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String)
-        inline static void debug__org_slf4j_Marker__java_lang_String(JNIEnv* env, jobject obj, jobject v0, jstring v1) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__debug_org_slf4j_Marker__java_lang_String;
+            jmethodID mtd = self->mtd__warn_java_lang_String__ArrayOf_java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
         }
 
-        // Fabric method for public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String,java.lang.Object[])
-        inline static void debug__org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobjectArray v2) {
+        // Fabric method for public abstract void org.slf4j.Logger.warn(java.lang.String)
+        inline static void warn__java_lang_String(JNIEnv* env, jobject obj, jstring v0) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__debug_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0, v1, v2);
-        }
-
-        // Fabric method for public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String,java.lang.Throwable)
-        inline static void debug__org_slf4j_Marker__java_lang_String__java_lang_Throwable(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobject v2) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0, v1, v2);
-        }
-
-        // Fabric method for public abstract void org.slf4j.Logger.debug(java.lang.String)
-        inline static void debug__java_lang_String(JNIEnv* env, jobject obj, jstring v0) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__debug_java_lang_String;
+            jmethodID mtd = self->mtd__warn_java_lang_String;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0);
         }
 
-        // Fabric method for public abstract void org.slf4j.Logger.debug(java.lang.String,java.lang.Object)
-        inline static void debug__java_lang_String__java_lang_Object(JNIEnv* env, jobject obj, jstring v0, jobject v1) {
+        // Fabric method for public abstract void org.slf4j.Logger.warn(java.lang.String,java.lang.Object)
+        inline static void warn__java_lang_String__java_lang_Object(JNIEnv* env, jobject obj, jstring v0, jobject v1) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__debug_java_lang_String__java_lang_Object;
+            jmethodID mtd = self->mtd__warn_java_lang_String__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
         }
 
-        // Fabric method for public abstract void org.slf4j.Logger.debug(java.lang.String,java.lang.Object,java.lang.Object)
-        inline static void debug__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env, jobject obj, jstring v0, jobject v1, jobject v2) {
+        // Fabric method for public abstract void org.slf4j.Logger.warn(java.lang.String,java.lang.Object,java.lang.Object)
+        inline static void warn__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env, jobject obj, jstring v0, jobject v1, jobject v2) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__debug_java_lang_String__java_lang_Object__java_lang_Object;
+            jmethodID mtd = self->mtd__warn_java_lang_String__java_lang_Object__java_lang_Object;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0, v1, v2);
+        }
+
+        // Fabric method for public abstract void org.slf4j.Logger.warn(java.lang.String,java.lang.Throwable)
+        inline static void warn__java_lang_String__java_lang_Throwable(JNIEnv* env, jobject obj, jstring v0, jobject v1) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__warn_java_lang_String__java_lang_Throwable;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0, v1);
+        }
+
+        // Fabric method for public abstract void org.slf4j.Logger.warn(org.slf4j.Marker,java.lang.String,java.lang.Throwable)
+        inline static void warn__org_slf4j_Marker__java_lang_String__java_lang_Throwable(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobject v2) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0, v1, v2);
+        }
+
+        // Fabric method for public abstract void org.slf4j.Logger.warn(org.slf4j.Marker,java.lang.String,java.lang.Object[])
+        inline static void warn__org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobjectArray v2) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__warn_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
         }
@@ -1395,22 +1397,130 @@ class SLF4J_Logger {
             env->CallVoidMethod(obj, mtd, v0, v1);
         }
 
-        // Fabric method for public abstract boolean org.slf4j.Logger.isTraceEnabled(org.slf4j.Marker)
-        inline static jboolean isTraceEnabled__org_slf4j_Marker(JNIEnv* env, jobject obj, jobject v0) {
+        // Fabric method for public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String)
+        inline static void debug__org_slf4j_Marker__java_lang_String(JNIEnv* env, jobject obj, jobject v0, jstring v1) {
             SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return JNI_FALSE;
-            jmethodID mtd = self->mtd__isTraceEnabled_org_slf4j_Marker;
-            if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__debug_org_slf4j_Marker__java_lang_String;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0, v1);
         }
 
-        // Fabric method for public abstract boolean org.slf4j.Logger.isTraceEnabled()
-        inline static jboolean isTraceEnabled__(JNIEnv* env, jobject obj) {
+        // Fabric method for public abstract void org.slf4j.Logger.debug(java.lang.String,java.lang.Object,java.lang.Object)
+        inline static void debug__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env, jobject obj, jstring v0, jobject v1, jobject v2) {
             SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return JNI_FALSE;
-            jmethodID mtd = self->mtd__isTraceEnabled;
-            if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__debug_java_lang_String__java_lang_Object__java_lang_Object;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0, v1, v2);
+        }
+
+        // Fabric method for public abstract void org.slf4j.Logger.debug(java.lang.String,java.lang.Object)
+        inline static void debug__java_lang_String__java_lang_Object(JNIEnv* env, jobject obj, jstring v0, jobject v1) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__debug_java_lang_String__java_lang_Object;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0, v1);
+        }
+
+        // Fabric method for public abstract void org.slf4j.Logger.debug(java.lang.String)
+        inline static void debug__java_lang_String(JNIEnv* env, jobject obj, jstring v0) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__debug_java_lang_String;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0);
+        }
+
+        // Fabric method for public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String,java.lang.Throwable)
+        inline static void debug__org_slf4j_Marker__java_lang_String__java_lang_Throwable(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobject v2) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0, v1, v2);
+        }
+
+        // Fabric method for public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String,java.lang.Object[])
+        inline static void debug__org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobjectArray v2) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__debug_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0, v1, v2);
+        }
+
+        // Fabric method for public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
+        inline static void debug__org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobject v2, jobject v3) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0, v1, v2, v3);
+        }
+
+        // Fabric method for public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String,java.lang.Object)
+        inline static void debug__org_slf4j_Marker__java_lang_String__java_lang_Object(JNIEnv* env, jobject obj, jobject v0, jstring v1, jobject v2) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0, v1, v2);
+        }
+
+        // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atWarn()
+        inline static jobject atWarn(JNIEnv* env, jobject obj) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__atWarn;
+            if (!mtd) return nullptr;
+            return env->CallObjectMethod(obj, mtd);
+        }
+
+        // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atLevel(org.slf4j.event.Level)
+        inline static jobject atLevel(JNIEnv* env, jobject obj, jobject v0) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__atLevel_org_slf4j_event_Level;
+            if (!mtd) return nullptr;
+            return env->CallObjectMethod(obj, mtd, v0);
+        }
+
+        // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atInfo()
+        inline static jobject atInfo(JNIEnv* env, jobject obj) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__atInfo;
+            if (!mtd) return nullptr;
+            return env->CallObjectMethod(obj, mtd);
+        }
+
+        // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atError()
+        inline static jobject atError(JNIEnv* env, jobject obj) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__atError;
+            if (!mtd) return nullptr;
+            return env->CallObjectMethod(obj, mtd);
+        }
+
+        // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atTrace()
+        inline static jobject atTrace(JNIEnv* env, jobject obj) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__atTrace;
+            if (!mtd) return nullptr;
+            return env->CallObjectMethod(obj, mtd);
+        }
+
+        // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atDebug()
+        inline static jobject atDebug(JNIEnv* env, jobject obj) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__atDebug;
+            if (!mtd) return nullptr;
+            return env->CallObjectMethod(obj, mtd);
         }
 
         // Fabric method for public default boolean org.slf4j.Logger.isEnabledForLevel(org.slf4j.event.Level)
@@ -1420,51 +1530,6 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__isEnabledForLevel_org_slf4j_event_Level;
             if (!mtd) return JNI_FALSE;
             return env->CallBooleanMethod(obj, mtd, v0);
-        }
-
-        // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.makeLoggingEventBuilder(org.slf4j.event.Level)
-        inline static jobject makeLoggingEventBuilder(JNIEnv* env, jobject obj, jobject v0) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__makeLoggingEventBuilder_org_slf4j_event_Level;
-            if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0);
-        }
-
-        // Fabric method for public abstract boolean org.slf4j.Logger.isDebugEnabled()
-        inline static jboolean isDebugEnabled__(JNIEnv* env, jobject obj) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return JNI_FALSE;
-            jmethodID mtd = self->mtd__isDebugEnabled;
-            if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd);
-        }
-
-        // Fabric method for public abstract boolean org.slf4j.Logger.isDebugEnabled(org.slf4j.Marker)
-        inline static jboolean isDebugEnabled__org_slf4j_Marker(JNIEnv* env, jobject obj, jobject v0) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return JNI_FALSE;
-            jmethodID mtd = self->mtd__isDebugEnabled_org_slf4j_Marker;
-            if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
-        }
-
-        // Fabric method for public abstract boolean org.slf4j.Logger.isInfoEnabled(org.slf4j.Marker)
-        inline static jboolean isInfoEnabled__org_slf4j_Marker(JNIEnv* env, jobject obj, jobject v0) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return JNI_FALSE;
-            jmethodID mtd = self->mtd__isInfoEnabled_org_slf4j_Marker;
-            if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
-        }
-
-        // Fabric method for public abstract boolean org.slf4j.Logger.isInfoEnabled()
-        inline static jboolean isInfoEnabled__(JNIEnv* env, jobject obj) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return JNI_FALSE;
-            jmethodID mtd = self->mtd__isInfoEnabled;
-            if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd);
         }
 
         // Fabric method for public abstract boolean org.slf4j.Logger.isWarnEnabled(org.slf4j.Marker)
@@ -1485,13 +1550,49 @@ class SLF4J_Logger {
             return env->CallBooleanMethod(obj, mtd);
         }
 
-        // Fabric method for public abstract boolean org.slf4j.Logger.isErrorEnabled(org.slf4j.Marker)
-        inline static jboolean isErrorEnabled__org_slf4j_Marker(JNIEnv* env, jobject obj, jobject v0) {
+        // Fabric method for public abstract boolean org.slf4j.Logger.isInfoEnabled(org.slf4j.Marker)
+        inline static jboolean isInfoEnabled__org_slf4j_Marker(JNIEnv* env, jobject obj, jobject v0) {
             SLF4J_Logger* self = get(env);
             if (!self || !self->isValid()) return JNI_FALSE;
-            jmethodID mtd = self->mtd__isErrorEnabled_org_slf4j_Marker;
+            jmethodID mtd = self->mtd__isInfoEnabled_org_slf4j_Marker;
             if (!mtd) return JNI_FALSE;
             return env->CallBooleanMethod(obj, mtd, v0);
+        }
+
+        // Fabric method for public abstract boolean org.slf4j.Logger.isInfoEnabled()
+        inline static jboolean isInfoEnabled__(JNIEnv* env, jobject obj) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return JNI_FALSE;
+            jmethodID mtd = self->mtd__isInfoEnabled;
+            if (!mtd) return JNI_FALSE;
+            return env->CallBooleanMethod(obj, mtd);
+        }
+
+        // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.makeLoggingEventBuilder(org.slf4j.event.Level)
+        inline static jobject makeLoggingEventBuilder(JNIEnv* env, jobject obj, jobject v0) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__makeLoggingEventBuilder_org_slf4j_event_Level;
+            if (!mtd) return nullptr;
+            return env->CallObjectMethod(obj, mtd, v0);
+        }
+
+        // Fabric method for public abstract boolean org.slf4j.Logger.isTraceEnabled(org.slf4j.Marker)
+        inline static jboolean isTraceEnabled__org_slf4j_Marker(JNIEnv* env, jobject obj, jobject v0) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return JNI_FALSE;
+            jmethodID mtd = self->mtd__isTraceEnabled_org_slf4j_Marker;
+            if (!mtd) return JNI_FALSE;
+            return env->CallBooleanMethod(obj, mtd, v0);
+        }
+
+        // Fabric method for public abstract boolean org.slf4j.Logger.isTraceEnabled()
+        inline static jboolean isTraceEnabled__(JNIEnv* env, jobject obj) {
+            SLF4J_Logger* self = get(env);
+            if (!self || !self->isValid()) return JNI_FALSE;
+            jmethodID mtd = self->mtd__isTraceEnabled;
+            if (!mtd) return JNI_FALSE;
+            return env->CallBooleanMethod(obj, mtd);
         }
 
         // Fabric method for public abstract boolean org.slf4j.Logger.isErrorEnabled()
@@ -1503,58 +1604,31 @@ class SLF4J_Logger {
             return env->CallBooleanMethod(obj, mtd);
         }
 
-        // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atInfo()
-        inline static jobject atInfo(JNIEnv* env, jobject obj) {
+        // Fabric method for public abstract boolean org.slf4j.Logger.isErrorEnabled(org.slf4j.Marker)
+        inline static jboolean isErrorEnabled__org_slf4j_Marker(JNIEnv* env, jobject obj, jobject v0) {
             SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__atInfo;
-            if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
+            if (!self || !self->isValid()) return JNI_FALSE;
+            jmethodID mtd = self->mtd__isErrorEnabled_org_slf4j_Marker;
+            if (!mtd) return JNI_FALSE;
+            return env->CallBooleanMethod(obj, mtd, v0);
         }
 
-        // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atDebug()
-        inline static jobject atDebug(JNIEnv* env, jobject obj) {
+        // Fabric method for public abstract boolean org.slf4j.Logger.isDebugEnabled()
+        inline static jboolean isDebugEnabled__(JNIEnv* env, jobject obj) {
             SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__atDebug;
-            if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
+            if (!self || !self->isValid()) return JNI_FALSE;
+            jmethodID mtd = self->mtd__isDebugEnabled;
+            if (!mtd) return JNI_FALSE;
+            return env->CallBooleanMethod(obj, mtd);
         }
 
-        // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atTrace()
-        inline static jobject atTrace(JNIEnv* env, jobject obj) {
+        // Fabric method for public abstract boolean org.slf4j.Logger.isDebugEnabled(org.slf4j.Marker)
+        inline static jboolean isDebugEnabled__org_slf4j_Marker(JNIEnv* env, jobject obj, jobject v0) {
             SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__atTrace;
-            if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
-        }
-
-        // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atError()
-        inline static jobject atError(JNIEnv* env, jobject obj) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__atError;
-            if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
-        }
-
-        // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atWarn()
-        inline static jobject atWarn(JNIEnv* env, jobject obj) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__atWarn;
-            if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
-        }
-
-        // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atLevel(org.slf4j.event.Level)
-        inline static jobject atLevel(JNIEnv* env, jobject obj, jobject v0) {
-            SLF4J_Logger* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__atLevel_org_slf4j_event_Level;
-            if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0);
+            if (!self || !self->isValid()) return JNI_FALSE;
+            jmethodID mtd = self->mtd__isDebugEnabled_org_slf4j_Marker;
+            if (!mtd) return JNI_FALSE;
+            return env->CallBooleanMethod(obj, mtd, v0);
         }
 
         // Fabric field get for public static final java.lang.String org.slf4j.Logger.ROOT_LOGGER_NAME

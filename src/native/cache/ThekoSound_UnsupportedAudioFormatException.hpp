@@ -28,22 +28,33 @@ class ThekoSound_UnsupportedAudioFormatException {
         }
 
         bool initialized = false; // True if all values are initialized
+
+        // jclass cache
         jclass clazz;
-        jmethodID ctor__java_lang_String__java_lang_Throwable; // public org.theko.sound.UnsupportedAudioFormatException(java.lang.String,java.lang.Throwable)
-        jmethodID ctor__java_lang_Throwable; // public org.theko.sound.UnsupportedAudioFormatException(java.lang.Throwable)
-        jmethodID ctor__java_lang_String; // public org.theko.sound.UnsupportedAudioFormatException(java.lang.String)
-        jmethodID ctor__; // public org.theko.sound.UnsupportedAudioFormatException()
-        jmethodID mtd__toString; // public java.lang.String java.lang.Throwable.toString()
-        jmethodID mtd__getMessage; // public java.lang.String java.lang.Throwable.getMessage()
-        jmethodID mtd__equals_java_lang_Object; // public boolean java.lang.Object.equals(java.lang.Object)
+        //jmethodID constructor cache
+        // public org.theko.sound.UnsupportedAudioFormatException(java.lang.String, java.lang.Throwable)
+        jmethodID ctor__java_lang_String__java_lang_Throwable;
+        // public org.theko.sound.UnsupportedAudioFormatException(java.lang.Throwable)
+        jmethodID ctor__java_lang_Throwable;
+        // public org.theko.sound.UnsupportedAudioFormatException(java.lang.String)
+        jmethodID ctor__java_lang_String;
+        // public org.theko.sound.UnsupportedAudioFormatException()
+        jmethodID ctor__;
+
+        // jmethodID cache
+        // public java.lang.String java.lang.Throwable.toString()
+        jmethodID mtd__toString;
+        // public java.lang.String java.lang.Throwable.getMessage()
+        jmethodID mtd__getMessage;
+        // public boolean java.lang.Object.equals(java.lang.Object)
+        jmethodID mtd__equals_java_lang_Object;
 
         ThekoSound_UnsupportedAudioFormatException(JNIEnv* env) {
             initialized = false; // Reinitialize
             if (!env) return;
             jclass clazz_local = env->FindClass("org/theko/sound/UnsupportedAudioFormatException");
             if (!clazz_local) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to find class 'org.theko.sound.UnsupportedAudioFormatException'");
+                env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Failed to find class 'org/theko/sound/UnsupportedAudioFormatException'");
                 return;
             }
 
@@ -123,13 +134,13 @@ class ThekoSound_UnsupportedAudioFormatException {
 
         static ThekoSound_UnsupportedAudioFormatException* get(JNIEnv* env) {
             if (!env) return nullptr;
-            if (!ThekoSound_UnsupportedAudioFormatException::jvm) {
-                env->GetJavaVM(&ThekoSound_UnsupportedAudioFormatException::jvm);
-            }
             static std::mutex mtx;
             static std::unique_ptr<ThekoSound_UnsupportedAudioFormatException> instance;
         
             std::lock_guard<std::mutex> lock(mtx);
+            if (!ThekoSound_UnsupportedAudioFormatException::jvm) {
+                env->GetJavaVM(&ThekoSound_UnsupportedAudioFormatException::jvm);
+            }
             if (!instance || !instance->isValid()) {
                 instance.reset(new ThekoSound_UnsupportedAudioFormatException(env));
             }

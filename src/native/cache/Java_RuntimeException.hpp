@@ -28,24 +28,39 @@ class Java_RuntimeException {
         }
 
         bool initialized = false; // True if all values are initialized
+
+        // jclass cache
         jclass clazz;
-        jfieldID fld__serialVersionUID; // static final long java.lang.RuntimeException.serialVersionUID
-        jmethodID ctor__java_lang_String__java_lang_Throwable__boolean__boolean; // protected java.lang.RuntimeException(java.lang.String,java.lang.Throwable,boolean,boolean)
-        jmethodID ctor__java_lang_Throwable; // public java.lang.RuntimeException(java.lang.Throwable)
-        jmethodID ctor__java_lang_String__java_lang_Throwable; // public java.lang.RuntimeException(java.lang.String,java.lang.Throwable)
-        jmethodID ctor__java_lang_String; // public java.lang.RuntimeException(java.lang.String)
-        jmethodID ctor__; // public java.lang.RuntimeException()
-        jmethodID mtd__toString; // public java.lang.String java.lang.Throwable.toString()
-        jmethodID mtd__getMessage; // public java.lang.String java.lang.Throwable.getMessage()
-        jmethodID mtd__equals_java_lang_Object; // public boolean java.lang.Object.equals(java.lang.Object)
+        // jfieldID cache
+        // package-private long java.lang.RuntimeException.serialVersionUID
+        jfieldID fld__serialVersionUID;
+
+        //jmethodID constructor cache
+        // protected java.lang.RuntimeException(java.lang.String, java.lang.Throwable, boolean, boolean)
+        jmethodID ctor__java_lang_String__java_lang_Throwable__boolean__boolean;
+        // public java.lang.RuntimeException(java.lang.Throwable)
+        jmethodID ctor__java_lang_Throwable;
+        // public java.lang.RuntimeException(java.lang.String, java.lang.Throwable)
+        jmethodID ctor__java_lang_String__java_lang_Throwable;
+        // public java.lang.RuntimeException(java.lang.String)
+        jmethodID ctor__java_lang_String;
+        // public java.lang.RuntimeException()
+        jmethodID ctor__;
+
+        // jmethodID cache
+        // public java.lang.String java.lang.Throwable.toString()
+        jmethodID mtd__toString;
+        // public java.lang.String java.lang.Throwable.getMessage()
+        jmethodID mtd__getMessage;
+        // public boolean java.lang.Object.equals(java.lang.Object)
+        jmethodID mtd__equals_java_lang_Object;
 
         Java_RuntimeException(JNIEnv* env) {
             initialized = false; // Reinitialize
             if (!env) return;
             jclass clazz_local = env->FindClass("java/lang/RuntimeException");
             if (!clazz_local) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to find class 'java.lang.RuntimeException'");
+                env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Failed to find class 'java/lang/RuntimeException'");
                 return;
             }
 
@@ -139,13 +154,13 @@ class Java_RuntimeException {
 
         static Java_RuntimeException* get(JNIEnv* env) {
             if (!env) return nullptr;
-            if (!Java_RuntimeException::jvm) {
-                env->GetJavaVM(&Java_RuntimeException::jvm);
-            }
             static std::mutex mtx;
             static std::unique_ptr<Java_RuntimeException> instance;
         
             std::lock_guard<std::mutex> lock(mtx);
+            if (!Java_RuntimeException::jvm) {
+                env->GetJavaVM(&Java_RuntimeException::jvm);
+            }
             if (!instance || !instance->isValid()) {
                 instance.reset(new Java_RuntimeException(env));
             }
