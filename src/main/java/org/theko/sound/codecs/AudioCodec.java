@@ -71,5 +71,7 @@ public abstract class AudioCodec {
      *
      * @return an instance of {@link AudioCodecInfo} containing codec details
      */
-    public abstract AudioCodecInfo getInfo();
+    public final AudioCodecInfo getInfo() {
+        return new AudioCodecInfo(this.getClass());
+    }
 }
