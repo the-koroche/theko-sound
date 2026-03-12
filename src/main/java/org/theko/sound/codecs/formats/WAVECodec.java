@@ -33,11 +33,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.AudioFormat;
-import org.theko.sound.UnsupportedAudioEncodingException;
 import org.theko.sound.AudioFormat.Encoding;
+import org.theko.sound.UnsupportedAudioEncodingException;
 import org.theko.sound.codecs.AudioCodec;
 import org.theko.sound.codecs.AudioCodecException;
-import org.theko.sound.codecs.AudioCodecInfo;
 import org.theko.sound.codecs.AudioCodecType;
 import org.theko.sound.codecs.AudioDecodeResult;
 import org.theko.sound.codecs.AudioEncodeResult;
@@ -94,8 +93,6 @@ public class WAVECodec extends AudioCodec {
     private static final byte[] DATA_BYTES = "data".getBytes(StandardCharsets.US_ASCII);
     private static final byte[] LIST_BYTES = "LIST".getBytes(StandardCharsets.US_ASCII);
     private static final byte[] INFO_BYTES = "INFO".getBytes(StandardCharsets.US_ASCII);
-
-    private static final AudioCodecInfo CODEC_INFO = new AudioCodecInfo(WAVECodec.class);
 
     public enum WaveEncoding {
         PCM_SIGNED_16,
@@ -169,8 +166,10 @@ public class WAVECodec extends AudioCodec {
                 int read = dis.read(chunkIdBytes);
                 if (read == -1) break; // EOF
 
+                String chunkId = new String(chunkIdBytes, StandardCharsets.US_ASCII);
                 int chunkSize = readLittleEndianInt(dis);
 
+                logger.trace("Chunk ID: {}, size: {} bytes", chunkId, chunkSize);
                 long startNs = System.nanoTime();
                 if (Arrays.equals(FORMAT_BYTES, chunkIdBytes)) {
                     // Audio format
@@ -179,12 +178,27 @@ public class WAVECodec extends AudioCodec {
                     WaveFormat fullFormat = parseFormatChunk(fmtData);
                     format = fullFormat.format;
                     encoding = fullFormat.encoding;
+
+                    logger.trace("Audio format: {}, encoding: {}", fullFormat.format, fullFormat.encoding);
+
                     skipPadding(dis, chunkSize);
                 } else if (Arrays.equals(DATA_BYTES, chunkIdBytes)) {
                     // Audio data
-                    audioData = new byte[chunkSize];
-                    dis.readFully(audioData);
-                    skipPadding(dis, chunkSize);
+                    if (chunkSize < 0 || chunkSize > Integer.MAX_VALUE) { // If length is unknown
+                        logger.debug("Streamed data chunk with size {} (invalid size) bytes. Trying to read until EOF...", chunkSize);
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        byte[] buffer = new byte[8192];
+                        int readedbuf;
+                        while ((readedbuf = dis.read(buffer)) != -1) {
+                            baos.write(buffer, 0, readedbuf);
+                        }
+                        logger.debug("Streamed data chunk EOF reached. Read {} bytes.", baos.size());
+                        audioData = baos.toByteArray();
+                    } else {
+                        audioData = new byte[chunkSize];
+                        dis.readFully(audioData);
+                        skipPadding(dis, chunkSize);
+                    }
                 } else if (Arrays.equals(LIST_BYTES, chunkIdBytes)) {
                     // Metadata
                     byte[] listData = new byte[chunkSize];
@@ -193,11 +207,11 @@ public class WAVECodec extends AudioCodec {
                     skipPadding(dis, chunkSize);
                 } else {
                     // Skip unknown chunks
-                    logger.info("Skip chunk \"" + new String(chunkIdBytes, StandardCharsets.US_ASCII) + "\" with size " + chunkSize + " bytes.");
+                    logger.info("Skip chunk \"{}\" with size {} bytes.", chunkId, chunkSize);
                     skipChunkData(dis, chunkSize);
                 }
                 long endNs = System.nanoTime();
-                chunkDecodingTimes.put(new String(chunkIdBytes, StandardCharsets.US_ASCII), endNs - startNs);
+                chunkDecodingTimes.put(chunkId, endNs - startNs);
             }
 
             if (format == null) {
@@ -248,36 +262,38 @@ public class WAVECodec extends AudioCodec {
 
             long toPcmConvertNs = System.nanoTime() - toPcmConvertStartNs;
 
-            String signatureCheckFormatted = FormatUtilities.formatTime(signatureCheckNs, 3);
-            Map<String, String> chunkDecodingTimesFormatted = new HashMap<>();
-            for (Map.Entry<String, Long> entry : chunkDecodingTimes.entrySet()) {
-                chunkDecodingTimesFormatted.put(entry.getKey(), FormatUtilities.formatTime(entry.getValue(), 3));
+            if (logger.isDebugEnabled()) {
+                String signatureCheckFormatted = FormatUtilities.formatTime(signatureCheckNs, 3);
+                Map<String, String> chunkDecodingTimesFormatted = new HashMap<>();
+                for (Map.Entry<String, Long> entry : chunkDecodingTimes.entrySet()) {
+                    chunkDecodingTimesFormatted.put(entry.getKey(), FormatUtilities.formatTime(entry.getValue(), 3));
+                }
+                String totalDecodingFormatted = FormatUtilities.formatTime(totalDecodingNs, 3);
+                String toPcmConvertFormatted = FormatUtilities.formatTime(toPcmConvertNs, 3);
+
+                StringBuilder elapsedTime = new StringBuilder();
+                elapsedTime.append("Elapsed time {").append("signatures=").append(signatureCheckFormatted).append(", ");
+                for (Map.Entry<String, String> entry : chunkDecodingTimesFormatted.entrySet()) {
+                    elapsedTime.append("chunk '").append(entry.getKey()).append("'")
+                            .append("=").append(entry.getValue()).append(", ");
+                }
+                elapsedTime.append("chunks_sum=").append(totalDecodingFormatted).append(", ");
+                elapsedTime.append("pcm_conversion=").append(toPcmConvertFormatted);
+                elapsedTime.append("}");
+                logger.debug(elapsedTime.toString());
+
+                int ms = (int)((audioData.length / (float)(format.getFrameSize() * format.getSampleRate())) * 1000);
+
+                StringBuilder decoded = new StringBuilder();
+                decoded.append("Decoded WAVE:\n");
+                decoded.append("  format=").append(format.toString()).append(",\n");
+                decoded.append("  samples=").append(audioData.length / format.getFrameSize()).append(" frames,\n");
+                decoded.append("  duration=").append(FormatUtilities.formatTimeMillis(ms, 3)).append("\n");
+                decoded.append("  metadata=").append(tags).append("");
+                logger.debug(decoded.toString());
             }
-            String totalDecodingFormatted = FormatUtilities.formatTime(totalDecodingNs, 3);
-            String toPcmConvertFormatted = FormatUtilities.formatTime(toPcmConvertNs, 3);
 
-            StringBuilder elapsedTime = new StringBuilder();
-            elapsedTime.append("Elapsed time {").append("signatures=").append(signatureCheckFormatted).append(", ");
-            for (Map.Entry<String, String> entry : chunkDecodingTimesFormatted.entrySet()) {
-                elapsedTime.append("chunk '").append(entry.getKey()).append("'")
-                           .append("=").append(entry.getValue()).append(", ");
-            }
-            elapsedTime.append("chunks_sum=").append(totalDecodingFormatted).append(", ");
-            elapsedTime.append("pcm_conversion=").append(toPcmConvertFormatted);
-            elapsedTime.append("}");
-            logger.debug(elapsedTime.toString());
-
-            int ms = (int)((audioData.length / (float)(format.getFrameSize() * format.getSampleRate())) * 1000);
-
-            StringBuilder decoded = new StringBuilder();
-            decoded.append("Decoded WAVE:\n");
-            decoded.append("  format=").append(format.toString()).append(",\n");
-            decoded.append("  samples=").append(audioData.length / format.getFrameSize()).append(" frames,\n");
-            decoded.append("  duration=").append(FormatUtilities.formatTimeMillis(ms, 3)).append("\n");
-            decoded.append("  metadata=").append(tags).append("");
-            logger.debug(decoded.toString());
-
-            return new AudioDecodeResult(CODEC_INFO, pcm, format, Collections.unmodifiableList(tags));
+            return new AudioDecodeResult(getInfo(), pcm, format, Collections.unmodifiableList(tags));
         } catch (IOException ex) {
             throw new AudioCodecException(ex);
         }
@@ -438,23 +454,29 @@ public class WAVECodec extends AudioCodec {
     }
 
     /**
-     * Cleans a string of text by removing:
-     * - null characters
-     * - control characters (except for tab, line feed, and carriage return)
-     * - leading and trailing whitespace
-     * - repeated whitespace
-     * - non-ASCII characters
+     * Cleans a string of unwanted characters.
      *
-     * @param text the text to clean
-     * @return the cleaned text
+     * This method removes:
+     * <ul>
+     * <li>null characters</li>
+     * <li>control characters (except for tab, line feed, and carriage return)</li>
+     * </ul>
+     * and trims the resulting string.
+     * Additionally, it only saves readable characters, as defined by the Unicode standard.
+     *
+     * @param text the string to clean
+     * @return the cleaned string, or null if the input was null
      */
     protected static String cleanText(String text) {
-        text = text.replaceAll("\0", "")
-                    .replaceAll("[\\p{Cntrl}&&[^\n\t\r]]", "")
-                    .trim();
+        if (text == null) return null;
 
-        text = text.replaceAll("\\s+", " ");
-        text = text.replaceAll("[^\\x20-\\x7E\\n\\r]", "");
+        // Remove null characters, control characters (except for tab, line feed, and carriage return)
+        text = text.replaceAll("\0", "")
+                .replaceAll("[\\p{Cntrl}&&[^\n\t\r]]", "")
+                .trim();
+
+        // Save only readable characters
+        text = text.replaceAll("[^\\p{L}\\p{N}\\p{P}\\p{Z}\\p{So}]", "");
 
         return text;
     }
@@ -530,7 +552,7 @@ public class WAVECodec extends AudioCodec {
 
             updateRiffSize(outputStream);
 
-            return new AudioEncodeResult(CODEC_INFO, outputStream.toByteArray(), format, tags);
+            return new AudioEncodeResult(getInfo(), outputStream.toByteArray(), format, tags);
         } catch (IOException ex) {
             throw new AudioCodecException(ex);
         }
@@ -700,15 +722,5 @@ public class WAVECodec extends AudioCodec {
                 if (tag.length() == 4 && tag.startsWith("I")) return tag;
                 return null;
         }
-    }
-
-    /**
-     * Returns the audio codec information for this codec.
-     *
-     * @return the audio codec information
-     */
-    @Override
-    public AudioCodecInfo getInfo() {
-        return CODEC_INFO;
     }
 }
