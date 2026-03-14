@@ -18,7 +18,9 @@ package org.theko.sound.codecs;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Represents a collection of audio metadata tags.
@@ -144,6 +146,24 @@ public class AudioTags implements Iterable<AudioTag> {
             if (tag.getKey().equalsIgnoreCase(key)) return true;
         }
         return false;
+    }
+
+    /**
+     * Determines if the list of audio metadata tags is empty.
+     *
+     * @return true if the list is empty, false otherwise
+     */
+    public boolean isEmpty() {
+        return tags.isEmpty();
+    }
+
+    /**
+     * Retrieves an unmodifiable list of audio metadata tags.
+     *
+     * @return An unmodifiable list of audio metadata tags
+     */
+    public List<AudioTag> asList() {
+        return Collections.unmodifiableList(tags);
     }
 
     @Override
