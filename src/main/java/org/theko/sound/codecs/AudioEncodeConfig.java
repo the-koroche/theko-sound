@@ -16,10 +16,14 @@
 
 package org.theko.sound.codecs;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.theko.sound.AudioFormat;
 
 /**
- * Represents an audio encoding configuration, which defines the target audio format and metadata to be associated with the encoded audio data.
+ * Represents an audio encoding configuration, which defines the target audio format,
+ * metadata and specific options to be associated with the encoded audio data.
  *
  * @see AudioFormat
  * @see AudioTags
@@ -28,18 +32,22 @@ import org.theko.sound.AudioFormat;
  * @author Theko
  */
 public class AudioEncodeConfig {
+
     private final AudioFormat targetFormat;
     private final AudioTags metadata;
+    private final Map<String, Object> options = new HashMap<>();
 
     /**
      * Creates a new audio encoding configuration with the given target audio format and metadata.
      *
      * @param targetFormat the target audio format
      * @param metadata the audio metadata tags
+     * @param options the options to be associated with the encoding process
      */
-    public AudioEncodeConfig(AudioFormat targetFormat, AudioTags metadata) {
+    public AudioEncodeConfig(AudioFormat targetFormat, AudioTags metadata, Map<String, Object> options) {
         this.targetFormat = targetFormat;
         this.metadata = metadata;
+        this.options.putAll(options);
     }
 
     /**
@@ -60,11 +68,22 @@ public class AudioEncodeConfig {
         return metadata;
     }
 
+    /**
+     * Retrieves the options associated with this configuration, which are used to customize the encoding process.
+     * These options are specific to the codec implementation and may not be applicable to all codecs.
+     *
+     * @return the options associated with this configuration
+     */
+    public Map<String, Object> getOptions() {
+        return options;
+    }
+
     @Override
     public String toString() {
         return "AudioEncodeConfig{" +
                 "targetFormat=" + targetFormat +
                 ", metadata=" + metadata +
+                ", options=" + options +
                 '}';
     }
 }

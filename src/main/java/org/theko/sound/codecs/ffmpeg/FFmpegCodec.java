@@ -160,13 +160,12 @@ public class FFmpegCodec extends AudioCodec {
     @Override
     public AudioEncodeResult encode(float[][] samples, AudioFormat samplesFormat, AudioEncodeConfig config) throws AudioCodecException {
         if (samplesFormat == null) {
-            throw new AudioCodecException("Data or format is null");
+            throw new AudioCodecException("Audio format is null");
+        }
+        if (config == null) {
+            throw new AudioCodecException("Audio encode config is null");
         }
         SamplesValidation.validateSamples(samples);
-
-        if (!(config instanceof FFmpegEncodeConfig ffCfg)) {
-            throw new AudioCodecException("Invalid config type for FFmpegCodec");
-        }
 
         byte[] pcmData = SamplesConverter.fromSamples(samples, samplesFormat);
 
@@ -182,7 +181,7 @@ public class FFmpegCodec extends AudioCodec {
         cmd.add("+bitexact");
         cmd.add("-i"); cmd.add("pipe:0");
 
-        cmd.add("-f"); cmd.add(ffCfg.getOutFormat());
+        cmd.add("-f"); cmd.add((String) config.getOptions().get("ffmpeg.container"));
         cmd.add("pipe:1");
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
