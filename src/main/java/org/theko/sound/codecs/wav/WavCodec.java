@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.theko.sound.codecs.formats;
+package org.theko.sound.codecs.wav;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -25,7 +25,6 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +38,10 @@ import org.theko.sound.codecs.AudioCodec;
 import org.theko.sound.codecs.AudioCodecException;
 import org.theko.sound.codecs.AudioCodecType;
 import org.theko.sound.codecs.AudioDecodeResult;
+import org.theko.sound.codecs.AudioEncodeConfig;
 import org.theko.sound.codecs.AudioEncodeResult;
 import org.theko.sound.codecs.AudioTag;
+import org.theko.sound.codecs.AudioTags;
 import org.theko.sound.properties.AudioSystemProperties;
 import org.theko.sound.samples.SamplesConverter;
 import org.theko.sound.util.FormatUtilities;
@@ -83,9 +84,9 @@ import org.theko.sound.util.FormatUtilities;
  * @author Theko
  */
 @AudioCodecType(name = "WAVE", extensions = {"wav", "wave"}, version = "1.2")
-public class WAVECodec extends AudioCodec {
+public class WavCodec extends AudioCodec {
 
-    private static final Logger logger = LoggerFactory.getLogger(WAVECodec.class);
+    private static final Logger logger = LoggerFactory.getLogger(WavCodec.class);
 
     private static final byte[] RIFF_BYTES = "RIFF".getBytes(StandardCharsets.US_ASCII);
     private static final byte[] WAVE_BYTES = "WAVE".getBytes(StandardCharsets.US_ASCII);
@@ -94,25 +95,11 @@ public class WAVECodec extends AudioCodec {
     private static final byte[] LIST_BYTES = "LIST".getBytes(StandardCharsets.US_ASCII);
     private static final byte[] INFO_BYTES = "INFO".getBytes(StandardCharsets.US_ASCII);
 
-    public enum WaveEncoding {
-        PCM_SIGNED_16,
-        PCM_SIGNED_24,
-        PCM_SIGNED_32,
-        PCM_UNSIGNED_8,
-        IEEE_FLOAT_32,
-        IEEE_FLOAT_64,
-        ALAW,
-        ULAW,
-        IMA_ADPCM,
-        MS_ADPCM,
-        GSM_610
-    }
-
     private static class WaveFormat {
         public final AudioFormat format;
-        public final WaveEncoding encoding;
+        public final WavAudioEncoding encoding;
 
-        public WaveFormat(AudioFormat format, WaveEncoding encoding) {
+        public WaveFormat(AudioFormat format, WavAudioEncoding encoding) {
             this.format = format;
             this.encoding = encoding;
         }
@@ -156,7 +143,7 @@ public class WAVECodec extends AudioCodec {
             Map<String, Long> chunkDecodingTimes = new HashMap<>();
 
             AudioFormat format = null;
-            WaveEncoding encoding = null;
+            WavAudioEncoding encoding = null;
             byte[] audioData = null;
             List<AudioTag> tags = new ArrayList<>();
 
@@ -293,7 +280,7 @@ public class WAVECodec extends AudioCodec {
                 logger.debug(decoded.toString());
             }
 
-            return new AudioDecodeResult(getInfo(), pcm, format, Collections.unmodifiableList(tags));
+            return new AudioDecodeResult(getInfo(), pcm, format, new AudioTags(tags));
         } catch (IOException ex) {
             throw new AudioCodecException(ex);
         }
@@ -314,22 +301,22 @@ public class WAVECodec extends AudioCodec {
         int byteRate = bb.getInt();
         int blockAlign = bb.getShort() & 0xffff;
         int bitsPerSample = bb.getShort() & 0xffff;
-        WaveEncoding encoding;
+        WavAudioEncoding encoding;
 
         switch (audioFormat) {
             case 0x0001: // PCM
                 switch (bitsPerSample) {
                     case 8:
-                        encoding = WaveEncoding.PCM_UNSIGNED_8;
+                        encoding = WavAudioEncoding.PCM_UNSIGNED_8;
                         break;
                     case 16:
-                        encoding = WaveEncoding.PCM_SIGNED_16;
+                        encoding = WavAudioEncoding.PCM_SIGNED_16;
                         break;
                     case 24:
-                        encoding = WaveEncoding.PCM_SIGNED_24;
+                        encoding = WavAudioEncoding.PCM_SIGNED_24;
                         break;
                     case 32:
-                        encoding = WaveEncoding.PCM_SIGNED_32;
+                        encoding = WavAudioEncoding.PCM_SIGNED_32;
                         break;
                     default:
                         logger.error("Unsupported PCM bit depth '{}'.", bitsPerSample);
@@ -340,9 +327,9 @@ public class WAVECodec extends AudioCodec {
 
             case 0x0003: // IEEE Float
                 if (bitsPerSample == 32) {
-                    encoding = WaveEncoding.IEEE_FLOAT_32;
+                    encoding = WavAudioEncoding.IEEE_FLOAT_32;
                 } else if (bitsPerSample == 64) {
-                    encoding = WaveEncoding.IEEE_FLOAT_64;
+                    encoding = WavAudioEncoding.IEEE_FLOAT_64;
                 } else {
                     logger.error("Unsupported float bit depth '{}'.", bitsPerSample);
                     throw new AudioCodecException(
@@ -351,23 +338,11 @@ public class WAVECodec extends AudioCodec {
                 break;
 
             case 0x0006: // ALAW
-                encoding = WaveEncoding.ALAW;
+                encoding = WavAudioEncoding.ALAW;
                 break;
 
             case 0x0007: // μLAW
-                encoding = WaveEncoding.ULAW;
-                break;
-
-            case 0x0011: // IMA ADPCM (Unimplemented)
-                encoding = WaveEncoding.IMA_ADPCM;
-                break;
-
-            case 0x0002: // MS ADPCM (Unimplemented)
-                encoding = WaveEncoding.MS_ADPCM;
-                break;
-
-            case 0x0031: // GSM 6.10 (Unimplemented)
-                encoding = WaveEncoding.GSM_610;
+                encoding = WavAudioEncoding.ULAW;
                 break;
 
             default:
@@ -523,36 +498,31 @@ public class WAVECodec extends AudioCodec {
         return ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
     }
 
-    /**
-     * Encodes audio data into the WAVE format.
-     *
-     * @param data the audio data to encode
-     * @param format the audio format specifying encoding parameters
-     * @param tags a list of audio tags to include in the encoded output
-     * @return an AudioEncodeResult containing the encoded WAVE data, format, and tags
-     * @throws AudioCodecException if an error occurs during encoding, such as an I/O issue
-     */
     @Override
-    public AudioEncodeResult encode(byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException {
+    public AudioEncodeResult encode(float[][] samples, AudioFormat samplesFormat, AudioEncodeConfig config) throws AudioCodecException {
         try {
+            AudioFormat targetFormat = config.getTargetFormat();
+            AudioTags tags = config.getMetadata();
             // Check supported encodings
-            int audioFormatCode = getAudioFormatCode(format.getEncoding());
+            int audioFormatCode = getAudioFormatCode(targetFormat.getEncoding());
 
-            byte[] fmtChunkData = createFormatChunk(audioFormatCode, format);
+            byte[] fmtChunkData = createFormatChunk(audioFormatCode, targetFormat);
             byte[] listChunkData = createListChunk(tags);
 
             // Build all chunks
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             writeRiffHeader(outputStream);
             writeChunk(outputStream, FORMAT_BYTES, fmtChunkData);
-            writeChunk(outputStream, DATA_BYTES, data);
+
+            byte[] pcm = SamplesConverter.fromSamples(samples, targetFormat);
+            writeChunk(outputStream, DATA_BYTES, pcm);
             if (listChunkData.length > 4) {
                 writeChunk(outputStream, LIST_BYTES, listChunkData);
             }
 
             updateRiffSize(outputStream);
 
-            return new AudioEncodeResult(getInfo(), outputStream.toByteArray(), format, tags);
+            return new AudioEncodeResult(getInfo(), outputStream.toByteArray(), targetFormat, tags);
         } catch (IOException ex) {
             throw new AudioCodecException(ex);
         }
@@ -577,7 +547,7 @@ public class WAVECodec extends AudioCodec {
                 .array();
     }
 
-    protected static byte[] createListChunk(List<AudioTag> tags) throws IOException {
+    protected static byte[] createListChunk(AudioTags tags) throws IOException {
         ByteArrayOutputStream listChunkStream = new ByteArrayOutputStream();
         if (!tags.isEmpty()) {
             listChunkStream.write(INFO_BYTES);

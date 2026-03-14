@@ -16,9 +16,6 @@
 
 package org.theko.sound.codecs;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.theko.sound.AudioFormat;
 
 /**
@@ -30,12 +27,9 @@ import org.theko.sound.AudioFormat;
  * @since 0.1.3-beta
  * @author Theko
  */
-public class AudioDecodeResult {
+public class AudioDecodeResult extends AudioCodecResult {
 
     private final float[][] pcm;
-    private final AudioFormat format;
-    private final List<AudioTag> tags;
-    private final AudioCodecInfo codecInfo;
 
     /**
      * Constructs an AudioDecodeResult with the specified codec information, decoded samples,
@@ -45,11 +39,9 @@ public class AudioDecodeResult {
      * @param format The format of the decoded audio
      * @param tags The list of audio tags associated with the decoded audio
      */
-    public AudioDecodeResult(AudioCodecInfo codecInfo, float[][] pcm, AudioFormat format, List<AudioTag> tags) {
-        this.codecInfo = codecInfo;
+    public AudioDecodeResult(AudioCodecInfo codecInfo, float[][] pcm, AudioFormat format, AudioTags tags) {
+        super(codecInfo, format, tags);
         this.pcm = pcm;
-        this.format = format;
-        this.tags = tags;
     }
 
     /**
@@ -59,38 +51,5 @@ public class AudioDecodeResult {
      */
     public float[][] getSamples() {
         return pcm;
-    }
-
-    /**
-     * @return The audio format of the decoded audio data
-     */
-    public AudioFormat getAudioFormat() {
-        return format;
-    }
-
-    /**
-     * @return The unmodifiable list of audio tags associated with the decoded audio
-     */
-    public List<AudioTag> getTagsList() {
-        return Collections.unmodifiableList(tags);
-    }
-
-    /**
-     * @return The list of audio tags as {@link AudioTags}
-     */
-    public AudioTags getTags() {
-        return new AudioTags(tags);
-    }
-
-    /**
-     * @return Information about the audio codec used for decoding
-     */
-    public AudioCodecInfo getCodecInfo() {
-        return codecInfo;
-    }
-
-    @Override
-    public String toString() {
-        return "AudioDecodeResult{Decoder: " + codecInfo.getName() + ", " + format.toString() + ", Tags: " + tags.toString() + "}";
     }
 }

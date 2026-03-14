@@ -59,12 +59,12 @@ public abstract class AudioCodec {
      * Calls the encode method.
      *
      * @param data the audio data to encode
-     * @param format the format of the data
+     * @param samplesFormat the format of the data
      * @param tags the tags to add to the encoded file
      * @return the encoded audio data
      * @throws AudioCodecException if there is an error encoding the data
      */
-    protected abstract AudioEncodeResult encode(byte[] data, AudioFormat format, List<AudioTag> tags) throws AudioCodecException;
+    public abstract AudioEncodeResult encode(float[][] samples, AudioFormat samplesFormat, AudioEncodeConfig config) throws AudioCodecException;
 
     /**
      * Returns codec-specific information such as name, version, extension, etc.
