@@ -28,7 +28,8 @@ import org.theko.sound.backends.javasound.JavaSoundBackend;
 import org.theko.sound.backends.wasapi.WASAPISharedBackend;
 import org.theko.sound.codecs.AudioCodec;
 import org.theko.sound.codecs.AudioCodecs;
-import org.theko.sound.codecs.formats.WAVECodec;
+import org.theko.sound.codecs.ffmpeg.FFmpegCodec;
+import org.theko.sound.codecs.wav.WavCodec;
 
 /**
  * The AudioClassRegister class is responsible for registering audio backend and codec classes.
@@ -54,7 +55,7 @@ public final class AudioClassRegister {
     );
 
     private static final Set<Class<? extends AudioCodec>> definedCodecs = Set.of(
-        WAVECodec.class
+        WavCodec.class, FFmpegCodec.class
     );
 
     private static Set<Class<? extends AudioBackend>> registeredBackends;
