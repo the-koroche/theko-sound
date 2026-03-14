@@ -26,10 +26,18 @@ import org.theko.sound.backends.AudioBackendCreationException;
 import org.theko.sound.backends.AudioBackendException;
 import org.theko.sound.backends.AudioBackendNotFoundException;
 import org.theko.sound.codecs.AudioCodecNotFoundException;
+import org.theko.sound.codecs.AudioTags;
 import org.theko.sound.events.OutputLayerEvent;
 import org.theko.sound.events.OutputLayerEventType;
 import org.theko.sound.events.OutputLayerListener;
 
+/**
+ * A SoundPlayer is an class that extends the {@link SoundSource}, and
+ * provides functionality for playing audio data using {@link AudioOutputLayer}.
+ *
+ * @author Theko
+ * @since 0.2.0-beta
+ */
 public class SoundPlayer extends SoundSource {
 
     private static final Logger logger = LoggerFactory.getLogger(SoundPlayer.class);
@@ -54,6 +62,23 @@ public class SoundPlayer extends SoundSource {
      */
     public SoundPlayer() {
         super();
+        try {
+            this.outputLayer = new AudioOutputLayer();
+            this.outputLayer.setRootNode(this);
+        } catch (AudioBackendCreationException | AudioBackendNotFoundException ex) {
+            throw new RuntimeException("Audio backend creation failed.", ex);
+        }
+    }
+
+    /**
+     * Creates a new SoundPlayer with the default audio output layer and opens the specified samples, audio format, and tags.
+     *
+     * @param samples The samples data to open
+     * @param format The audio format of the samples data
+     * @param tags The audio tags associated with the samples data
+     */
+    public SoundPlayer(float[][] samples, AudioFormat format, AudioTags tags) {
+        super(samples, format, tags);
         try {
             this.outputLayer = new AudioOutputLayer();
             this.outputLayer.setRootNode(this);
@@ -91,6 +116,41 @@ public class SoundPlayer extends SoundSource {
     }
 
     /**
+     * Opens the specified samples, audio format, and tags with the specified audio output layer, port, and buffer size.
+     * <p>
+     * This method first calls the superclass method to open the samples, audio format, and tags.
+     * Then it attempts to open the audio output layer with the specified port and buffer size.
+     * If the output layer is already open, it closes it first.
+     * If the audio output layer creation fails, an exception is thrown.
+     * If the specified audio format is unsupported, an exception is thrown.
+     * If the default output audio port is not found, an exception is thrown.
+     *
+     * @param samples The samples data to open
+     * @param format The audio format of the samples data
+     * @param tags The audio tags associated with the samples data
+     * @param port The audio port to open
+     * @param bufferSize The buffer size to use
+     * @throws RuntimeException If the audio output layer creation fails, the specified audio format is unsupported, or the default output audio port is not found
+     */
+    public void open(float[][] samples, AudioFormat format, AudioTags tags, AudioPort port, AudioMeasure bufferSize) {
+        super.open(samples, format, tags);
+        try {
+            if (this.outputLayer.isOpen()) {
+                this.outputLayer.close();
+            }
+            this.outputLayer.open(port, getAudioFormat(), bufferSize);
+        } catch (AudioBackendException e) {
+            throw new RuntimeException("Audio backend creation failed.", e);
+        } catch (UnsupportedAudioFormatException ex) {
+            logger.error("Unsupported audio format.", ex);
+            throw new RuntimeException(ex);
+        } catch (AudioPortsNotFoundException ex) {
+            logger.error("Default output audio port not found.", ex);
+            throw new RuntimeException(ex);
+        }
+    }
+
+    /**
      * Opens the specified audio file and configures the audio output layer to use the specified audio port and buffer size.
      *
      * @param file The audio file to open
@@ -102,6 +162,9 @@ public class SoundPlayer extends SoundSource {
     public void open(File file, AudioPort port, AudioMeasure bufferSize) throws FileNotFoundException, AudioCodecNotFoundException {
         super.open(file);
         try {
+            if (this.outputLayer.isOpen()) {
+                this.outputLayer.close();
+            }
             this.outputLayer.open(port, getAudioFormat(), bufferSize);
         } catch (AudioBackendException e) {
             throw new RuntimeException("Audio backend creation failed.", e);
@@ -125,7 +188,7 @@ public class SoundPlayer extends SoundSource {
     public void open(File file, AudioPort port) throws FileNotFoundException, AudioCodecNotFoundException {
         super.open(file);
         try {
-            this.outputLayer.open(port, getAudioFormat());
+            reopenAOL();
         } catch (AudioBackendException e) {
             throw new RuntimeException("Audio backend creation failed.", e);
         } catch (UnsupportedAudioFormatException ex) {
@@ -157,13 +220,11 @@ public class SoundPlayer extends SoundSource {
      * @throws FileNotFoundException If the audio file is not found
      * @throws AudioCodecNotFoundException If the audio codec is not found
      */
-    @Override public void open(File file) throws FileNotFoundException, AudioCodecNotFoundException {
+    @Override
+    public void open(File file) throws FileNotFoundException, AudioCodecNotFoundException {
         super.open(file);
         try {
-            if (this.outputLayer.isOpen()) {
-                this.outputLayer.close();
-            }
-            this.outputLayer.open(getAudioFormat());
+            reopenAOL();
         } catch (AudioBackendException e) {
             throw new RuntimeException("Audio backend creation failed.", e);
         } catch (UnsupportedAudioFormatException ex) {
@@ -174,6 +235,14 @@ public class SoundPlayer extends SoundSource {
             throw new RuntimeException(ex);
         }
     }
+
+    private void reopenAOL() throws IllegalArgumentException, AudioBackendException, UnsupportedAudioFormatException, AudioPortsNotFoundException {
+        if (this.outputLayer.isOpen()) {
+            this.outputLayer.close();
+        }
+        this.outputLayer.open(getAudioFormat());
+    }
+
     /**
      * Opens an audio file and decodes it into samples data.
      * Opens the audio output layer with the specified format.

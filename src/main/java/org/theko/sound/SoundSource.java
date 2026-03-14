@@ -45,6 +45,7 @@ import org.theko.sound.events.AudioControlEventType;
 import org.theko.sound.events.SoundSourceEvent;
 import org.theko.sound.events.SoundSourceEventType;
 import org.theko.sound.events.SoundSourceListener;
+import org.theko.sound.samples.SamplesValidation;
 import org.theko.sound.util.AudioBufferUtilities;
 
 /**
@@ -148,6 +149,24 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     }
 
     /**
+     * Constructs a new {@code SoundSource} object with the specified audio data.
+     * <p>
+     * The {@code SoundSource} object is initialized with the specified audio data,
+     * format, and tags. The object is not set to play back the audio data
+     * automatically when the object is constructed.
+     *
+     * @param samplesData The audio samples data
+     * @param audioFormat The audio format of the samples data
+     * @param tags The audio tags associated with the samples data
+     * @throws IllegalArgumentException If the samples data or audio format are invalid
+     * @throws RuntimeException If adding the resampler effect fails
+     */
+    public SoundSource(float[][] samplesData, AudioFormat audioFormat, AudioTags tags) {
+        this();
+        this.open(samplesData, audioFormat, tags);
+    }
+
+    /**
      * Constructs a new {@code SoundSource} object and opens the specified audio file.
      *
      * @param file The audio file to open
@@ -201,29 +220,26 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     }
 
     /**
-     * Opens the specified audio file, decodes it, and prepares this SoundSource for playback.
-     * If this SoundSource was opened previously, the mixer and resampler are not recreated,
-     * and existing mixer effects are preserved.
+     * Opens the sound source with the specified samples, audio format, and tags.
+     * <p>
+     * This method validates the samples and audio format, and then associates the sound source with the given data.
+     * It also sets up the inner audio mixer and playback effect, and adds a resampler effect if it is not already present.
+     * Finally, it resets the playback position and dispatches an {@link SoundSourceEventType#OPENED} event.
      *
-     * @param file The audio file to open. Supported formats depend on available codecs
-     * @throws FileNotFoundException If the file does not exist or cannot be read
-     * @throws AudioCodecNotFoundException If no suitable codec is available for decoding
-     * @throws RuntimeException If decoding fails for other reasons or adding the resampler effect fails
+     * @param samples The samples data to open
+     * @param format The audio format of the samples data
+     * @param tags The audio tags associated with the samples data
+     * @throws IllegalArgumentException If the samples or audio format are invalid
+     * @throws RuntimeException If setting up the inner audio mixer or playback effect fails
      */
-    public void open(File file) throws FileNotFoundException, AudioCodecNotFoundException {
-        if (file == null || !file.exists()) {
-            logger.error("File not found: {}", file);
-            throw new FileNotFoundException("File not found.");
+    public void open(float[][] samples, AudioFormat format, AudioTags tags) {
+        SamplesValidation.validateSamples(samples);
+        if (format == null) {
+            throw new IllegalArgumentException("Audio format cannot be null.");
         }
-
-        try {
-            decodeAudioFile(file);
-        } catch (FileNotFoundException | AudioCodecNotFoundException ex) {
-            throw ex; // Already logged
-        } catch (AudioCodecException ex) {
-            logger.error("Failed to decode audio file.", ex);
-            throw new RuntimeException("Failed to decode audio file.", ex);
-        }
+        this.samplesData = samples;
+        this.audioFormat = format;
+        this.tags = tags;
 
         if (innerMixer == null) {
             innerMixer = new AudioMixer();
@@ -251,9 +267,35 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
             logger.error("Failed to add resampler effect to inner mixer", e);
             throw new RuntimeException(e);
         }
-
         reset(); // Reset the playback position
         dispatch(SoundSourceEventType.OPENED);
+    }
+
+    /**
+     * Opens the specified audio file, decodes it, and prepares this SoundSource for playback.
+     *
+     * @param file The audio file to open. Supported formats depend on available codecs
+     * @throws FileNotFoundException If the file does not exist or cannot be read
+     * @throws AudioCodecNotFoundException If no suitable codec is available for decoding
+     * @throws RuntimeException If decoding fails for other reasons or adding the resampler effect fails
+     */
+    public void open(File file) throws FileNotFoundException, AudioCodecNotFoundException {
+        if (file == null || !file.exists()) {
+            logger.error("File not found: {}", file);
+            throw new FileNotFoundException("File not found.");
+        }
+        if (!file.isFile()) {
+            throw new FileNotFoundException("Path is not a file.");
+        }
+
+        try {
+            decodeAndOpenAudioFile(file);
+        } catch (FileNotFoundException | AudioCodecNotFoundException ex) {
+            throw ex; // Already logged
+        } catch (AudioCodecException ex) {
+            logger.error("Failed to decode audio file.", ex);
+            throw new RuntimeException("Failed to decode audio file.", ex);
+        }
     }
 
     /**
@@ -447,6 +489,18 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     }
 
     /**
+     * Returns the audio samples associated with this sound source.
+     *
+     * <p>The returned array is a 2D float array of shape [channels][frames],
+     * where each element is a normalized floating-point sample in the range [-1.0, 1.0].
+     *
+     * @return The audio samples associated with this sound source (a ref)
+     */
+    public float[][] getSamples() {
+        return samplesData;
+    }
+
+    /**
      * @return The audio format of the sound source
      */
     public AudioFormat getAudioFormat() {
@@ -500,7 +554,12 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
         }
 
         // Apply the effect
+        logger.trace("Applying effect {} on samples {}, with target length {}...",
+                effect.getClass().getSimpleName(), samplesData.length, targetLength);
+        long startNs = System.nanoTime();
         effect.render(effectInput, audioFormat.getSampleRate());
+        long endNs = System.nanoTime();
+        logger.trace("Effect took {} ms", (endNs - startNs) / 1_000_000.0);
 
         // Mix effect output back into samplesData
         for (int ch = 0; ch < samplesData.length; ch++) {
@@ -546,9 +605,14 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
         return eventDispatcher.getListenersManager();
     }
 
-    private void decodeAudioFile(File file) throws FileNotFoundException, AudioCodecNotFoundException, AudioCodecException {
+    private void decodeAndOpenAudioFile(File file) throws FileNotFoundException, AudioCodecNotFoundException, AudioCodecException {
         try {
-            String fileExtension = file.getName().substring(file.getName().lastIndexOf('.') + 1);
+            int dot = file.getName().lastIndexOf('.');
+            if (dot < 0 || dot == file.getName().length() - 1) {
+                throw new AudioCodecException("File has no valid extension: " + file.getName());
+            }
+            String fileExtension = file.getName().substring(dot + 1);
+
             if (fileExtension == null || fileExtension.isEmpty()) {
                 logger.error("File has no extension: {}", file.getName());
                 throw new AudioCodecException("File has no extension: " + file.getName());
@@ -569,19 +633,18 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
                 logger.error("Failed to decode audio file: {}", file.getName());
                 throw new AudioCodecException("Failed to decode audio file: " + file.getName());
             }
+            logger.trace("Decoded audio file: {}", file.getName());
 
-            this.samplesData = decodeResult.getSamples();
-            this.audioFormat = decodeResult.getAudioFormat();
-            this.tags = decodeResult.getTags();
-            logger.debug("Decoded audio file: {}", file.getName());
+            this.open(decodeResult.getSamples(), decodeResult.getAudioFormat(), decodeResult.getMetadata());
+            logger.trace("Opened audio file: {}", file.getName());
         } catch (AudioCodecNotFoundException ex) {
-            logger.error("Audio codec not found: {}", file.getName(), ex);
+            logger.error("Audio codec not found: {}. {}", file.getName(), ex.getMessage());
             throw ex;
          }catch (AudioCodecException ex) {
-            logger.error("Failed to decode audio file: {}", file.getName(), ex);
+            logger.error("Failed to decode audio file: {}. {}", file.getName(), ex.getMessage());
             throw ex;
         } catch (FileNotFoundException ex) {
-            logger.error("Failed to open audio file: {}", file.getName(), ex);
+            logger.error("Failed to open audio file: {}. {}", file.getName(), ex.getMessage());
             throw ex;
         }
     }
