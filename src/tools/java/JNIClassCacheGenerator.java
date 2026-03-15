@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -125,6 +126,7 @@ public class JNIClassCacheGenerator {
         // Fields of type jclass
         Field[] fields = cls.getDeclaredFields();
         if (fields.length > 0) {
+            Arrays.sort(fields, Comparator.comparing(Field::getName));
             sb.append(indent(2)).append("// jfieldID cache\n");
             for (Field f : fields) {
                 if (f.isSynthetic()) continue;
@@ -137,7 +139,21 @@ public class JNIClassCacheGenerator {
         // Constructors
         Constructor<?>[] ctors = cls.getDeclaredConstructors();
         if (ctors.length > 0) {
-            sb.append(indent(2)).append("//jmethodID constructor cache\n");
+            // Sort constructors
+            Arrays.sort(ctors, Comparator
+                // Sort constructors by number of parameters
+                .comparingInt(Constructor<?>::getParameterCount)
+                // Sort constructors by parameter types
+                .thenComparing(c -> {
+                    Class<?>[] types = c.getParameterTypes();
+                    StringBuilder sortsb = new StringBuilder();
+                    for (Class<?> t : types) {
+                        sortsb.append(t.getName()).append(",");
+                    }
+                    return sortsb.toString();
+                })
+            );
+            sb.append(indent(2)).append("// jmethodID constructor cache\n");
             for (Constructor<?> ctor : ctors) {
                 if (ctor.isSynthetic()) continue;
                 sb.append(indent(2)).append("// ").append(constructorInfo(ctor)).append("\n");
@@ -151,6 +167,20 @@ public class JNIClassCacheGenerator {
         Method[] methods = cls.getMethods();
         List<Method> overloadedMethods = findOverloaded(methods);
         if (methods.length > 0) {
+            Arrays.sort(methods, Comparator
+                .comparing(Method::getName)
+                // Sort methods by number of parameters
+                .thenComparingInt(m -> m.getParameterCount())
+                // Sort methods by parameter types
+                .thenComparing(m -> {
+                    Class<?>[] types = m.getParameterTypes();
+                    StringBuilder sortsb = new StringBuilder();
+                    for (Class<?> t : types) {
+                        sortsb.append(t.getName()).append(",");
+                    }
+                    return sortsb.toString();
+                })
+            );
             sb.append(indent(2)).append("// jmethodID cache\n");
             for (Method m : methods) {
                 if (isIgnoredMethod(m)) continue;

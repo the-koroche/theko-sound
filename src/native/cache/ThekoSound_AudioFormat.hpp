@@ -34,72 +34,72 @@ class ThekoSound_AudioFormat {
         // jfieldID cache
         // private int org.theko.sound.AudioFormat.BITS_PER_SEC_PRECISION
         jfieldID fld__BITS_PER_SEC_PRECISION;
+        // public org.theko.sound.AudioFormat org.theko.sound.AudioFormat.HIGH_QUALITY_FORMAT
+        jfieldID fld__HIGH_QUALITY_FORMAT;
         // public org.theko.sound.AudioFormat org.theko.sound.AudioFormat.LOWEST_QUALITY_FORMAT
         jfieldID fld__LOWEST_QUALITY_FORMAT;
         // public org.theko.sound.AudioFormat org.theko.sound.AudioFormat.LOW_QUALITY_FORMAT
         jfieldID fld__LOW_QUALITY_FORMAT;
         // public org.theko.sound.AudioFormat org.theko.sound.AudioFormat.NORMAL_QUALITY_FORMAT
         jfieldID fld__NORMAL_QUALITY_FORMAT;
-        // public org.theko.sound.AudioFormat org.theko.sound.AudioFormat.HIGH_QUALITY_FORMAT
-        jfieldID fld__HIGH_QUALITY_FORMAT;
         // public org.theko.sound.AudioFormat org.theko.sound.AudioFormat.ULTRA_QUALITY_FORMAT
         jfieldID fld__ULTRA_QUALITY_FORMAT;
-        // private int org.theko.sound.AudioFormat.sampleRate
-        jfieldID fld__sampleRate;
+        // private boolean org.theko.sound.AudioFormat.bigEndian
+        jfieldID fld__bigEndian;
         // private int org.theko.sound.AudioFormat.bitsPerSample
         jfieldID fld__bitsPerSample;
+        // private int org.theko.sound.AudioFormat.byteRate
+        jfieldID fld__byteRate;
         // private int org.theko.sound.AudioFormat.channels
         jfieldID fld__channels;
         // private org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.encoding
         jfieldID fld__encoding;
-        // private boolean org.theko.sound.AudioFormat.bigEndian
-        jfieldID fld__bigEndian;
         // private int org.theko.sound.AudioFormat.frameSize
         jfieldID fld__frameSize;
-        // private int org.theko.sound.AudioFormat.byteRate
-        jfieldID fld__byteRate;
+        // private int org.theko.sound.AudioFormat.sampleRate
+        jfieldID fld__sampleRate;
 
-        //jmethodID constructor cache
-        // public org.theko.sound.AudioFormat(int, int, int, org.theko.sound.AudioFormat.Encoding, boolean, int, int)
-        jmethodID ctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean__int__int;
+        // jmethodID constructor cache
         // public org.theko.sound.AudioFormat(int, int, int, org.theko.sound.AudioFormat.Encoding, boolean)
         jmethodID ctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean;
+        // public org.theko.sound.AudioFormat(int, int, int, org.theko.sound.AudioFormat.Encoding, boolean, int, int)
+        jmethodID ctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean__int__int;
 
         // jmethodID cache
+        // public org.theko.sound.AudioFormat org.theko.sound.AudioFormat.convertTo(org.theko.sound.AudioFormat.Encoding)
+        jmethodID mtd__convertTo_org_theko_sound_AudioFormat_Encoding;
         // public boolean org.theko.sound.AudioFormat.equals(java.lang.Object)
         jmethodID mtd__equals_java_lang_Object;
-        // public java.lang.String org.theko.sound.AudioFormat.toString()
-        jmethodID mtd__toString;
+        // public int org.theko.sound.AudioFormat.getBitsPerSample()
+        jmethodID mtd__getBitsPerSample;
+        // public int org.theko.sound.AudioFormat.getByteRate()
+        jmethodID mtd__getByteRate;
+        // public int org.theko.sound.AudioFormat.getBytesPerSample()
+        jmethodID mtd__getBytesPerSample;
+        // public int org.theko.sound.AudioFormat.getChannels()
+        jmethodID mtd__getChannels;
+        // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.getEncoding()
+        jmethodID mtd__getEncoding;
+        // public int org.theko.sound.AudioFormat.getFrameSize()
+        jmethodID mtd__getFrameSize;
+        // public int org.theko.sound.AudioFormat.getSampleRate()
+        jmethodID mtd__getSampleRate;
         // public int org.theko.sound.AudioFormat.hashCode()
         jmethodID mtd__hashCode;
         // public boolean org.theko.sound.AudioFormat.isBigEndian()
         jmethodID mtd__isBigEndian;
-        // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.getEncoding()
-        jmethodID mtd__getEncoding;
-        // public int org.theko.sound.AudioFormat.getBitsPerSample()
-        jmethodID mtd__getBitsPerSample;
-        // public int org.theko.sound.AudioFormat.getBytesPerSample()
-        jmethodID mtd__getBytesPerSample;
-        // public int org.theko.sound.AudioFormat.getByteRate()
-        jmethodID mtd__getByteRate;
         // public boolean org.theko.sound.AudioFormat.isHighResolution()
         jmethodID mtd__isHighResolution;
-        // public int org.theko.sound.AudioFormat.getSampleRate()
-        jmethodID mtd__getSampleRate;
-        // public int org.theko.sound.AudioFormat.getChannels()
-        jmethodID mtd__getChannels;
-        // public int org.theko.sound.AudioFormat.getFrameSize()
-        jmethodID mtd__getFrameSize;
+        // public boolean org.theko.sound.AudioFormat.isLossless()
+        jmethodID mtd__isLossless;
+        // public boolean org.theko.sound.AudioFormat.isMono()
+        jmethodID mtd__isMono;
         // public boolean org.theko.sound.AudioFormat.isSameFormat(org.theko.sound.AudioFormat)
         jmethodID mtd__isSameFormat_org_theko_sound_AudioFormat;
         // public boolean org.theko.sound.AudioFormat.isStereo()
         jmethodID mtd__isStereo;
-        // public boolean org.theko.sound.AudioFormat.isMono()
-        jmethodID mtd__isMono;
-        // public org.theko.sound.AudioFormat org.theko.sound.AudioFormat.convertTo(org.theko.sound.AudioFormat.Encoding)
-        jmethodID mtd__convertTo_org_theko_sound_AudioFormat_Encoding;
-        // public boolean org.theko.sound.AudioFormat.isLossless()
-        jmethodID mtd__isLossless;
+        // public java.lang.String org.theko.sound.AudioFormat.toString()
+        jmethodID mtd__toString;
         // public org.theko.sound.AudioFormat org.theko.sound.AudioFormat.withEndian(boolean)
         jmethodID mtd__withEndian_boolean;
 
@@ -113,16 +113,16 @@ class ThekoSound_AudioFormat {
             }
 
             // Constructors
-            ctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean__int__int = env->GetMethodID(clazz_local, "<init>", "(IIILorg/theko/sound/AudioFormat$Encoding;ZII)V");
-            if (!ctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean__int__int) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get constructor 'public org.theko.sound.AudioFormat(int,int,int,org.theko.sound.AudioFormat$Encoding,boolean,int,int)'");
-                return;
-            }
             ctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean = env->GetMethodID(clazz_local, "<init>", "(IIILorg/theko/sound/AudioFormat$Encoding;Z)V");
             if (!ctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get constructor 'public org.theko.sound.AudioFormat(int,int,int,org.theko.sound.AudioFormat$Encoding,boolean)'");
+                return;
+            }
+            ctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean__int__int = env->GetMethodID(clazz_local, "<init>", "(IIILorg/theko/sound/AudioFormat$Encoding;ZII)V");
+            if (!ctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean__int__int) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get constructor 'public org.theko.sound.AudioFormat(int,int,int,org.theko.sound.AudioFormat$Encoding,boolean,int,int)'");
                 return;
             }
 
@@ -131,6 +131,12 @@ class ThekoSound_AudioFormat {
             if (!fld__BITS_PER_SEC_PRECISION) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'BITS_PER_SEC_PRECISION'");
+                return;
+            }
+            fld__HIGH_QUALITY_FORMAT = env->GetStaticFieldID(clazz_local, "HIGH_QUALITY_FORMAT", "Lorg/theko/sound/AudioFormat;");
+            if (!fld__HIGH_QUALITY_FORMAT) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'HIGH_QUALITY_FORMAT'");
                 return;
             }
             fld__LOWEST_QUALITY_FORMAT = env->GetStaticFieldID(clazz_local, "LOWEST_QUALITY_FORMAT", "Lorg/theko/sound/AudioFormat;");
@@ -151,28 +157,28 @@ class ThekoSound_AudioFormat {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'NORMAL_QUALITY_FORMAT'");
                 return;
             }
-            fld__HIGH_QUALITY_FORMAT = env->GetStaticFieldID(clazz_local, "HIGH_QUALITY_FORMAT", "Lorg/theko/sound/AudioFormat;");
-            if (!fld__HIGH_QUALITY_FORMAT) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'HIGH_QUALITY_FORMAT'");
-                return;
-            }
             fld__ULTRA_QUALITY_FORMAT = env->GetStaticFieldID(clazz_local, "ULTRA_QUALITY_FORMAT", "Lorg/theko/sound/AudioFormat;");
             if (!fld__ULTRA_QUALITY_FORMAT) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'ULTRA_QUALITY_FORMAT'");
                 return;
             }
-            fld__sampleRate = env->GetFieldID(clazz_local, "sampleRate", "I");
-            if (!fld__sampleRate) {
+            fld__bigEndian = env->GetFieldID(clazz_local, "bigEndian", "Z");
+            if (!fld__bigEndian) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'sampleRate'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'bigEndian'");
                 return;
             }
             fld__bitsPerSample = env->GetFieldID(clazz_local, "bitsPerSample", "I");
             if (!fld__bitsPerSample) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'bitsPerSample'");
+                return;
+            }
+            fld__byteRate = env->GetFieldID(clazz_local, "byteRate", "I");
+            if (!fld__byteRate) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'byteRate'");
                 return;
             }
             fld__channels = env->GetFieldID(clazz_local, "channels", "I");
@@ -187,36 +193,72 @@ class ThekoSound_AudioFormat {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'encoding'");
                 return;
             }
-            fld__bigEndian = env->GetFieldID(clazz_local, "bigEndian", "Z");
-            if (!fld__bigEndian) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'bigEndian'");
-                return;
-            }
             fld__frameSize = env->GetFieldID(clazz_local, "frameSize", "I");
             if (!fld__frameSize) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'frameSize'");
                 return;
             }
-            fld__byteRate = env->GetFieldID(clazz_local, "byteRate", "I");
-            if (!fld__byteRate) {
+            fld__sampleRate = env->GetFieldID(clazz_local, "sampleRate", "I");
+            if (!fld__sampleRate) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'byteRate'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'sampleRate'");
                 return;
             }
 
             // Methods
+            mtd__convertTo_org_theko_sound_AudioFormat_Encoding = env->GetMethodID(clazz_local, "convertTo", "(Lorg/theko/sound/AudioFormat$Encoding;)Lorg/theko/sound/AudioFormat;");
+            if (!mtd__convertTo_org_theko_sound_AudioFormat_Encoding) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'convertTo'");
+                return;
+            }
             mtd__equals_java_lang_Object = env->GetMethodID(clazz_local, "equals", "(Ljava/lang/Object;)Z");
             if (!mtd__equals_java_lang_Object) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'equals'");
                 return;
             }
-            mtd__toString = env->GetMethodID(clazz_local, "toString", "()Ljava/lang/String;");
-            if (!mtd__toString) {
+            mtd__getBitsPerSample = env->GetMethodID(clazz_local, "getBitsPerSample", "()I");
+            if (!mtd__getBitsPerSample) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'toString'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getBitsPerSample'");
+                return;
+            }
+            mtd__getByteRate = env->GetMethodID(clazz_local, "getByteRate", "()I");
+            if (!mtd__getByteRate) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getByteRate'");
+                return;
+            }
+            mtd__getBytesPerSample = env->GetMethodID(clazz_local, "getBytesPerSample", "()I");
+            if (!mtd__getBytesPerSample) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getBytesPerSample'");
+                return;
+            }
+            mtd__getChannels = env->GetMethodID(clazz_local, "getChannels", "()I");
+            if (!mtd__getChannels) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getChannels'");
+                return;
+            }
+            mtd__getEncoding = env->GetMethodID(clazz_local, "getEncoding", "()Lorg/theko/sound/AudioFormat$Encoding;");
+            if (!mtd__getEncoding) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getEncoding'");
+                return;
+            }
+            mtd__getFrameSize = env->GetMethodID(clazz_local, "getFrameSize", "()I");
+            if (!mtd__getFrameSize) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getFrameSize'");
+                return;
+            }
+            mtd__getSampleRate = env->GetMethodID(clazz_local, "getSampleRate", "()I");
+            if (!mtd__getSampleRate) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getSampleRate'");
                 return;
             }
             mtd__hashCode = env->GetMethodID(clazz_local, "hashCode", "()I");
@@ -231,52 +273,22 @@ class ThekoSound_AudioFormat {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isBigEndian'");
                 return;
             }
-            mtd__getEncoding = env->GetMethodID(clazz_local, "getEncoding", "()Lorg/theko/sound/AudioFormat$Encoding;");
-            if (!mtd__getEncoding) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getEncoding'");
-                return;
-            }
-            mtd__getBitsPerSample = env->GetMethodID(clazz_local, "getBitsPerSample", "()I");
-            if (!mtd__getBitsPerSample) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getBitsPerSample'");
-                return;
-            }
-            mtd__getBytesPerSample = env->GetMethodID(clazz_local, "getBytesPerSample", "()I");
-            if (!mtd__getBytesPerSample) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getBytesPerSample'");
-                return;
-            }
-            mtd__getByteRate = env->GetMethodID(clazz_local, "getByteRate", "()I");
-            if (!mtd__getByteRate) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getByteRate'");
-                return;
-            }
             mtd__isHighResolution = env->GetMethodID(clazz_local, "isHighResolution", "()Z");
             if (!mtd__isHighResolution) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isHighResolution'");
                 return;
             }
-            mtd__getSampleRate = env->GetMethodID(clazz_local, "getSampleRate", "()I");
-            if (!mtd__getSampleRate) {
+            mtd__isLossless = env->GetMethodID(clazz_local, "isLossless", "()Z");
+            if (!mtd__isLossless) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getSampleRate'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isLossless'");
                 return;
             }
-            mtd__getChannels = env->GetMethodID(clazz_local, "getChannels", "()I");
-            if (!mtd__getChannels) {
+            mtd__isMono = env->GetMethodID(clazz_local, "isMono", "()Z");
+            if (!mtd__isMono) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getChannels'");
-                return;
-            }
-            mtd__getFrameSize = env->GetMethodID(clazz_local, "getFrameSize", "()I");
-            if (!mtd__getFrameSize) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getFrameSize'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isMono'");
                 return;
             }
             mtd__isSameFormat_org_theko_sound_AudioFormat = env->GetMethodID(clazz_local, "isSameFormat", "(Lorg/theko/sound/AudioFormat;)Z");
@@ -291,22 +303,10 @@ class ThekoSound_AudioFormat {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isStereo'");
                 return;
             }
-            mtd__isMono = env->GetMethodID(clazz_local, "isMono", "()Z");
-            if (!mtd__isMono) {
+            mtd__toString = env->GetMethodID(clazz_local, "toString", "()Ljava/lang/String;");
+            if (!mtd__toString) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isMono'");
-                return;
-            }
-            mtd__convertTo_org_theko_sound_AudioFormat_Encoding = env->GetMethodID(clazz_local, "convertTo", "(Lorg/theko/sound/AudioFormat$Encoding;)Lorg/theko/sound/AudioFormat;");
-            if (!mtd__convertTo_org_theko_sound_AudioFormat_Encoding) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'convertTo'");
-                return;
-            }
-            mtd__isLossless = env->GetMethodID(clazz_local, "isLossless", "()Z");
-            if (!mtd__isLossless) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'isLossless'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'toString'");
                 return;
             }
             mtd__withEndian_boolean = env->GetMethodID(clazz_local, "withEndian", "(Z)Lorg/theko/sound/AudioFormat;");
@@ -370,6 +370,11 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return nullptr;
             return self->fld__BITS_PER_SEC_PRECISION;
         }
+        inline static jfieldID getfld__HIGH_QUALITY_FORMAT(JNIEnv* env) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__HIGH_QUALITY_FORMAT;
+        }
         inline static jfieldID getfld__LOWEST_QUALITY_FORMAT(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
             if (!self || !self->isValid()) return nullptr;
@@ -385,25 +390,25 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return nullptr;
             return self->fld__NORMAL_QUALITY_FORMAT;
         }
-        inline static jfieldID getfld__HIGH_QUALITY_FORMAT(JNIEnv* env) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__HIGH_QUALITY_FORMAT;
-        }
         inline static jfieldID getfld__ULTRA_QUALITY_FORMAT(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__ULTRA_QUALITY_FORMAT;
         }
-        inline static jfieldID getfld__sampleRate(JNIEnv* env) {
+        inline static jfieldID getfld__bigEndian(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->fld__sampleRate;
+            return self->fld__bigEndian;
         }
         inline static jfieldID getfld__bitsPerSample(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__bitsPerSample;
+        }
+        inline static jfieldID getfld__byteRate(JNIEnv* env) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__byteRate;
         }
         inline static jfieldID getfld__channels(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
@@ -415,44 +420,74 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return nullptr;
             return self->fld__encoding;
         }
-        inline static jfieldID getfld__bigEndian(JNIEnv* env) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__bigEndian;
-        }
         inline static jfieldID getfld__frameSize(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__frameSize;
         }
-        inline static jfieldID getfld__byteRate(JNIEnv* env) {
+        inline static jfieldID getfld__sampleRate(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->fld__byteRate;
+            return self->fld__sampleRate;
         }
 
         // Constructor getters
-        inline static jmethodID getctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean__int__int(JNIEnv* env) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->ctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean__int__int;
-        }
         inline static jmethodID getctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->ctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean;
         }
+        inline static jmethodID getctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean__int__int(JNIEnv* env) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->ctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean__int__int;
+        }
 
         // Method getters
+        inline static jmethodID getmtd__convertTo_org_theko_sound_AudioFormat_Encoding(JNIEnv* env) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__convertTo_org_theko_sound_AudioFormat_Encoding;
+        }
         inline static jmethodID getmtd__equals_java_lang_Object(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__equals_java_lang_Object;
         }
-        inline static jmethodID getmtd__toString(JNIEnv* env) {
+        inline static jmethodID getmtd__getBitsPerSample(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__toString;
+            return self->mtd__getBitsPerSample;
+        }
+        inline static jmethodID getmtd__getByteRate(JNIEnv* env) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__getByteRate;
+        }
+        inline static jmethodID getmtd__getBytesPerSample(JNIEnv* env) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__getBytesPerSample;
+        }
+        inline static jmethodID getmtd__getChannels(JNIEnv* env) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__getChannels;
+        }
+        inline static jmethodID getmtd__getEncoding(JNIEnv* env) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__getEncoding;
+        }
+        inline static jmethodID getmtd__getFrameSize(JNIEnv* env) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__getFrameSize;
+        }
+        inline static jmethodID getmtd__getSampleRate(JNIEnv* env) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__getSampleRate;
         }
         inline static jmethodID getmtd__hashCode(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
@@ -464,45 +499,20 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__isBigEndian;
         }
-        inline static jmethodID getmtd__getEncoding(JNIEnv* env) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__getEncoding;
-        }
-        inline static jmethodID getmtd__getBitsPerSample(JNIEnv* env) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__getBitsPerSample;
-        }
-        inline static jmethodID getmtd__getBytesPerSample(JNIEnv* env) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__getBytesPerSample;
-        }
-        inline static jmethodID getmtd__getByteRate(JNIEnv* env) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__getByteRate;
-        }
         inline static jmethodID getmtd__isHighResolution(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__isHighResolution;
         }
-        inline static jmethodID getmtd__getSampleRate(JNIEnv* env) {
+        inline static jmethodID getmtd__isLossless(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__getSampleRate;
+            return self->mtd__isLossless;
         }
-        inline static jmethodID getmtd__getChannels(JNIEnv* env) {
+        inline static jmethodID getmtd__isMono(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__getChannels;
-        }
-        inline static jmethodID getmtd__getFrameSize(JNIEnv* env) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__getFrameSize;
+            return self->mtd__isMono;
         }
         inline static jmethodID getmtd__isSameFormat_org_theko_sound_AudioFormat(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
@@ -514,20 +524,10 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__isStereo;
         }
-        inline static jmethodID getmtd__isMono(JNIEnv* env) {
+        inline static jmethodID getmtd__toString(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__isMono;
-        }
-        inline static jmethodID getmtd__convertTo_org_theko_sound_AudioFormat_Encoding(JNIEnv* env) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__convertTo_org_theko_sound_AudioFormat_Encoding;
-        }
-        inline static jmethodID getmtd__isLossless(JNIEnv* env) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__isLossless;
+            return self->mtd__toString;
         }
         inline static jmethodID getmtd__withEndian_boolean(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
@@ -536,15 +536,6 @@ class ThekoSound_AudioFormat {
         }
 
         // Fabric methods for constructors
-        // Instance creation method for public org.theko.sound.AudioFormat(int,int,int,org.theko.sound.AudioFormat$Encoding,boolean,int,int)
-        inline static jobject createInstance(JNIEnv* env, jint v0, jint v1, jint v2, jobject v3, jboolean v4, jint v5, jint v6) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID ctor = self->ctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean__int__int;
-            if (!ctor) return nullptr;
-            return env->NewObject(self->clazz, ctor, v0, v1, v2, v3, v4, v5, v6);
-        }
-
         // Instance creation method for public org.theko.sound.AudioFormat(int,int,int,org.theko.sound.AudioFormat$Encoding,boolean)
         inline static jobject createInstance(JNIEnv* env, jint v0, jint v1, jint v2, jobject v3, jboolean v4) {
             ThekoSound_AudioFormat* self = get(env);
@@ -554,7 +545,25 @@ class ThekoSound_AudioFormat {
             return env->NewObject(self->clazz, ctor, v0, v1, v2, v3, v4);
         }
 
+        // Instance creation method for public org.theko.sound.AudioFormat(int,int,int,org.theko.sound.AudioFormat$Encoding,boolean,int,int)
+        inline static jobject createInstance(JNIEnv* env, jint v0, jint v1, jint v2, jobject v3, jboolean v4, jint v5, jint v6) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID ctor = self->ctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean__int__int;
+            if (!ctor) return nullptr;
+            return env->NewObject(self->clazz, ctor, v0, v1, v2, v3, v4, v5, v6);
+        }
+
         // Method wrappers
+        // Fabric method for public org.theko.sound.AudioFormat org.theko.sound.AudioFormat.convertTo(org.theko.sound.AudioFormat$Encoding)
+        inline static jobject convertTo(JNIEnv* env, jobject obj, jobject v0) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__convertTo_org_theko_sound_AudioFormat_Encoding;
+            if (!mtd) return nullptr;
+            return env->CallObjectMethod(obj, mtd, v0);
+        }
+
         // Fabric method for public boolean org.theko.sound.AudioFormat.equals(java.lang.Object)
         inline static jboolean equals(JNIEnv* env, jobject obj, jobject v0) {
             ThekoSound_AudioFormat* self = get(env);
@@ -564,13 +573,67 @@ class ThekoSound_AudioFormat {
             return env->CallBooleanMethod(obj, mtd, v0);
         }
 
-        // Fabric method for public java.lang.String org.theko.sound.AudioFormat.toString()
-        inline static jstring toString(JNIEnv* env, jobject obj) {
+        // Fabric method for public int org.theko.sound.AudioFormat.getBitsPerSample()
+        inline static jint getBitsPerSample(JNIEnv* env, jobject obj) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return (jint)0;
+            jmethodID mtd = self->mtd__getBitsPerSample;
+            if (!mtd) return (jint)0;
+            return env->CallIntMethod(obj, mtd);
+        }
+
+        // Fabric method for public int org.theko.sound.AudioFormat.getByteRate()
+        inline static jint getByteRate(JNIEnv* env, jobject obj) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return (jint)0;
+            jmethodID mtd = self->mtd__getByteRate;
+            if (!mtd) return (jint)0;
+            return env->CallIntMethod(obj, mtd);
+        }
+
+        // Fabric method for public int org.theko.sound.AudioFormat.getBytesPerSample()
+        inline static jint getBytesPerSample(JNIEnv* env, jobject obj) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return (jint)0;
+            jmethodID mtd = self->mtd__getBytesPerSample;
+            if (!mtd) return (jint)0;
+            return env->CallIntMethod(obj, mtd);
+        }
+
+        // Fabric method for public int org.theko.sound.AudioFormat.getChannels()
+        inline static jint getChannels(JNIEnv* env, jobject obj) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return (jint)0;
+            jmethodID mtd = self->mtd__getChannels;
+            if (!mtd) return (jint)0;
+            return env->CallIntMethod(obj, mtd);
+        }
+
+        // Fabric method for public org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat.getEncoding()
+        inline static jobject getEncoding(JNIEnv* env, jobject obj) {
             ThekoSound_AudioFormat* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__toString;
+            jmethodID mtd = self->mtd__getEncoding;
             if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
+            return env->CallObjectMethod(obj, mtd);
+        }
+
+        // Fabric method for public int org.theko.sound.AudioFormat.getFrameSize()
+        inline static jint getFrameSize(JNIEnv* env, jobject obj) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return (jint)0;
+            jmethodID mtd = self->mtd__getFrameSize;
+            if (!mtd) return (jint)0;
+            return env->CallIntMethod(obj, mtd);
+        }
+
+        // Fabric method for public int org.theko.sound.AudioFormat.getSampleRate()
+        inline static jint getSampleRate(JNIEnv* env, jobject obj) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return (jint)0;
+            jmethodID mtd = self->mtd__getSampleRate;
+            if (!mtd) return (jint)0;
+            return env->CallIntMethod(obj, mtd);
         }
 
         // Fabric method for public int org.theko.sound.AudioFormat.hashCode()
@@ -591,42 +654,6 @@ class ThekoSound_AudioFormat {
             return env->CallBooleanMethod(obj, mtd);
         }
 
-        // Fabric method for public org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat.getEncoding()
-        inline static jobject getEncoding(JNIEnv* env, jobject obj) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__getEncoding;
-            if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
-        }
-
-        // Fabric method for public int org.theko.sound.AudioFormat.getBitsPerSample()
-        inline static jint getBitsPerSample(JNIEnv* env, jobject obj) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return (jint)0;
-            jmethodID mtd = self->mtd__getBitsPerSample;
-            if (!mtd) return (jint)0;
-            return env->CallIntMethod(obj, mtd);
-        }
-
-        // Fabric method for public int org.theko.sound.AudioFormat.getBytesPerSample()
-        inline static jint getBytesPerSample(JNIEnv* env, jobject obj) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return (jint)0;
-            jmethodID mtd = self->mtd__getBytesPerSample;
-            if (!mtd) return (jint)0;
-            return env->CallIntMethod(obj, mtd);
-        }
-
-        // Fabric method for public int org.theko.sound.AudioFormat.getByteRate()
-        inline static jint getByteRate(JNIEnv* env, jobject obj) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return (jint)0;
-            jmethodID mtd = self->mtd__getByteRate;
-            if (!mtd) return (jint)0;
-            return env->CallIntMethod(obj, mtd);
-        }
-
         // Fabric method for public boolean org.theko.sound.AudioFormat.isHighResolution()
         inline static jboolean isHighResolution(JNIEnv* env, jobject obj) {
             ThekoSound_AudioFormat* self = get(env);
@@ -636,31 +663,22 @@ class ThekoSound_AudioFormat {
             return env->CallBooleanMethod(obj, mtd);
         }
 
-        // Fabric method for public int org.theko.sound.AudioFormat.getSampleRate()
-        inline static jint getSampleRate(JNIEnv* env, jobject obj) {
+        // Fabric method for public boolean org.theko.sound.AudioFormat.isLossless()
+        inline static jboolean isLossless(JNIEnv* env, jobject obj) {
             ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return (jint)0;
-            jmethodID mtd = self->mtd__getSampleRate;
-            if (!mtd) return (jint)0;
-            return env->CallIntMethod(obj, mtd);
+            if (!self || !self->isValid()) return JNI_FALSE;
+            jmethodID mtd = self->mtd__isLossless;
+            if (!mtd) return JNI_FALSE;
+            return env->CallBooleanMethod(obj, mtd);
         }
 
-        // Fabric method for public int org.theko.sound.AudioFormat.getChannels()
-        inline static jint getChannels(JNIEnv* env, jobject obj) {
+        // Fabric method for public boolean org.theko.sound.AudioFormat.isMono()
+        inline static jboolean isMono(JNIEnv* env, jobject obj) {
             ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return (jint)0;
-            jmethodID mtd = self->mtd__getChannels;
-            if (!mtd) return (jint)0;
-            return env->CallIntMethod(obj, mtd);
-        }
-
-        // Fabric method for public int org.theko.sound.AudioFormat.getFrameSize()
-        inline static jint getFrameSize(JNIEnv* env, jobject obj) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return (jint)0;
-            jmethodID mtd = self->mtd__getFrameSize;
-            if (!mtd) return (jint)0;
-            return env->CallIntMethod(obj, mtd);
+            if (!self || !self->isValid()) return JNI_FALSE;
+            jmethodID mtd = self->mtd__isMono;
+            if (!mtd) return JNI_FALSE;
+            return env->CallBooleanMethod(obj, mtd);
         }
 
         // Fabric method for public boolean org.theko.sound.AudioFormat.isSameFormat(org.theko.sound.AudioFormat)
@@ -681,31 +699,13 @@ class ThekoSound_AudioFormat {
             return env->CallBooleanMethod(obj, mtd);
         }
 
-        // Fabric method for public boolean org.theko.sound.AudioFormat.isMono()
-        inline static jboolean isMono(JNIEnv* env, jobject obj) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return JNI_FALSE;
-            jmethodID mtd = self->mtd__isMono;
-            if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd);
-        }
-
-        // Fabric method for public org.theko.sound.AudioFormat org.theko.sound.AudioFormat.convertTo(org.theko.sound.AudioFormat$Encoding)
-        inline static jobject convertTo(JNIEnv* env, jobject obj, jobject v0) {
+        // Fabric method for public java.lang.String org.theko.sound.AudioFormat.toString()
+        inline static jstring toString(JNIEnv* env, jobject obj) {
             ThekoSound_AudioFormat* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__convertTo_org_theko_sound_AudioFormat_Encoding;
+            jmethodID mtd = self->mtd__toString;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0);
-        }
-
-        // Fabric method for public boolean org.theko.sound.AudioFormat.isLossless()
-        inline static jboolean isLossless(JNIEnv* env, jobject obj) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return JNI_FALSE;
-            jmethodID mtd = self->mtd__isLossless;
-            if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd);
+            return (jstring) env->CallObjectMethod(obj, mtd);
         }
 
         // Fabric method for public org.theko.sound.AudioFormat org.theko.sound.AudioFormat.withEndian(boolean)
@@ -715,6 +715,15 @@ class ThekoSound_AudioFormat {
             jmethodID mtd = self->mtd__withEndian_boolean;
             if (!mtd) return nullptr;
             return env->CallObjectMethod(obj, mtd, v0);
+        }
+
+        // Fabric field get for public static final org.theko.sound.AudioFormat org.theko.sound.AudioFormat.HIGH_QUALITY_FORMAT
+        inline static jobject getField__HIGH_QUALITY_FORMAT(JNIEnv* env) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jfieldID fld = self->fld__HIGH_QUALITY_FORMAT;
+            if (!fld) return nullptr;
+            return env->GetStaticObjectField(self->clazz, fld);
         }
 
         // Fabric field get for public static final org.theko.sound.AudioFormat org.theko.sound.AudioFormat.LOWEST_QUALITY_FORMAT
@@ -740,15 +749,6 @@ class ThekoSound_AudioFormat {
             ThekoSound_AudioFormat* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jfieldID fld = self->fld__NORMAL_QUALITY_FORMAT;
-            if (!fld) return nullptr;
-            return env->GetStaticObjectField(self->clazz, fld);
-        }
-
-        // Fabric field get for public static final org.theko.sound.AudioFormat org.theko.sound.AudioFormat.HIGH_QUALITY_FORMAT
-        inline static jobject getField__HIGH_QUALITY_FORMAT(JNIEnv* env) {
-            ThekoSound_AudioFormat* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jfieldID fld = self->fld__HIGH_QUALITY_FORMAT;
             if (!fld) return nullptr;
             return env->GetStaticObjectField(self->clazz, fld);
         }

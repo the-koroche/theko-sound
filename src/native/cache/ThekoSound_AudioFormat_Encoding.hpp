@@ -32,26 +32,26 @@ class ThekoSound_AudioFormat_Encoding {
         // jclass cache
         jclass clazz;
         // jfieldID cache
-        // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.Encoding.PCM_UNSIGNED
-        jfieldID fld__PCM_UNSIGNED;
-        // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.Encoding.PCM_SIGNED
-        jfieldID fld__PCM_SIGNED;
-        // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.Encoding.PCM_FLOAT
-        jfieldID fld__PCM_FLOAT;
-        // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.Encoding.ULAW
-        jfieldID fld__ULAW;
         // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.Encoding.ALAW
         jfieldID fld__ALAW;
+        // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.Encoding.PCM_FLOAT
+        jfieldID fld__PCM_FLOAT;
+        // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.Encoding.PCM_SIGNED
+        jfieldID fld__PCM_SIGNED;
+        // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.Encoding.PCM_UNSIGNED
+        jfieldID fld__PCM_UNSIGNED;
+        // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.Encoding.ULAW
+        jfieldID fld__ULAW;
 
-        //jmethodID constructor cache
+        // jmethodID constructor cache
         // private org.theko.sound.AudioFormat.Encoding(java.lang.String, int)
         jmethodID ctor__java_lang_String__int;
 
         // jmethodID cache
-        // public org.theko.sound.AudioFormat.Encoding[] org.theko.sound.AudioFormat.Encoding.values()
-        jmethodID mtd__values;
         // public org.theko.sound.AudioFormat.Encoding org.theko.sound.AudioFormat.Encoding.valueOf(java.lang.String)
         jmethodID mtd__valueOf_java_lang_String;
+        // public org.theko.sound.AudioFormat.Encoding[] org.theko.sound.AudioFormat.Encoding.values()
+        jmethodID mtd__values;
 
         ThekoSound_AudioFormat_Encoding(JNIEnv* env) {
             initialized = false; // Reinitialize
@@ -71,16 +71,10 @@ class ThekoSound_AudioFormat_Encoding {
             }
 
             // Fields
-            fld__PCM_UNSIGNED = env->GetStaticFieldID(clazz_local, "PCM_UNSIGNED", "Lorg/theko/sound/AudioFormat$Encoding;");
-            if (!fld__PCM_UNSIGNED) {
+            fld__ALAW = env->GetStaticFieldID(clazz_local, "ALAW", "Lorg/theko/sound/AudioFormat$Encoding;");
+            if (!fld__ALAW) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'PCM_UNSIGNED'");
-                return;
-            }
-            fld__PCM_SIGNED = env->GetStaticFieldID(clazz_local, "PCM_SIGNED", "Lorg/theko/sound/AudioFormat$Encoding;");
-            if (!fld__PCM_SIGNED) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'PCM_SIGNED'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'ALAW'");
                 return;
             }
             fld__PCM_FLOAT = env->GetStaticFieldID(clazz_local, "PCM_FLOAT", "Lorg/theko/sound/AudioFormat$Encoding;");
@@ -89,30 +83,36 @@ class ThekoSound_AudioFormat_Encoding {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'PCM_FLOAT'");
                 return;
             }
+            fld__PCM_SIGNED = env->GetStaticFieldID(clazz_local, "PCM_SIGNED", "Lorg/theko/sound/AudioFormat$Encoding;");
+            if (!fld__PCM_SIGNED) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'PCM_SIGNED'");
+                return;
+            }
+            fld__PCM_UNSIGNED = env->GetStaticFieldID(clazz_local, "PCM_UNSIGNED", "Lorg/theko/sound/AudioFormat$Encoding;");
+            if (!fld__PCM_UNSIGNED) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'PCM_UNSIGNED'");
+                return;
+            }
             fld__ULAW = env->GetStaticFieldID(clazz_local, "ULAW", "Lorg/theko/sound/AudioFormat$Encoding;");
             if (!fld__ULAW) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'ULAW'");
                 return;
             }
-            fld__ALAW = env->GetStaticFieldID(clazz_local, "ALAW", "Lorg/theko/sound/AudioFormat$Encoding;");
-            if (!fld__ALAW) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'ALAW'");
-                return;
-            }
 
             // Methods
-            mtd__values = env->GetStaticMethodID(clazz_local, "values", "()[Lorg/theko/sound/AudioFormat$Encoding;");
-            if (!mtd__values) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'values'");
-                return;
-            }
             mtd__valueOf_java_lang_String = env->GetStaticMethodID(clazz_local, "valueOf", "(Ljava/lang/String;)Lorg/theko/sound/AudioFormat$Encoding;");
             if (!mtd__valueOf_java_lang_String) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'valueOf'");
+                return;
+            }
+            mtd__values = env->GetStaticMethodID(clazz_local, "values", "()[Lorg/theko/sound/AudioFormat$Encoding;");
+            if (!mtd__values) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'values'");
                 return;
             }
 
@@ -165,30 +165,30 @@ class ThekoSound_AudioFormat_Encoding {
         }
 
         // Field getters
-        inline static jfieldID getfld__PCM_UNSIGNED(JNIEnv* env) {
+        inline static jfieldID getfld__ALAW(JNIEnv* env) {
             ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->fld__PCM_UNSIGNED;
-        }
-        inline static jfieldID getfld__PCM_SIGNED(JNIEnv* env) {
-            ThekoSound_AudioFormat_Encoding* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__PCM_SIGNED;
+            return self->fld__ALAW;
         }
         inline static jfieldID getfld__PCM_FLOAT(JNIEnv* env) {
             ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__PCM_FLOAT;
         }
+        inline static jfieldID getfld__PCM_SIGNED(JNIEnv* env) {
+            ThekoSound_AudioFormat_Encoding* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__PCM_SIGNED;
+        }
+        inline static jfieldID getfld__PCM_UNSIGNED(JNIEnv* env) {
+            ThekoSound_AudioFormat_Encoding* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__PCM_UNSIGNED;
+        }
         inline static jfieldID getfld__ULAW(JNIEnv* env) {
             ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__ULAW;
-        }
-        inline static jfieldID getfld__ALAW(JNIEnv* env) {
-            ThekoSound_AudioFormat_Encoding* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__ALAW;
         }
 
         // Constructor getters
@@ -199,15 +199,15 @@ class ThekoSound_AudioFormat_Encoding {
         }
 
         // Method getters
-        inline static jmethodID getmtd__values(JNIEnv* env) {
-            ThekoSound_AudioFormat_Encoding* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__values;
-        }
         inline static jmethodID getmtd__valueOf_java_lang_String(JNIEnv* env) {
             ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__valueOf_java_lang_String;
+        }
+        inline static jmethodID getmtd__values(JNIEnv* env) {
+            ThekoSound_AudioFormat_Encoding* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__values;
         }
 
         // Fabric methods for constructors
@@ -221,15 +221,6 @@ class ThekoSound_AudioFormat_Encoding {
         }
 
         // Method wrappers
-        // Fabric method for public static org.theko.sound.AudioFormat$Encoding[] org.theko.sound.AudioFormat$Encoding.values()
-        inline static jobjectArray values(JNIEnv* env) {
-            ThekoSound_AudioFormat_Encoding* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__values;
-            if (!mtd) return nullptr;
-            return (jobjectArray) env->CallStaticObjectMethod(self->clazz, mtd);
-        }
-
         // Fabric method for public static org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.valueOf(java.lang.String)
         inline static jobject valueOf__java_lang_String(JNIEnv* env, jstring v0) {
             ThekoSound_AudioFormat_Encoding* self = get(env);
@@ -239,20 +230,20 @@ class ThekoSound_AudioFormat_Encoding {
             return env->CallStaticObjectMethod(self->clazz, mtd, v0);
         }
 
-        // Fabric field get for public static final org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.PCM_UNSIGNED
-        inline static jobject getField__PCM_UNSIGNED(JNIEnv* env) {
+        // Fabric method for public static org.theko.sound.AudioFormat$Encoding[] org.theko.sound.AudioFormat$Encoding.values()
+        inline static jobjectArray values(JNIEnv* env) {
             ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            jfieldID fld = self->fld__PCM_UNSIGNED;
-            if (!fld) return nullptr;
-            return env->GetStaticObjectField(self->clazz, fld);
+            jmethodID mtd = self->mtd__values;
+            if (!mtd) return nullptr;
+            return (jobjectArray) env->CallStaticObjectMethod(self->clazz, mtd);
         }
 
-        // Fabric field get for public static final org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.PCM_SIGNED
-        inline static jobject getField__PCM_SIGNED(JNIEnv* env) {
+        // Fabric field get for public static final org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.ALAW
+        inline static jobject getField__ALAW(JNIEnv* env) {
             ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            jfieldID fld = self->fld__PCM_SIGNED;
+            jfieldID fld = self->fld__ALAW;
             if (!fld) return nullptr;
             return env->GetStaticObjectField(self->clazz, fld);
         }
@@ -266,20 +257,29 @@ class ThekoSound_AudioFormat_Encoding {
             return env->GetStaticObjectField(self->clazz, fld);
         }
 
+        // Fabric field get for public static final org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.PCM_SIGNED
+        inline static jobject getField__PCM_SIGNED(JNIEnv* env) {
+            ThekoSound_AudioFormat_Encoding* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jfieldID fld = self->fld__PCM_SIGNED;
+            if (!fld) return nullptr;
+            return env->GetStaticObjectField(self->clazz, fld);
+        }
+
+        // Fabric field get for public static final org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.PCM_UNSIGNED
+        inline static jobject getField__PCM_UNSIGNED(JNIEnv* env) {
+            ThekoSound_AudioFormat_Encoding* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jfieldID fld = self->fld__PCM_UNSIGNED;
+            if (!fld) return nullptr;
+            return env->GetStaticObjectField(self->clazz, fld);
+        }
+
         // Fabric field get for public static final org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.ULAW
         inline static jobject getField__ULAW(JNIEnv* env) {
             ThekoSound_AudioFormat_Encoding* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jfieldID fld = self->fld__ULAW;
-            if (!fld) return nullptr;
-            return env->GetStaticObjectField(self->clazz, fld);
-        }
-
-        // Fabric field get for public static final org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat$Encoding.ALAW
-        inline static jobject getField__ALAW(JNIEnv* env) {
-            ThekoSound_AudioFormat_Encoding* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jfieldID fld = self->fld__ALAW;
             if (!fld) return nullptr;
             return env->GetStaticObjectField(self->clazz, fld);
         }

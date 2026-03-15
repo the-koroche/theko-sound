@@ -35,17 +35,17 @@ class ThekoSound_WASAPIPortHandle {
         // private java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.handle
         jfieldID fld__handle;
 
-        //jmethodID constructor cache
+        // jmethodID constructor cache
         // public org.theko.sound.backends.wasapi.WASAPIPortHandle(java.lang.String)
         jmethodID ctor__java_lang_String;
 
         // jmethodID cache
         // public boolean org.theko.sound.backends.wasapi.WASAPIPortHandle.equals(java.lang.Object)
         jmethodID mtd__equals_java_lang_Object;
-        // public java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.toString()
-        jmethodID mtd__toString;
         // public java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.getHandle()
         jmethodID mtd__getHandle;
+        // public java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.toString()
+        jmethodID mtd__toString;
 
         ThekoSound_WASAPIPortHandle(JNIEnv* env) {
             initialized = false; // Reinitialize
@@ -79,16 +79,16 @@ class ThekoSound_WASAPIPortHandle {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'equals'");
                 return;
             }
-            mtd__toString = env->GetMethodID(clazz_local, "toString", "()Ljava/lang/String;");
-            if (!mtd__toString) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'toString'");
-                return;
-            }
             mtd__getHandle = env->GetMethodID(clazz_local, "getHandle", "()Ljava/lang/String;");
             if (!mtd__getHandle) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getHandle'");
+                return;
+            }
+            mtd__toString = env->GetMethodID(clazz_local, "toString", "()Ljava/lang/String;");
+            if (!mtd__toString) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'toString'");
                 return;
             }
 
@@ -160,15 +160,15 @@ class ThekoSound_WASAPIPortHandle {
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__equals_java_lang_Object;
         }
-        inline static jmethodID getmtd__toString(JNIEnv* env) {
-            ThekoSound_WASAPIPortHandle* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__toString;
-        }
         inline static jmethodID getmtd__getHandle(JNIEnv* env) {
             ThekoSound_WASAPIPortHandle* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getHandle;
+        }
+        inline static jmethodID getmtd__toString(JNIEnv* env) {
+            ThekoSound_WASAPIPortHandle* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__toString;
         }
 
         // Fabric methods for constructors
@@ -191,20 +191,20 @@ class ThekoSound_WASAPIPortHandle {
             return env->CallBooleanMethod(obj, mtd, v0);
         }
 
-        // Fabric method for public java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.toString()
-        inline static jstring toString(JNIEnv* env, jobject obj) {
-            ThekoSound_WASAPIPortHandle* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__toString;
-            if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
-        }
-
         // Fabric method for public java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.getHandle()
         inline static jstring getHandle(JNIEnv* env, jobject obj) {
             ThekoSound_WASAPIPortHandle* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getHandle;
+            if (!mtd) return nullptr;
+            return (jstring) env->CallObjectMethod(obj, mtd);
+        }
+
+        // Fabric method for public java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.toString()
+        inline static jstring toString(JNIEnv* env, jobject obj) {
+            ThekoSound_WASAPIPortHandle* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__toString;
             if (!mtd) return nullptr;
             return (jstring) env->CallObjectMethod(obj, mtd);
         }

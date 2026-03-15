@@ -32,70 +32,70 @@ class Java_Concurrent_AtomicReference {
         // jclass cache
         jclass clazz;
         // jfieldID cache
-        // private long java.util.concurrent.atomic.AtomicReference.serialVersionUID
-        jfieldID fld__serialVersionUID;
         // private java.lang.invoke.VarHandle java.util.concurrent.atomic.AtomicReference.VALUE
         jfieldID fld__VALUE;
+        // private long java.util.concurrent.atomic.AtomicReference.serialVersionUID
+        jfieldID fld__serialVersionUID;
         // private java.lang.Object java.util.concurrent.atomic.AtomicReference.value
         jfieldID fld__value;
 
-        //jmethodID constructor cache
-        // public java.util.concurrent.atomic.AtomicReference(java.lang.Object)
-        jmethodID ctor__java_lang_Object;
+        // jmethodID constructor cache
         // public java.util.concurrent.atomic.AtomicReference()
         jmethodID ctor__;
+        // public java.util.concurrent.atomic.AtomicReference(java.lang.Object)
+        jmethodID ctor__java_lang_Object;
 
         // jmethodID cache
-        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.get()
-        jmethodID mtd__get;
-        // public java.lang.String java.util.concurrent.atomic.AtomicReference.toString()
-        jmethodID mtd__toString;
-        // public void java.util.concurrent.atomic.AtomicReference.set(java.lang.Object)
-        jmethodID mtd__set_java_lang_Object;
-        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getOpaque()
-        jmethodID mtd__getOpaque;
-        // public void java.util.concurrent.atomic.AtomicReference.setOpaque(java.lang.Object)
-        jmethodID mtd__setOpaque_java_lang_Object;
-        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getAcquire()
-        jmethodID mtd__getAcquire;
-        // public void java.util.concurrent.atomic.AtomicReference.setRelease(java.lang.Object)
-        jmethodID mtd__setRelease_java_lang_Object;
-        // public boolean java.util.concurrent.atomic.AtomicReference.compareAndSet(java.lang.Object, java.lang.Object)
-        jmethodID mtd__compareAndSet_java_lang_Object__java_lang_Object;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.accumulateAndGet(java.lang.Object, java.util.function.BinaryOperator)
+        jmethodID mtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator;
         // public java.lang.Object java.util.concurrent.atomic.AtomicReference.compareAndExchange(java.lang.Object, java.lang.Object)
         jmethodID mtd__compareAndExchange_java_lang_Object__java_lang_Object;
         // public java.lang.Object java.util.concurrent.atomic.AtomicReference.compareAndExchangeAcquire(java.lang.Object, java.lang.Object)
         jmethodID mtd__compareAndExchangeAcquire_java_lang_Object__java_lang_Object;
         // public java.lang.Object java.util.concurrent.atomic.AtomicReference.compareAndExchangeRelease(java.lang.Object, java.lang.Object)
         jmethodID mtd__compareAndExchangeRelease_java_lang_Object__java_lang_Object;
-        // public boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetPlain(java.lang.Object, java.lang.Object)
-        jmethodID mtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object;
+        // public boolean java.util.concurrent.atomic.AtomicReference.compareAndSet(java.lang.Object, java.lang.Object)
+        jmethodID mtd__compareAndSet_java_lang_Object__java_lang_Object;
+        // public boolean java.lang.Object.equals(java.lang.Object)
+        jmethodID mtd__equals_java_lang_Object;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.get()
+        jmethodID mtd__get;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getAcquire()
+        jmethodID mtd__getAcquire;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndAccumulate(java.lang.Object, java.util.function.BinaryOperator)
+        jmethodID mtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndSet(java.lang.Object)
+        jmethodID mtd__getAndSet_java_lang_Object;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndUpdate(java.util.function.UnaryOperator)
+        jmethodID mtd__getAndUpdate_java_util_function_UnaryOperator;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getOpaque()
+        jmethodID mtd__getOpaque;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getPlain()
+        jmethodID mtd__getPlain;
+        // public void java.util.concurrent.atomic.AtomicReference.lazySet(java.lang.Object)
+        jmethodID mtd__lazySet_java_lang_Object;
+        // public void java.util.concurrent.atomic.AtomicReference.set(java.lang.Object)
+        jmethodID mtd__set_java_lang_Object;
+        // public void java.util.concurrent.atomic.AtomicReference.setOpaque(java.lang.Object)
+        jmethodID mtd__setOpaque_java_lang_Object;
+        // public void java.util.concurrent.atomic.AtomicReference.setPlain(java.lang.Object)
+        jmethodID mtd__setPlain_java_lang_Object;
+        // public void java.util.concurrent.atomic.AtomicReference.setRelease(java.lang.Object)
+        jmethodID mtd__setRelease_java_lang_Object;
+        // public java.lang.String java.util.concurrent.atomic.AtomicReference.toString()
+        jmethodID mtd__toString;
+        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.updateAndGet(java.util.function.UnaryOperator)
+        jmethodID mtd__updateAndGet_java_util_function_UnaryOperator;
         // public boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSet(java.lang.Object, java.lang.Object)
         jmethodID mtd__weakCompareAndSet_java_lang_Object__java_lang_Object;
         // public boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetAcquire(java.lang.Object, java.lang.Object)
         jmethodID mtd__weakCompareAndSetAcquire_java_lang_Object__java_lang_Object;
+        // public boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetPlain(java.lang.Object, java.lang.Object)
+        jmethodID mtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object;
         // public boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetRelease(java.lang.Object, java.lang.Object)
         jmethodID mtd__weakCompareAndSetRelease_java_lang_Object__java_lang_Object;
-        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndSet(java.lang.Object)
-        jmethodID mtd__getAndSet_java_lang_Object;
         // public boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetVolatile(java.lang.Object, java.lang.Object)
         jmethodID mtd__weakCompareAndSetVolatile_java_lang_Object__java_lang_Object;
-        // public void java.util.concurrent.atomic.AtomicReference.lazySet(java.lang.Object)
-        jmethodID mtd__lazySet_java_lang_Object;
-        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndUpdate(java.util.function.UnaryOperator)
-        jmethodID mtd__getAndUpdate_java_util_function_UnaryOperator;
-        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.updateAndGet(java.util.function.UnaryOperator)
-        jmethodID mtd__updateAndGet_java_util_function_UnaryOperator;
-        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndAccumulate(java.lang.Object, java.util.function.BinaryOperator)
-        jmethodID mtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator;
-        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.accumulateAndGet(java.lang.Object, java.util.function.BinaryOperator)
-        jmethodID mtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator;
-        // public java.lang.Object java.util.concurrent.atomic.AtomicReference.getPlain()
-        jmethodID mtd__getPlain;
-        // public void java.util.concurrent.atomic.AtomicReference.setPlain(java.lang.Object)
-        jmethodID mtd__setPlain_java_lang_Object;
-        // public boolean java.lang.Object.equals(java.lang.Object)
-        jmethodID mtd__equals_java_lang_Object;
 
         Java_Concurrent_AtomicReference(JNIEnv* env) {
             initialized = false; // Reinitialize
@@ -107,30 +107,30 @@ class Java_Concurrent_AtomicReference {
             }
 
             // Constructors
-            ctor__java_lang_Object = env->GetMethodID(clazz_local, "<init>", "(Ljava/lang/Object;)V");
-            if (!ctor__java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get constructor 'public java.util.concurrent.atomic.AtomicReference(java.lang.Object)'");
-                return;
-            }
             ctor__ = env->GetMethodID(clazz_local, "<init>", "()V");
             if (!ctor__) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get constructor 'public java.util.concurrent.atomic.AtomicReference()'");
                 return;
             }
-
-            // Fields
-            fld__serialVersionUID = env->GetStaticFieldID(clazz_local, "serialVersionUID", "J");
-            if (!fld__serialVersionUID) {
+            ctor__java_lang_Object = env->GetMethodID(clazz_local, "<init>", "(Ljava/lang/Object;)V");
+            if (!ctor__java_lang_Object) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'serialVersionUID'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get constructor 'public java.util.concurrent.atomic.AtomicReference(java.lang.Object)'");
                 return;
             }
+
+            // Fields
             fld__VALUE = env->GetStaticFieldID(clazz_local, "VALUE", "Ljava/lang/invoke/VarHandle;");
             if (!fld__VALUE) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'VALUE'");
+                return;
+            }
+            fld__serialVersionUID = env->GetStaticFieldID(clazz_local, "serialVersionUID", "J");
+            if (!fld__serialVersionUID) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'serialVersionUID'");
                 return;
             }
             fld__value = env->GetFieldID(clazz_local, "value", "Ljava/lang/Object;");
@@ -141,52 +141,10 @@ class Java_Concurrent_AtomicReference {
             }
 
             // Methods
-            mtd__get = env->GetMethodID(clazz_local, "get", "()Ljava/lang/Object;");
-            if (!mtd__get) {
+            mtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator = env->GetMethodID(clazz_local, "accumulateAndGet", "(Ljava/lang/Object;Ljava/util/function/BinaryOperator;)Ljava/lang/Object;");
+            if (!mtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'get'");
-                return;
-            }
-            mtd__toString = env->GetMethodID(clazz_local, "toString", "()Ljava/lang/String;");
-            if (!mtd__toString) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'toString'");
-                return;
-            }
-            mtd__set_java_lang_Object = env->GetMethodID(clazz_local, "set", "(Ljava/lang/Object;)V");
-            if (!mtd__set_java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'set'");
-                return;
-            }
-            mtd__getOpaque = env->GetMethodID(clazz_local, "getOpaque", "()Ljava/lang/Object;");
-            if (!mtd__getOpaque) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getOpaque'");
-                return;
-            }
-            mtd__setOpaque_java_lang_Object = env->GetMethodID(clazz_local, "setOpaque", "(Ljava/lang/Object;)V");
-            if (!mtd__setOpaque_java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'setOpaque'");
-                return;
-            }
-            mtd__getAcquire = env->GetMethodID(clazz_local, "getAcquire", "()Ljava/lang/Object;");
-            if (!mtd__getAcquire) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getAcquire'");
-                return;
-            }
-            mtd__setRelease_java_lang_Object = env->GetMethodID(clazz_local, "setRelease", "(Ljava/lang/Object;)V");
-            if (!mtd__setRelease_java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'setRelease'");
-                return;
-            }
-            mtd__compareAndSet_java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "compareAndSet", "(Ljava/lang/Object;Ljava/lang/Object;)Z");
-            if (!mtd__compareAndSet_java_lang_Object__java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'compareAndSet'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'accumulateAndGet'");
                 return;
             }
             mtd__compareAndExchange_java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "compareAndExchange", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
@@ -207,10 +165,100 @@ class Java_Concurrent_AtomicReference {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'compareAndExchangeRelease'");
                 return;
             }
-            mtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "weakCompareAndSetPlain", "(Ljava/lang/Object;Ljava/lang/Object;)Z");
-            if (!mtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object) {
+            mtd__compareAndSet_java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "compareAndSet", "(Ljava/lang/Object;Ljava/lang/Object;)Z");
+            if (!mtd__compareAndSet_java_lang_Object__java_lang_Object) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'weakCompareAndSetPlain'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'compareAndSet'");
+                return;
+            }
+            mtd__equals_java_lang_Object = env->GetMethodID(clazz_local, "equals", "(Ljava/lang/Object;)Z");
+            if (!mtd__equals_java_lang_Object) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'equals'");
+                return;
+            }
+            mtd__get = env->GetMethodID(clazz_local, "get", "()Ljava/lang/Object;");
+            if (!mtd__get) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'get'");
+                return;
+            }
+            mtd__getAcquire = env->GetMethodID(clazz_local, "getAcquire", "()Ljava/lang/Object;");
+            if (!mtd__getAcquire) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getAcquire'");
+                return;
+            }
+            mtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator = env->GetMethodID(clazz_local, "getAndAccumulate", "(Ljava/lang/Object;Ljava/util/function/BinaryOperator;)Ljava/lang/Object;");
+            if (!mtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getAndAccumulate'");
+                return;
+            }
+            mtd__getAndSet_java_lang_Object = env->GetMethodID(clazz_local, "getAndSet", "(Ljava/lang/Object;)Ljava/lang/Object;");
+            if (!mtd__getAndSet_java_lang_Object) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getAndSet'");
+                return;
+            }
+            mtd__getAndUpdate_java_util_function_UnaryOperator = env->GetMethodID(clazz_local, "getAndUpdate", "(Ljava/util/function/UnaryOperator;)Ljava/lang/Object;");
+            if (!mtd__getAndUpdate_java_util_function_UnaryOperator) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getAndUpdate'");
+                return;
+            }
+            mtd__getOpaque = env->GetMethodID(clazz_local, "getOpaque", "()Ljava/lang/Object;");
+            if (!mtd__getOpaque) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getOpaque'");
+                return;
+            }
+            mtd__getPlain = env->GetMethodID(clazz_local, "getPlain", "()Ljava/lang/Object;");
+            if (!mtd__getPlain) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getPlain'");
+                return;
+            }
+            mtd__lazySet_java_lang_Object = env->GetMethodID(clazz_local, "lazySet", "(Ljava/lang/Object;)V");
+            if (!mtd__lazySet_java_lang_Object) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'lazySet'");
+                return;
+            }
+            mtd__set_java_lang_Object = env->GetMethodID(clazz_local, "set", "(Ljava/lang/Object;)V");
+            if (!mtd__set_java_lang_Object) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'set'");
+                return;
+            }
+            mtd__setOpaque_java_lang_Object = env->GetMethodID(clazz_local, "setOpaque", "(Ljava/lang/Object;)V");
+            if (!mtd__setOpaque_java_lang_Object) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'setOpaque'");
+                return;
+            }
+            mtd__setPlain_java_lang_Object = env->GetMethodID(clazz_local, "setPlain", "(Ljava/lang/Object;)V");
+            if (!mtd__setPlain_java_lang_Object) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'setPlain'");
+                return;
+            }
+            mtd__setRelease_java_lang_Object = env->GetMethodID(clazz_local, "setRelease", "(Ljava/lang/Object;)V");
+            if (!mtd__setRelease_java_lang_Object) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'setRelease'");
+                return;
+            }
+            mtd__toString = env->GetMethodID(clazz_local, "toString", "()Ljava/lang/String;");
+            if (!mtd__toString) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'toString'");
+                return;
+            }
+            mtd__updateAndGet_java_util_function_UnaryOperator = env->GetMethodID(clazz_local, "updateAndGet", "(Ljava/util/function/UnaryOperator;)Ljava/lang/Object;");
+            if (!mtd__updateAndGet_java_util_function_UnaryOperator) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'updateAndGet'");
                 return;
             }
             mtd__weakCompareAndSet_java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "weakCompareAndSet", "(Ljava/lang/Object;Ljava/lang/Object;)Z");
@@ -225,70 +273,22 @@ class Java_Concurrent_AtomicReference {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'weakCompareAndSetAcquire'");
                 return;
             }
+            mtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "weakCompareAndSetPlain", "(Ljava/lang/Object;Ljava/lang/Object;)Z");
+            if (!mtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'weakCompareAndSetPlain'");
+                return;
+            }
             mtd__weakCompareAndSetRelease_java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "weakCompareAndSetRelease", "(Ljava/lang/Object;Ljava/lang/Object;)Z");
             if (!mtd__weakCompareAndSetRelease_java_lang_Object__java_lang_Object) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'weakCompareAndSetRelease'");
                 return;
             }
-            mtd__getAndSet_java_lang_Object = env->GetMethodID(clazz_local, "getAndSet", "(Ljava/lang/Object;)Ljava/lang/Object;");
-            if (!mtd__getAndSet_java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getAndSet'");
-                return;
-            }
             mtd__weakCompareAndSetVolatile_java_lang_Object__java_lang_Object = env->GetMethodID(clazz_local, "weakCompareAndSetVolatile", "(Ljava/lang/Object;Ljava/lang/Object;)Z");
             if (!mtd__weakCompareAndSetVolatile_java_lang_Object__java_lang_Object) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'weakCompareAndSetVolatile'");
-                return;
-            }
-            mtd__lazySet_java_lang_Object = env->GetMethodID(clazz_local, "lazySet", "(Ljava/lang/Object;)V");
-            if (!mtd__lazySet_java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'lazySet'");
-                return;
-            }
-            mtd__getAndUpdate_java_util_function_UnaryOperator = env->GetMethodID(clazz_local, "getAndUpdate", "(Ljava/util/function/UnaryOperator;)Ljava/lang/Object;");
-            if (!mtd__getAndUpdate_java_util_function_UnaryOperator) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getAndUpdate'");
-                return;
-            }
-            mtd__updateAndGet_java_util_function_UnaryOperator = env->GetMethodID(clazz_local, "updateAndGet", "(Ljava/util/function/UnaryOperator;)Ljava/lang/Object;");
-            if (!mtd__updateAndGet_java_util_function_UnaryOperator) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'updateAndGet'");
-                return;
-            }
-            mtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator = env->GetMethodID(clazz_local, "getAndAccumulate", "(Ljava/lang/Object;Ljava/util/function/BinaryOperator;)Ljava/lang/Object;");
-            if (!mtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getAndAccumulate'");
-                return;
-            }
-            mtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator = env->GetMethodID(clazz_local, "accumulateAndGet", "(Ljava/lang/Object;Ljava/util/function/BinaryOperator;)Ljava/lang/Object;");
-            if (!mtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'accumulateAndGet'");
-                return;
-            }
-            mtd__getPlain = env->GetMethodID(clazz_local, "getPlain", "()Ljava/lang/Object;");
-            if (!mtd__getPlain) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getPlain'");
-                return;
-            }
-            mtd__setPlain_java_lang_Object = env->GetMethodID(clazz_local, "setPlain", "(Ljava/lang/Object;)V");
-            if (!mtd__setPlain_java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'setPlain'");
-                return;
-            }
-            mtd__equals_java_lang_Object = env->GetMethodID(clazz_local, "equals", "(Ljava/lang/Object;)Z");
-            if (!mtd__equals_java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'equals'");
                 return;
             }
 
@@ -341,15 +341,15 @@ class Java_Concurrent_AtomicReference {
         }
 
         // Field getters
-        inline static jfieldID getfld__serialVersionUID(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__serialVersionUID;
-        }
         inline static jfieldID getfld__VALUE(JNIEnv* env) {
             Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__VALUE;
+        }
+        inline static jfieldID getfld__serialVersionUID(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__serialVersionUID;
         }
         inline static jfieldID getfld__value(JNIEnv* env) {
             Java_Concurrent_AtomicReference* self = get(env);
@@ -358,57 +358,22 @@ class Java_Concurrent_AtomicReference {
         }
 
         // Constructor getters
-        inline static jmethodID getctor__java_lang_Object(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->ctor__java_lang_Object;
-        }
         inline static jmethodID getctor__(JNIEnv* env) {
             Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->ctor__;
         }
+        inline static jmethodID getctor__java_lang_Object(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->ctor__java_lang_Object;
+        }
 
         // Method getters
-        inline static jmethodID getmtd__get(JNIEnv* env) {
+        inline static jmethodID getmtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator(JNIEnv* env) {
             Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__get;
-        }
-        inline static jmethodID getmtd__toString(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__toString;
-        }
-        inline static jmethodID getmtd__set_java_lang_Object(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__set_java_lang_Object;
-        }
-        inline static jmethodID getmtd__getOpaque(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__getOpaque;
-        }
-        inline static jmethodID getmtd__setOpaque_java_lang_Object(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__setOpaque_java_lang_Object;
-        }
-        inline static jmethodID getmtd__getAcquire(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__getAcquire;
-        }
-        inline static jmethodID getmtd__setRelease_java_lang_Object(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__setRelease_java_lang_Object;
-        }
-        inline static jmethodID getmtd__compareAndSet_java_lang_Object__java_lang_Object(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__compareAndSet_java_lang_Object__java_lang_Object;
+            return self->mtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator;
         }
         inline static jmethodID getmtd__compareAndExchange_java_lang_Object__java_lang_Object(JNIEnv* env) {
             Java_Concurrent_AtomicReference* self = get(env);
@@ -425,10 +390,85 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__compareAndExchangeRelease_java_lang_Object__java_lang_Object;
         }
-        inline static jmethodID getmtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object(JNIEnv* env) {
+        inline static jmethodID getmtd__compareAndSet_java_lang_Object__java_lang_Object(JNIEnv* env) {
             Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object;
+            return self->mtd__compareAndSet_java_lang_Object__java_lang_Object;
+        }
+        inline static jmethodID getmtd__equals_java_lang_Object(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__equals_java_lang_Object;
+        }
+        inline static jmethodID getmtd__get(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__get;
+        }
+        inline static jmethodID getmtd__getAcquire(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__getAcquire;
+        }
+        inline static jmethodID getmtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator;
+        }
+        inline static jmethodID getmtd__getAndSet_java_lang_Object(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__getAndSet_java_lang_Object;
+        }
+        inline static jmethodID getmtd__getAndUpdate_java_util_function_UnaryOperator(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__getAndUpdate_java_util_function_UnaryOperator;
+        }
+        inline static jmethodID getmtd__getOpaque(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__getOpaque;
+        }
+        inline static jmethodID getmtd__getPlain(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__getPlain;
+        }
+        inline static jmethodID getmtd__lazySet_java_lang_Object(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__lazySet_java_lang_Object;
+        }
+        inline static jmethodID getmtd__set_java_lang_Object(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__set_java_lang_Object;
+        }
+        inline static jmethodID getmtd__setOpaque_java_lang_Object(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__setOpaque_java_lang_Object;
+        }
+        inline static jmethodID getmtd__setPlain_java_lang_Object(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__setPlain_java_lang_Object;
+        }
+        inline static jmethodID getmtd__setRelease_java_lang_Object(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__setRelease_java_lang_Object;
+        }
+        inline static jmethodID getmtd__toString(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__toString;
+        }
+        inline static jmethodID getmtd__updateAndGet_java_util_function_UnaryOperator(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__updateAndGet_java_util_function_UnaryOperator;
         }
         inline static jmethodID getmtd__weakCompareAndSet_java_lang_Object__java_lang_Object(JNIEnv* env) {
             Java_Concurrent_AtomicReference* self = get(env);
@@ -440,72 +480,23 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__weakCompareAndSetAcquire_java_lang_Object__java_lang_Object;
         }
+        inline static jmethodID getmtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object(JNIEnv* env) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object;
+        }
         inline static jmethodID getmtd__weakCompareAndSetRelease_java_lang_Object__java_lang_Object(JNIEnv* env) {
             Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__weakCompareAndSetRelease_java_lang_Object__java_lang_Object;
-        }
-        inline static jmethodID getmtd__getAndSet_java_lang_Object(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__getAndSet_java_lang_Object;
         }
         inline static jmethodID getmtd__weakCompareAndSetVolatile_java_lang_Object__java_lang_Object(JNIEnv* env) {
             Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__weakCompareAndSetVolatile_java_lang_Object__java_lang_Object;
         }
-        inline static jmethodID getmtd__lazySet_java_lang_Object(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__lazySet_java_lang_Object;
-        }
-        inline static jmethodID getmtd__getAndUpdate_java_util_function_UnaryOperator(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__getAndUpdate_java_util_function_UnaryOperator;
-        }
-        inline static jmethodID getmtd__updateAndGet_java_util_function_UnaryOperator(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__updateAndGet_java_util_function_UnaryOperator;
-        }
-        inline static jmethodID getmtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator;
-        }
-        inline static jmethodID getmtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator;
-        }
-        inline static jmethodID getmtd__getPlain(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__getPlain;
-        }
-        inline static jmethodID getmtd__setPlain_java_lang_Object(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__setPlain_java_lang_Object;
-        }
-        inline static jmethodID getmtd__equals_java_lang_Object(JNIEnv* env) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__equals_java_lang_Object;
-        }
 
         // Fabric methods for constructors
-        // Instance creation method for public java.util.concurrent.atomic.AtomicReference(java.lang.Object)
-        inline static jobject createInstance(JNIEnv* env, jobject v0) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID ctor = self->ctor__java_lang_Object;
-            if (!ctor) return nullptr;
-            return env->NewObject(self->clazz, ctor, v0);
-        }
-
         // Instance creation method for public java.util.concurrent.atomic.AtomicReference()
         inline static jobject createInstance(JNIEnv* env) {
             Java_Concurrent_AtomicReference* self = get(env);
@@ -515,77 +506,23 @@ class Java_Concurrent_AtomicReference {
             return env->NewObject(self->clazz, ctor);
         }
 
+        // Instance creation method for public java.util.concurrent.atomic.AtomicReference(java.lang.Object)
+        inline static jobject createInstance(JNIEnv* env, jobject v0) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID ctor = self->ctor__java_lang_Object;
+            if (!ctor) return nullptr;
+            return env->NewObject(self->clazz, ctor, v0);
+        }
+
         // Method wrappers
-        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.get()
-        inline static jobject get(JNIEnv* env, jobject obj) {
+        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.accumulateAndGet(java.lang.Object,java.util.function.BinaryOperator)
+        inline static jobject accumulateAndGet(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
             Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__get;
+            jmethodID mtd = self->mtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
-        }
-
-        // Fabric method for public java.lang.String java.util.concurrent.atomic.AtomicReference.toString()
-        inline static jstring toString(JNIEnv* env, jobject obj) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__toString;
-            if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
-        }
-
-        // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.set(java.lang.Object)
-        inline static void set(JNIEnv* env, jobject obj, jobject v0) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__set_java_lang_Object;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0);
-        }
-
-        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getOpaque()
-        inline static jobject getOpaque(JNIEnv* env, jobject obj) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__getOpaque;
-            if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
-        }
-
-        // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.setOpaque(java.lang.Object)
-        inline static void setOpaque(JNIEnv* env, jobject obj, jobject v0) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__setOpaque_java_lang_Object;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0);
-        }
-
-        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAcquire()
-        inline static jobject getAcquire(JNIEnv* env, jobject obj) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__getAcquire;
-            if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
-        }
-
-        // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.setRelease(java.lang.Object)
-        inline static void setRelease(JNIEnv* env, jobject obj, jobject v0) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__setRelease_java_lang_Object;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0);
-        }
-
-        // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.compareAndSet(java.lang.Object,java.lang.Object)
-        inline static jboolean compareAndSet(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return JNI_FALSE;
-            jmethodID mtd = self->mtd__compareAndSet_java_lang_Object__java_lang_Object;
-            if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0, v1);
+            return env->CallObjectMethod(obj, mtd, v0, v1);
         }
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.compareAndExchange(java.lang.Object,java.lang.Object)
@@ -615,13 +552,148 @@ class Java_Concurrent_AtomicReference {
             return env->CallObjectMethod(obj, mtd, v0, v1);
         }
 
-        // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetPlain(java.lang.Object,java.lang.Object)
-        inline static jboolean weakCompareAndSetPlain(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
+        // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.compareAndSet(java.lang.Object,java.lang.Object)
+        inline static jboolean compareAndSet(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
             Java_Concurrent_AtomicReference* self = get(env);
             if (!self || !self->isValid()) return JNI_FALSE;
-            jmethodID mtd = self->mtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object;
+            jmethodID mtd = self->mtd__compareAndSet_java_lang_Object__java_lang_Object;
             if (!mtd) return JNI_FALSE;
             return env->CallBooleanMethod(obj, mtd, v0, v1);
+        }
+
+        // Fabric method for public boolean java.lang.Object.equals(java.lang.Object)
+        inline static jboolean equals(JNIEnv* env, jobject obj, jobject v0) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return JNI_FALSE;
+            jmethodID mtd = self->mtd__equals_java_lang_Object;
+            if (!mtd) return JNI_FALSE;
+            return env->CallBooleanMethod(obj, mtd, v0);
+        }
+
+        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.get()
+        inline static jobject get(JNIEnv* env, jobject obj) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__get;
+            if (!mtd) return nullptr;
+            return env->CallObjectMethod(obj, mtd);
+        }
+
+        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAcquire()
+        inline static jobject getAcquire(JNIEnv* env, jobject obj) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__getAcquire;
+            if (!mtd) return nullptr;
+            return env->CallObjectMethod(obj, mtd);
+        }
+
+        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndAccumulate(java.lang.Object,java.util.function.BinaryOperator)
+        inline static jobject getAndAccumulate(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator;
+            if (!mtd) return nullptr;
+            return env->CallObjectMethod(obj, mtd, v0, v1);
+        }
+
+        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndSet(java.lang.Object)
+        inline static jobject getAndSet(JNIEnv* env, jobject obj, jobject v0) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__getAndSet_java_lang_Object;
+            if (!mtd) return nullptr;
+            return env->CallObjectMethod(obj, mtd, v0);
+        }
+
+        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndUpdate(java.util.function.UnaryOperator)
+        inline static jobject getAndUpdate(JNIEnv* env, jobject obj, jobject v0) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__getAndUpdate_java_util_function_UnaryOperator;
+            if (!mtd) return nullptr;
+            return env->CallObjectMethod(obj, mtd, v0);
+        }
+
+        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getOpaque()
+        inline static jobject getOpaque(JNIEnv* env, jobject obj) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__getOpaque;
+            if (!mtd) return nullptr;
+            return env->CallObjectMethod(obj, mtd);
+        }
+
+        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getPlain()
+        inline static jobject getPlain(JNIEnv* env, jobject obj) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__getPlain;
+            if (!mtd) return nullptr;
+            return env->CallObjectMethod(obj, mtd);
+        }
+
+        // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.lazySet(java.lang.Object)
+        inline static void lazySet(JNIEnv* env, jobject obj, jobject v0) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__lazySet_java_lang_Object;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0);
+        }
+
+        // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.set(java.lang.Object)
+        inline static void set(JNIEnv* env, jobject obj, jobject v0) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__set_java_lang_Object;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0);
+        }
+
+        // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.setOpaque(java.lang.Object)
+        inline static void setOpaque(JNIEnv* env, jobject obj, jobject v0) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__setOpaque_java_lang_Object;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0);
+        }
+
+        // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.setPlain(java.lang.Object)
+        inline static void setPlain(JNIEnv* env, jobject obj, jobject v0) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__setPlain_java_lang_Object;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0);
+        }
+
+        // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.setRelease(java.lang.Object)
+        inline static void setRelease(JNIEnv* env, jobject obj, jobject v0) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return;
+            jmethodID mtd = self->mtd__setRelease_java_lang_Object;
+            if (!mtd) return;
+            env->CallVoidMethod(obj, mtd, v0);
+        }
+
+        // Fabric method for public java.lang.String java.util.concurrent.atomic.AtomicReference.toString()
+        inline static jstring toString(JNIEnv* env, jobject obj) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__toString;
+            if (!mtd) return nullptr;
+            return (jstring) env->CallObjectMethod(obj, mtd);
+        }
+
+        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.updateAndGet(java.util.function.UnaryOperator)
+        inline static jobject updateAndGet(JNIEnv* env, jobject obj, jobject v0) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__updateAndGet_java_util_function_UnaryOperator;
+            if (!mtd) return nullptr;
+            return env->CallObjectMethod(obj, mtd, v0);
         }
 
         // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSet(java.lang.Object,java.lang.Object)
@@ -642,6 +714,15 @@ class Java_Concurrent_AtomicReference {
             return env->CallBooleanMethod(obj, mtd, v0, v1);
         }
 
+        // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetPlain(java.lang.Object,java.lang.Object)
+        inline static jboolean weakCompareAndSetPlain(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
+            Java_Concurrent_AtomicReference* self = get(env);
+            if (!self || !self->isValid()) return JNI_FALSE;
+            jmethodID mtd = self->mtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object;
+            if (!mtd) return JNI_FALSE;
+            return env->CallBooleanMethod(obj, mtd, v0, v1);
+        }
+
         // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetRelease(java.lang.Object,java.lang.Object)
         inline static jboolean weakCompareAndSetRelease(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
             Java_Concurrent_AtomicReference* self = get(env);
@@ -651,15 +732,6 @@ class Java_Concurrent_AtomicReference {
             return env->CallBooleanMethod(obj, mtd, v0, v1);
         }
 
-        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndSet(java.lang.Object)
-        inline static jobject getAndSet(JNIEnv* env, jobject obj, jobject v0) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__getAndSet_java_lang_Object;
-            if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0);
-        }
-
         // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetVolatile(java.lang.Object,java.lang.Object)
         inline static jboolean weakCompareAndSetVolatile(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
             Java_Concurrent_AtomicReference* self = get(env);
@@ -667,78 +739,6 @@ class Java_Concurrent_AtomicReference {
             jmethodID mtd = self->mtd__weakCompareAndSetVolatile_java_lang_Object__java_lang_Object;
             if (!mtd) return JNI_FALSE;
             return env->CallBooleanMethod(obj, mtd, v0, v1);
-        }
-
-        // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.lazySet(java.lang.Object)
-        inline static void lazySet(JNIEnv* env, jobject obj, jobject v0) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__lazySet_java_lang_Object;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0);
-        }
-
-        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndUpdate(java.util.function.UnaryOperator)
-        inline static jobject getAndUpdate(JNIEnv* env, jobject obj, jobject v0) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__getAndUpdate_java_util_function_UnaryOperator;
-            if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0);
-        }
-
-        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.updateAndGet(java.util.function.UnaryOperator)
-        inline static jobject updateAndGet(JNIEnv* env, jobject obj, jobject v0) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__updateAndGet_java_util_function_UnaryOperator;
-            if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0);
-        }
-
-        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndAccumulate(java.lang.Object,java.util.function.BinaryOperator)
-        inline static jobject getAndAccumulate(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator;
-            if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0, v1);
-        }
-
-        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.accumulateAndGet(java.lang.Object,java.util.function.BinaryOperator)
-        inline static jobject accumulateAndGet(JNIEnv* env, jobject obj, jobject v0, jobject v1) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator;
-            if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0, v1);
-        }
-
-        // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getPlain()
-        inline static jobject getPlain(JNIEnv* env, jobject obj) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__getPlain;
-            if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
-        }
-
-        // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.setPlain(java.lang.Object)
-        inline static void setPlain(JNIEnv* env, jobject obj, jobject v0) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return;
-            jmethodID mtd = self->mtd__setPlain_java_lang_Object;
-            if (!mtd) return;
-            env->CallVoidMethod(obj, mtd, v0);
-        }
-
-        // Fabric method for public boolean java.lang.Object.equals(java.lang.Object)
-        inline static jboolean equals(JNIEnv* env, jobject obj, jobject v0) {
-            Java_Concurrent_AtomicReference* self = get(env);
-            if (!self || !self->isValid()) return JNI_FALSE;
-            jmethodID mtd = self->mtd__equals_java_lang_Object;
-            if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
         }
 
     // End of class declaration

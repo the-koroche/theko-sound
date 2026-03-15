@@ -35,23 +35,23 @@ class Java_IllegalArgumentException {
         // private long java.lang.IllegalArgumentException.serialVersionUID
         jfieldID fld__serialVersionUID;
 
-        //jmethodID constructor cache
+        // jmethodID constructor cache
+        // public java.lang.IllegalArgumentException()
+        jmethodID ctor__;
+        // public java.lang.IllegalArgumentException(java.lang.String)
+        jmethodID ctor__java_lang_String;
         // public java.lang.IllegalArgumentException(java.lang.Throwable)
         jmethodID ctor__java_lang_Throwable;
         // public java.lang.IllegalArgumentException(java.lang.String, java.lang.Throwable)
         jmethodID ctor__java_lang_String__java_lang_Throwable;
-        // public java.lang.IllegalArgumentException(java.lang.String)
-        jmethodID ctor__java_lang_String;
-        // public java.lang.IllegalArgumentException()
-        jmethodID ctor__;
 
         // jmethodID cache
-        // public java.lang.String java.lang.Throwable.toString()
-        jmethodID mtd__toString;
-        // public java.lang.String java.lang.Throwable.getMessage()
-        jmethodID mtd__getMessage;
         // public boolean java.lang.Object.equals(java.lang.Object)
         jmethodID mtd__equals_java_lang_Object;
+        // public java.lang.String java.lang.Throwable.getMessage()
+        jmethodID mtd__getMessage;
+        // public java.lang.String java.lang.Throwable.toString()
+        jmethodID mtd__toString;
 
         Java_IllegalArgumentException(JNIEnv* env) {
             initialized = false; // Reinitialize
@@ -63,6 +63,18 @@ class Java_IllegalArgumentException {
             }
 
             // Constructors
+            ctor__ = env->GetMethodID(clazz_local, "<init>", "()V");
+            if (!ctor__) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get constructor 'public java.lang.IllegalArgumentException()'");
+                return;
+            }
+            ctor__java_lang_String = env->GetMethodID(clazz_local, "<init>", "(Ljava/lang/String;)V");
+            if (!ctor__java_lang_String) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get constructor 'public java.lang.IllegalArgumentException(java.lang.String)'");
+                return;
+            }
             ctor__java_lang_Throwable = env->GetMethodID(clazz_local, "<init>", "(Ljava/lang/Throwable;)V");
             if (!ctor__java_lang_Throwable) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
@@ -75,18 +87,6 @@ class Java_IllegalArgumentException {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get constructor 'public java.lang.IllegalArgumentException(java.lang.String,java.lang.Throwable)'");
                 return;
             }
-            ctor__java_lang_String = env->GetMethodID(clazz_local, "<init>", "(Ljava/lang/String;)V");
-            if (!ctor__java_lang_String) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get constructor 'public java.lang.IllegalArgumentException(java.lang.String)'");
-                return;
-            }
-            ctor__ = env->GetMethodID(clazz_local, "<init>", "()V");
-            if (!ctor__) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get constructor 'public java.lang.IllegalArgumentException()'");
-                return;
-            }
 
             // Fields
             fld__serialVersionUID = env->GetStaticFieldID(clazz_local, "serialVersionUID", "J");
@@ -97,10 +97,10 @@ class Java_IllegalArgumentException {
             }
 
             // Methods
-            mtd__toString = env->GetMethodID(clazz_local, "toString", "()Ljava/lang/String;");
-            if (!mtd__toString) {
+            mtd__equals_java_lang_Object = env->GetMethodID(clazz_local, "equals", "(Ljava/lang/Object;)Z");
+            if (!mtd__equals_java_lang_Object) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'toString'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'equals'");
                 return;
             }
             mtd__getMessage = env->GetMethodID(clazz_local, "getMessage", "()Ljava/lang/String;");
@@ -109,10 +109,10 @@ class Java_IllegalArgumentException {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getMessage'");
                 return;
             }
-            mtd__equals_java_lang_Object = env->GetMethodID(clazz_local, "equals", "(Ljava/lang/Object;)Z");
-            if (!mtd__equals_java_lang_Object) {
+            mtd__toString = env->GetMethodID(clazz_local, "toString", "()Ljava/lang/String;");
+            if (!mtd__toString) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'equals'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'toString'");
                 return;
             }
 
@@ -172,6 +172,16 @@ class Java_IllegalArgumentException {
         }
 
         // Constructor getters
+        inline static jmethodID getctor__(JNIEnv* env) {
+            Java_IllegalArgumentException* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->ctor__;
+        }
+        inline static jmethodID getctor__java_lang_String(JNIEnv* env) {
+            Java_IllegalArgumentException* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->ctor__java_lang_String;
+        }
         inline static jmethodID getctor__java_lang_Throwable(JNIEnv* env) {
             Java_IllegalArgumentException* self = get(env);
             if (!self || !self->isValid()) return nullptr;
@@ -182,35 +192,43 @@ class Java_IllegalArgumentException {
             if (!self || !self->isValid()) return nullptr;
             return self->ctor__java_lang_String__java_lang_Throwable;
         }
-        inline static jmethodID getctor__java_lang_String(JNIEnv* env) {
-            Java_IllegalArgumentException* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->ctor__java_lang_String;
-        }
-        inline static jmethodID getctor__(JNIEnv* env) {
-            Java_IllegalArgumentException* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->ctor__;
-        }
 
         // Method getters
-        inline static jmethodID getmtd__toString(JNIEnv* env) {
+        inline static jmethodID getmtd__equals_java_lang_Object(JNIEnv* env) {
             Java_IllegalArgumentException* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__toString;
+            return self->mtd__equals_java_lang_Object;
         }
         inline static jmethodID getmtd__getMessage(JNIEnv* env) {
             Java_IllegalArgumentException* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getMessage;
         }
-        inline static jmethodID getmtd__equals_java_lang_Object(JNIEnv* env) {
+        inline static jmethodID getmtd__toString(JNIEnv* env) {
             Java_IllegalArgumentException* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__equals_java_lang_Object;
+            return self->mtd__toString;
         }
 
         // Fabric methods for constructors
+        // Instance creation method for public java.lang.IllegalArgumentException()
+        inline static jobject createInstance(JNIEnv* env) {
+            Java_IllegalArgumentException* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID ctor = self->ctor__;
+            if (!ctor) return nullptr;
+            return env->NewObject(self->clazz, ctor);
+        }
+
+        // Instance creation method for public java.lang.IllegalArgumentException(java.lang.String)
+        inline static jobject createInstance(JNIEnv* env, jstring v0) {
+            Java_IllegalArgumentException* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID ctor = self->ctor__java_lang_String;
+            if (!ctor) return nullptr;
+            return env->NewObject(self->clazz, ctor, v0);
+        }
+
         // Instance creation method for public java.lang.IllegalArgumentException(java.lang.Throwable)
         inline static jobject createInstance(JNIEnv* env, jobject v0) {
             Java_IllegalArgumentException* self = get(env);
@@ -229,32 +247,14 @@ class Java_IllegalArgumentException {
             return env->NewObject(self->clazz, ctor, v0, v1);
         }
 
-        // Instance creation method for public java.lang.IllegalArgumentException(java.lang.String)
-        inline static jobject createInstance(JNIEnv* env, jstring v0) {
-            Java_IllegalArgumentException* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID ctor = self->ctor__java_lang_String;
-            if (!ctor) return nullptr;
-            return env->NewObject(self->clazz, ctor, v0);
-        }
-
-        // Instance creation method for public java.lang.IllegalArgumentException()
-        inline static jobject createInstance(JNIEnv* env) {
-            Java_IllegalArgumentException* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID ctor = self->ctor__;
-            if (!ctor) return nullptr;
-            return env->NewObject(self->clazz, ctor);
-        }
-
         // Method wrappers
-        // Fabric method for public java.lang.String java.lang.Throwable.toString()
-        inline static jstring toString(JNIEnv* env, jobject obj) {
+        // Fabric method for public boolean java.lang.Object.equals(java.lang.Object)
+        inline static jboolean equals(JNIEnv* env, jobject obj, jobject v0) {
             Java_IllegalArgumentException* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__toString;
-            if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
+            if (!self || !self->isValid()) return JNI_FALSE;
+            jmethodID mtd = self->mtd__equals_java_lang_Object;
+            if (!mtd) return JNI_FALSE;
+            return env->CallBooleanMethod(obj, mtd, v0);
         }
 
         // Fabric method for public java.lang.String java.lang.Throwable.getMessage()
@@ -266,13 +266,13 @@ class Java_IllegalArgumentException {
             return (jstring) env->CallObjectMethod(obj, mtd);
         }
 
-        // Fabric method for public boolean java.lang.Object.equals(java.lang.Object)
-        inline static jboolean equals(JNIEnv* env, jobject obj, jobject v0) {
+        // Fabric method for public java.lang.String java.lang.Throwable.toString()
+        inline static jstring toString(JNIEnv* env, jobject obj) {
             Java_IllegalArgumentException* self = get(env);
-            if (!self || !self->isValid()) return JNI_FALSE;
-            jmethodID mtd = self->mtd__equals_java_lang_Object;
-            if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__toString;
+            if (!mtd) return nullptr;
+            return (jstring) env->CallObjectMethod(obj, mtd);
         }
 
     // End of class declaration

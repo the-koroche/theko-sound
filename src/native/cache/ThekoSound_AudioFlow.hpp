@@ -37,19 +37,19 @@ class ThekoSound_AudioFlow {
         // public org.theko.sound.AudioFlow org.theko.sound.AudioFlow.OUT
         jfieldID fld__OUT;
 
-        //jmethodID constructor cache
+        // jmethodID constructor cache
         // private org.theko.sound.AudioFlow(java.lang.String, int)
         jmethodID ctor__java_lang_String__int;
 
         // jmethodID cache
-        // public java.lang.String org.theko.sound.AudioFlow.toString()
-        jmethodID mtd__toString;
-        // public org.theko.sound.AudioFlow[] org.theko.sound.AudioFlow.values()
-        jmethodID mtd__values;
-        // public org.theko.sound.AudioFlow org.theko.sound.AudioFlow.valueOf(java.lang.String)
-        jmethodID mtd__valueOf_java_lang_String;
         // public org.theko.sound.AudioFlow org.theko.sound.AudioFlow.fromBoolean(boolean)
         jmethodID mtd__fromBoolean_boolean;
+        // public java.lang.String org.theko.sound.AudioFlow.toString()
+        jmethodID mtd__toString;
+        // public org.theko.sound.AudioFlow org.theko.sound.AudioFlow.valueOf(java.lang.String)
+        jmethodID mtd__valueOf_java_lang_String;
+        // public org.theko.sound.AudioFlow[] org.theko.sound.AudioFlow.values()
+        jmethodID mtd__values;
 
         ThekoSound_AudioFlow(JNIEnv* env) {
             initialized = false; // Reinitialize
@@ -83,16 +83,16 @@ class ThekoSound_AudioFlow {
             }
 
             // Methods
+            mtd__fromBoolean_boolean = env->GetStaticMethodID(clazz_local, "fromBoolean", "(Z)Lorg/theko/sound/AudioFlow;");
+            if (!mtd__fromBoolean_boolean) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'fromBoolean'");
+                return;
+            }
             mtd__toString = env->GetMethodID(clazz_local, "toString", "()Ljava/lang/String;");
             if (!mtd__toString) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'toString'");
-                return;
-            }
-            mtd__values = env->GetStaticMethodID(clazz_local, "values", "()[Lorg/theko/sound/AudioFlow;");
-            if (!mtd__values) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'values'");
                 return;
             }
             mtd__valueOf_java_lang_String = env->GetStaticMethodID(clazz_local, "valueOf", "(Ljava/lang/String;)Lorg/theko/sound/AudioFlow;");
@@ -101,10 +101,10 @@ class ThekoSound_AudioFlow {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'valueOf'");
                 return;
             }
-            mtd__fromBoolean_boolean = env->GetStaticMethodID(clazz_local, "fromBoolean", "(Z)Lorg/theko/sound/AudioFlow;");
-            if (!mtd__fromBoolean_boolean) {
+            mtd__values = env->GetStaticMethodID(clazz_local, "values", "()[Lorg/theko/sound/AudioFlow;");
+            if (!mtd__values) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'fromBoolean'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'values'");
                 return;
             }
 
@@ -176,25 +176,25 @@ class ThekoSound_AudioFlow {
         }
 
         // Method getters
+        inline static jmethodID getmtd__fromBoolean_boolean(JNIEnv* env) {
+            ThekoSound_AudioFlow* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__fromBoolean_boolean;
+        }
         inline static jmethodID getmtd__toString(JNIEnv* env) {
             ThekoSound_AudioFlow* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__toString;
-        }
-        inline static jmethodID getmtd__values(JNIEnv* env) {
-            ThekoSound_AudioFlow* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__values;
         }
         inline static jmethodID getmtd__valueOf_java_lang_String(JNIEnv* env) {
             ThekoSound_AudioFlow* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__valueOf_java_lang_String;
         }
-        inline static jmethodID getmtd__fromBoolean_boolean(JNIEnv* env) {
+        inline static jmethodID getmtd__values(JNIEnv* env) {
             ThekoSound_AudioFlow* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->mtd__fromBoolean_boolean;
+            return self->mtd__values;
         }
 
         // Fabric methods for constructors
@@ -208,6 +208,15 @@ class ThekoSound_AudioFlow {
         }
 
         // Method wrappers
+        // Fabric method for public static org.theko.sound.AudioFlow org.theko.sound.AudioFlow.fromBoolean(boolean)
+        inline static jobject fromBoolean(JNIEnv* env, jboolean v0) {
+            ThekoSound_AudioFlow* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__fromBoolean_boolean;
+            if (!mtd) return nullptr;
+            return env->CallStaticObjectMethod(self->clazz, mtd, v0);
+        }
+
         // Fabric method for public java.lang.String org.theko.sound.AudioFlow.toString()
         inline static jstring toString(JNIEnv* env, jobject obj) {
             ThekoSound_AudioFlow* self = get(env);
@@ -215,15 +224,6 @@ class ThekoSound_AudioFlow {
             jmethodID mtd = self->mtd__toString;
             if (!mtd) return nullptr;
             return (jstring) env->CallObjectMethod(obj, mtd);
-        }
-
-        // Fabric method for public static org.theko.sound.AudioFlow[] org.theko.sound.AudioFlow.values()
-        inline static jobjectArray values(JNIEnv* env) {
-            ThekoSound_AudioFlow* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__values;
-            if (!mtd) return nullptr;
-            return (jobjectArray) env->CallStaticObjectMethod(self->clazz, mtd);
         }
 
         // Fabric method for public static org.theko.sound.AudioFlow org.theko.sound.AudioFlow.valueOf(java.lang.String)
@@ -235,13 +235,13 @@ class ThekoSound_AudioFlow {
             return env->CallStaticObjectMethod(self->clazz, mtd, v0);
         }
 
-        // Fabric method for public static org.theko.sound.AudioFlow org.theko.sound.AudioFlow.fromBoolean(boolean)
-        inline static jobject fromBoolean(JNIEnv* env, jboolean v0) {
+        // Fabric method for public static org.theko.sound.AudioFlow[] org.theko.sound.AudioFlow.values()
+        inline static jobjectArray values(JNIEnv* env) {
             ThekoSound_AudioFlow* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__fromBoolean_boolean;
+            jmethodID mtd = self->mtd__values;
             if (!mtd) return nullptr;
-            return env->CallStaticObjectMethod(self->clazz, mtd, v0);
+            return (jobjectArray) env->CallStaticObjectMethod(self->clazz, mtd);
         }
 
         // Fabric field get for public static final org.theko.sound.AudioFlow org.theko.sound.AudioFlow.IN

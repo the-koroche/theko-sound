@@ -32,70 +32,70 @@ class SLF4J_LoggerFactory {
         // jclass cache
         jclass clazz;
         // jfieldID cache
-        // package-private java.lang.String org.slf4j.LoggerFactory.CODES_PREFIX
-        jfieldID fld__CODES_PREFIX;
-        // package-private java.lang.String org.slf4j.LoggerFactory.NO_PROVIDERS_URL
-        jfieldID fld__NO_PROVIDERS_URL;
-        // package-private java.lang.String org.slf4j.LoggerFactory.IGNORED_BINDINGS_URL
-        jfieldID fld__IGNORED_BINDINGS_URL;
-        // package-private java.lang.String org.slf4j.LoggerFactory.MULTIPLE_BINDINGS_URL
-        jfieldID fld__MULTIPLE_BINDINGS_URL;
-        // package-private java.lang.String org.slf4j.LoggerFactory.VERSION_MISMATCH
-        jfieldID fld__VERSION_MISMATCH;
-        // package-private java.lang.String org.slf4j.LoggerFactory.SUBSTITUTE_LOGGER_URL
-        jfieldID fld__SUBSTITUTE_LOGGER_URL;
-        // package-private java.lang.String org.slf4j.LoggerFactory.LOGGER_NAME_MISMATCH_URL
-        jfieldID fld__LOGGER_NAME_MISMATCH_URL;
-        // package-private java.lang.String org.slf4j.LoggerFactory.REPLAY_URL
-        jfieldID fld__REPLAY_URL;
-        // package-private java.lang.String org.slf4j.LoggerFactory.UNSUCCESSFUL_INIT_URL
-        jfieldID fld__UNSUCCESSFUL_INIT_URL;
-        // package-private java.lang.String org.slf4j.LoggerFactory.UNSUCCESSFUL_INIT_MSG
-        jfieldID fld__UNSUCCESSFUL_INIT_MSG;
-        // public java.lang.String org.slf4j.LoggerFactory.PROVIDER_PROPERTY_KEY
-        jfieldID fld__PROVIDER_PROPERTY_KEY;
-        // package-private int org.slf4j.LoggerFactory.UNINITIALIZED
-        jfieldID fld__UNINITIALIZED;
-        // package-private int org.slf4j.LoggerFactory.ONGOING_INITIALIZATION
-        jfieldID fld__ONGOING_INITIALIZATION;
-        // package-private int org.slf4j.LoggerFactory.FAILED_INITIALIZATION
-        jfieldID fld__FAILED_INITIALIZATION;
-        // package-private int org.slf4j.LoggerFactory.SUCCESSFUL_INITIALIZATION
-        jfieldID fld__SUCCESSFUL_INITIALIZATION;
-        // package-private int org.slf4j.LoggerFactory.NOP_FALLBACK_INITIALIZATION
-        jfieldID fld__NOP_FALLBACK_INITIALIZATION;
-        // package-private int org.slf4j.LoggerFactory.INITIALIZATION_STATE
-        jfieldID fld__INITIALIZATION_STATE;
-        // package-private org.slf4j.helpers.SubstituteServiceProvider org.slf4j.LoggerFactory.SUBST_PROVIDER
-        jfieldID fld__SUBST_PROVIDER;
-        // package-private org.slf4j.helpers.NOP_FallbackServiceProvider org.slf4j.LoggerFactory.NOP_FALLBACK_SERVICE_PROVIDER
-        jfieldID fld__NOP_FALLBACK_SERVICE_PROVIDER;
-        // package-private java.lang.String org.slf4j.LoggerFactory.DETECT_LOGGER_NAME_MISMATCH_PROPERTY
-        jfieldID fld__DETECT_LOGGER_NAME_MISMATCH_PROPERTY;
-        // package-private java.lang.String org.slf4j.LoggerFactory.JAVA_VENDOR_PROPERTY
-        jfieldID fld__JAVA_VENDOR_PROPERTY;
-        // package-private boolean org.slf4j.LoggerFactory.DETECT_LOGGER_NAME_MISMATCH
-        jfieldID fld__DETECT_LOGGER_NAME_MISMATCH;
-        // package-private org.slf4j.spi.SLF4JServiceProvider org.slf4j.LoggerFactory.PROVIDER
-        jfieldID fld__PROVIDER;
         // private java.lang.String[] org.slf4j.LoggerFactory.API_COMPATIBILITY_LIST
         jfieldID fld__API_COMPATIBILITY_LIST;
+        // package-private java.lang.String org.slf4j.LoggerFactory.CODES_PREFIX
+        jfieldID fld__CODES_PREFIX;
+        // package-private boolean org.slf4j.LoggerFactory.DETECT_LOGGER_NAME_MISMATCH
+        jfieldID fld__DETECT_LOGGER_NAME_MISMATCH;
+        // package-private java.lang.String org.slf4j.LoggerFactory.DETECT_LOGGER_NAME_MISMATCH_PROPERTY
+        jfieldID fld__DETECT_LOGGER_NAME_MISMATCH_PROPERTY;
+        // package-private int org.slf4j.LoggerFactory.FAILED_INITIALIZATION
+        jfieldID fld__FAILED_INITIALIZATION;
+        // package-private java.lang.String org.slf4j.LoggerFactory.IGNORED_BINDINGS_URL
+        jfieldID fld__IGNORED_BINDINGS_URL;
+        // package-private int org.slf4j.LoggerFactory.INITIALIZATION_STATE
+        jfieldID fld__INITIALIZATION_STATE;
+        // package-private java.lang.String org.slf4j.LoggerFactory.JAVA_VENDOR_PROPERTY
+        jfieldID fld__JAVA_VENDOR_PROPERTY;
+        // package-private java.lang.String org.slf4j.LoggerFactory.LOGGER_NAME_MISMATCH_URL
+        jfieldID fld__LOGGER_NAME_MISMATCH_URL;
+        // package-private java.lang.String org.slf4j.LoggerFactory.MULTIPLE_BINDINGS_URL
+        jfieldID fld__MULTIPLE_BINDINGS_URL;
+        // package-private int org.slf4j.LoggerFactory.NOP_FALLBACK_INITIALIZATION
+        jfieldID fld__NOP_FALLBACK_INITIALIZATION;
+        // package-private org.slf4j.helpers.NOP_FallbackServiceProvider org.slf4j.LoggerFactory.NOP_FALLBACK_SERVICE_PROVIDER
+        jfieldID fld__NOP_FALLBACK_SERVICE_PROVIDER;
+        // package-private java.lang.String org.slf4j.LoggerFactory.NO_PROVIDERS_URL
+        jfieldID fld__NO_PROVIDERS_URL;
+        // package-private int org.slf4j.LoggerFactory.ONGOING_INITIALIZATION
+        jfieldID fld__ONGOING_INITIALIZATION;
+        // package-private org.slf4j.spi.SLF4JServiceProvider org.slf4j.LoggerFactory.PROVIDER
+        jfieldID fld__PROVIDER;
+        // public java.lang.String org.slf4j.LoggerFactory.PROVIDER_PROPERTY_KEY
+        jfieldID fld__PROVIDER_PROPERTY_KEY;
+        // package-private java.lang.String org.slf4j.LoggerFactory.REPLAY_URL
+        jfieldID fld__REPLAY_URL;
         // private java.lang.String org.slf4j.LoggerFactory.STATIC_LOGGER_BINDER_PATH
         jfieldID fld__STATIC_LOGGER_BINDER_PATH;
+        // package-private java.lang.String org.slf4j.LoggerFactory.SUBSTITUTE_LOGGER_URL
+        jfieldID fld__SUBSTITUTE_LOGGER_URL;
+        // package-private org.slf4j.helpers.SubstituteServiceProvider org.slf4j.LoggerFactory.SUBST_PROVIDER
+        jfieldID fld__SUBST_PROVIDER;
+        // package-private int org.slf4j.LoggerFactory.SUCCESSFUL_INITIALIZATION
+        jfieldID fld__SUCCESSFUL_INITIALIZATION;
+        // package-private int org.slf4j.LoggerFactory.UNINITIALIZED
+        jfieldID fld__UNINITIALIZED;
+        // package-private java.lang.String org.slf4j.LoggerFactory.UNSUCCESSFUL_INIT_MSG
+        jfieldID fld__UNSUCCESSFUL_INIT_MSG;
+        // package-private java.lang.String org.slf4j.LoggerFactory.UNSUCCESSFUL_INIT_URL
+        jfieldID fld__UNSUCCESSFUL_INIT_URL;
+        // package-private java.lang.String org.slf4j.LoggerFactory.VERSION_MISMATCH
+        jfieldID fld__VERSION_MISMATCH;
 
-        //jmethodID constructor cache
+        // jmethodID constructor cache
         // private org.slf4j.LoggerFactory()
         jmethodID ctor__;
 
         // jmethodID cache
+        // public boolean java.lang.Object.equals(java.lang.Object)
+        jmethodID mtd__equals_java_lang_Object;
+        // public org.slf4j.ILoggerFactory org.slf4j.LoggerFactory.getILoggerFactory()
+        jmethodID mtd__getILoggerFactory;
         // public org.slf4j.Logger org.slf4j.LoggerFactory.getLogger(java.lang.Class)
         jmethodID mtd__getLogger_java_lang_Class;
         // public org.slf4j.Logger org.slf4j.LoggerFactory.getLogger(java.lang.String)
         jmethodID mtd__getLogger_java_lang_String;
-        // public org.slf4j.ILoggerFactory org.slf4j.LoggerFactory.getILoggerFactory()
-        jmethodID mtd__getILoggerFactory;
-        // public boolean java.lang.Object.equals(java.lang.Object)
-        jmethodID mtd__equals_java_lang_Object;
 
         SLF4J_LoggerFactory(JNIEnv* env) {
             initialized = false; // Reinitialize
@@ -115,130 +115,16 @@ class SLF4J_LoggerFactory {
             }
 
             // Fields
+            fld__API_COMPATIBILITY_LIST = env->GetStaticFieldID(clazz_local, "API_COMPATIBILITY_LIST", "[Ljava/lang/String;");
+            if (!fld__API_COMPATIBILITY_LIST) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'API_COMPATIBILITY_LIST'");
+                return;
+            }
             fld__CODES_PREFIX = env->GetStaticFieldID(clazz_local, "CODES_PREFIX", "Ljava/lang/String;");
             if (!fld__CODES_PREFIX) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'CODES_PREFIX'");
-                return;
-            }
-            fld__NO_PROVIDERS_URL = env->GetStaticFieldID(clazz_local, "NO_PROVIDERS_URL", "Ljava/lang/String;");
-            if (!fld__NO_PROVIDERS_URL) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'NO_PROVIDERS_URL'");
-                return;
-            }
-            fld__IGNORED_BINDINGS_URL = env->GetStaticFieldID(clazz_local, "IGNORED_BINDINGS_URL", "Ljava/lang/String;");
-            if (!fld__IGNORED_BINDINGS_URL) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'IGNORED_BINDINGS_URL'");
-                return;
-            }
-            fld__MULTIPLE_BINDINGS_URL = env->GetStaticFieldID(clazz_local, "MULTIPLE_BINDINGS_URL", "Ljava/lang/String;");
-            if (!fld__MULTIPLE_BINDINGS_URL) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'MULTIPLE_BINDINGS_URL'");
-                return;
-            }
-            fld__VERSION_MISMATCH = env->GetStaticFieldID(clazz_local, "VERSION_MISMATCH", "Ljava/lang/String;");
-            if (!fld__VERSION_MISMATCH) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'VERSION_MISMATCH'");
-                return;
-            }
-            fld__SUBSTITUTE_LOGGER_URL = env->GetStaticFieldID(clazz_local, "SUBSTITUTE_LOGGER_URL", "Ljava/lang/String;");
-            if (!fld__SUBSTITUTE_LOGGER_URL) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'SUBSTITUTE_LOGGER_URL'");
-                return;
-            }
-            fld__LOGGER_NAME_MISMATCH_URL = env->GetStaticFieldID(clazz_local, "LOGGER_NAME_MISMATCH_URL", "Ljava/lang/String;");
-            if (!fld__LOGGER_NAME_MISMATCH_URL) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'LOGGER_NAME_MISMATCH_URL'");
-                return;
-            }
-            fld__REPLAY_URL = env->GetStaticFieldID(clazz_local, "REPLAY_URL", "Ljava/lang/String;");
-            if (!fld__REPLAY_URL) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'REPLAY_URL'");
-                return;
-            }
-            fld__UNSUCCESSFUL_INIT_URL = env->GetStaticFieldID(clazz_local, "UNSUCCESSFUL_INIT_URL", "Ljava/lang/String;");
-            if (!fld__UNSUCCESSFUL_INIT_URL) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'UNSUCCESSFUL_INIT_URL'");
-                return;
-            }
-            fld__UNSUCCESSFUL_INIT_MSG = env->GetStaticFieldID(clazz_local, "UNSUCCESSFUL_INIT_MSG", "Ljava/lang/String;");
-            if (!fld__UNSUCCESSFUL_INIT_MSG) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'UNSUCCESSFUL_INIT_MSG'");
-                return;
-            }
-            fld__PROVIDER_PROPERTY_KEY = env->GetStaticFieldID(clazz_local, "PROVIDER_PROPERTY_KEY", "Ljava/lang/String;");
-            if (!fld__PROVIDER_PROPERTY_KEY) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'PROVIDER_PROPERTY_KEY'");
-                return;
-            }
-            fld__UNINITIALIZED = env->GetStaticFieldID(clazz_local, "UNINITIALIZED", "I");
-            if (!fld__UNINITIALIZED) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'UNINITIALIZED'");
-                return;
-            }
-            fld__ONGOING_INITIALIZATION = env->GetStaticFieldID(clazz_local, "ONGOING_INITIALIZATION", "I");
-            if (!fld__ONGOING_INITIALIZATION) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'ONGOING_INITIALIZATION'");
-                return;
-            }
-            fld__FAILED_INITIALIZATION = env->GetStaticFieldID(clazz_local, "FAILED_INITIALIZATION", "I");
-            if (!fld__FAILED_INITIALIZATION) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'FAILED_INITIALIZATION'");
-                return;
-            }
-            fld__SUCCESSFUL_INITIALIZATION = env->GetStaticFieldID(clazz_local, "SUCCESSFUL_INITIALIZATION", "I");
-            if (!fld__SUCCESSFUL_INITIALIZATION) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'SUCCESSFUL_INITIALIZATION'");
-                return;
-            }
-            fld__NOP_FALLBACK_INITIALIZATION = env->GetStaticFieldID(clazz_local, "NOP_FALLBACK_INITIALIZATION", "I");
-            if (!fld__NOP_FALLBACK_INITIALIZATION) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'NOP_FALLBACK_INITIALIZATION'");
-                return;
-            }
-            fld__INITIALIZATION_STATE = env->GetStaticFieldID(clazz_local, "INITIALIZATION_STATE", "I");
-            if (!fld__INITIALIZATION_STATE) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'INITIALIZATION_STATE'");
-                return;
-            }
-            fld__SUBST_PROVIDER = env->GetStaticFieldID(clazz_local, "SUBST_PROVIDER", "Lorg/slf4j/helpers/SubstituteServiceProvider;");
-            if (!fld__SUBST_PROVIDER) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'SUBST_PROVIDER'");
-                return;
-            }
-            fld__NOP_FALLBACK_SERVICE_PROVIDER = env->GetStaticFieldID(clazz_local, "NOP_FALLBACK_SERVICE_PROVIDER", "Lorg/slf4j/helpers/NOP_FallbackServiceProvider;");
-            if (!fld__NOP_FALLBACK_SERVICE_PROVIDER) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'NOP_FALLBACK_SERVICE_PROVIDER'");
-                return;
-            }
-            fld__DETECT_LOGGER_NAME_MISMATCH_PROPERTY = env->GetStaticFieldID(clazz_local, "DETECT_LOGGER_NAME_MISMATCH_PROPERTY", "Ljava/lang/String;");
-            if (!fld__DETECT_LOGGER_NAME_MISMATCH_PROPERTY) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'DETECT_LOGGER_NAME_MISMATCH_PROPERTY'");
-                return;
-            }
-            fld__JAVA_VENDOR_PROPERTY = env->GetStaticFieldID(clazz_local, "JAVA_VENDOR_PROPERTY", "Ljava/lang/String;");
-            if (!fld__JAVA_VENDOR_PROPERTY) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'JAVA_VENDOR_PROPERTY'");
                 return;
             }
             fld__DETECT_LOGGER_NAME_MISMATCH = env->GetStaticFieldID(clazz_local, "DETECT_LOGGER_NAME_MISMATCH", "Z");
@@ -247,16 +133,88 @@ class SLF4J_LoggerFactory {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'DETECT_LOGGER_NAME_MISMATCH'");
                 return;
             }
+            fld__DETECT_LOGGER_NAME_MISMATCH_PROPERTY = env->GetStaticFieldID(clazz_local, "DETECT_LOGGER_NAME_MISMATCH_PROPERTY", "Ljava/lang/String;");
+            if (!fld__DETECT_LOGGER_NAME_MISMATCH_PROPERTY) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'DETECT_LOGGER_NAME_MISMATCH_PROPERTY'");
+                return;
+            }
+            fld__FAILED_INITIALIZATION = env->GetStaticFieldID(clazz_local, "FAILED_INITIALIZATION", "I");
+            if (!fld__FAILED_INITIALIZATION) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'FAILED_INITIALIZATION'");
+                return;
+            }
+            fld__IGNORED_BINDINGS_URL = env->GetStaticFieldID(clazz_local, "IGNORED_BINDINGS_URL", "Ljava/lang/String;");
+            if (!fld__IGNORED_BINDINGS_URL) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'IGNORED_BINDINGS_URL'");
+                return;
+            }
+            fld__INITIALIZATION_STATE = env->GetStaticFieldID(clazz_local, "INITIALIZATION_STATE", "I");
+            if (!fld__INITIALIZATION_STATE) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'INITIALIZATION_STATE'");
+                return;
+            }
+            fld__JAVA_VENDOR_PROPERTY = env->GetStaticFieldID(clazz_local, "JAVA_VENDOR_PROPERTY", "Ljava/lang/String;");
+            if (!fld__JAVA_VENDOR_PROPERTY) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'JAVA_VENDOR_PROPERTY'");
+                return;
+            }
+            fld__LOGGER_NAME_MISMATCH_URL = env->GetStaticFieldID(clazz_local, "LOGGER_NAME_MISMATCH_URL", "Ljava/lang/String;");
+            if (!fld__LOGGER_NAME_MISMATCH_URL) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'LOGGER_NAME_MISMATCH_URL'");
+                return;
+            }
+            fld__MULTIPLE_BINDINGS_URL = env->GetStaticFieldID(clazz_local, "MULTIPLE_BINDINGS_URL", "Ljava/lang/String;");
+            if (!fld__MULTIPLE_BINDINGS_URL) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'MULTIPLE_BINDINGS_URL'");
+                return;
+            }
+            fld__NOP_FALLBACK_INITIALIZATION = env->GetStaticFieldID(clazz_local, "NOP_FALLBACK_INITIALIZATION", "I");
+            if (!fld__NOP_FALLBACK_INITIALIZATION) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'NOP_FALLBACK_INITIALIZATION'");
+                return;
+            }
+            fld__NOP_FALLBACK_SERVICE_PROVIDER = env->GetStaticFieldID(clazz_local, "NOP_FALLBACK_SERVICE_PROVIDER", "Lorg/slf4j/helpers/NOP_FallbackServiceProvider;");
+            if (!fld__NOP_FALLBACK_SERVICE_PROVIDER) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'NOP_FALLBACK_SERVICE_PROVIDER'");
+                return;
+            }
+            fld__NO_PROVIDERS_URL = env->GetStaticFieldID(clazz_local, "NO_PROVIDERS_URL", "Ljava/lang/String;");
+            if (!fld__NO_PROVIDERS_URL) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'NO_PROVIDERS_URL'");
+                return;
+            }
+            fld__ONGOING_INITIALIZATION = env->GetStaticFieldID(clazz_local, "ONGOING_INITIALIZATION", "I");
+            if (!fld__ONGOING_INITIALIZATION) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'ONGOING_INITIALIZATION'");
+                return;
+            }
             fld__PROVIDER = env->GetStaticFieldID(clazz_local, "PROVIDER", "Lorg/slf4j/spi/SLF4JServiceProvider;");
             if (!fld__PROVIDER) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'PROVIDER'");
                 return;
             }
-            fld__API_COMPATIBILITY_LIST = env->GetStaticFieldID(clazz_local, "API_COMPATIBILITY_LIST", "[Ljava/lang/String;");
-            if (!fld__API_COMPATIBILITY_LIST) {
+            fld__PROVIDER_PROPERTY_KEY = env->GetStaticFieldID(clazz_local, "PROVIDER_PROPERTY_KEY", "Ljava/lang/String;");
+            if (!fld__PROVIDER_PROPERTY_KEY) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'API_COMPATIBILITY_LIST'");
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'PROVIDER_PROPERTY_KEY'");
+                return;
+            }
+            fld__REPLAY_URL = env->GetStaticFieldID(clazz_local, "REPLAY_URL", "Ljava/lang/String;");
+            if (!fld__REPLAY_URL) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'REPLAY_URL'");
                 return;
             }
             fld__STATIC_LOGGER_BINDER_PATH = env->GetStaticFieldID(clazz_local, "STATIC_LOGGER_BINDER_PATH", "Ljava/lang/String;");
@@ -265,8 +223,62 @@ class SLF4J_LoggerFactory {
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'STATIC_LOGGER_BINDER_PATH'");
                 return;
             }
+            fld__SUBSTITUTE_LOGGER_URL = env->GetStaticFieldID(clazz_local, "SUBSTITUTE_LOGGER_URL", "Ljava/lang/String;");
+            if (!fld__SUBSTITUTE_LOGGER_URL) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'SUBSTITUTE_LOGGER_URL'");
+                return;
+            }
+            fld__SUBST_PROVIDER = env->GetStaticFieldID(clazz_local, "SUBST_PROVIDER", "Lorg/slf4j/helpers/SubstituteServiceProvider;");
+            if (!fld__SUBST_PROVIDER) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'SUBST_PROVIDER'");
+                return;
+            }
+            fld__SUCCESSFUL_INITIALIZATION = env->GetStaticFieldID(clazz_local, "SUCCESSFUL_INITIALIZATION", "I");
+            if (!fld__SUCCESSFUL_INITIALIZATION) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'SUCCESSFUL_INITIALIZATION'");
+                return;
+            }
+            fld__UNINITIALIZED = env->GetStaticFieldID(clazz_local, "UNINITIALIZED", "I");
+            if (!fld__UNINITIALIZED) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'UNINITIALIZED'");
+                return;
+            }
+            fld__UNSUCCESSFUL_INIT_MSG = env->GetStaticFieldID(clazz_local, "UNSUCCESSFUL_INIT_MSG", "Ljava/lang/String;");
+            if (!fld__UNSUCCESSFUL_INIT_MSG) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'UNSUCCESSFUL_INIT_MSG'");
+                return;
+            }
+            fld__UNSUCCESSFUL_INIT_URL = env->GetStaticFieldID(clazz_local, "UNSUCCESSFUL_INIT_URL", "Ljava/lang/String;");
+            if (!fld__UNSUCCESSFUL_INIT_URL) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'UNSUCCESSFUL_INIT_URL'");
+                return;
+            }
+            fld__VERSION_MISMATCH = env->GetStaticFieldID(clazz_local, "VERSION_MISMATCH", "Ljava/lang/String;");
+            if (!fld__VERSION_MISMATCH) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get field 'VERSION_MISMATCH'");
+                return;
+            }
 
             // Methods
+            mtd__equals_java_lang_Object = env->GetMethodID(clazz_local, "equals", "(Ljava/lang/Object;)Z");
+            if (!mtd__equals_java_lang_Object) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'equals'");
+                return;
+            }
+            mtd__getILoggerFactory = env->GetStaticMethodID(clazz_local, "getILoggerFactory", "()Lorg/slf4j/ILoggerFactory;");
+            if (!mtd__getILoggerFactory) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getILoggerFactory'");
+                return;
+            }
             mtd__getLogger_java_lang_Class = env->GetStaticMethodID(clazz_local, "getLogger", "(Ljava/lang/Class;)Lorg/slf4j/Logger;");
             if (!mtd__getLogger_java_lang_Class) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
@@ -277,18 +289,6 @@ class SLF4J_LoggerFactory {
             if (!mtd__getLogger_java_lang_String) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getLogger'");
-                return;
-            }
-            mtd__getILoggerFactory = env->GetStaticMethodID(clazz_local, "getILoggerFactory", "()Lorg/slf4j/ILoggerFactory;");
-            if (!mtd__getILoggerFactory) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getILoggerFactory'");
-                return;
-            }
-            mtd__equals_java_lang_Object = env->GetMethodID(clazz_local, "equals", "(Ljava/lang/Object;)Z");
-            if (!mtd__equals_java_lang_Object) {
-                if (clazz_local) env->DeleteLocalRef(clazz_local);
-                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'equals'");
                 return;
             }
 
@@ -341,130 +341,130 @@ class SLF4J_LoggerFactory {
         }
 
         // Field getters
+        inline static jfieldID getfld__API_COMPATIBILITY_LIST(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__API_COMPATIBILITY_LIST;
+        }
         inline static jfieldID getfld__CODES_PREFIX(JNIEnv* env) {
             SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__CODES_PREFIX;
-        }
-        inline static jfieldID getfld__NO_PROVIDERS_URL(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__NO_PROVIDERS_URL;
-        }
-        inline static jfieldID getfld__IGNORED_BINDINGS_URL(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__IGNORED_BINDINGS_URL;
-        }
-        inline static jfieldID getfld__MULTIPLE_BINDINGS_URL(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__MULTIPLE_BINDINGS_URL;
-        }
-        inline static jfieldID getfld__VERSION_MISMATCH(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__VERSION_MISMATCH;
-        }
-        inline static jfieldID getfld__SUBSTITUTE_LOGGER_URL(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__SUBSTITUTE_LOGGER_URL;
-        }
-        inline static jfieldID getfld__LOGGER_NAME_MISMATCH_URL(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__LOGGER_NAME_MISMATCH_URL;
-        }
-        inline static jfieldID getfld__REPLAY_URL(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__REPLAY_URL;
-        }
-        inline static jfieldID getfld__UNSUCCESSFUL_INIT_URL(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__UNSUCCESSFUL_INIT_URL;
-        }
-        inline static jfieldID getfld__UNSUCCESSFUL_INIT_MSG(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__UNSUCCESSFUL_INIT_MSG;
-        }
-        inline static jfieldID getfld__PROVIDER_PROPERTY_KEY(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__PROVIDER_PROPERTY_KEY;
-        }
-        inline static jfieldID getfld__UNINITIALIZED(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__UNINITIALIZED;
-        }
-        inline static jfieldID getfld__ONGOING_INITIALIZATION(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__ONGOING_INITIALIZATION;
-        }
-        inline static jfieldID getfld__FAILED_INITIALIZATION(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__FAILED_INITIALIZATION;
-        }
-        inline static jfieldID getfld__SUCCESSFUL_INITIALIZATION(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__SUCCESSFUL_INITIALIZATION;
-        }
-        inline static jfieldID getfld__NOP_FALLBACK_INITIALIZATION(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__NOP_FALLBACK_INITIALIZATION;
-        }
-        inline static jfieldID getfld__INITIALIZATION_STATE(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__INITIALIZATION_STATE;
-        }
-        inline static jfieldID getfld__SUBST_PROVIDER(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__SUBST_PROVIDER;
-        }
-        inline static jfieldID getfld__NOP_FALLBACK_SERVICE_PROVIDER(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__NOP_FALLBACK_SERVICE_PROVIDER;
-        }
-        inline static jfieldID getfld__DETECT_LOGGER_NAME_MISMATCH_PROPERTY(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__DETECT_LOGGER_NAME_MISMATCH_PROPERTY;
-        }
-        inline static jfieldID getfld__JAVA_VENDOR_PROPERTY(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->fld__JAVA_VENDOR_PROPERTY;
         }
         inline static jfieldID getfld__DETECT_LOGGER_NAME_MISMATCH(JNIEnv* env) {
             SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__DETECT_LOGGER_NAME_MISMATCH;
         }
+        inline static jfieldID getfld__DETECT_LOGGER_NAME_MISMATCH_PROPERTY(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__DETECT_LOGGER_NAME_MISMATCH_PROPERTY;
+        }
+        inline static jfieldID getfld__FAILED_INITIALIZATION(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__FAILED_INITIALIZATION;
+        }
+        inline static jfieldID getfld__IGNORED_BINDINGS_URL(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__IGNORED_BINDINGS_URL;
+        }
+        inline static jfieldID getfld__INITIALIZATION_STATE(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__INITIALIZATION_STATE;
+        }
+        inline static jfieldID getfld__JAVA_VENDOR_PROPERTY(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__JAVA_VENDOR_PROPERTY;
+        }
+        inline static jfieldID getfld__LOGGER_NAME_MISMATCH_URL(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__LOGGER_NAME_MISMATCH_URL;
+        }
+        inline static jfieldID getfld__MULTIPLE_BINDINGS_URL(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__MULTIPLE_BINDINGS_URL;
+        }
+        inline static jfieldID getfld__NOP_FALLBACK_INITIALIZATION(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__NOP_FALLBACK_INITIALIZATION;
+        }
+        inline static jfieldID getfld__NOP_FALLBACK_SERVICE_PROVIDER(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__NOP_FALLBACK_SERVICE_PROVIDER;
+        }
+        inline static jfieldID getfld__NO_PROVIDERS_URL(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__NO_PROVIDERS_URL;
+        }
+        inline static jfieldID getfld__ONGOING_INITIALIZATION(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__ONGOING_INITIALIZATION;
+        }
         inline static jfieldID getfld__PROVIDER(JNIEnv* env) {
             SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__PROVIDER;
         }
-        inline static jfieldID getfld__API_COMPATIBILITY_LIST(JNIEnv* env) {
+        inline static jfieldID getfld__PROVIDER_PROPERTY_KEY(JNIEnv* env) {
             SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
-            return self->fld__API_COMPATIBILITY_LIST;
+            return self->fld__PROVIDER_PROPERTY_KEY;
+        }
+        inline static jfieldID getfld__REPLAY_URL(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__REPLAY_URL;
         }
         inline static jfieldID getfld__STATIC_LOGGER_BINDER_PATH(JNIEnv* env) {
             SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->fld__STATIC_LOGGER_BINDER_PATH;
+        }
+        inline static jfieldID getfld__SUBSTITUTE_LOGGER_URL(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__SUBSTITUTE_LOGGER_URL;
+        }
+        inline static jfieldID getfld__SUBST_PROVIDER(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__SUBST_PROVIDER;
+        }
+        inline static jfieldID getfld__SUCCESSFUL_INITIALIZATION(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__SUCCESSFUL_INITIALIZATION;
+        }
+        inline static jfieldID getfld__UNINITIALIZED(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__UNINITIALIZED;
+        }
+        inline static jfieldID getfld__UNSUCCESSFUL_INIT_MSG(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__UNSUCCESSFUL_INIT_MSG;
+        }
+        inline static jfieldID getfld__UNSUCCESSFUL_INIT_URL(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__UNSUCCESSFUL_INIT_URL;
+        }
+        inline static jfieldID getfld__VERSION_MISMATCH(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->fld__VERSION_MISMATCH;
         }
 
         // Constructor getters
@@ -475,6 +475,16 @@ class SLF4J_LoggerFactory {
         }
 
         // Method getters
+        inline static jmethodID getmtd__equals_java_lang_Object(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__equals_java_lang_Object;
+        }
+        inline static jmethodID getmtd__getILoggerFactory(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__getILoggerFactory;
+        }
         inline static jmethodID getmtd__getLogger_java_lang_Class(JNIEnv* env) {
             SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
@@ -484,16 +494,6 @@ class SLF4J_LoggerFactory {
             SLF4J_LoggerFactory* self = get(env);
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getLogger_java_lang_String;
-        }
-        inline static jmethodID getmtd__getILoggerFactory(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__getILoggerFactory;
-        }
-        inline static jmethodID getmtd__equals_java_lang_Object(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            return self->mtd__equals_java_lang_Object;
         }
 
         // Fabric methods for constructors
@@ -507,6 +507,24 @@ class SLF4J_LoggerFactory {
         }
 
         // Method wrappers
+        // Fabric method for public boolean java.lang.Object.equals(java.lang.Object)
+        inline static jboolean equals(JNIEnv* env, jobject obj, jobject v0) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return JNI_FALSE;
+            jmethodID mtd = self->mtd__equals_java_lang_Object;
+            if (!mtd) return JNI_FALSE;
+            return env->CallBooleanMethod(obj, mtd, v0);
+        }
+
+        // Fabric method for public static org.slf4j.ILoggerFactory org.slf4j.LoggerFactory.getILoggerFactory()
+        inline static jobject getILoggerFactory(JNIEnv* env) {
+            SLF4J_LoggerFactory* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__getILoggerFactory;
+            if (!mtd) return nullptr;
+            return env->CallStaticObjectMethod(self->clazz, mtd);
+        }
+
         // Fabric method for public static org.slf4j.Logger org.slf4j.LoggerFactory.getLogger(java.lang.Class)
         inline static jobject getLogger__java_lang_Class(JNIEnv* env, jobject v0) {
             SLF4J_LoggerFactory* self = get(env);
@@ -523,24 +541,6 @@ class SLF4J_LoggerFactory {
             jmethodID mtd = self->mtd__getLogger_java_lang_String;
             if (!mtd) return nullptr;
             return env->CallStaticObjectMethod(self->clazz, mtd, v0);
-        }
-
-        // Fabric method for public static org.slf4j.ILoggerFactory org.slf4j.LoggerFactory.getILoggerFactory()
-        inline static jobject getILoggerFactory(JNIEnv* env) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return nullptr;
-            jmethodID mtd = self->mtd__getILoggerFactory;
-            if (!mtd) return nullptr;
-            return env->CallStaticObjectMethod(self->clazz, mtd);
-        }
-
-        // Fabric method for public boolean java.lang.Object.equals(java.lang.Object)
-        inline static jboolean equals(JNIEnv* env, jobject obj, jobject v0) {
-            SLF4J_LoggerFactory* self = get(env);
-            if (!self || !self->isValid()) return JNI_FALSE;
-            jmethodID mtd = self->mtd__equals_java_lang_Object;
-            if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
         }
 
         // Fabric field get for public static final java.lang.String org.slf4j.LoggerFactory.PROVIDER_PROPERTY_KEY
