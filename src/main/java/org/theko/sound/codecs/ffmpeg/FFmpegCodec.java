@@ -60,8 +60,7 @@ import org.theko.sound.samples.SamplesValidation;
         "aac", "ac3", "aiff", "aif", "alac", "amr",
         "flac", "m4a", "mp2", "mp3", "oga", "ogg",
         "opus", "wma", "wv", "caf"
-    },
-    version = "1.0"
+    }
 )
 public class FFmpegCodec extends AudioCodec {
 

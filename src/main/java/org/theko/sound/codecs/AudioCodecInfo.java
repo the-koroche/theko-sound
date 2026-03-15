@@ -31,7 +31,6 @@ public class AudioCodecInfo {
 
     private final String name;
     private final String[] extensions;
-    private final String version;
     private final Class<? extends AudioCodec> codecClass;
 
     /**
@@ -45,7 +44,6 @@ public class AudioCodecInfo {
             AudioCodecType audioCodecType = codecClass.getAnnotation(AudioCodecType.class);
             this.name = audioCodecType.name();
             this.extensions = audioCodecType.extensions();
-            this.version = audioCodecType.version();
             this.codecClass = codecClass;
         } else {
             throw new IllegalArgumentException("The provided audio codec class doesn't provide info about itself.");
@@ -75,13 +73,6 @@ public class AudioCodecInfo {
     }
 
     /**
-     * @return The version of the audio codec
-     */
-    public String getVersion() {
-        return version;
-    }
-
-    /**
      * @return The class of the audio codec that this info is associated with
      */
     public Class<? extends AudioCodec> getCodecClass() {
@@ -90,6 +81,6 @@ public class AudioCodecInfo {
 
     @Override
     public String toString() {
-        return "AudioCodecInfo{Class: " + codecClass.getSimpleName() + ", Name: " + name + ", Extensions: [" + String.join(", ", extensions) + "], Version: " + version + "}";
+        return "AudioCodecInfo{Class: " + codecClass.getSimpleName() + ", Name: " + name + ", Extensions: [" + String.join(", ", extensions) + "]}";
     }
 }

@@ -80,7 +80,7 @@ import org.theko.sound.util.FormatUtilities;
  * @since 0.1.3-beta
  * @author Theko
  */
-@AudioCodecType(name = "WAVE", extensions = {"wav", "wave"}, version = "1.2")
+@AudioCodecType(name = "Wav", extensions = {"wav", "wave"})
 public class WavCodec extends AudioCodec {
 
     private static final Logger logger = LoggerFactory.getLogger(WavCodec.class);

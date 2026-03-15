@@ -23,13 +23,13 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Annotation to define metadata for an audio codec type.
- * This annotation can be used to specify the name, file extension,
- * and version of an audio codec.
+ * This annotation can be used to specify the name and file extensions,
+ * of an audio codec.
  *
  * <p>Usage:
  * <pre>
- * &#64;AudioCodecType(name = "WAVE", extension = ".wav", version = "1.0")
- * public class WAVECodec {
+ * &#64;AudioCodecType(name = "Wav", extensions = {"wav", "wave"})
+ * public class WavCodec extends AudioCodec {
  *     // Implementation details
  * }
  * </pre>
@@ -37,8 +37,7 @@ import java.lang.annotation.RetentionPolicy;
  * <p>Attributes:
  * <ul>
  *   <li><b>name</b> (optional): The name of the audio codec. Defaults to "Unknown".</li>
- *   <li><b>extension</b> (required): The file extension associated with the codec.</li>
- *   <li><b>version</b> (optional): The version of the codec. Defaults to "1.0".</li>
+ *   <li><b>extension</b>: The file extensions associated with the codec.</li>
  * </ul>
  *
  * <p>Retention Policy:
@@ -58,5 +57,4 @@ public @interface AudioCodecType {
 
     String name() default "Unknown";
     String[] extensions();
-    String version() default "1.0";
 }
