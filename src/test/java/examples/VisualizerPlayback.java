@@ -58,6 +58,16 @@ public class VisualizerPlayback {
             g2d.setFont(font);
             drawMultilineText(g2d, trackInfo + "\n" + getPlaybackInfo(player), 10, 20, font.getSize() + 2);
             drawMessage(g2d);
+
+            if (frame.isAlwaysOnTop()) {
+                g2d.setColor(Color.ORANGE);
+
+                int xPoints[] = {0, 10, 0};
+                int yPoints[] = {0, 0, 10};
+                int nPoints = 3;
+
+                g2d.fillPolygon(xPoints, yPoints, nPoints);
+            }
         }
 
         private void drawMultilineText(Graphics2D g2d, String text, int x, int y, int lineHeight) {
@@ -77,7 +87,7 @@ public class VisualizerPlayback {
                 int x = (w - msgWidth) / 2;
                 int y = (h - msgHeight) / 2;
 
-                float alpha = getAlpha();
+                float alpha = getMessageAlpha();
 
                 g2d.setColor(new Color(0, 0, 0, (int) (150 * alpha)));
                 g2d.fillRoundRect(x - 10, y - 20, msgWidth + 20, 30, 10, 10);
@@ -86,7 +96,7 @@ public class VisualizerPlayback {
             }
         }
 
-        private float getAlpha() {
+        private float getMessageAlpha() {
             if (message.isEmpty()) return 0f;
             float alpha = 1.0f - (float)(System.currentTimeMillis() - messageTimestamp) / messageDisplayDuration;
             return Math.max(0f, Math.min(1f, alpha));
@@ -297,6 +307,11 @@ public class VisualizerPlayback {
                     } catch (AudioCodecNotFoundException ex) {
                         message("Unsupported audio codec");
                     }
+                }
+                // Toggle always on top
+                case KeyEvent.VK_T -> {
+                    frame.setAlwaysOnTop(!frame.isAlwaysOnTop());
+                    message("Always on top %s".formatted(frame.isAlwaysOnTop() ? "enabled" : "disabled"));
                 }
             }
         }
