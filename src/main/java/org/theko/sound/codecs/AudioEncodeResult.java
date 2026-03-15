@@ -40,7 +40,7 @@ public class AudioEncodeResult extends AudioCodecResult {
      * @param format The format of the encoded audio
      * @param tags The list of audio tags associated with the encoded audio
      */
-    public AudioEncodeResult(AudioCodecInfo codecInfo, byte[] encoded, AudioFormat format, AudioTags tags) {
+    public AudioEncodeResult(AudioCodecInfo codecInfo, byte[] encoded, AudioFormat format, AudioMetadata tags) {
         super(codecInfo, format, tags);
         this.encoded = encoded;
     }

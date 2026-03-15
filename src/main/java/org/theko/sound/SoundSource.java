@@ -32,7 +32,7 @@ import org.theko.sound.codecs.AudioCodecInfo;
 import org.theko.sound.codecs.AudioCodecNotFoundException;
 import org.theko.sound.codecs.AudioCodecs;
 import org.theko.sound.codecs.AudioDecodeResult;
-import org.theko.sound.codecs.AudioTags;
+import org.theko.sound.codecs.AudioMetadata;
 import org.theko.sound.controls.Controllable;
 import org.theko.sound.controls.FloatControl;
 import org.theko.sound.effects.AudioEffect;
@@ -91,7 +91,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
 
     private float[][] samplesData;
     private AudioFormat audioFormat;
-    private AudioTags tags;
+    private AudioMetadata tags;
 
     protected AudioMixer innerMixer;
     protected ResamplerEffect resamplerEffect;
@@ -161,7 +161,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * @throws IllegalArgumentException If the samples data or audio format are invalid
      * @throws RuntimeException If adding the resampler effect fails
      */
-    public SoundSource(float[][] samplesData, AudioFormat audioFormat, AudioTags tags) {
+    public SoundSource(float[][] samplesData, AudioFormat audioFormat, AudioMetadata tags) {
         this();
         this.open(samplesData, audioFormat, tags);
     }
@@ -232,7 +232,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * @throws IllegalArgumentException If the samples or audio format are invalid
      * @throws RuntimeException If setting up the inner audio mixer or playback effect fails
      */
-    public void open(float[][] samples, AudioFormat format, AudioTags tags) {
+    public void open(float[][] samples, AudioFormat format, AudioMetadata tags) {
         SamplesValidation.validateSamples(samples);
         if (format == null) {
             throw new IllegalArgumentException("Audio format cannot be null.");
@@ -510,7 +510,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     /**
      * @return The metadata tags of the sound source
      */
-    public AudioTags getTags() {
+    public AudioMetadata getTags() {
         return tags;
     }
 
@@ -586,16 +586,16 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     }
 
     /**
-     * Applies an audio effect function to the sound source.
-     * The audio effect function is responsible for creating the actual
+     * Applies an audio effect builder to the sound source.
+     * The audio effect builder is responsible for creating the actual
      * audio effect and passing it to this method.
      *
-     * @param effect The audio effect function that will be applied
-     * @throws IllegalArgumentException If the effect function is null
+     * @param effect The audio effect builder that will be applied
+     * @throws IllegalArgumentException If the effect builder is null
      */
     public void applyEffect(AudioEffectBuilder effect) {
         if (effect == null) {
-            throw new IllegalArgumentException("Effect function cannot be null.");
+            throw new IllegalArgumentException("Effect builder cannot be null.");
         }
         applyEffect(effect.getEffect());
     }

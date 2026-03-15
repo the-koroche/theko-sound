@@ -31,7 +31,7 @@ import org.theko.sound.AudioFormat;
  */
 public class AudioCodecResult {
     private final AudioFormat audioFormat;
-    private final AudioTags metadata;
+    private final AudioMetadata metadata;
     private final AudioCodecInfo codecInfo;
 
     /**
@@ -41,7 +41,7 @@ public class AudioCodecResult {
      * @param audioFormat the audio format associated with this result
      * @param metadata the metadata tags associated with this result
      */
-    public AudioCodecResult(AudioCodecInfo codecInfo, AudioFormat audioFormat, AudioTags metadata) {
+    public AudioCodecResult(AudioCodecInfo codecInfo, AudioFormat audioFormat, AudioMetadata metadata) {
         this.codecInfo = codecInfo;
         this.audioFormat = audioFormat;
         this.metadata = metadata;
@@ -57,7 +57,7 @@ public class AudioCodecResult {
     /**
      * @return the metadata tags associated with this result
      */
-    public AudioTags getMetadata() {
+    public AudioMetadata getMetadata() {
         return metadata;
     }
 

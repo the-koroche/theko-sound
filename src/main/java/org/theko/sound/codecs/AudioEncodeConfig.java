@@ -26,7 +26,7 @@ import org.theko.sound.AudioFormat;
  * metadata and specific options to be associated with the encoded audio data.
  *
  * @see AudioFormat
- * @see AudioTags
+ * @see AudioMetadata
  *
  * @since 0.3.0-beta
  * @author Theko
@@ -34,7 +34,7 @@ import org.theko.sound.AudioFormat;
 public class AudioEncodeConfig {
 
     private final AudioFormat targetFormat;
-    private final AudioTags metadata;
+    private final AudioMetadata metadata;
     private final Map<String, Object> options = new HashMap<>();
 
     /**
@@ -44,7 +44,7 @@ public class AudioEncodeConfig {
      * @param metadata the audio metadata tags
      * @param options the options to be associated with the encoding process
      */
-    public AudioEncodeConfig(AudioFormat targetFormat, AudioTags metadata, Map<String, Object> options) {
+    public AudioEncodeConfig(AudioFormat targetFormat, AudioMetadata metadata, Map<String, Object> options) {
         this.targetFormat = targetFormat;
         this.metadata = metadata;
         this.options.putAll(options);
@@ -64,7 +64,7 @@ public class AudioEncodeConfig {
      *
      * @return the audio metadata tags associated with this configuration
      */
-    public AudioTags getMetadata() {
+    public AudioMetadata getMetadata() {
         return metadata;
     }
 

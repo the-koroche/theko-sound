@@ -26,7 +26,7 @@ import org.theko.sound.backends.AudioBackendCreationException;
 import org.theko.sound.backends.AudioBackendException;
 import org.theko.sound.backends.AudioBackendNotFoundException;
 import org.theko.sound.codecs.AudioCodecNotFoundException;
-import org.theko.sound.codecs.AudioTags;
+import org.theko.sound.codecs.AudioMetadata;
 import org.theko.sound.events.OutputLayerEvent;
 import org.theko.sound.events.OutputLayerEventType;
 import org.theko.sound.events.OutputLayerListener;
@@ -77,7 +77,7 @@ public class SoundPlayer extends SoundSource {
      * @param format The audio format of the samples data
      * @param tags The audio tags associated with the samples data
      */
-    public SoundPlayer(float[][] samples, AudioFormat format, AudioTags tags) {
+    public SoundPlayer(float[][] samples, AudioFormat format, AudioMetadata tags) {
         super(samples, format, tags);
         try {
             this.outputLayer = new AudioOutputLayer();
@@ -132,7 +132,7 @@ public class SoundPlayer extends SoundSource {
      * @param bufferSize The buffer size to use
      * @throws RuntimeException If the audio output layer creation fails, the specified audio format is unsupported, or the default output audio port is not found
      */
-    public void open(float[][] samples, AudioFormat format, AudioTags tags, AudioPort port, AudioMeasure bufferSize) {
+    public void open(float[][] samples, AudioFormat format, AudioMetadata tags, AudioPort port, AudioMeasure bufferSize) {
         super.open(samples, format, tags);
         try {
             if (this.outputLayer.isOpen()) {

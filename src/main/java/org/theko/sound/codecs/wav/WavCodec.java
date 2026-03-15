@@ -40,8 +40,8 @@ import org.theko.sound.codecs.AudioCodecType;
 import org.theko.sound.codecs.AudioDecodeResult;
 import org.theko.sound.codecs.AudioEncodeConfig;
 import org.theko.sound.codecs.AudioEncodeResult;
+import org.theko.sound.codecs.AudioMetadata;
 import org.theko.sound.codecs.AudioTag;
-import org.theko.sound.codecs.AudioTags;
 import org.theko.sound.properties.AudioSystemProperties;
 import org.theko.sound.samples.SamplesConverter;
 import org.theko.sound.util.FormatUtilities;
@@ -280,7 +280,7 @@ public class WavCodec extends AudioCodec {
                 logger.debug(decoded.toString());
             }
 
-            return new AudioDecodeResult(getInfo(), pcm, format, new AudioTags(tags));
+            return new AudioDecodeResult(getInfo(), pcm, format, new AudioMetadata(tags));
         } catch (IOException ex) {
             throw new AudioCodecException(ex);
         }
@@ -502,7 +502,7 @@ public class WavCodec extends AudioCodec {
     public AudioEncodeResult encode(float[][] samples, AudioFormat samplesFormat, AudioEncodeConfig config) throws AudioCodecException {
         try {
             AudioFormat targetFormat = config.getTargetFormat();
-            AudioTags tags = config.getMetadata();
+            AudioMetadata tags = config.getMetadata();
             // Check supported encodings
             int audioFormatCode = getAudioFormatCode(targetFormat.getEncoding());
 
@@ -547,7 +547,7 @@ public class WavCodec extends AudioCodec {
                 .array();
     }
 
-    protected static byte[] createListChunk(AudioTags tags) throws IOException {
+    protected static byte[] createListChunk(AudioMetadata tags) throws IOException {
         ByteArrayOutputStream listChunkStream = new ByteArrayOutputStream();
         if (!tags.isEmpty()) {
             listChunkStream.write(INFO_BYTES);

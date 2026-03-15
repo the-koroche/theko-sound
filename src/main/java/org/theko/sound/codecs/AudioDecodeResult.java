@@ -39,7 +39,7 @@ public class AudioDecodeResult extends AudioCodecResult {
      * @param format The format of the decoded audio
      * @param tags The list of audio tags associated with the decoded audio
      */
-    public AudioDecodeResult(AudioCodecInfo codecInfo, float[][] pcm, AudioFormat format, AudioTags tags) {
+    public AudioDecodeResult(AudioCodecInfo codecInfo, float[][] pcm, AudioFormat format, AudioMetadata tags) {
         super(codecInfo, format, tags);
         this.pcm = pcm;
     }

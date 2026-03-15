@@ -35,6 +35,8 @@ import org.theko.sound.codecs.AudioCodecType;
 import org.theko.sound.codecs.AudioDecodeResult;
 import org.theko.sound.codecs.AudioEncodeConfig;
 import org.theko.sound.codecs.AudioEncodeResult;
+import org.theko.sound.codecs.AudioMetadata;
+import org.theko.sound.codecs.AudioTag;
 import org.theko.sound.codecs.wav.WavCodec;
 import org.theko.sound.samples.SamplesConverter;
 import org.theko.sound.samples.SamplesValidation;
@@ -144,10 +146,15 @@ public class FFmpegCodec extends AudioCodec {
             }
 
             logger.trace("Starting WAVECodec decode with {} bytes", wavData.length);
+            AudioDecodeResult adr = null;
             try (ByteArrayInputStream bais = new ByteArrayInputStream(wavData)) {
-                return new WavCodec().decode(bais);
+                adr = new WavCodec().decode(bais);
+            }
+            if (adr == null) {
+                throw new AudioCodecException("FFmpeg decode failed");
             }
 
+            return new AudioDecodeResult(getInfo(), adr.getSamples(), adr.getAudioFormat(), adr.getMetadata());
         } catch (IOException e) {
             logger.warn("IO error during FFmpeg decode", e);
             throw new AudioCodecException("IO error during FFmpeg decode", e);
@@ -182,6 +189,7 @@ public class FFmpegCodec extends AudioCodec {
         cmd.add("-i"); cmd.add("pipe:0");
 
         cmd.add("-f"); cmd.add((String) config.getOptions().get("ffmpeg.container"));
+        addMetadata(cmd, config.getMetadata());
         cmd.add("pipe:1");
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
@@ -271,5 +279,12 @@ public class FFmpegCodec extends AudioCodec {
             default ->
                 throw new IllegalArgumentException("Unsupported encoding: " + enc);
         };
+    }
+
+    private void addMetadata(List<String> cmd, AudioMetadata metadata) {
+        List<AudioTag> tags = metadata.asList();
+        for (AudioTag tag : tags) {
+            cmd.add("-metadata"); cmd.add(tag.getKey() + "=" + tag.getValue());
+        }
     }
 }

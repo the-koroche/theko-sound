@@ -28,26 +28,26 @@ import java.util.List;
  * @since 0.2.5-beta
  * @author Theko
  */
-public class AudioTags implements Iterable<AudioTag> {
+public class AudioMetadata implements Iterable<AudioTag> {
 
     private final ArrayList<AudioTag> tags;
 
-    public AudioTags(AudioTags tags) {
+    public AudioMetadata(AudioMetadata tags) {
         this.tags = new ArrayList<>(tags.tags);
     }
 
-    public AudioTags(AudioTag[] tags) {
+    public AudioMetadata(AudioTag[] tags) {
         this.tags = new ArrayList<>();
         for (AudioTag tag : tags) {
             this.tags.add(tag);
         }
     }
 
-    public AudioTags(Collection<AudioTag> tags) {
+    public AudioMetadata(Collection<AudioTag> tags) {
         this.tags = new ArrayList<>(tags);
     }
 
-    public AudioTags() {
+    public AudioMetadata() {
         this.tags = new ArrayList<>();
     }
 
@@ -57,7 +57,7 @@ public class AudioTags implements Iterable<AudioTag> {
      * @param tag The audio metadata tag to add
      * @return This instance, for method chaining
      */
-    public AudioTags add(AudioTag tag) {
+    public AudioMetadata add(AudioTag tag) {
         tags.add(tag);
         return this;
     }
@@ -80,7 +80,7 @@ public class AudioTags implements Iterable<AudioTag> {
      * @return This instance, for method chaining
      * @throws IndexOutOfBoundsException if the index is out of bounds
      */
-    public AudioTags remove(int index) {
+    public AudioMetadata remove(int index) {
         tags.remove(index);
         return this;
     }
@@ -91,7 +91,7 @@ public class AudioTags implements Iterable<AudioTag> {
      * @param tag The audio metadata tag to remove
      * @return This instance, for method chaining
      */
-    public AudioTags remove(AudioTag tag) {
+    public AudioMetadata remove(AudioTag tag) {
         tags.remove(tag);
         return this;
     }
