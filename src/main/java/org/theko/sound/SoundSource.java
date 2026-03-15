@@ -508,9 +508,9 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     }
 
     /**
-     * @return The metadata tags of the sound source
+     * @return The metadata of the sound source
      */
-    public AudioMetadata getTags() {
+    public AudioMetadata getMetadata() {
         return tags;
     }
 

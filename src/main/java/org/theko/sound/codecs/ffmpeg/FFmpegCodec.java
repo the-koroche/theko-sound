@@ -48,14 +48,6 @@ import org.theko.sound.samples.SamplesValidation;
  * <p>The class uses the ProcessBuilder API to launch FFmpeg with the proper
  * arguments in order to encode or decode audio data.
  *
- * <p>When encoding audio data, the class writes the audio data to the FFmpeg process
- * via a PipeOutputStream. When decoding audio data, the class reads the decoded audio
- * data from the FFmpeg process via a PipeInputStream.
- *
- * <p>The class also handles the conversion of the FFmpeg process output to an
- * AudioDecodeResult object, which holds the decoded audio data, the audio format,
- * and any metadata found in the file.
- *
  * <p>FFmpeg is required to be installed and available on the system path in order
  * for this class to work properly.
  *

@@ -47,7 +47,7 @@ import org.theko.sound.samples.SamplesConverter;
 import org.theko.sound.util.FormatUtilities;
 
 /**
- * The {@code WAVECodec} class provides functionality for encoding and decoding
+ * The {@code WavCodec} class provides functionality for encoding and decoding
  * audio data in the WAVE file format. It supports reading and writing WAVE files
  * with various audio formats, including PCM (signed/unsigned), IEEE Float, ALAW,
  * and ULAW. The class also handles metadata stored in the WAVE INFO chunk.
@@ -55,13 +55,12 @@ import org.theko.sound.util.FormatUtilities;
  * <p>Example:
  * <pre>
  * {@code
- * WAVECodec codec = new WAVECodec();
  * InputStream inputStream = new FileInputStream("example.wav");
- * AudioDecodeResult result = codec.decode(inputStream);
+ * AudioDecodeResult result = new WavCodec().decode(inputStream);
  *
- * byte[] audioData = result.getAudioData();
+ * float[][] pcm = result.getSamples();
  * AudioFormat format = result.getFormat();
- * List<AudioTag> tags = result.getTags();
+ * AudioMetadata tags = result.getMetadata();
  *
  * // Process audio data, format, and tags...
  * }
@@ -76,9 +75,7 @@ import org.theko.sound.util.FormatUtilities;
  * @see AudioCodec
  * @see AudioDecodeResult
  * @see AudioEncodeResult
- * @see AudioFormat
- * @see AudioTag
- * @see AudioCodecException
+ * @see AudioMetadata
  *
  * @since 0.1.3-beta
  * @author Theko
