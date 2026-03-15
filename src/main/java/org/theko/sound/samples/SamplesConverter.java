@@ -27,34 +27,23 @@ import org.theko.sound.AudioFormat;
 /**
  * Utility class for converting between raw PCM/encoded audio data and normalized floating-point samples.
  *
- * <p>This class provides methods to:
- * <ul>
- *   <li>Convert raw audio byte data into normalized {@code float} samples in the range [-1.0, 1.0].</li>
- *   <li>Convert normalized {@code float} samples back into raw audio bytes.</li>
- *   <li>Apply optional per-channel volume multipliers during conversion.</li>
- * </ul>
+ * <p>This class provides methods to convert raw audio byte data into normalized {@code float} samples in the range [-1.0, 1.0],
+ * and vice versa for converting samples back to raw audio data.
  *
- * <p>The conversion methods support the following audio encodings:
- * <ul>
- *   <li>{@link AudioFormat.Encoding#PCM_UNSIGNED}</li>
- *   <li>{@link AudioFormat.Encoding#PCM_SIGNED}</li>
- *   <li>{@link AudioFormat.Encoding#PCM_FLOAT}</li>
- *   <li>{@link AudioFormat.Encoding#ULAW}</li>
- *   <li>{@link AudioFormat.Encoding#ALAW}</li>
- * </ul>
- *
- * <p><b>Important Notes:</b>
- * <ul>
- *   <li>Unsupported audio encodings will throw {@link IllegalArgumentException}.</li>
- *   <li>Methods that return arrays will allocate new memory for the result;
- *       methods with preallocated arrays reuse existing memory to reduce GC pressure.</li>
- * </ul>
+ * <p>The conversion methods support all audio encodings supported by {@link AudioFormat}.
  *
  * <p>Example usage:
  * <pre>
- * byte[] pcmData = ...;
- * float[][] samples = SamplesConverter.toSamples(pcmData, audioFormat, 0.8f, 0.9f);
- * byte[] outputData = SamplesConverter.fromSamples(samples, audioFormat);
+ * byte[] data = ...;
+ * AudioFormat format = ...;
+ * float[][] samples = SamplesConverter.toSamples(data, format); // in [channels][frames] format
+ * 
+ * int size = format.getByteRate() * format.getFrameSize();
+ * byte[] converted = new byte[size];
+ * SamplesConverter.fromSamples(samples, converted, format);
+ * 
+ * // or
+ * converted = SamplesConverter.fromSamples(samples, format);
  * </pre>
  *
  * @see AudioFormat

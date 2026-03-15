@@ -246,7 +246,7 @@ public class AudioFormat implements Serializable {
     }
 
     @Override
-    public boolean equals (Object obj) {
+    public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         AudioFormat other = (AudioFormat) obj;
@@ -254,7 +254,7 @@ public class AudioFormat implements Serializable {
     }
 
     @Override
-    public int hashCode () {
+    public int hashCode() {
         return Objects.hash(sampleRate, bitsPerSample, channels, encoding, bigEndian, frameSize, byteRate);
     }
 }
