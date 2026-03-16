@@ -16,8 +16,15 @@
 
 package org.theko.sound.backends.javasound;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.*;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -31,14 +38,14 @@ import org.slf4j.LoggerFactory;
 import org.theko.sound.AudioFlow;
 import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioFormat.Encoding;
+import org.theko.sound.AudioPort;
+import org.theko.sound.AudioPortsNotFoundException;
+import org.theko.sound.UnsupportedAudioFormatException;
 import org.theko.sound.backends.AudioBackend;
 import org.theko.sound.backends.AudioBackendType;
 import org.theko.sound.backends.AudioInputBackend;
 import org.theko.sound.backends.AudioOutputBackend;
 import org.theko.sound.backends.UnsupportedPortLinkException;
-import org.theko.sound.AudioPort;
-import org.theko.sound.AudioPortsNotFoundException;
-import org.theko.sound.UnsupportedAudioFormatException;
 
 /**
  * The {@code JavaSoundBackend} class is an implementation of the {@link AudioBackend} interface
@@ -265,7 +272,6 @@ public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundIn
         try {
             for (AudioFormat current : sortedFormats) {
                 if (isMixerSupporting(mixer, flow, current)) {
-                    logger.trace("Compatible format found: {}", current);
                     return current;
                 }
             }
