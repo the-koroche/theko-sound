@@ -24,7 +24,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +68,9 @@ public class FFmpegCodec extends AudioCodec {
 
     private static final Logger logger = LoggerFactory.getLogger(FFmpegCodec.class);
     private static final Logger ffmpegLogger = LoggerFactory.getLogger("FFmpeg");
+
+    private static final AudioCodec DECODER_CODEC = new WavCodec();
+    private static final String DECODER_CODEC_NAME = DECODER_CODEC.getClass().getSimpleName();
 
     @Override
     public AudioDecodeResult decode(InputStream is) throws AudioCodecException {
@@ -126,20 +131,27 @@ public class FFmpegCodec extends AudioCodec {
             writerThread.join();
             stderrThread.join();
             logger.trace("Waiting for FFmpeg to finish...");
-            int exitCode = ffmpeg.waitFor();
 
-            logger.trace("FFmpeg exited with code {}", exitCode);
-            byte[] wavData = stdoutBuffer.toByteArray();
+            if (!ffmpeg.waitFor(60, TimeUnit.SECONDS)) {
+                logger.warn("FFmpeg timed out (60 seconds).");
+                ffmpeg.destroyForcibly();
+                throw new AudioCodecException("FFmpeg timeout");
+            }
+            int exitCode = ffmpeg.exitValue();
 
             if (exitCode != 0) {
                 logger.warn("FFmpeg exited with code {}", exitCode);
-                throw new AudioCodecException("FFmpeg failed with exit code " + exitCode);
+                throw new AudioCodecException("FFmpeg encode failed with code " + exitCode);
+            } else {
+                logger.trace("FFmpeg exited successfully with code {}", exitCode);
             }
+            
+            byte[] wavData = stdoutBuffer.toByteArray();
 
-            logger.trace("Starting WAVECodec decode with {} bytes", wavData.length);
+            logger.trace("Starting {} decode with {} bytes", DECODER_CODEC_NAME, wavData.length);
             AudioDecodeResult adr = null;
             try (ByteArrayInputStream bais = new ByteArrayInputStream(wavData)) {
-                adr = new WavCodec().decode(bais);
+                adr = DECODER_CODEC.decode(bais);
             }
             if (adr == null) {
                 throw new AudioCodecException("FFmpeg decode failed");
@@ -215,8 +227,9 @@ public class FFmpegCodec extends AudioCodec {
             stderrThread.start();
 
             ByteArrayOutputStream stdoutBuffer = new ByteArrayOutputStream();
+            byte[] buf = new byte[8192];
             try (InputStream stdout = ffmpeg.getInputStream()) {
-                byte[] buf = new byte[8192];
+                Arrays.fill(buf, (byte) 0);
                 int read;
                 while ((read = stdout.read(buf)) != -1) {
                     stdoutBuffer.write(buf, 0, read);
@@ -227,11 +240,18 @@ public class FFmpegCodec extends AudioCodec {
             writerThread.join();
             stderrThread.join();
             logger.trace("Waiting for FFmpeg to finish...");
-            int exitCode = ffmpeg.waitFor();
+            if (!ffmpeg.waitFor(60, TimeUnit.SECONDS)) {
+                logger.warn("FFmpeg timed out (60 seconds).");
+                ffmpeg.destroyForcibly();
+                throw new AudioCodecException("FFmpeg timeout");
+            }
+            int exitCode = ffmpeg.exitValue();
 
-            logger.trace("FFmpeg exited with code {}", exitCode);
             if (exitCode != 0) {
+                logger.warn("FFmpeg exited with code {}", exitCode);
                 throw new AudioCodecException("FFmpeg encode failed with code " + exitCode);
+            } else {
+                logger.trace("FFmpeg exited successfully with code {}", exitCode);
             }
 
             byte[] encodedData = stdoutBuffer.toByteArray();
