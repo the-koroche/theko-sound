@@ -65,6 +65,8 @@ import org.theko.sound.util.PlatformUtilities.Platform;
  */
 @AudioBackendType(name = "WASAPIShared",
                 description = "WASAPI backend in shared mode for Windows",
+                platforms = { Platform.WINDOWS },
+                priority = 10,
                 input = false, output = true)
 public sealed class WASAPISharedBackend implements AudioBackend permits WASAPISharedOutput, WASAPISharedInput {
 

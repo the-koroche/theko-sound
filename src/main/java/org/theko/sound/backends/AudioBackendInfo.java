@@ -16,6 +16,10 @@
 
 package org.theko.sound.backends;
 
+import java.util.Arrays;
+
+import org.theko.sound.util.PlatformUtilities.Platform;
+
 /**
  * Represents information about an audio backend, including its name, description, supported input/output capabilities,
  * and the class type of the audio backend. This class extracts metadata from
@@ -37,6 +41,9 @@ package org.theko.sound.backends;
 public class AudioBackendInfo {
 
     private final String name, description;
+    private final Platform[] platforms;
+    private final int priority;
+    private final boolean autoSelect;
     private final boolean input, output;
     private final Class<? extends AudioBackend> audioBackend;
 
@@ -54,6 +61,9 @@ public class AudioBackendInfo {
             AudioBackendType audioBackendType = audioBackend.getAnnotation(AudioBackendType.class);
             this.name = audioBackendType.name();
             this.description = audioBackendType.description();
+            this.platforms = audioBackendType.platforms();
+            this.priority = audioBackendType.priority();
+            this.autoSelect = audioBackendType.autoSelect();
             this.input = audioBackendType.input();
             this.output = audioBackendType.output();
             this.audioBackend = audioBackend;
@@ -75,6 +85,38 @@ public class AudioBackendInfo {
      */
     public String getDescription() {
         return description;
+    }
+
+    /**
+     * @return the supported platforms for the audio backend, as specified in the {@link AudioBackendType} annotation
+     */
+    public Platform[] getPlatforms() {
+        return platforms;
+    }
+
+    /**
+     * Returns whether this audio backend is cross-platform compatible.
+     * A cross-platform audio backend is one that does not specify any platform restrictions in its
+     * {@link AudioBackendType} annotation.
+     * @return true if this audio backend is cross-platform compatible, false otherwise
+     */
+    public boolean isCrossPlatform() {
+        return platforms.length == 0;
+    }
+
+    /**
+     * @return true if the audio backend can be automatically selected by {@link AudioBackends} 
+     * during platform detection, false otherwise
+     */
+    public boolean isAutoSelect() {
+        return autoSelect;
+    }
+
+    /**
+     * @return the priority of the audio backend, as specified in the {@link AudioBackendType} annotation
+     */
+    public int getPriority() {
+        return priority;
     }
 
     /**
@@ -101,6 +143,10 @@ public class AudioBackendInfo {
     @Override
     public String toString() {
         String io = (input && output) ? "Input/Output" : (input ? "Input" : (output ? "Output" : "None"));
-        return "AudioBackendInfo{%s, %s, %s}".formatted(name, description, io);
+        return "AudioBackendInfo{%s, %s, %s, %s}".formatted(
+                name,
+                description,
+                (isCrossPlatform() ? "Cross-platform" : Arrays.toString(platforms)), 
+                io);
     }
 }

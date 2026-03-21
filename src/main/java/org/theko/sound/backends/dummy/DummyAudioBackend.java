@@ -55,6 +55,8 @@ import org.theko.sound.UnsupportedAudioFormatException;
  */
 @AudioBackendType(name = "Dummy",
                 description = "A dummy audio backend that does not produce or capture real audio",
+                priority = -10,
+                autoSelect = false,
                 input = true, output = true)
 public class DummyAudioBackend implements AudioBackend {
 

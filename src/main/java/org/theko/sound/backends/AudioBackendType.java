@@ -18,32 +18,26 @@ package org.theko.sound.backends;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
+
+import org.theko.sound.util.PlatformUtilities.Platform;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
  * Annotation to define metadata for audio backend types.
- * This annotation is intended to be used on classes that implement the {@code AudioBackend} interface.
- *
- * <p>Attributes:
- * <ul>
- *   <li>{@code name} - Specifies the name of the audio backend type. This is a required attribute.</li>
- *   <li>{@code version} - Specifies the version of the audio backend type. Defaults to "1.0" if not provided.</li>
- * </ul>
+ * This annotation is intended to be used on classes that implement the {@code AudioBackend} interface,
+ * to work properly with {@link AudioBackends} manager.
  *
  * <p>Usage:
  * <pre>
- * &#64;AudioBackendType(name = "ExampleBackend", version = "2.0")
+ * &#64;AudioBackendType(name = "ExampleBackend",
+ *          description = "An example audio backend",
+ *          platforms = {Platform.WINDOWS})
  * public class ExampleAudioBackend implements AudioBackend {
  *     // Implementation details
  * }
  * </pre>
- *
- * <p>Retention Policy:
- * This annotation is retained at runtime, allowing it to be accessed via reflection.
- *
- * <p>Target:
- * This annotation can only be applied to types (classes, interfaces, etc.).
  *
  * @see AudioBackend
  * @see AudioBackendInfo
@@ -66,12 +60,32 @@ public @interface AudioBackendType {
     String description() default "";
 
     /**
-     * Indicates whether the audio backend supports output functionality. Defaults to true.
+     * Specifies the supported platforms for the audio backend.
+     * Defaults to an empty array, indicating cross-platform support.
+     */
+    Platform[] platforms() default {};
+
+    /**
+     * Specifies the priority of the audio backend type.
+     * Higher values indicate higher priority.
+     */
+    int priority() default 0;
+
+    /**
+     * Whether this backend can be automatically selected by {@link AudioBackends} 
+     * during platform detection.
+     * <p>
+     * Defaults to true. Set to false to prevent automatic selection (e.g., for Dummy backends).
+     */
+    boolean autoSelect() default true;
+
+    /**
+     * Indicates whether the audio backend supports output functionality.
      */
     boolean output() default true;
 
     /**
-     * Indicates whether the audio backend supports input functionality. Defaults to true.
+     * Indicates whether the audio backend supports input functionality.
      */
     boolean input() default true;
 }
