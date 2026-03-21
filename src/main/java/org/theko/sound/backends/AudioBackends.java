@@ -18,16 +18,19 @@ package org.theko.sound.backends;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.AudioClassRegister;
+import org.theko.sound.backends.javasound.JavaSoundBackend;
 import org.theko.sound.util.PlatformUtilities;
 import org.theko.sound.util.PlatformUtilities.Platform;
 
@@ -74,14 +77,7 @@ public final class AudioBackends {
 
     private static final Logger logger = LoggerFactory.getLogger(AudioBackends.class);
 
-    private static final Map<Platform, List<String>> PLATFORM_BACKENDS = Map.of(
-            Platform.WINDOWS, List.of("WASAPIShared", "DirectSound"),
-            Platform.LINUX, List.of("PipeWire", "PulseAudio", "ALSA"),
-            Platform.OTHER_UNIX, List.of("PipeWire", "PulseAudio", "ALSA"),
-            Platform.MAC, List.of("CoreAudio"),
-            Platform.UNKNOWN, List.of("JavaSound")
-    );
-
+    private static final AudioBackendInfo FALLBACK_BACKEND = new AudioBackendInfo(JavaSoundBackend.class);
     private static AudioBackendInfo platformInputBackendInfo, platformOutputBackendInfo;
 
     private AudioBackends() {
@@ -115,7 +111,7 @@ public final class AudioBackends {
         }
 
         try {
-            detectPlatformBackends(false /* allow different backends for input and output */);
+            detectPlatformBackends(true /* allow different backends for input and output */);
         } catch (AudioBackendNotFoundException | AudioBackendCreationException e) {
             logger.error("Failed to create platform-specific audio backend.", e);
         }
@@ -320,66 +316,52 @@ public final class AudioBackends {
     }
 
 
-    /**
-     * Detects and selects platform-specific audio backends that support the desired
-     * features. This method is private and intended for internal use only.
-     *
-     * @param requireDuplex Whether the selected backend must support full duplex
-     *                    audio operations (both input and output).
-     *
-     * @throws AudioBackendCreationException If the backend cannot be instantiated
-     * @throws AudioBackendNotFoundException If no backend is found that supports the
-     *                              desired features.
-     */
-    private static void detectPlatformBackends(boolean requireDuplex) throws AudioBackendCreationException, AudioBackendNotFoundException {
-        Platform platform = PlatformUtilities.getPlatform();
-        if (platform == null) platform = Platform.UNKNOWN;
+    private static void detectPlatformBackends(boolean requireDuplex) 
+            throws AudioBackendCreationException, AudioBackendNotFoundException {
 
-        List<String> backendNames = PLATFORM_BACKENDS.getOrDefault(platform, List.of("JavaSound"));
+        Platform platform = Optional.ofNullable(PlatformUtilities.getPlatform()).orElse(Platform.UNKNOWN);
 
-        for (String name : backendNames) {
-            AudioBackendInfo info;
-            try {
-                info = fromName(name);
-            } catch (AudioBackendNotFoundException e) {
-                continue; // backend not found
-            }
+        Predicate<AudioBackendInfo> matchesPlatform = b -> {
+            Platform[] p = b.getPlatforms();
+            return p.length == 0 || Arrays.stream(p).anyMatch(pl -> pl == platform);
+        };
 
-            if (requireDuplex && (!info.supportsInput() || !info.supportsOutput())) {
-                continue;
-            }
+        if (requireDuplex) {
+            platformOutputBackendInfo = platformInputBackendInfo = audioBackends.stream()
+                    .filter(AudioBackendInfo::isAutoSelect)
+                    .filter(matchesPlatform)
+                    .filter(b -> b.supportsInput() && b.supportsOutput())
+                    .max(Comparator.comparingInt(AudioBackendInfo::getPriority))
+                    .orElseThrow(() -> {
+                        logger.error("No suitable audio backend found for duplex mode on platform {}", platform);
+                        return new AudioBackendNotFoundException("No backend supports duplex mode for platform " + platform);
+                    });
 
-            boolean outputOk = false;
-            if (info.supportsOutput()) {
-                AudioOutputBackend out = getOutputBackend(info);
-                outputOk = (out != null && out.isAvailableOnThisPlatform());
-            }
-
-            boolean inputOk = false;
-            if (info.supportsInput()) {
-                AudioInputBackend in = getInputBackend(info);
-                inputOk = (in != null && in.isAvailableOnThisPlatform());
-            }
-
-            if (requireDuplex && (!outputOk || !inputOk)) {
-                continue;
-            }
-
-            platformOutputBackendInfo = outputOk ? info : null;
-            platformInputBackendInfo  = inputOk  ? info : null;
-
-            logger.info("Selected backend '{}' (duplex={}, output={}, input={})",
-                    name, requireDuplex, outputOk, inputOk);
-
+            logger.debug("Selected duplex backend: {}", platformOutputBackendInfo.getName());
             return;
         }
 
-        // Fallback to JavaSound if some backend was not found
-        AudioBackendInfo fallback = fromName("JavaSound");
-        if (platformOutputBackendInfo == null) platformOutputBackendInfo = fallback;
-        if (platformInputBackendInfo == null)  platformInputBackendInfo  = fallback;
+        platformOutputBackendInfo = selectBackend(matchesPlatform, AudioBackendInfo::supportsOutput, "output");
+        logger.debug("Selected output backend: {}", platformOutputBackendInfo.getName());
+        
+        platformInputBackendInfo = selectBackend(matchesPlatform, AudioBackendInfo::supportsInput, "input");
+        logger.debug("Selected input backend: {}", platformInputBackendInfo.getName());
 
-        logger.warn("Fallback backend selected: JavaSound (duplex mode = {})", requireDuplex);
+        if ("JavaSound".equals(platformOutputBackendInfo.getName()) &&
+            "JavaSound".equals(platformInputBackendInfo.getName())) {
+            logger.info("Fallback backend selected: JavaSound (duplex mode = {})", requireDuplex);
+        }
+    }
+
+    private static AudioBackendInfo selectBackend(Predicate<AudioBackendInfo> platformFilter,
+                                                Predicate<AudioBackendInfo> featureFilter,
+                                                String type) {
+        return audioBackends.stream()
+                .filter(AudioBackendInfo::isAutoSelect)
+                .filter(platformFilter)
+                .filter(featureFilter)
+                .max(Comparator.comparingInt(AudioBackendInfo::getPriority))
+                .orElse(FALLBACK_BACKEND);
     }
 
     /**
