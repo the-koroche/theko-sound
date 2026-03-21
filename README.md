@@ -128,17 +128,17 @@ Main modules of the library:
 
 * [x] JavaSound — Backend, Input, Output
 * [ ] WASAPI — In progress (Backend, Output)
-* [ ] ALSA — Planned
+* [ ] PipeWire — Planned
 * [ ] CoreAudio — Planned
 * [ ] DirectSound — If possible
-* [ ] PulseAudio — If possible
+* [ ] ALSA — If possible
 
 **Codecs:**
 
 * [x] WAVE — Encoding, Decoding
+* [x] FFMpeg — Encoding, Decoding
 * [ ] AIFF — Planned
 * [ ] AU — Planned
-* [ ] FLAC — Unlikely
 
 ---
 
@@ -168,7 +168,7 @@ Main modules of the library:
     <dependency>
         <groupId>io.github.the-koroche</groupId>
         <artifactId>theko-events</artifactId>
-        <version>1.2.4</version>
+        <version>2.0.0</version>
     </dependency>
 </dependencies>
 ```
