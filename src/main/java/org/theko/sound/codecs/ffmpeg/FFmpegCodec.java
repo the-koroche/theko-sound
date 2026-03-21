@@ -131,20 +131,7 @@ public class FFmpegCodec extends AudioCodec {
             writerThread.join();
             stderrThread.join();
             logger.trace("Waiting for FFmpeg to finish...");
-
-            if (!ffmpeg.waitFor(60, TimeUnit.SECONDS)) {
-                logger.warn("FFmpeg timed out (60 seconds).");
-                ffmpeg.destroyForcibly();
-                throw new AudioCodecException("FFmpeg timeout");
-            }
-            int exitCode = ffmpeg.exitValue();
-
-            if (exitCode != 0) {
-                logger.warn("FFmpeg exited with code {}", exitCode);
-                throw new AudioCodecException("FFmpeg encode failed with code " + exitCode);
-            } else {
-                logger.trace("FFmpeg exited successfully with code {}", exitCode);
-            }
+            waitForProcess(ffmpeg, "FFmpeg", 60, TimeUnit.SECONDS);
             
             byte[] wavData = stdoutBuffer.toByteArray();
 
@@ -240,19 +227,7 @@ public class FFmpegCodec extends AudioCodec {
             writerThread.join();
             stderrThread.join();
             logger.trace("Waiting for FFmpeg to finish...");
-            if (!ffmpeg.waitFor(60, TimeUnit.SECONDS)) {
-                logger.warn("FFmpeg timed out (60 seconds).");
-                ffmpeg.destroyForcibly();
-                throw new AudioCodecException("FFmpeg timeout");
-            }
-            int exitCode = ffmpeg.exitValue();
-
-            if (exitCode != 0) {
-                logger.warn("FFmpeg exited with code {}", exitCode);
-                throw new AudioCodecException("FFmpeg encode failed with code " + exitCode);
-            } else {
-                logger.trace("FFmpeg exited successfully with code {}", exitCode);
-            }
+            waitForProcess(ffmpeg, "FFmpeg", 60, TimeUnit.SECONDS);
 
             byte[] encodedData = stdoutBuffer.toByteArray();
             logger.trace("Encoded {} bytes", encodedData.length);
@@ -265,6 +240,24 @@ public class FFmpegCodec extends AudioCodec {
             Thread.currentThread().interrupt();
             throw new AudioCodecException("FFmpeg process interrupted", e);
         }
+    }
+
+    private int waitForProcess(Process process, String name, int timeout, TimeUnit unit) throws InterruptedException, AudioCodecException {
+        if (!process.waitFor(60, TimeUnit.SECONDS)) {
+            logger.warn("{} timed out ({} {})", name, timeout, unit.toString());
+            process.destroyForcibly();
+            throw new AudioCodecException(String.format("%s execution timeout (%d %s)", name, timeout, unit.toString()));
+        }
+        int exitCode = process.exitValue();
+
+        if (exitCode != 0) {
+            logger.warn("{} exited with code {}", name, exitCode);
+            throw new AudioCodecException(String.format("%s encode failed with code %d", name, exitCode));
+        } else {
+            logger.trace("{} exited successfully with code {}", name, exitCode);
+        }
+
+        return exitCode;
     }
 
     private String getFFmpegFormat(AudioFormat fmt) {
