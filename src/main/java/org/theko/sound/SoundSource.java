@@ -63,6 +63,9 @@ import org.theko.sound.util.AudioBufferUtilities;
  *   <li>Managing playback state with controls for speed, gain, and pan.</li>
  *   <li>Support for looping and resetting playback.</li>
  * </ul>
+ * 
+ * <p>If the sound source is not opened or initialized, it will throw {@link IllegalStateException}.
+ * To initialize the sound source (create an inner mixer), use the {@link #initialize()} method.
  *
  * <p>Usage example:
  * <pre>{@code
@@ -71,12 +74,8 @@ import org.theko.sound.util.AudioBufferUtilities;
  * soundSource.start();
  * }</pre>
  *
- * <p>Note: This class relies on external utilities and effects such as {@link AudioMixer}
- * and {@link ResamplerEffect} for processing audio data.
- *
  * @see AudioNode
  * @see Controllable
- * @see Playback
  * @see AudioMixer
  * @see ResamplerEffect
  *
@@ -93,12 +92,12 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     private AudioFormat audioFormat;
     private AudioMetadata tags;
 
-    protected AudioMixer innerMixer;
+    private AudioMixer innerMixer;
     protected ResamplerEffect resamplerEffect;
     protected final FloatControl speedControl = new FloatControl("Speed", 0.0f, 50f, 1.0f);
 
     private Playback playback;
-    protected int playedFrames = 0;
+    private int playedFrames = 0;
     protected boolean isPlaying = false;
     protected boolean loop = false;
 
@@ -220,27 +219,22 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     }
 
     /**
-     * Opens the sound source with the specified samples, audio format, and tags.
+     * Initializes the sound source for playback by creating an inner mixer and associating it with a playback node.
+     * This method is called automatically by the {@link #open(float[][], AudioFormat, AudioMetadata)} and
+     * {@link #open(File)} methods.
      * <p>
-     * This method validates the samples and audio format, and then associates the sound source with the given data.
-     * It also sets up the inner audio mixer and playback effect, and adds a resampler effect if it is not already present.
-     * Finally, it resets the playback position and dispatches an {@link SoundSourceEventType#OPENED} event.
-     *
-     * @param samples The samples data to open
-     * @param format The audio format of the samples data
-     * @param tags The audio tags associated with the samples data
-     * @throws IllegalArgumentException If the samples or audio format are invalid
-     * @throws RuntimeException If setting up the inner audio mixer or playback effect fails
+     * The inner mixer is configured with post-gain and pan controls that dispatch {@link SoundSourceEventType#VOLUME_CHANGE}
+     * and {@link SoundSourceEventType#PAN_CHANGE} events, respectively, when their values change.
+     * <p>
+     * Additionally, a resampler effect is added to the inner mixer, which allows for real-time resampling of
+     * the audio signal.
+     * <p>
+     * If the resampler effect cannot be added to the inner mixer due to incompatible effect types or multiple
+     * varying-size effects, a runtime exception is thrown.
+     * 
+     * @throws RuntimeException If the resampler effect cannot be added to the inner mixer
      */
-    public void open(float[][] samples, AudioFormat format, AudioMetadata tags) {
-        SamplesValidation.validateSamples(samples);
-        if (format == null) {
-            throw new IllegalArgumentException("Audio format cannot be null.");
-        }
-        this.samplesData = samples;
-        this.audioFormat = format;
-        this.tags = tags;
-
+    public void initialize() {
         if (innerMixer == null) {
             innerMixer = new AudioMixer();
 
@@ -267,6 +261,31 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
             logger.error("Failed to add resampler effect to inner mixer", e);
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Opens the sound source with the specified samples, audio format, and tags.
+     * <p>
+     * This method validates the samples and audio format, and then associates the sound source with the given data.
+     * It also sets up the inner audio mixer and playback effect, and adds a resampler effect if it is not already present.
+     * Finally, it resets the playback position and dispatches an {@link SoundSourceEventType#OPENED} event.
+     *
+     * @param samples The samples data to open
+     * @param format The audio format of the samples data
+     * @param tags The audio tags associated with the samples data
+     * @throws IllegalArgumentException If the samples or audio format are invalid
+     * @throws RuntimeException If setting up the inner audio mixer or playback effect fails
+     */
+    public void open(float[][] samples, AudioFormat format, AudioMetadata tags) {
+        SamplesValidation.validateSamples(samples);
+        if (format == null) {
+            throw new IllegalArgumentException("Audio format cannot be null.");
+        }
+        this.samplesData = samples;
+        this.audioFormat = format;
+        this.tags = tags;
+
+        initialize();
         reset(); // Reset the playback position
         dispatch(SoundSourceEventType.OPENED);
     }
@@ -314,6 +333,28 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     }
 
     /**
+     * Checks if the sound source is initialized with a valid mixer and resampler effect.
+     * Initialization occurs when the sound source is opened with either {@link #open(float[][][], AudioFormat, AudioMetadata)} or
+     * {@link #open(File)} methods.
+     * @return true if the sound source is initialized, false otherwise
+     */
+    public boolean isInitialized() {
+        return innerMixer != null && resamplerEffect != null;
+    }
+
+    /**
+     * Returns true if the sound source has valid audio data, false otherwise.
+     * <p>
+     * A sound source has valid audio data if the samples data is not null, has a length greater than 0,
+     * and the audio format is not null.
+     *
+     * @return true if the sound source has valid audio data, false otherwise
+     */
+    public boolean hasAudioData() {
+        return samplesData != null && samplesData.length > 0 && audioFormat != null;
+    }
+
+    /**
      * Starts the playback of the sound source.
      * This method doesn't reset the played position, use {@link #reset()} for that.
      */
@@ -321,7 +362,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
         if (isPlaying) return;
         if (playedFrames >= samplesData[0].length) playedFrames = 0;
         isPlaying = true;
-        logger.trace("Playback started.");
+        logger.trace("Playback started");
         dispatch(SoundSourceEventType.STARTED);
     }
 
@@ -331,27 +372,8 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     public void stop() {
         if (!isPlaying) return;
         isPlaying = false;
-        logger.trace("Playback stopped.");
+        logger.trace("Playback stopped");
         dispatch(SoundSourceEventType.STOPPED);
-    }
-
-    @Override
-    public void render(float[][] samples, int sampleRate) {
-        innerMixer.render(samples, sampleRate);
-    }
-
-    @Override
-    public void close() {
-        stop();
-        logger.debug("Closed.");
-        dispatch(SoundSourceEventType.CLOSED);
-    }
-
-    /**
-     * Resets the playback position of the sound source.
-     */
-    public void reset() {
-        playedFrames = 0;
     }
 
     /**
@@ -360,6 +382,40 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      */
     public boolean isPlaying() {
         return isPlaying;
+    }
+
+    /**
+     * Renders the audio samples to the mixer.
+     * <p>
+     * This method is called by the audio mixer to request the sound source to render its audio data.
+     * The sound source will then pass the samples to the mixer for mixing.
+     * @param samples The audio samples to render
+     * @param sampleRate The sample rate of the audio samples
+     */
+    @Override
+    public void render(float[][] samples, int sampleRate) {
+        innerMixer.render(samples, sampleRate);
+    }
+
+    /**
+     * Closes the sound source.
+     * <p>
+     * This method stops the playback and resets the played position to 0.
+     * It also dispatches a {@link SoundSourceEventType#CLOSED} event.
+     */
+    @Override
+    public void close() {
+        stop();
+        reset();
+        logger.trace("Closed");
+        dispatch(SoundSourceEventType.CLOSED);
+    }
+
+    /**
+     * Resets the playback position of the sound source.
+     */
+    public void reset() {
+        playedFrames = 0;
     }
 
     /**
@@ -392,6 +448,9 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * @throws IllegalArgumentException if the new resampler effect is null
      */
     public boolean setResamplerEffect(ResamplerEffect newResamplerEffect) {
+        if (!isInitialized()) {
+            throw new IllegalStateException("Sound source is not prepared.");
+        }
         if (newResamplerEffect == null)
             throw new IllegalArgumentException("Resampler effect cannot be null.");
         if (this.resamplerEffect == newResamplerEffect)
@@ -404,7 +463,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
             innerMixer.addEffect(newResamplerEffect);
             this.resamplerEffect = newResamplerEffect;
             this.resamplerEffect.getSpeedControl().setValue(this.speedControl.getValue());
-            logger.debug("Resampler effect changed.");
+            logger.debug("Resampler effect changed to {}", newResamplerEffect.toString() + ".");
             return true;
         } catch (IncompatibleEffectTypeException | MultipleVaryingSizeEffectsException e) {
             logger.error("Failed to add resampler effect to inner mixer", e);
@@ -417,6 +476,9 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * @param loop {@code true} to loop the sound source, {@code false} otherwise
      */
     public void setLoop(boolean loop) {
+        if (!isInitialized()) {
+            throw new IllegalStateException("Sound source is not initialized.");
+        }
         this.loop = loop;
     }
 
@@ -425,6 +487,9 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * @return {@code true} if the sound source is looping, {@code false} otherwise
      */
     public boolean isLooping() {
+        if (!isInitialized()) {
+            throw new IllegalStateException("Sound source is not initialized.");
+        }
         return loop;
     }
 
@@ -432,6 +497,9 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * @return The pan control of the sound source
      */
     public FloatControl getPanControl() {
+        if (!isInitialized()) {
+            throw new IllegalStateException("Sound source is not initialized.");
+        }
         return innerMixer.getPanControl();
     }
 
@@ -439,6 +507,9 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * @return The speed control of the sound source
      */
     public FloatControl getSpeedControl() {
+        if (!isInitialized()) {
+            throw new IllegalStateException("Sound source is not initialized.");
+        }
         return speedControl;
     }
 
@@ -447,6 +518,9 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * @param position The frame position to set
      */
     public void setFramePosition(int position) {
+        if (!hasAudioData()) {
+            throw new IllegalStateException("Sound source is not opened.");
+        }
         if (position < 0 || position > samplesData[0].length) {
             logger.error("Position must be between 0 and {}", samplesData[0].length);
             throw new IllegalArgumentException("Position must be between 0 and " + samplesData[0].length);
@@ -459,6 +533,9 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * @return The frame position of the sound source
      */
     public int getFramePosition() {
+        if (!hasAudioData()) {
+            throw new IllegalStateException("Sound source is not opened.");
+        }
         return playedFrames;
     }
 
@@ -467,6 +544,9 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * @param seconds The seconds position to set
      */
     public void setSecondsPosition(double seconds) {
+        if (!hasAudioData()) {
+            throw new IllegalStateException("Sound source is not opened.");
+        }
         int samples = (int)AudioUnitsConverter.microsecondsToFrames((long)(seconds * 1_000_000.0), audioFormat.getSampleRate());
         setFramePosition(samples);
     }
@@ -475,6 +555,9 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * @return The seconds position of the sound source
      */
     public double getSecondsPosition() {
+        if (!hasAudioData()) {
+            throw new IllegalStateException("Sound source is not opened.");
+        }
         return AudioUnitsConverter.framesToMicroseconds(playedFrames, audioFormat.getSampleRate()) / 1_000_000.0;
     }
 
@@ -482,8 +565,8 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * @return The duration of the sound source in seconds
      */
     public double getDuration() {
-        if (samplesData == null || audioFormat == null) {
-            return 0.0;
+        if (!hasAudioData()) {
+            throw new IllegalStateException("Sound source is not opened.");
         }
         return samplesData[0].length / (double)audioFormat.getSampleRate();
     }
@@ -497,20 +580,34 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * @return The audio samples associated with this sound source (a ref)
      */
     public float[][] getSamples() {
+        if (!hasAudioData()) {
+            throw new IllegalStateException("Sound source is not opened.");
+        }
         return samplesData;
     }
 
     /**
+     * Returns the audio format of the sound source.
+     * May be null if the sound source is not initialized.
+     * 
      * @return The audio format of the sound source
      */
     public AudioFormat getAudioFormat() {
+        if (audioFormat == null) {
+            throw new IllegalStateException("Sound source is not initialized.");
+        }
         return audioFormat;
     }
 
     /**
+     * Returns the metadata of the sound source.
+     * May be null if the sound source is not initialized, or has no metadata.
      * @return The metadata of the sound source
      */
     public AudioMetadata getMetadata() {
+        if (!hasAudioData()) {
+            throw new IllegalStateException("Sound source is not initialized.");
+        }
         return tags;
     }
 
@@ -525,7 +622,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * @throws IllegalStateException if the sound source is not initialized or is currently playing
      */
     public void applyEffect(AudioEffect effect) {
-        if (samplesData == null || audioFormat == null) {
+        if (!hasAudioData()) {
             throw new IllegalStateException("Sound source is not initialized.");
         }
         if (isPlaying) {
@@ -594,6 +691,9 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * @throws IllegalArgumentException If the effect builder is null
      */
     public void applyEffect(AudioEffectBuilder effect) {
+        if (!hasAudioData()) {
+            throw new IllegalStateException("Sound source is not initialized.");
+        }
         if (effect == null) {
             throw new IllegalArgumentException("Effect builder cannot be null.");
         }
