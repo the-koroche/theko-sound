@@ -35,22 +35,35 @@ public class ResamplerEffect extends AudioEffect implements VaryingSizeEffect {
     protected final FloatControl speedControl = new FloatControl("Speed", 0.0f, 50.0f, 1.0f);
     protected AudioResampler resampler;
 
+    /**
+     * Constructs a new ResamplerEffect with the specified resampling method.
+     * @param method The resampling method to use
+     */
     public ResamplerEffect(ResampleMethod method) {
         super(Type.REALTIME);
         resampler = new AudioResampler(method);
         addEffectControl(speedControl);
     }
 
+    /**
+     * Constructs a new ResamplerEffect with the default resampling method.
+     */
     public ResamplerEffect() {
         this(RESAMPLER_EFFECT);
     }
 
+    /**
+     * Returns the speed control of the ResamplerEffect.
+     * <p>A value of 1.0f represents the original playback speed, while values less than 1.0f
+     * represent slower playback speeds and values greater than 1.0f represent faster playback speeds.
+     * @return The FloatControl representing the speed control of the ResamplerEffect
+     */
     public FloatControl getSpeedControl() {
         return speedControl;
     }
 
     @Override
-    public void effectRender (float[][] samples, int sampleRate) {
+    public void effectRender(float[][] samples, int sampleRate) {
         if (speedControl.getValue() == 1.0f) {
             return;
         }
@@ -78,5 +91,27 @@ public class ResamplerEffect extends AudioEffect implements VaryingSizeEffect {
     @Override
     public int getTargetLength(int inputLength) {
         return (int) Math.ceil(inputLength / speedControl.getValue());
+    }
+
+    /**
+     * Returns the class of the resample method used by this ResamplerEffect.
+     * 
+     * @return The class of the resample method
+     */
+    public Class<?> getResampleMethodClass() {
+        return resampler.getResampleMethodClass();
+    }
+
+    /**
+     * Returns a string representation of this ResamplerEffect.
+     * 
+     * @return A string representation of this ResamplerEffect, including the resampling method and speed control value.
+     */
+    @Override
+    public String toString() {
+        return "ResamplerEffect{" +
+                "resampler=" + resampler.getResampleMethodClass().getCanonicalName() +
+                ", speed=" + speedControl.getValue() +
+                '}';
     }
 }
