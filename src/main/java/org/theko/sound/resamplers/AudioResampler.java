@@ -66,6 +66,15 @@ public class AudioResampler {
     }
 
     /**
+     * Returns the class of the resample method used by this AudioResampler.
+     *
+     * @return The class of the resample method
+     */
+    public Class<?> getResampleMethodClass() {
+        return resampleMethod.getClass();
+    }
+
+    /**
      * Resamples the given audio samples to a new length.
      *
      * @param samples The audio samples to resample, represented as a 2D float array
