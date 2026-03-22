@@ -48,7 +48,7 @@ public final class AudioSystemProperties {
     private static String getString(String key, String defaultValue) {
         String value = System.getProperty(key);
         if (value == null || value.isBlank()) {
-            logger.trace("Value {} is not set.", key);
+            logger.trace("Value \"{}\" is not set, using default: \"{}\"", key, defaultValue);
             return defaultValue;
         }
         return value;
@@ -237,6 +237,9 @@ public final class AudioSystemProperties {
     public static final long TOTAL_MEMORY = Runtime.getRuntime().totalMemory();
     public static final long MAX_MEMORY = Runtime.getRuntime().maxMemory();
 
+    public static final boolean BACKENDS_DETECT_REQUIRE_DUPLEX = getBoolean("org.theko.sound.backends.detectRequireDuplex",
+        true /* allow different backends for input and output */);
+
     public static final ThreadConfiguration AOL_PLAYBACK_THREAD = getThreadConfig(
         "org.theko.sound.outputLayer.thread", new ThreadConfiguration(ThreadType.PLATFORM, 7));
 
@@ -244,13 +247,15 @@ public final class AudioSystemProperties {
         "org.theko.sound.outputLayer.stopTimeout", 10, 60000, true /* clamp */, 1000);
 
     public static final int AOL_MAX_LENGTH_MISMATCHES = getIntInRange(
-        "org.theko.sound.outputLayer.maxLengthMismatches", 1, Integer.MAX_VALUE, false /* use default */, 10);
+        "org.theko.sound.outputLayer.maxLengthMismatches", 1, Integer.MAX_VALUE,
+        false /* use default when out of range */, 10);
 
     public static final boolean AOL_RESET_LENGTH_MISMATCHES = getBoolean(
         "org.theko.sound.outputLayer.resetLengthMismatches", true);
 
     public static final int AOL_MAX_WRITE_ERRORS = getIntInRange(
-        "org.theko.sound.outputLayer.maxWriteErrors", 1, Integer.MAX_VALUE, false /* use default */, 10);
+        "org.theko.sound.outputLayer.maxWriteErrors", 1, Integer.MAX_VALUE,
+        false /* use default when out of range */, 10);
 
     public static final boolean AOL_RESET_WRITE_ERRORS = getBoolean(
         "org.theko.sound.outputLayer.resetWriteErrors", true);
@@ -283,7 +288,8 @@ public final class AudioSystemProperties {
         "org.theko.sound.automation.threads", 1, CPU_AVAILABLE_CORES*4, true, CPU_AVAILABLE_CORES);
 
     public static final int AUTOMATIONS_UPDATE_TIME = getIntInRange(
-        "org.theko.sound.automation.updateTime", 0, Integer.MAX_VALUE, false /* use default */, 15);
+        "org.theko.sound.automation.updateTime", 0, Integer.MAX_VALUE,
+        false /* use default when out of range */, 15);
 
     public static final ThreadConfiguration CLEANERS_THREAD = getThreadConfig(
         "org.theko.sound.cleaner.thread", new ThreadConfiguration(ThreadType.VIRTUAL, 1));
@@ -292,9 +298,7 @@ public final class AudioSystemProperties {
         "org.theko.sound.effects.resampler", new LinearResampleMethod());
 
     static {
-        if (logger.isDebugEnabled()) {
-            logProperties();
-        }
+        logProperties();
     }
 
     private AudioSystemProperties() {
@@ -302,85 +306,92 @@ public final class AudioSystemProperties {
     }
 
     private static void logProperties() {
-        // Current environment
-        logger.info(
-            "Current environment:\n" +
-            "  JVM: {} {} ({})\n" +
-            "  Runtime: {} {}\n" +
-            "  Memory: total={}, max={}\n" +
-            "  OS: {} {} ({})\n" +
-            "  Runtime platform: {}\n" +
-            "  Runtime architecture: {}\n" +
-            "  CPU Cores (logical): {}",
-            System.getProperty("java.vm.name"),
-            System.getProperty("java.vm.version"),
-            System.getProperty("java.vendor"),
-            System.getProperty("java.runtime.name"),
-            System.getProperty("java.runtime.version"),
-            FormatUtilities.formatBytesBinary(TOTAL_MEMORY, 3),
-            FormatUtilities.formatBytesBinary(MAX_MEMORY, 3),
-            System.getProperty("os.name"),
-            System.getProperty("os.version"),
-            System.getProperty("os.arch"),
-            PLATFORM.name(),
-            ARCHITECTURE.name(),
-            CPU_AVAILABLE_CORES
-        );
+        if (logger.isInfoEnabled()) {
+            // Current environment
+            logger.info(
+                "Current environment:\n" +
+                "  JVM: {} {} ({})\n" +
+                "  Runtime: {} {}\n" +
+                "  Memory: total={}, max={}\n" +
+                "  OS: {} {} ({})\n" +
+                "  Runtime platform: {}\n" +
+                "  Runtime architecture: {}\n" +
+                "  CPU Cores (logical): {}",
+                System.getProperty("java.vm.name"),
+                System.getProperty("java.vm.version"),
+                System.getProperty("java.vendor"),
+                System.getProperty("java.runtime.name"),
+                System.getProperty("java.runtime.version"),
+                FormatUtilities.formatBytesBinary(TOTAL_MEMORY, 3),
+                FormatUtilities.formatBytesBinary(MAX_MEMORY, 3),
+                System.getProperty("os.name"),
+                System.getProperty("os.version"),
+                System.getProperty("os.arch"),
+                PLATFORM.name(),
+                ARCHITECTURE.name(),
+                CPU_AVAILABLE_CORES
+            );
 
-        // Audio system properties
-        logger.info(
-            "Audio system properties:\n" +
-            "  OutputLayer playback thread: {}\n" +
-            "  OutputLayer default buffer: {}\n" +
-            "  OutputLayer resampler: {}\n" +
-            "  OutputLayer playback thread stop timeout: {} ms\n" +
-            "  OutputLayer max length mismatches: {}, reset after valid render: {}\n" +
-            "  OutputLayer max write errors: {}, reset after successful write: {}\n" +
-            "  OutputLayer shutdown hook enabled: {}\n" +
-            "  Resampler (Shared): {}\n" +
-            "  Resampler (Effect, default): {}\n" +
-            "  Automation threads: {}\n" +
-            "  Automation update time: {} ms\n" +
-            "  Mixer (default): Enable effects: {}, Swap channels: {}, Reverse polarity: {}\n" +
-            "  Wave Codec: Clean Tags Text: {}",
-            FormatUtilities.formatThreadInfo(AOL_PLAYBACK_THREAD),
-            AOL_DEFAULT_BUFFER,
-            AOL_RESAMPLER,
-            AOL_PLAYBACK_STOP_TIMEOUT,
-            AOL_MAX_LENGTH_MISMATCHES, AOL_RESET_LENGTH_MISMATCHES,
-            AOL_MAX_WRITE_ERRORS, AOL_RESET_WRITE_ERRORS,
-            AOL_ENABLE_SHUTDOWN_HOOK,
-            SHARED_RESAMPLER,
-            RESAMPLER_EFFECT,
-            AUTOMATIONS_THREADS,
-            AUTOMATIONS_UPDATE_TIME,
-            MIXER_DEFAULT_ENABLE_EFFECTS, MIXER_DEFAULT_SWAP_CHANNELS, MIXER_DEFAULT_REVERSE_POLARITY,
-            WAVE_CODEC_CLEAN_TAG_TEXT
-        );
-
-        StringBuilder propertiesLog = new StringBuilder();
-
-        Properties props = System.getProperties();
-        List<String> keys = props.stringPropertyNames().stream()
-                                .filter(k -> k.startsWith("org.theko.sound."))
-                                .sorted()
-                                .toList();
-
-        for (int i = 0; i < keys.size(); i++) {
-            String key = keys.get(i);
-            propertiesLog.append(key).append(": ").append(props.getProperty(key));
-            if (i < keys.size() - 1) { // only if not the last property, to avoid extra newline at the end
-                propertiesLog.append("\n");
-            }
+            // Audio system properties
+            logger.info(
+                "Audio system properties:\n" +
+                "  Backends require platform duplex: {}\n" +
+                "  OutputLayer playback thread: {}\n" +
+                "  OutputLayer default buffer: {}\n" +
+                "  OutputLayer resampler: {}\n" +
+                "  OutputLayer playback thread stop timeout: {} ms\n" +
+                "  OutputLayer max length mismatches: {}, reset after valid render: {}\n" +
+                "  OutputLayer max write errors: {}, reset after successful write: {}\n" +
+                "  OutputLayer shutdown hook enabled: {}\n" +
+                "  Resampler (Shared): {}\n" +
+                "  Resampler (Effect, default): {}\n" +
+                "  Automation threads: {}\n" +
+                "  Automation update time: {} ms\n" +
+                "  Mixer (default): Enable effects: {}, Swap channels: {}, Reverse polarity: {}\n" +
+                "  Wave Codec: Clean tags text: {}",
+                BACKENDS_DETECT_REQUIRE_DUPLEX,
+                FormatUtilities.formatThreadInfo(AOL_PLAYBACK_THREAD),
+                AOL_DEFAULT_BUFFER,
+                AOL_RESAMPLER,
+                AOL_PLAYBACK_STOP_TIMEOUT,
+                AOL_MAX_LENGTH_MISMATCHES, AOL_RESET_LENGTH_MISMATCHES,
+                AOL_MAX_WRITE_ERRORS, AOL_RESET_WRITE_ERRORS,
+                AOL_ENABLE_SHUTDOWN_HOOK,
+                SHARED_RESAMPLER,
+                RESAMPLER_EFFECT,
+                AUTOMATIONS_THREADS,
+                AUTOMATIONS_UPDATE_TIME,
+                MIXER_DEFAULT_ENABLE_EFFECTS, MIXER_DEFAULT_SWAP_CHANNELS, MIXER_DEFAULT_REVERSE_POLARITY,
+                WAVE_CODEC_CLEAN_TAG_TEXT
+            );
         }
 
-        logger.debug("Properties: \n{}", propertiesLog.toString());
+        if (logger.isDebugEnabled()) {
+            StringBuilder propertiesLog = new StringBuilder();
+
+            Properties props = System.getProperties();
+            List<String> keys = props.stringPropertyNames().stream()
+                                    .filter(k -> k.startsWith("org.theko.sound."))
+                                    .sorted()
+                                    .toList();
+
+            for (int i = 0; i < keys.size(); i++) {
+                String key = keys.get(i);
+                propertiesLog.append(key).append(": ").append(props.getProperty(key));
+                if (i < keys.size() - 1) { // only if not the last property, to avoid extra newline at the end
+                    propertiesLog.append("\n");
+                }
+            }
+
+            logger.debug("Properties: \n{}", propertiesLog.toString());
+        }
     }
 
     /**
      * Forces static initialization of this class by calling it.
      * This can be used to ensure that the static initialization block is executed
      * before any other code in this class is accessed.
+     * Not necessary, only for better performance at application startup.
      */
     public static void runStaticInit() {
         // Do nothing, called to force static initialization

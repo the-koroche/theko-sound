@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.AudioClassRegister;
 import org.theko.sound.backends.javasound.JavaSoundBackend;
+import org.theko.sound.properties.AudioSystemProperties;
 import org.theko.sound.util.PlatformUtilities;
 import org.theko.sound.util.PlatformUtilities.Platform;
 
@@ -111,7 +112,7 @@ public final class AudioBackends {
         }
 
         try {
-            detectPlatformBackends(true /* allow different backends for input and output */);
+            detectPlatformBackends(AudioSystemProperties.BACKENDS_DETECT_REQUIRE_DUPLEX);
         } catch (AudioBackendNotFoundException | AudioBackendCreationException e) {
             logger.error("Failed to create platform-specific audio backend.", e);
         }

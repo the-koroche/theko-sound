@@ -112,6 +112,14 @@
 
 ---
 
+## Audio Backends
+
+| Property                                            | Type                 | Description                                   |
+| --------------------------------------------------- | -------------------- | --------------------------------------------- |
+| `org.theko.sound.backends.detectRequireDuplex`      | boolean              | Require duplex platform backend selection     |
+
+---
+
 ## Audio Output Layer
 
 | Property                                            | Type                 | Description                                   |
