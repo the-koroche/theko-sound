@@ -238,7 +238,7 @@ public final class AudioSystemProperties {
     public static final long MAX_MEMORY = Runtime.getRuntime().maxMemory();
 
     public static final boolean BACKENDS_DETECT_REQUIRE_DUPLEX = getBoolean("org.theko.sound.backends.detectRequireDuplex",
-        true /* allow different backends for input and output */);
+        false /* allow different backends for input and output */);
 
     public static final ThreadConfiguration AOL_PLAYBACK_THREAD = getThreadConfig(
         "org.theko.sound.outputLayer.thread", new ThreadConfiguration(ThreadType.PLATFORM, 7));
