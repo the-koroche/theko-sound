@@ -57,7 +57,7 @@ public class MixerSender extends AudioEffect {
     protected AudioNode senderInputNode = new SenderPlayback();
     protected volatile float[][] effectSamples;
 
-    protected final FloatControl gain = new FloatControl("Gain", 0.0f, 2.0f, 1.0f);
+    protected final FloatControl gain = new FloatControl("Gain", 0.0f, 100.0f, 1.0f);
     protected final FloatControl pan = new FloatControl("Pan", -1.0f, 1.0f, 0.0f);
 
     private class SenderPlayback implements AudioNode {

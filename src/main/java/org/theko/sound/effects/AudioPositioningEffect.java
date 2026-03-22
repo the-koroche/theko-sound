@@ -34,7 +34,7 @@ import org.theko.sound.util.AudioBufferUtilities;
  */
 public class AudioPositioningEffect extends AudioEffect {
 
-    protected final FloatControl gainControl = new FloatControl("Gain", 0.0f, 2.0f, 1.0f);
+    protected final FloatControl gainControl = new FloatControl("Gain", 0.0f, 100.0f, 1.0f);
     protected final FloatControl panControl = new FloatControl("Pan", -1.0f, 1.0f, 0.0f);
 
     protected final List<AudioControl> positioningControls = List.of(

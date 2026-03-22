@@ -48,7 +48,7 @@ import org.theko.sound.util.MathUtilities;
  */
 public class SpectrogramVisualizer extends AudioVisualizer {
 
-    protected final FloatControl gainControl = new FloatControl("Gain", 0.0f, 2.0f, 1.0f);
+    protected final FloatControl gainControl = new FloatControl("Gain", 0.0f, 10.0f, 1.0f);
 
     private float frequencyScale = 1.0f;
     private float updateTime = 0.01f;

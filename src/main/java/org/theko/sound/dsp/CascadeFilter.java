@@ -46,7 +46,7 @@ public class CascadeFilter implements AudioFilter, Controllable {
 
     protected final FloatControl cutoff = new FloatControl("Cutoff", 1, 22000, 4000);
     protected final FloatControl bandwidth = new FloatControl("Bandwidth", 0.1f, 3.0f, 1.92f); // 1.92 octaves ≈ Q 0.707
-    protected final FloatControl gain = new FloatControl("Gain", 0.0f, 2.0f, 1.0f);
+    protected final FloatControl gain = new FloatControl("Gain", 0.0f, 10.0f, 1.0f);
 
     protected final List<AudioControl> filterControls = List.of(cutoff, bandwidth, gain);
 

@@ -46,7 +46,7 @@ public class WaveformVisualizer extends AudioVisualizer {
     private static final Logger logger = LoggerFactory.getLogger(WaveformVisualizer.class);
 
     // Audio-specific controls
-    protected final FloatControl gainControl = new FloatControl("Gain", 0.0f, 2.0f, 1.0f);
+    protected final FloatControl gainControl = new FloatControl("Gain", 0.0f, 10.0f, 1.0f);
 
     // GUI fields
     protected float strokeWeight = 1.0f;

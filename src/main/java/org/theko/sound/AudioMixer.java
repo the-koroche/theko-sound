@@ -80,8 +80,8 @@ public class AudioMixer implements AudioNode, Controllable {
     private final List<AudioNode> inputs = new ArrayList<>();
     private final List<AudioEffect> effects = new ArrayList<>();
 
-    private final FloatControl preGainControl = new FloatControl("Pre-Gain", 0.0f, 2.0f, 1.0f);
-    private final FloatControl postGainControl = new FloatControl("Post-Gain", 0.0f, 2.0f, 1.0f);
+    private final FloatControl preGainControl = new FloatControl("Pre-Gain", 0.0f, 100.0f, 1.0f);
+    private final FloatControl postGainControl = new FloatControl("Post-Gain", 0.0f, 100.0f, 1.0f);
     private final FloatControl panControl = new FloatControl("Pan", -1.0f, 1.0f, 0.0f);
 
     private final BooleanControl enableEffectsControl = new BooleanControl("Enable Effects", MIXER_DEFAULT_ENABLE_EFFECTS);

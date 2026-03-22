@@ -47,7 +47,7 @@ public class AudioFilterEffect extends AudioEffect {
 
     protected final FloatControl cutoff = new FloatControl("Cutoff", 10, 22000, 1000);
     protected final FloatControl bandwidth = new FloatControl("Bandwidth", 0.1f, 3.0f, 1.92f);
-    protected final FloatControl gain = new FloatControl("Gain", 0.0f, 2.0f, 1.0f);
+    protected final FloatControl gain = new FloatControl("Gain", 0.0f, 10.0f, 1.0f);
 
     protected final FloatControl lowPass = new FloatControl("Low Pass", 0.0f, 1.0f, 1.0f);
     protected final FloatControl highPass = new FloatControl("High Pass", 0.0f, 1.0f, 0.5f);
