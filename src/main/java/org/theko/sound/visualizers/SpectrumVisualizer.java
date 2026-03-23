@@ -33,8 +33,6 @@ import java.util.Objects;
 
 import javax.swing.JPanel;
 
-import org.theko.sound.controls.AudioControl;
-import org.theko.sound.controls.FloatControl;
 import org.theko.sound.dsp.FFT;
 import org.theko.sound.dsp.WindowFunction;
 import org.theko.sound.dsp.WindowType;
@@ -50,9 +48,8 @@ import org.theko.sound.util.MathUtilities;
  * @since 0.2.2-beta
  * @author Theko
  */
-public class SpectrumVisualizer extends AudioVisualizer {
+public class SpectrumVisualizer extends GainedAudioVisualizer {
 
-    protected final FloatControl gainControl = new FloatControl("Gain", 0.0f, 2.0f, 1.0f);
     private float frequencyScale = 1.0f;
     private Color upperBarColor = Color.WHITE;
     private Color lowerBarColor = Color.LIGHT_GRAY;
@@ -67,11 +64,11 @@ public class SpectrumVisualizer extends AudioVisualizer {
     private int channelToShow = 0;
     private WindowType windowType = WindowType.HANN;
     private int fftWindowSize = 2048;
-    private float minAmplitudeNormalizer = 1.0f;
-    private float amplitudeExponent = 2.0f;
 
-    private float currentAmplitudeNormalizer = minAmplitudeNormalizer;
-    private float normalizerDecaySpeed = 0.0f;
+    private float minNormalizer = 1.0f;
+    private float spectrumBoostExponent = 2.0f;
+    private float currentNormalizer = minNormalizer;
+    private float normalizerFallSpeed = 0.03f;
 
     private float spectrumDecayFactor = 0.86f;
     private DecayMode spectrumDecayMode = DecayMode.MULTIPLY;
@@ -94,8 +91,6 @@ public class SpectrumVisualizer extends AudioVisualizer {
 
     protected static final float MIN_DIVIDER_DECAY_SPEED = 0.0f;
     protected static final float MAX_DIVIDER_DECAY_SPEED = 1.0f;
-
-    protected final List<AudioControl> visualizerControls = List.of(gainControl);
 
     protected final List<float[]> audioBuffers = new ArrayList<>(10);
     protected float[] recentAudioWindow = new float[channelToShow];
@@ -169,6 +164,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
                 for (int j = binStart; j < binEnd; j++) {
                     maxBinAmplitude = Math.max(maxBinAmplitude, drawnSpectrum[j]);
                 }
+                maxBinAmplitude = Math.max(0f, Math.min(1f, maxBinAmplitude));
 
                 int amplitudePixels = (int) (maxBinAmplitude * getHeight());
                 int halfAmplitudePixels = amplitudePixels / 2;
@@ -195,7 +191,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
             }
         }
 
-        private void updateBuffers() {
+        private void updateBuffers() {            
             int offset = getSamplesOffset();
             offset = Math.max(0, Math.min(offset, recentAudioWindow.length - fftWindowSize));
 
@@ -225,7 +221,7 @@ public class SpectrumVisualizer extends AudioVisualizer {
             switch (spectrumDecayMode) {
                 case MULTIPLY -> {
                     for (int i = 0; i < drawnSpectrum.length; i++) {
-                        drawnSpectrum[i] = Math.max(drawnSpectrum[i] * targetDecayFactor, interpolatedSpectrum[i]);
+                        drawnSpectrum[i] = Math.max(drawnSpectrum[i] * MathUtilities.clamp(targetDecayFactor, 0, 1), interpolatedSpectrum[i]);
                     }
                 }
                 case INTERPOLATE -> {
@@ -275,25 +271,24 @@ public class SpectrumVisualizer extends AudioVisualizer {
             FFT.fft(real, imag);
 
             float maxAmplitude = 0.0f;
-            float minNormalizerRoot = (float) Math.pow(minAmplitudeNormalizer, 1.0f / amplitudeExponent);
 
-            int spectrumLength = Math.min(real.length / 2, outputSpectrum.length);
-            for (int i = 0; i < spectrumLength; i++) {
+            for (int i = 0; i < fftLength / 2; i++) {
                 float magnitude = (float) Math.sqrt(real[i] * real[i] + imag[i] * imag[i]);
-                outputSpectrum[i] = (float) Math.log1p(Math.pow(magnitude, amplitudeExponent));
+                
+                float value = (float) Math.log1p(magnitude); 
+                outputSpectrum[i] = (float) Math.pow(value, spectrumBoostExponent);
+                
                 if (outputSpectrum[i] > maxAmplitude) maxAmplitude = outputSpectrum[i];
             }
 
-            currentAmplitudeNormalizer -= normalizerDecaySpeed;
-            maxAmplitude = Math.max(minNormalizerRoot, maxAmplitude) * 1.25f;
+            maxAmplitude = Math.max(minNormalizer, maxAmplitude) * 1.25f;
+            if (currentNormalizer < maxAmplitude) currentNormalizer = maxAmplitude;
 
-            if (currentAmplitudeNormalizer < maxAmplitude) {
-                currentAmplitudeNormalizer = maxAmplitude;
-                normalizerDecaySpeed = 0.0f;
-            }
+            currentNormalizer -= normalizerFallSpeed;
+            if (currentNormalizer < minNormalizer) currentNormalizer = minNormalizer;
 
-            for (int i = 0; i < spectrumLength; i++) {
-                outputSpectrum[i] = MathUtilities.clamp(outputSpectrum[i] / currentAmplitudeNormalizer, 0.0f, 1.0f);
+            for (int i = 0; i < fftLength / 2; i++) {
+                outputSpectrum[i] = MathUtilities.clamp(outputSpectrum[i] / currentNormalizer, 0.0f, 1.0f);
             }
         }
 
@@ -337,7 +332,6 @@ public class SpectrumVisualizer extends AudioVisualizer {
      */
     public SpectrumVisualizer(float frameRate, int resizeDelay) {
         super(Type.REALTIME, frameRate, resizeDelay);
-        addEffectControls(visualizerControls);
     }
 
     /**
@@ -346,7 +340,6 @@ public class SpectrumVisualizer extends AudioVisualizer {
      */
     public SpectrumVisualizer(float frameRate) {
         super(Type.REALTIME, frameRate);
-        addEffectControls(visualizerControls);
     }
 
     /**
@@ -354,18 +347,48 @@ public class SpectrumVisualizer extends AudioVisualizer {
      */
     public SpectrumVisualizer() {
         super(Type.REALTIME);
-        addEffectControls(visualizerControls);
     }
 
-    /**
-     * Returns the gain control for the spectrum visualizer.
-     * The gain control allows adjusting the amplitude of the audio signal
-     * that is used to generate the spectrum display.
-     *
-     * @return The gain control of the spectrum visualizer
-     */
-    public FloatControl getGainControl() {
-        return gainControl;
+    // Overridden methods
+
+    @Override
+    protected void initialize() {
+        JPanel panel = getPanel();
+        SpectrumRender render = new SpectrumRender(panel.getWidth(), panel.getHeight());
+        setRender(render);
+    }
+
+    @Override
+    protected void onBufferUpdate() {
+        float[] newSamples = getSamplesBuffer()[channelToShow];
+        audioBuffers.add(newSamples);
+
+        int requiredSamples = fftWindowSize + getBufferLength();
+
+        int totalSamples = 0;
+        for (float[] buf : audioBuffers)
+            totalSamples += buf.length;
+
+        while (totalSamples > requiredSamples && audioBuffers.size() > 1) {
+            totalSamples -= audioBuffers.remove(0).length;
+        }
+
+        if (window == null || window.length != requiredSamples) {
+            window = new float[requiredSamples];
+        }
+        if (window.length > totalSamples) {
+            Arrays.fill(window, 0.0f);
+        }
+        int pos = 0;
+        int minLength = Math.min(requiredSamples, totalSamples);
+        for (float[] buf : audioBuffers) {
+            int copyLen = Math.min(buf.length, minLength - pos);
+            System.arraycopy(buf, buf.length - copyLen, window, pos, copyLen);
+            pos += copyLen;
+            if (pos >= window.length) break;
+        }
+
+        this.recentAudioWindow = window;
     }
 
     /**
@@ -607,8 +630,8 @@ public class SpectrumVisualizer extends AudioVisualizer {
     *
     * @param divider minimum amplitude normalizer, clamped between MIN_DIVIDER and MAX_DIVIDER
     */
-    public void setMinAmplitudeNormalizer(float divider) {
-        this.minAmplitudeNormalizer = MathUtilities.clamp(divider, MIN_DIVIDER, MAX_DIVIDER);
+    public void setMinNormalizer(float divider) {
+        this.minNormalizer = MathUtilities.clamp(divider, MIN_DIVIDER, MAX_DIVIDER);
     }
 
     /**
@@ -616,8 +639,8 @@ public class SpectrumVisualizer extends AudioVisualizer {
      *
      * @return minimum amplitude normalizer
      */
-    public float getMinAmplitudeNormalizer() {
-        return minAmplitudeNormalizer;
+    public float getMinNormalizer() {
+        return minNormalizer;
     }
 
     /**
@@ -626,8 +649,8 @@ public class SpectrumVisualizer extends AudioVisualizer {
      *
      * @param power amplitude exponent, clamped between MIN_AMPLITUDE_POWER and MAX_AMPLITUDE_POWER
      */
-    public void setAmplitudeExponent(float power) {
-        this.amplitudeExponent = MathUtilities.clamp(power, MIN_AMPLITUDE_POWER, MAX_AMPLITUDE_POWER);
+    public void setSpectrumBoostExponent(float power) {
+        this.spectrumBoostExponent = MathUtilities.clamp(power, MIN_AMPLITUDE_POWER, MAX_AMPLITUDE_POWER);
     }
 
     /**
@@ -635,8 +658,8 @@ public class SpectrumVisualizer extends AudioVisualizer {
      *
      * @return amplitude exponent
      */
-    public float getAmplitudeExponent() {
-        return amplitudeExponent;
+    public float getSpectrumBoostExponent() {
+        return spectrumBoostExponent;
     }
 
     /**
@@ -647,8 +670,8 @@ public class SpectrumVisualizer extends AudioVisualizer {
      *
      * @param speed decay speed, clamped between MIN_DIVIDER_DECAY_SPEED and MAX_DIVIDER_DECAY_SPEED
      */
-    public void setNormalizerDecaySpeed(float speed) {
-        this.normalizerDecaySpeed = MathUtilities.clamp(speed, MIN_DIVIDER_DECAY_SPEED, MAX_DIVIDER_DECAY_SPEED);
+    public void setNormalizerFallSpeed(float speed) {
+        this.normalizerFallSpeed = MathUtilities.clamp(speed, MIN_DIVIDER_DECAY_SPEED, MAX_DIVIDER_DECAY_SPEED);
     }
 
     /**
@@ -656,8 +679,8 @@ public class SpectrumVisualizer extends AudioVisualizer {
      *
      * @return decay speed
      */
-    public float getNormalizerDecaySpeed() {
-        return normalizerDecaySpeed;
+    public float getNormalizerFallSpeed() {
+        return normalizerFallSpeed;
     }
 
     /**
@@ -799,66 +822,5 @@ public class SpectrumVisualizer extends AudioVisualizer {
      */
     public int getChannelToShow() {
         return channelToShow;
-    }
-
-    @Override
-    protected void initialize() {
-        JPanel panel = getPanel();
-
-        SpectrumRender render = new SpectrumRender(panel.getWidth(), panel.getHeight());
-        setRender(render);
-    }
-
-    @Override
-    protected void repaint() {
-        getPanel().repaint();
-    }
-
-    @Override
-    protected void onBufferUpdate() {
-        float[] newSamples = getSamplesBuffer()[channelToShow];
-        audioBuffers.add(newSamples);
-
-        int requiredSamples = fftWindowSize + getLength();
-
-        int totalSamples = 0;
-        for (float[] buf : audioBuffers)
-            totalSamples += buf.length;
-
-        while (totalSamples > requiredSamples && audioBuffers.size() > 1) {
-            totalSamples -= audioBuffers.remove(0).length;
-        }
-
-        if (window == null || window.length != requiredSamples) {
-            window = new float[requiredSamples];
-        }
-        if (window.length > totalSamples) {
-            Arrays.fill(window, 0.0f);
-        }
-        int pos = 0;
-        int minLength = Math.min(requiredSamples, totalSamples);
-        for (float[] buf : audioBuffers) {
-            int copyLen = Math.min(buf.length, minLength - pos);
-            System.arraycopy(buf, buf.length - copyLen, window, pos, copyLen);
-            pos += copyLen;
-            if (pos >= window.length) break;
-        }
-
-        this.recentAudioWindow = window;
-    }
-
-    @Override
-    protected int getSamplesOffset() {
-        if (recentAudioWindow == null || recentAudioWindow.length <= fftWindowSize)
-            return 0;
-
-        long now = System.nanoTime();
-        long delta = now - getLastBufferUpdateTime();
-
-        int offset = (int) (delta * getSampleRate() / 1_000_000_000L);
-
-        // Limit offset
-        offset = Math.max(0, Math.min(offset, recentAudioWindow.length - fftWindowSize));
-        return offset;
     }
 }
