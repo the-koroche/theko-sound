@@ -52,6 +52,7 @@ import org.theko.sound.resamplers.AudioResampler;
 import org.theko.sound.samples.SamplesConverter;
 import org.theko.sound.samples.SamplesValidation;
 import org.theko.sound.samples.SamplesValidation.ValidationResult;
+import org.theko.sound.util.AudioBufferUtilities;
 import org.theko.sound.util.FormatUtilities;
 import org.theko.sound.util.ThreadUtilities;
 import org.theko.sound.util.TimeUtilities;
@@ -727,7 +728,7 @@ public class AudioOutputLayer implements AutoCloseable,
                 try {
                     resampler.resample(sampleBuffer, resampled, resamplingFactor);
                     if (sourceFormat.getChannels() != openedFormat.getChannels()) {
-                        resampled = AudioChannelsConverter.convertChannels(resampled, sourceFormat.getChannels(), openedFormat.getChannels());
+                        resampled = AudioBufferUtilities.channelsConvert(resampled, sourceFormat.getChannels(), openedFormat.getChannels());
                     }
                     SamplesConverter.fromSamples(resampled, rawBytes, openedFormat);
                 } catch (IllegalArgumentException ex) {

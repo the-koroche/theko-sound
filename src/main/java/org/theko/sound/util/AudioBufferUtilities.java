@@ -19,6 +19,7 @@ package org.theko.sound.util;
 import java.util.Arrays;
 
 import org.theko.sound.samples.SamplesValidation;
+import org.theko.sound.samples.SamplesValidation.DimensionsResult;
 
 /**
  * Utility class for performing operations on audio sample buffers.
@@ -146,6 +147,142 @@ public final class AudioBufferUtilities {
         for (int ch = 0; ch < samples.length; ch++) {
             Arrays.fill(samples[ch], value);
         }
+    }
+
+    /**
+     * Copies samples from one 2D float array to another, converting channels if necessary.
+     * This method supports channel count conversion between mono and stereo, or any other channel count.
+     * 
+     * <p>For example, if the source array has 2 channels and the target array has 1 channel, the method will
+     * average the left and right channels in the source array and write the result to the single channel in the target array.
+     * 
+     * <p>If the source and target arrays have the same channel count, the method will copy the samples directly from the source
+     * array to the target array.
+     * 
+     * <p>If the source channel count is greater than the target channel count, the method will downsample the channels
+     * by averaging the samples from each group of channels.
+     * 
+     * <p>If the source channel count is less than the target channel count, the method will upsample the channels by copying
+     * the samples from each source channel to multiple target channels.
+     * 
+     * @param source The 2D float array containing the source samples
+     * @param target The 2D float array containing the target samples
+     * @param sourceChannels The channel count of the source array
+     * @param targetChannels The channel count of the target array
+     * @throws IllegalArgumentException if the channel count of either array is <= 0, or if the sample length of either array is inconsistent with the other.
+     */
+    public static void channelsConvert(float[][] source, float[][] target, int sourceChannels, int targetChannels) {
+        if (sourceChannels <= 0 || targetChannels <= 0) {
+            throw new IllegalArgumentException("Channel count must be > 0.");
+        }
+        SamplesValidation.validateSamples(source);
+        SamplesValidation.validateSamples(target);
+        if (SamplesValidation.checkSamplesDimensions(source, target) == DimensionsResult.NOT_MATCH_FRAMES) {
+            throw new IllegalArgumentException("All input and output channels must have the same frames length.");   
+        }
+        if (sourceChannels > source.length || targetChannels > target.length) {
+            throw new IllegalArgumentException("Channel count does not match.");
+        }
+        if (sourceChannels == targetChannels) {
+            copyArray(source, target);
+        } else {
+            int length = source[0].length;
+            for (int ch = 0; ch < sourceChannels; ch++) {
+                if (source[ch].length != length) {
+                    throw new IllegalArgumentException("All input channels must have the same length.");
+                }
+            }
+            for (float[] channel : target) {
+                if (channel.length != length) {
+                    throw new IllegalArgumentException("All output channels must have the same length as input channels.");
+                }
+            }
+
+            if (sourceChannels == targetChannels) {
+                for (int i = 0; i < sourceChannels; i++) {
+                    System.arraycopy(source[i], 0, target[i], 0, length);
+                }
+                return;
+            }
+
+            // Stereo -> Mono
+            if (sourceChannels > 1 && targetChannels == 1) {
+                float[] targetChannel = target[0];
+                for (int ch = 0; ch < sourceChannels; ch++) {
+                    for (int i = 0; i < length; i++) {
+                        targetChannel[i] += source[ch][i];
+                    }
+                }
+                float inv = 1f / sourceChannels;
+                for (int i = 0; i < length; i++) {
+                    targetChannel[i] *= inv;
+                }
+            }
+            // Mono -> Stereo
+            else if (sourceChannels == 1 && targetChannels > 1) {
+                for (int ch = 0; ch < targetChannels; ch++) {
+                    System.arraycopy(source[0], 0, target[ch], 0, length);
+                }
+            }
+            else if (sourceChannels > targetChannels) {
+                for (int ch = 0; ch < targetChannels; ch++) {
+                    float[] targetChannel = target[ch];
+                    Arrays.fill(targetChannel, 0f);
+                    for (int i = 0; i < length; i++) {
+                        float sum = 0f;
+                        int count = 0;
+                        for (int inCh = ch; inCh < sourceChannels; inCh += targetChannels) {
+                            sum += source[inCh][i];
+                            count++;
+                        }
+                        targetChannel[i] = sum / count;
+                    }
+                }
+            }
+            else if (sourceChannels < targetChannels) {
+                for (int ch = 0; ch < targetChannels; ch++) {
+                    int srcCh = ch % sourceChannels;
+                    System.arraycopy(source[srcCh], 0, target[ch], 0, length);
+                }
+            }
+            else {
+                throw new UnsupportedOperationException(
+                    "Conversion from " + sourceChannels + " to " + targetChannels + " channels is not supported."
+                );
+            }
+        }
+    }
+
+    /**
+     * Copies samples from one 2D float array to another, converting channels if necessary.
+     * This method supports channel count conversion between mono and stereo, or any other channel count.
+     * 
+     * <p>For example, if the source array has 2 channels and the target array has 1 channel, the method will
+     * average the left and right channels in the source array and write the result to the single channel in the target array.
+     * 
+     * <p>If the source and target arrays have the same channel count, the method will copy the samples directly from the source
+     * array to the target array.
+     * 
+     * <p>If the source channel count is greater than the target channel count, the method will downsample the channels
+     * by averaging the samples from each group of channels.
+     * 
+     * <p>If the source channel count is less than the target channel count, the method will upsample the channels by copying
+     * the samples from each source channel to multiple target channels.
+     * 
+     * @param source The 2D float array containing the source samples
+     * @param sourceChannels The channel count of the source array
+     * @param targetChannels The channel count of the target array
+     * @return The target 2D float array containing the converted samples
+     * @throws IllegalArgumentException if the channel count of either array is <= 0, or if the sample length of either array is inconsistent with the other.
+     */
+    public static float[][] channelsConvert(float[][] source, int sourceChannels, int targetChannels) {
+        if (sourceChannels <= 0 || targetChannels <= 0) {
+            throw new IllegalArgumentException("Channel count must be > 0.");
+        }
+        int length = source[0].length;
+        float[][] target = new float[targetChannels][length];
+        channelsConvert(source, target, sourceChannels, targetChannels);
+        return target;
     }
 
     // Audio-specific operations
