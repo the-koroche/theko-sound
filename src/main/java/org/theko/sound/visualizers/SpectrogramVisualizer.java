@@ -30,8 +30,6 @@ import java.util.Objects;
 
 import javax.swing.JPanel;
 
-import org.theko.sound.controls.AudioControl;
-import org.theko.sound.controls.FloatControl;
 import org.theko.sound.dsp.FFT;
 import org.theko.sound.dsp.WindowFunction;
 import org.theko.sound.dsp.WindowType;
@@ -42,13 +40,12 @@ import org.theko.sound.util.MathUtilities;
  * It can be used to display the spectrogram of an audio stream.
  *
  * @see AudioVisualizer
+ * @see GainedAudioVisualizer
  *
  * @since 0.2.3-beta
  * @author Theko
  */
-public class SpectrogramVisualizer extends AudioVisualizer {
-
-    protected final FloatControl gainControl = new FloatControl("Gain", 0.0f, 10.0f, 1.0f);
+public class SpectrogramVisualizer extends GainedAudioVisualizer {
 
     private float frequencyScale = 1.0f;
     private float updateTime = 0.01f;
@@ -78,8 +75,6 @@ public class SpectrogramVisualizer extends AudioVisualizer {
 
     protected static final float MIN_DIVIDER_DECAY_SPEED = 0.0f;
     protected static final float MAX_DIVIDER_DECAY_SPEED = 1.0f;
-
-    protected final List<AudioControl> visualizerControls = List.of(gainControl);
 
     protected final List<float[]> audioBuffers = new ArrayList<>(10);
     protected float[] recentAudioWindow = new float[channelToShow];
@@ -282,7 +277,6 @@ public class SpectrogramVisualizer extends AudioVisualizer {
      */
     public SpectrogramVisualizer(float frameRate, int resizeDelay) {
         super(Type.REALTIME, frameRate, resizeDelay);
-        addEffectControls(visualizerControls);
     }
 
     /**
@@ -291,7 +285,6 @@ public class SpectrogramVisualizer extends AudioVisualizer {
      */
     public SpectrogramVisualizer(float frameRate) {
         super(Type.REALTIME, frameRate);
-        addEffectControls(visualizerControls);
     }
 
     /**
@@ -299,18 +292,48 @@ public class SpectrogramVisualizer extends AudioVisualizer {
      */
     public SpectrogramVisualizer() {
         super(Type.REALTIME);
-        addEffectControls(visualizerControls);
     }
 
-    /**
-     * Returns the gain control of the spectogram visualizer.
-     * The gain control allows adjusting the overall amplitude of the spectogram.
-     * A value of 1.0f will not change the amplitude of the spectogram, while a value of 0.0f will mute it.
-     *
-     * @return The gain control of the spectrogram visualizer
-     */
-    public FloatControl getGainControl() {
-        return gainControl;
+    // Overridden methods
+
+    @Override
+    protected void initialize() {
+        JPanel panel = getPanel();
+        spectrogramRender = new SpectrogramRender(panel.getWidth(), panel.getHeight());
+        setRender(spectrogramRender);
+    }
+
+    @Override
+    protected void onBufferUpdate() {
+        float[] newSamples = getSamplesBuffer()[channelToShow];
+        audioBuffers.add(newSamples);
+
+        int requiredSamples = fftWindowSize + getBufferLength();
+
+        int totalSamples = 0;
+        for (float[] buf : audioBuffers)
+            totalSamples += buf.length;
+
+        while (totalSamples > requiredSamples && audioBuffers.size() > 1) {
+            totalSamples -= audioBuffers.remove(0).length;
+        }
+
+        if (window == null || window.length != requiredSamples) {
+            window = new float[requiredSamples];
+        }
+        if (window.length > totalSamples) {
+            Arrays.fill(window, 0.0f);
+        }
+        int pos = 0;
+        int minLength = Math.min(requiredSamples, totalSamples);
+        for (float[] buf : audioBuffers) {
+            int copyLen = Math.min(buf.length, minLength - pos);
+            System.arraycopy(buf, buf.length - copyLen, window, pos, copyLen);
+            pos += copyLen;
+            if (pos >= window.length) break;
+        }
+
+        this.recentAudioWindow = window;
     }
 
     /**
@@ -515,65 +538,5 @@ public class SpectrogramVisualizer extends AudioVisualizer {
      */
     public int getChannelToShow() {
         return channelToShow;
-    }
-
-    @Override
-    protected void initialize() {
-        JPanel panel = getPanel();
-        spectrogramRender = new SpectrogramRender(panel.getWidth(), panel.getHeight());
-        setRender(spectrogramRender);
-    }
-
-    @Override
-    protected void repaint() {
-        getPanel().repaint();
-    }
-
-    @Override
-    protected void onBufferUpdate() {
-        float[] newSamples = getSamplesBuffer()[channelToShow];
-        audioBuffers.add(newSamples);
-
-        int requiredSamples = fftWindowSize + getLength();
-
-        int totalSamples = 0;
-        for (float[] buf : audioBuffers)
-            totalSamples += buf.length;
-
-        while (totalSamples > requiredSamples && audioBuffers.size() > 1) {
-            totalSamples -= audioBuffers.remove(0).length;
-        }
-
-        if (window == null || window.length != requiredSamples) {
-            window = new float[requiredSamples];
-        }
-        if (window.length > totalSamples) {
-            Arrays.fill(window, 0.0f);
-        }
-        int pos = 0;
-        int minLength = Math.min(requiredSamples, totalSamples);
-        for (float[] buf : audioBuffers) {
-            int copyLen = Math.min(buf.length, minLength - pos);
-            System.arraycopy(buf, buf.length - copyLen, window, pos, copyLen);
-            pos += copyLen;
-            if (pos >= window.length) break;
-        }
-
-        this.recentAudioWindow = window;
-    }
-
-    @Override
-    protected int getSamplesOffset() {
-        if (recentAudioWindow == null || recentAudioWindow.length <= fftWindowSize)
-            return 0;
-
-        long now = System.nanoTime();
-        long delta = now - getLastBufferUpdateTime();
-
-        int offset = (int) (delta * getSampleRate() / 1_000_000_000L);
-
-        // Limit offset
-        offset = Math.max(0, Math.min(offset, recentAudioWindow.length - fftWindowSize));
-        return offset;
     }
 }
