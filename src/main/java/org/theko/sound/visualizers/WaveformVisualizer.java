@@ -27,8 +27,6 @@ import javax.swing.JPanel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.theko.sound.controls.AudioControl;
-import org.theko.sound.controls.FloatControl;
 import org.theko.sound.util.MathUtilities;
 
 /**
@@ -41,12 +39,9 @@ import org.theko.sound.util.MathUtilities;
  * @since 0.2.1-beta
  * @author Theko
  */
-public class WaveformVisualizer extends AudioVisualizer {
+public class WaveformVisualizer extends GainedAudioVisualizer {
 
     private static final Logger logger = LoggerFactory.getLogger(WaveformVisualizer.class);
-
-    // Audio-specific controls
-    protected final FloatControl gainControl = new FloatControl("Gain", 0.0f, 10.0f, 1.0f);
 
     // GUI fields
     protected float strokeWeight = 1.0f;
@@ -60,8 +55,6 @@ public class WaveformVisualizer extends AudioVisualizer {
     protected static final float MAX_STROKE_WEIGHT = 10.0f;
     protected static final float MIN_DISPLAY_DURATION = 0.001f;
     protected static final float MAX_DISPLAY_DURATION = 5.0f;
-
-    protected final List<AudioControl> visualizerControls = List.of(gainControl);
 
     protected final List<float[][]> audioBuffers = new ArrayList<>(4);
 
@@ -263,7 +256,6 @@ public class WaveformVisualizer extends AudioVisualizer {
      */
     public WaveformVisualizer(float frameRate, int resizeDelay) {
         super(Type.REALTIME, frameRate, resizeDelay);
-        addEffectControls(visualizerControls);
     }
 
     /**
@@ -272,7 +264,6 @@ public class WaveformVisualizer extends AudioVisualizer {
      */
     public WaveformVisualizer(float frameRate) {
         super(Type.REALTIME, frameRate);
-        addEffectControls(visualizerControls);
     }
 
     /**
@@ -280,7 +271,6 @@ public class WaveformVisualizer extends AudioVisualizer {
      */
     public WaveformVisualizer() {
         super(Type.REALTIME);
-        addEffectControls(visualizerControls);
     }
 
     @Override
@@ -288,10 +278,6 @@ public class WaveformVisualizer extends AudioVisualizer {
         JPanel panel = getPanel();
         WaveformRender waveformRender = new WaveformRender(panel.getWidth(), panel.getHeight());
         setRender(waveformRender);
-    }
-
-    public FloatControl getGainControl() {
-        return gainControl;
     }
 
     public void setSplitStereo(boolean separateStereo) {
@@ -353,7 +339,7 @@ public class WaveformVisualizer extends AudioVisualizer {
 
         if (audioBuffers.size() == 1) return;
 
-        int additionalSamples = getLength();
+        int additionalSamples = getBufferLength();
 
         // Calculate total samples
         int totalSamples = 0;
@@ -410,7 +396,7 @@ public class WaveformVisualizer extends AudioVisualizer {
         }
 
         long now = System.nanoTime();
-        long delta = now - getLastBufferUpdateTime();
+        long delta = now - getBufferUpdateTime();
 
         int offset = (int) (delta * getSampleRate() / 1000000000f);
 
