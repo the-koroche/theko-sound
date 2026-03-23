@@ -23,6 +23,7 @@ import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
 import org.theko.sound.AudioFormat;
+import org.theko.sound.util.MathUtilities;
 
 /**
  * Utility class for converting between raw PCM/encoded audio data and normalized floating-point samples.
@@ -295,7 +296,7 @@ public final class SamplesConverter {
             case PCM_UNSIGNED:
                 for (int i = 0; i < samplesLength; i++) {
                     for (int ch = 0; ch < channels; ch++) {
-                        floatToUnsigned(buffer, samples[ch][i], bytesPerSample);
+                        floatToUnsigned(buffer, MathUtilities.clamp(samples[ch][i], -1.0f, 1.0f), bytesPerSample);
                     }
                 }
                 break;
@@ -305,8 +306,7 @@ public final class SamplesConverter {
                     ShortBuffer shortBuffer = buffer.asShortBuffer();
                     for (int i = 0; i < samplesLength; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            short value = (short) Math.max(Short.MIN_VALUE,
-                                    Math.min(Short.MAX_VALUE, Math.round(samples[ch][i] * 32768.0f)));
+                            short value = (short) MathUtilities.clamp(Math.round(samples[ch][i] * 32768.0f), Short.MIN_VALUE, Short.MAX_VALUE);
                             shortBuffer.put(value);
                         }
                     }
@@ -315,14 +315,14 @@ public final class SamplesConverter {
                     FloatBuffer floatBuffer = buffer.asFloatBuffer();
                     for (int i = 0; i < samplesLength; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            floatBuffer.put(samples[ch][i]);
+                            floatBuffer.put(MathUtilities.clamp(samples[ch][i], -1.0f, 1.0f));
                         }
                     }
                     buffer.position(buffer.position() + samplesLength * channels * 4);
                 } else {
                     for (int i = 0; i < samplesLength; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            floatToSigned(buffer, samples[ch][i], bytesPerSample);
+                            floatToSigned(buffer, MathUtilities.clamp(samples[ch][i], -1.0f, 1.0f), bytesPerSample);
                         }
                     }
                 }
@@ -333,7 +333,7 @@ public final class SamplesConverter {
                     FloatBuffer floatBuffer = buffer.asFloatBuffer();
                     for (int i = 0; i < samplesLength; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            floatBuffer.put(samples[ch][i]);
+                            floatBuffer.put(MathUtilities.clamp(samples[ch][i], -1.0f, 1.0f));
                         }
                     }
                     buffer.position(buffer.position() + samplesLength * channels * 4);
@@ -341,7 +341,7 @@ public final class SamplesConverter {
                     DoubleBuffer doubleBuffer = buffer.asDoubleBuffer();
                     for (int i = 0; i < samplesLength; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            doubleBuffer.put(samples[ch][i]);
+                            doubleBuffer.put(MathUtilities.clamp(samples[ch][i], -1.0f, 1.0f));
                         }
                     }
                     buffer.position(buffer.position() + samplesLength * channels * 8);
@@ -466,7 +466,6 @@ public final class SamplesConverter {
     }
 
     private static void floatToUnsigned(ByteBuffer buffer, float sample, int bytesPerSample) {
-        sample = Math.max(0f, Math.min(1f, sample));
         long value = (long) (sample * ((1L << (bytesPerSample * 8)) - 1));
         for (int i = bytesPerSample - 1; i >= 0; i--) {
             buffer.put((byte) ((value >> (i * 8)) & 0xFF));
@@ -474,7 +473,6 @@ public final class SamplesConverter {
     }
 
     private static void floatToSigned(ByteBuffer buffer, float sample, int bytesPerSample) {
-        sample = Math.max(-1.0f, Math.min(1.0f, sample));
         int bits = bytesPerSample * 8;
         long fullRange = 1L << (bits - 1);
         long value = Math.round(sample * fullRange);
