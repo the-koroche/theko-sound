@@ -44,6 +44,8 @@ import org.theko.sound.effects.AudioEffect;
  */
 public abstract class AudioVisualizer extends AudioEffect implements Closeable {
 
+    public static final float DEFAULT_BUFFER_RATE = 1.0f / (1024f / 44100f);
+
     private RenderPanel panel;
     private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private Render render;
@@ -57,7 +59,8 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
     private int sampleRate;
     private int length;
 
-    private long lastBufferUpdateTime;
+    private long prevBufferUpdateTime;
+    private long bufferUpdateTime;
 
     private class RenderPanel extends JPanel {
         public RenderPanel() {
@@ -87,7 +90,7 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
         private int imageType;
         private volatile BufferedImage readyImage;
         private Graphics2D g, readyG;
-        private volatile long prevUpdateTime, lastUpdateTime;
+        private volatile long prevUpdateTime, updateTime;
 
         private int width, height;
 
@@ -209,23 +212,22 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
          * It is thread-safe and should be called before any rendering operations.
          */
         protected void updateTime() {
-            prevUpdateTime = lastUpdateTime;
-            lastUpdateTime = System.nanoTime();
+            prevUpdateTime = updateTime;
+            updateTime = System.nanoTime();
         }
 
         /**
          * @return the time difference between the last and previous update in nanoseconds
          */
         protected long getTimeDelta() {
-            return lastUpdateTime - prevUpdateTime;
+            return updateTime - prevUpdateTime;
         }
 
         /**
          * @return the time delta multiplier for frame-independent animations
          */
-        protected float getTimeDeltaMult() {
-            float deltaSec = getTimeDelta() / 1_000_000_000f;
-            return deltaSec * frameRate;
+        protected float getTimeDeltaMultiplier() {
+            return AudioVisualizer.getTimeDeltaMultiplier(prevUpdateTime, updateTime, frameRate);
         }
 
         /**
@@ -344,8 +346,204 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
      */
     public AudioVisualizer(Type type) {
         this(type, 60);
+    } 
+
+    /**
+     * Initializes the audio visualizer before the repaint timer starts.
+     */
+    protected abstract void initialize();
+
+    /**
+     * Repaint task. Executes by the 'repaintTimer'.
+     * By default, it just repaints the panel returned by {@link #getPanel()}.
+     */
+    protected void repaint() {
+        getPanel().repaint();
     }
 
+    /**
+     * Automatically called when the audio samples buffer is updated.
+     */
+    protected void onBufferUpdate() {}
+
+    /**
+     * Automatically called when the audio visualizer is being closed.
+     */
+    protected void onEnd() {}
+
+    /**
+     * Clones the audio samples buffer and updates the sample rate.
+     * @param samples The audio samples
+     * @param sampleRate The sample rate of the audio samples
+     */
+    @Override
+    public void effectRender(float[][] samples, int sampleRate) {
+        int length = samples[0].length;
+        samplesBuffer = new float[samples.length][length];
+        for (int ch = 0; ch < samples.length; ch++) {
+            System.arraycopy(samples[ch], 0, samplesBuffer[ch], 0, length);
+        }
+        this.sampleRate = sampleRate;
+        this.length = samples[0].length;
+
+        prevBufferUpdateTime = bufferUpdateTime;
+        bufferUpdateTime = System.nanoTime();
+        onBufferUpdate();
+    }
+
+    /**
+     * Calculates the offset of the samples buffer to the current time.
+     * This offset indicates which sample is currently being played.
+     * @return The offset of the samples buffer to the current time
+     */
+    protected int getSamplesOffset() {
+        long now = System.nanoTime();
+        long delta = now - bufferUpdateTime;
+        if (length > 0) {
+            long elapsedSamples = (long)(delta * sampleRate / 1_000_000_000L);
+            return (int)(elapsedSamples % length);
+        }
+        return 0;
+    }
+
+    /**
+     * @return The panel of the audio visualizer
+     */
+    public JPanel getPanel() {
+        return panel;
+    }
+
+    /**
+     * @return The frame rate of the audio visualizer
+     */
+    public float getFrameRate() {
+        return frameRate;
+    }
+
+    /**
+     * Returns the current render image of the audio visualizer.
+     * This method is thread-safe and returns a reference to the current render image.
+     * The returned image is a snapshot of the render area at the time of the method call
+     * and may not reflect the current state of the render area.
+     * @return The current render image of the audio visualizer
+     */
+    public BufferedImage getImage() {
+        return render.getRenderImage();
+    }
+
+    /**
+     * @return the width of the render area
+     */
+    public int getImageWidth() {
+        return render.getWidth();
+    }
+
+    /**
+     * @return The height of the render area
+     */
+    public int getImageHeight() {
+        return render.getHeight();
+    }
+
+    /**
+     * Closes the audio visualizer, stopping the repaint timer and closing the render.
+     */
+    @Override
+    public void close() {
+        executor.shutdownNow();
+        render.close();
+        onEnd();
+        panel.setVisible(false);
+    }
+
+    /**
+     * Sets the render of the audio visualizer.
+     * <p>
+     * This method closes the current render and sets the new render.
+     * @param render The new render of the audio visualizer
+     * @throws IllegalArgumentException if render is null
+     */
+    protected void setRender(Render render) {
+        if (render == null)
+            throw new IllegalArgumentException("Render cannot be null");
+        this.render.close();
+        this.render = render;
+    }
+
+    /**
+     * @return The audio samples buffer (reference)
+     */
+    protected float[][] getSamplesBuffer() {
+        return samplesBuffer;
+    }
+
+    /**
+     * @return The sample rate of the audio samples
+     */
+    protected int getSampleRate() {
+        return sampleRate;
+    }
+
+    /**
+     * @return The length of the audio samples buffer
+     */
+    protected int getBufferLength() {
+        return length;
+    }
+
+    /**
+     * @return The last time the audio samples buffer was updated in nanoseconds
+     */
+    protected long getBufferUpdateTime() {
+        return bufferUpdateTime;
+    }
+
+    /**
+     * @return The time difference between the last and previous audio samples
+     *         buffer update times in nanoseconds
+     */
+    protected long getBufferUpdateTimeDelta() {
+        return bufferUpdateTime - prevBufferUpdateTime;
+    }
+
+    /**
+     * Returns the time delta multiplier for buffer-update-independent animations.
+     * This method takes into account the difference between the last and previous update times
+     * and default buffer rate {@code 1.0f / (1024f / 44100f) = 43.066406}.
+     * 
+     * @return The time delta multiplier for buffer-update-independent animations
+     */
+    protected float getBufferTimeDeltaMultiplier() {
+        return getTimeDeltaMultiplier(prevBufferUpdateTime, bufferUpdateTime, DEFAULT_BUFFER_RATE);
+    }
+
+    /**
+     * Calculates the time delta multiplier for frame-independent animations.
+     * This method takes into account the difference between the last and previous update times
+     * and the frame rate of the visualizer.
+     * <p>
+     * The time delta multiplier is used to adjust the speed of animations based on the
+     * actual time elapsed between updates. This allows for frame-independent animations that
+     * are not affected by the frame rate of the visualizer.
+     * <p>
+     * @param prevUpdateTime The previous update time in nanoseconds
+     * @param updateTime The current update time in nanoseconds
+     * @param base The base value for the time delta multiplier
+     * @return The time delta multiplier for frame-independent animations
+     */
+    private static float getTimeDeltaMultiplier(long prevUpdateTime, long updateTime, float base) {
+        long d = updateTime - prevUpdateTime;
+        if (d <= 0) return 0f;
+        float deltaSec = (float) (d * 1e-9);
+        return deltaSec * base;
+    }
+
+    /**
+     * Initializes the repaint timer.
+     * This method schedules a task to be executed at a fixed rate,
+     * which updates the render image and repaints the panel.
+     * It also checks for pending resizes and resizes the render when the delay has passed.
+     */
     private void initializeTimer() {
         executor.scheduleAtFixedRate(() -> {
             try {
@@ -368,131 +566,5 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
                 e.printStackTrace();
             }
         }, 0, (long)(1000 / frameRate), TimeUnit.MILLISECONDS);
-    }
-
-    /**
-     * Clones the audio samples buffer and updates the sample rate.
-     * @param samples The audio samples
-     * @param sampleRate The sample rate of the audio samples
-     */
-    @Override
-    public void effectRender(float[][] samples, int sampleRate) {
-        int length = samples[0].length;
-        samplesBuffer = new float[samples.length][length];
-        for (int ch = 0; ch < samples.length; ch++) {
-            System.arraycopy(samples[ch], 0, samplesBuffer[ch], 0, length);
-        }
-        this.sampleRate = sampleRate;
-        this.length = samples[0].length;
-
-        lastBufferUpdateTime = System.nanoTime();
-        onBufferUpdate();
-    }
-
-    protected int getSamplesOffset() {
-        long now = System.nanoTime();
-        long delta = now - lastBufferUpdateTime;
-        if (length > 0) {
-            int elapsedSamples = (int) (delta * sampleRate / 1000000000f);
-            return elapsedSamples % length;
-        }
-        return 0;
-    }
-
-    /**
-     * Initializes the audio visualizer before the repaint timer starts.
-     */
-    protected abstract void initialize();
-
-    /**
-     * Repaint task. Executes by the 'repaintTimer'.
-     * By default, it just repaints the panel returned by {@link #getPanel()}.
-     */
-    protected void repaint() {
-        getPanel().repaint();
-    }
-
-    /**
-     * Automatically called when the audio samples buffer is updated.
-     */
-    protected void onBufferUpdate() {}
-
-    /**
-     * Automatically called when the audio visualizer is closed.
-     */
-    protected void onEnd() {}
-
-    /**
-     * Returns the panel of the audio visualizer.
-     * @return The panel of the audio visualizer
-     */
-    public JPanel getPanel() {
-        return panel;
-    }
-
-    /**
-     * Returns the frame rate of the audio visualizer.
-     * @return The frame rate of the audio visualizer
-     */
-    public float getFrameRate() {
-        return frameRate;
-    }
-
-    public BufferedImage getImage() {
-        return render.getRenderImage();
-    }
-
-    public int getImageWidth() {
-        return render.getWidth();
-    }
-
-    public int getImageHeight() {
-        return render.getHeight();
-    }
-
-    /**
-     * Closes the audio visualizer.
-     */
-    @Override
-    public void close() {
-        executor.shutdownNow();
-        render.close();
-        onEnd();
-        panel.setVisible(false);
-    }
-
-    protected void setRender(Render render) {
-        if (render == null)
-            throw new IllegalArgumentException("Render cannot be null");
-        this.render.close();
-        this.render = render;
-    }
-
-    /**
-     * Returns the audio samples buffer.
-     * @return The audio samples buffer
-     */
-    protected float[][] getSamplesBuffer() {
-        return samplesBuffer;
-    }
-
-    /**
-     * Returns the sample rate of the audio samples.
-     * @return The sample rate of the audio samples
-     */
-    protected int getSampleRate() {
-        return sampleRate;
-    }
-
-    /**
-     * Returns the length of the audio samples.
-     * @return The length of the audio samples
-     */
-    protected int getLength() {
-        return length;
-    }
-
-    protected long getLastBufferUpdateTime() {
-        return lastBufferUpdateTime;
-    }
+    }   
 }
