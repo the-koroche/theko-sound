@@ -16,13 +16,9 @@
 
 package org.theko.sound.samples;
 
-import org.theko.sound.util.AudioBufferUtilities;
-
 /**
  * Utility class for validating audio samples.
  * Samples validation checks if the provided 2D float array represents valid audio samples.
- *
- * @see AudioBufferUtilities
  *
  * @since 0.2.4-beta
  * @author Theko
@@ -33,14 +29,40 @@ public final class SamplesValidation {
      * Enumeration of possible validation results for audio samples.
      */
     public enum ValidationResult {
-        VALID, NULL_ARRAY, NULL_CHANNEL, EMPTY_ARRAY, EMPTY_CHANNEL
+        /** The samples array is valid */
+        VALID,
+        
+        /** The samples array is null */
+        NULL_ARRAY,
+        
+        /** The samples array is empty (no channels) */
+        EMPTY_ARRAY,
+        
+        /** The samples array contains null channels */
+        NULL_CHANNEL,
+        
+        /** The samples array contains empty channels (frames length is 0) */
+        EMPTY_CHANNEL
     }
 
     /**
      * Enumeration of possible results for audio samples dimensions validation.
      */
     public enum DimensionsResult {
-        EXACT, INVALID_CHANNELS, INVALID_SAMPLES, NOT_MATCH_CHANNELS, NOT_MATCH_SAMPLES
+        /** The samples arrays have the same dimensions */
+        EXACT,
+        
+        /** The samples arrays have null channels */
+        INVALID_CHANNELS,
+        
+        /** One of the samples arrays is null */
+        INVALID_SAMPLES,
+
+        /** The samples arrays have different number of channels */
+        NOT_MATCH_CHANNELS,
+
+        /** The samples arrays have different number of frames */
+        NOT_MATCH_FRAMES
     }
 
     /**
@@ -60,7 +82,7 @@ public final class SamplesValidation {
             if (a[i] == null || b[i] == null) {
                 return DimensionsResult.INVALID_CHANNELS;
             } else if (a[i].length != b[i].length) {
-                return DimensionsResult.NOT_MATCH_SAMPLES;
+                return DimensionsResult.NOT_MATCH_FRAMES;
             }
         }
 
@@ -78,7 +100,7 @@ public final class SamplesValidation {
      */
     public static DimensionsResult checkSamplesDimensions(float[] a, float[] b) {
         if (a == null || b == null) return DimensionsResult.INVALID_SAMPLES;
-        if (a.length != b.length) return DimensionsResult.NOT_MATCH_SAMPLES;
+        if (a.length != b.length) return DimensionsResult.NOT_MATCH_FRAMES;
         return DimensionsResult.EXACT;
     }
 
