@@ -334,7 +334,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
 
     /**
      * Checks if the sound source is initialized with a valid mixer and resampler effect.
-     * Initialization occurs when the sound source is opened with either {@link #open(float[][][], AudioFormat, AudioMetadata)} or
+     * Initialization occurs when the sound source is opened with either {@link #open(float[][], AudioFormat, AudioMetadata)} or
      * {@link #open(File)} methods.
      * @return true if the sound source is initialized, false otherwise
      */
@@ -419,33 +419,13 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     }
 
     /**
-     * @return The gain control of the sound source
-     */
-    public FloatControl getGainControl() {
-        return innerMixer.getPostGainControl();
-    }
-
-    /**
-     * @return The inner mixer of the sound source
-     */
-    public AudioMixer getInnerMixer() {
-        return innerMixer;
-    }
-
-    /**
-     * @return The resampler effect of the sound source
-     */
-    public ResamplerEffect getResamplerEffect() {
-        return resamplerEffect;
-    }
-
-    /**
      * Sets the resampler effect of the sound source, sets the speed control value, and returns {@code true} if successful.
      * If the old resampler effect is the same as the new resampler effect, nothing is done, and {@code true} is returned.
      * If the new resampler effect cannot be added to the inner mixer, {@code false} is returned.
      *
      * @param newResamplerEffect The resampler effect to set, cannot be null
      * @throws IllegalArgumentException if the new resampler effect is null
+     * @throws IllegalStateException if the sound source is not initialized
      */
     public boolean setResamplerEffect(ResamplerEffect newResamplerEffect) {
         if (!isInitialized()) {
@@ -474,6 +454,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     /**
      * Sets the loop state of the sound source.
      * @param loop {@code true} to loop the sound source, {@code false} otherwise
+     * @throws IllegalStateException if the sound source is not initialized
      */
     public void setLoop(boolean loop) {
         if (!isInitialized()) {
@@ -485,6 +466,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     /**
      * Checks if the sound source is looping.
      * @return {@code true} if the sound source is looping, {@code false} otherwise
+     * @throws IllegalStateException if the sound source is not initialized
      */
     public boolean isLooping() {
         if (!isInitialized()) {
@@ -494,7 +476,64 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     }
 
     /**
+     * Returns the inner mixer of the sound source.
+     * The inner mixer is a mixer that contains the playback node and resampler effect.
+     * It is used to process audio samples and apply effects to the sound source.
+     * 
+     * @return The inner mixer of the sound source
+     * @throws IllegalStateException if the sound source is not initialized
+     */
+    public AudioMixer getInnerMixer() {
+        if (!isInitialized()) {
+            throw new IllegalStateException("Sound source is not initialized.");
+        }
+        return innerMixer;
+    }
+
+    /**
+     * @return The gain control of the sound source (same as {@link #getPostGainControl()})
+     * @throws IllegalStateException if the sound source is not initialized
+     */
+    public FloatControl getGainControl() {
+        return getPostGainControl();
+    }
+
+    /**
+     * @return The pre-gain control of the sound source
+     * @throws IllegalStateException if the sound source is not initialized
+     */
+    public FloatControl getPreGainControl() {
+        if (!isInitialized()) {
+            throw new IllegalStateException("Sound source is not initialized.");
+        }
+        return innerMixer.getPreGainControl();
+    }
+
+    /**
+     * @return The post-gain control of the sound source
+     * @throws IllegalStateException if the sound source is not initialized
+     */
+    public FloatControl getPostGainControl() {
+        if (!isInitialized()) {
+            throw new IllegalStateException("Sound source is not initialized.");
+        }
+        return innerMixer.getPostGainControl();
+    }
+
+    /**
+     * @return The resampler effect of the sound source
+     * @throws IllegalStateException if the sound source is not initialized
+     */
+    public ResamplerEffect getResamplerEffect() {
+        if (!isInitialized()) {
+            throw new IllegalStateException("Sound source is not initialized.");
+        }
+        return resamplerEffect;
+    }
+
+    /**
      * @return The pan control of the sound source
+     * @throws IllegalStateException if the sound source is not initialized
      */
     public FloatControl getPanControl() {
         if (!isInitialized()) {
@@ -505,6 +544,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
 
     /**
      * @return The speed control of the sound source
+     * @throws IllegalStateException if the sound source is not initialized
      */
     public FloatControl getSpeedControl() {
         if (!isInitialized()) {
@@ -516,6 +556,8 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     /**
      * Sets the frame position of the sound source.
      * @param position The frame position to set
+     * @throws IllegalArgumentException if the position is out of bounds
+     * @throws IllegalStateException if the sound source is not opened
      */
     public void setFramePosition(int position) {
         if (!hasAudioData()) {
@@ -531,6 +573,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
 
     /**
      * @return The frame position of the sound source
+     * @throws IllegalStateException if the sound source is not opened
      */
     public int getFramePosition() {
         if (!hasAudioData()) {
@@ -542,6 +585,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     /**
      * Sets the seconds position of the sound source.
      * @param seconds The seconds position to set
+     * @throws IllegalStateException if the sound source is not opened
      */
     public void setSecondsPosition(double seconds) {
         if (!hasAudioData()) {
@@ -553,6 +597,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
 
     /**
      * @return The seconds position of the sound source
+     * @throws IllegalStateException if the sound source is not opened
      */
     public double getSecondsPosition() {
         if (!hasAudioData()) {
@@ -563,6 +608,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
 
     /**
      * @return The duration of the sound source in seconds
+     * @throws IllegalStateException if the sound source is not opened
      */
     public double getDuration() {
         if (!hasAudioData()) {
@@ -578,6 +624,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * where each element is a normalized floating-point sample in the range [-1.0, 1.0].
      *
      * @return The audio samples associated with this sound source (a ref)
+     * @throws IllegalStateException if the sound source is not opened
      */
     public float[][] getSamples() {
         if (!hasAudioData()) {
@@ -591,6 +638,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * May be null if the sound source is not initialized.
      * 
      * @return The audio format of the sound source
+     * @throws IllegalStateException if the sound source is not initialized
      */
     public AudioFormat getAudioFormat() {
         if (audioFormat == null) {
@@ -603,6 +651,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * Returns the metadata of the sound source.
      * May be null if the sound source is not initialized, or has no metadata.
      * @return The metadata of the sound source
+     * @throws IllegalStateException if the sound source is not initialized
      */
     public AudioMetadata getMetadata() {
         if (!hasAudioData()) {
@@ -689,6 +738,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      *
      * @param effect The audio effect builder that will be applied
      * @throws IllegalArgumentException If the effect builder is null
+     * @throws IllegalStateException If the sound source is not initialized
      */
     public void applyEffect(AudioEffectBuilder effect) {
         if (!hasAudioData()) {
