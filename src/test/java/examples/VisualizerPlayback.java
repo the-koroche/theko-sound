@@ -3,29 +3,36 @@ package examples;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.OverlayLayout;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.TransferHandler;
 
 import org.theko.sound.AudioMixer;
 import org.theko.sound.SoundPlayer;
 import org.theko.sound.codecs.AudioCodecNotFoundException;
 import org.theko.sound.codecs.AudioTag;
+import org.theko.sound.controls.FloatControl;
 import org.theko.sound.effects.BitcrusherEffect;
 import org.theko.sound.effects.ResamplerEffect;
 import org.theko.sound.events.OutputLayerEventType;
+import org.theko.sound.properties.AudioSystemProperties;
 import org.theko.sound.resamplers.CubicResampleMethod;
 import org.theko.sound.visualizers.AudioVisualizer;
 import org.theko.sound.visualizers.ColorGradient;
@@ -34,18 +41,25 @@ import org.theko.sound.visualizers.SpectrumVisualizer;
 import helpers.FileChooserHelper;
 
 public class VisualizerPlayback {
-    private SoundPlayer player = new SoundPlayer();
-    private String trackInfo = "";
     private static final int messageDisplayDuration = 2000;
     private String message = "";
     private long messageTimestamp = 0;
+
+    private SoundPlayer player = new SoundPlayer();
+    private String trackInfo = "";
 
     private JFrame frame;
     private AudioVisualizer visualizer;
     private BitcrusherEffect bitcrusher;
 
     private class OverlayPanel extends JPanel {
-        Font font = new Font("Monospaced", Font.BOLD, 14);
+        final Font font = new Font("Monospaced", Font.BOLD, 14);
+        final Color alphaBlack = new Color(0, 0, 0, 63);
+        final Color alphaLightGray = new Color(128, 128, 128, 128);
+        final Color alphaOrange = new Color(255, 128, 0, 128);
+        final Color alphaMagenta = new Color(0, 255, 255, 128);
+        final Color alphaWhite = new Color(255, 255, 255, 128);
+        final Color alphaPurple = new Color(255, 0, 191, 128);
 
         @Override
         protected void paintComponent(Graphics g) {
@@ -54,20 +68,12 @@ public class VisualizerPlayback {
             g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            g2d.setColor(Color.WHITE);
             g2d.setFont(font);
-            drawMultilineText(g2d, trackInfo + "\n" + getPlaybackInfo(player), 10, 20, font.getSize() + 2);
+            drawStatus(g2d);
+
+            g2d.setColor(Color.WHITE);
+            drawMultilineText(g2d, getPlayerInfo(), 10, g2d.getFontMetrics().getHeight(), font.getSize() + 2);
             drawMessage(g2d);
-
-            if (frame.isAlwaysOnTop()) {
-                g2d.setColor(Color.ORANGE);
-
-                int xPoints[] = {0, 10, 0};
-                int yPoints[] = {0, 0, 10};
-                int nPoints = 3;
-
-                g2d.fillPolygon(xPoints, yPoints, nPoints);
-            }
         }
 
         private void drawMultilineText(Graphics2D g2d, String text, int x, int y, int lineHeight) {
@@ -77,13 +83,44 @@ public class VisualizerPlayback {
             }
         }
 
+        private void drawStatus(Graphics2D g2d) {
+            FontMetrics fm = g2d.getFontMetrics();
+
+            int y = fm.getHeight();
+            int x = getWidth() - fm.stringWidth("IPLBT__"); // add padding
+
+            x = drawStatusText(!player.isInitialized() || !player.hasAudioData(),
+                    g2d, fm, alphaLightGray, "I", x, y);
+            x = drawStatusText(player.isPlaying(),
+                    g2d, fm, alphaWhite, "P", x, y);
+            x = drawStatusText(player.isLooping(),
+                    g2d, fm, alphaMagenta, "L", x, y);
+            x = drawStatusText(bitcrusher.getEnableControl().getValue(),
+                    g2d, fm, alphaPurple, "B", x, y);
+            x = drawStatusText(frame.isAlwaysOnTop(),
+                    g2d, fm, alphaOrange, "T", x, y);
+        }
+
+        private int drawStatusText(boolean cond, Graphics2D g2d, FontMetrics fm,
+                            Color color, String txt, int x, int y) {
+            if (!cond) return x;
+
+            int w = fm.stringWidth(txt);
+            // background rect
+            g2d.setColor(alphaBlack);
+            g2d.fillRect(x, y - fm.getAscent(), w, fm.getHeight());
+            g2d.setColor(color);
+            g2d.drawString(txt, x, y);
+            return x + w;
+        }
+
         private void drawMessage(Graphics2D g2d) {
             if (!message.isEmpty() && System.currentTimeMillis() - messageTimestamp < messageDisplayDuration) {
                 int msgWidth = g2d.getFontMetrics().stringWidth(message);
                 int msgHeight = g2d.getFontMetrics().getHeight();
 
-                int w = (getParent() != null ? getParent().getWidth() : getWidth());
-                int h = (getParent() != null ? getParent().getHeight() : getHeight());
+                int w = getWidth();
+                int h = getHeight();
                 int x = (w - msgWidth) / 2;
                 int y = (h - msgHeight) / 2;
 
@@ -103,11 +140,15 @@ public class VisualizerPlayback {
         }
     }
 
+    private void message(String msg) {
+        message = msg;
+        messageTimestamp = System.currentTimeMillis();
+    }
+
     private VisualizerPlayback() {
         try {
-            if (!openAudio(false)) {
-                return;
-            }
+            player.initialize();
+            openAudio(null, false);
 
             ResamplerEffect resampler = new ResamplerEffect(new CubicResampleMethod());
             player.setResamplerEffect(resampler);
@@ -133,11 +174,11 @@ public class VisualizerPlayback {
                 frame.setSize(800, 400);
                 frame.setMinimumSize(new Dimension(150, 100));
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                visualizer.getPanel().setDoubleBuffered(true);
-                visualizer.getPanel().setBackground(Color.BLACK);
-                visualizer.getPanel().setOpaque(true);
 
                 JPanel visualizerPanel = visualizer.getPanel();
+                visualizerPanel.setDoubleBuffered(true);
+                visualizerPanel.setOpaque(true);
+                visualizerPanel.setBackground(Color.BLACK);
                 visualizerPanel.setLayout(new OverlayLayout(visualizerPanel));
 
                 JPanel overlay = new OverlayPanel();
@@ -153,6 +194,7 @@ public class VisualizerPlayback {
                     }
                 });
                 addKeyListeners();
+                addDragNDrop();
                 frame.setFocusable(true);
                 frame.requestFocusInWindow();
                 frame.setVisible(true);
@@ -170,12 +212,13 @@ public class VisualizerPlayback {
         }
     }
 
-    private boolean openAudio(boolean background) throws FileNotFoundException, AudioCodecNotFoundException {
-        File audioFile = FileChooserHelper.chooseAudioFile();
+    private boolean openAudio(File file, boolean background) throws FileNotFoundException, AudioCodecNotFoundException {
+        final File audioFile = (file == null ? FileChooserHelper.chooseAudioFile() : file);
         if (audioFile == null)
             return false;
 
-        boolean wasPlaying = player.isPlaying();
+        // if the player was not initialized, then start it
+        boolean wasPlaying = player.isPlaying() || (!player.isInitialized() || !player.hasAudioData());
 
         if (background) {
             String frameTitle = frame.getTitle();
@@ -203,6 +246,7 @@ public class VisualizerPlayback {
                 }
             };
             worker.execute();
+            frame.requestFocusInWindow();
         } else {
             player.open(audioFile);
             if (wasPlaying)
@@ -210,6 +254,17 @@ public class VisualizerPlayback {
             trackInfo = getTrackInfo(player);
         }
         return true;
+    }
+
+    private String getPlayerInfo() {
+        if (!player.isInitialized() || !player.hasAudioData()) {
+            return "Not opened.\nPress 'O' to open an audio file.";
+        }
+        String playbackInfo = getPlaybackInfo(player);
+        if (trackInfo == null || trackInfo.isEmpty()) {
+            trackInfo = getTrackInfo(player);
+        }
+        return "%s\n%s".formatted(trackInfo, playbackInfo);
     }
 
     private static String getTrackInfo(SoundPlayer player) {
@@ -234,15 +289,15 @@ public class VisualizerPlayback {
         String realDur = "";
         if (speed != 1f) {
             int adj = (int) (dur / speed);
-            realDur = "(" + fmt(adj) + ")";
+            realDur = "(" + formatTime(adj) + ")";
         }
 
         return "%s / %s %s%s%s".formatted(
-                fmt(pos), fmt(dur), realDur, stopped, speedStr
+                formatTime(pos), formatTime(dur), realDur, stopped, speedStr
         );
     }
 
-    private static String fmt(int seconds) {
+    private static String formatTime(int seconds) {
         return "%02d:%02d".formatted(seconds / 60, seconds % 60);
     }
 
@@ -252,6 +307,10 @@ public class VisualizerPlayback {
     }
 
     private boolean ensureOpen() {
+        if (!player.isInitialized() || !player.hasAudioData()) {
+            message("Not opened.\nPress 'O' to open an audio file.");
+            return false;
+        }
         if (!player.isOpen()) {
             System.out.println("Reopening output layer...");
             try {
@@ -265,11 +324,13 @@ public class VisualizerPlayback {
         return true;
     }
 
+    // UI methods
+
     private void addKeyListeners() {
         frame.addKeyListener(new KeyAdapter() {
         @Override
         public void keyPressed(KeyEvent e) {
-            var speed = player.getSpeedControl();
+            FloatControl speed = player.getSpeedControl();
             switch (e.getKeyCode()) {
                 // Play / Pause toggle
                 case KeyEvent.VK_SPACE, KeyEvent.VK_PAUSE, KeyEvent.VK_P -> {
@@ -300,7 +361,7 @@ public class VisualizerPlayback {
                 // Open new audio track
                 case KeyEvent.VK_O -> {
                     try {
-                        if (openAudio(true)) message("Opening new audio track");
+                        if (openAudio(null, true)) message("Opening new audio track");
                         else message("No audio file selected");
                     } catch (FileNotFoundException ex) {
                         message("File not found");
@@ -327,12 +388,32 @@ public class VisualizerPlayback {
     });
     }
 
-    private void message(String msg) {
-        message = msg;
-        messageTimestamp = System.currentTimeMillis();
+    private void addDragNDrop() {
+        visualizer.getPanel().setTransferHandler(new TransferHandler() {
+            @Override
+            public boolean canImport(TransferHandler.TransferSupport support) {
+                return support.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public boolean importData(TransferHandler.TransferSupport support) {
+                if (!canImport(support)) return false;
+                try {
+                    Transferable t = support.getTransferable();
+                    List<File> f = (List<File>) t.getTransferData(DataFlavor.javaFileListFlavor);
+                    openAudio(f.get(0), true);
+                    return true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+        });
     }
 
     public static void main(String[] args) {
+        AudioSystemProperties.runStaticInit();
         new VisualizerPlayback();
     }
 }
