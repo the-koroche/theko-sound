@@ -23,10 +23,9 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JPanel;
 
@@ -34,6 +33,7 @@ import org.theko.sound.dsp.FFT;
 import org.theko.sound.dsp.WindowFunction;
 import org.theko.sound.dsp.WindowType;
 import org.theko.sound.util.MathUtilities;
+import org.theko.sound.util.Range;
 
 /**
  * A class that represents a spectrogram visualizer.
@@ -51,49 +51,45 @@ public class SpectrogramVisualizer extends GainedAudioVisualizer {
     private float updateTime = 0.01f;
     private VolumeColorProcessor volumeColorProcessor = ColorGradient.INFERNO_COLOR_MAP.getVolumeColorProcessor();
 
+    // FFT parameters
     private int channelToShow = 0;
-    private WindowType windowType = WindowType.BLACKMAN_HARRIS;
-    private int fftWindowSize = 8192;
-    private float minAmplitudeNormalizer = 1.0f;
-    private float amplitudeExponent = 2.0f;
+    private WindowType windowType = WindowType.HANN;
+    private int fftWindowSize = 2048;
 
-    private float currentAmplitudeNormalizer = minAmplitudeNormalizer;
-    private float normalizerDecaySpeed = 0.0f;
+    // FFT normalization parameters
+    private float minNormalizer = 0.02f;
+    private float normalizerThreshold = 0.9f;
+    private float normalizerDecayFactor = 0.95f;
+    private float spectrumExponent = 1.5f;
+    private float currentNormalizer = minNormalizer;
 
-    protected static final float MIN_SCALE = 0.5f;
-    protected static final float MAX_SCALE = 4.0f;
-    protected static final float MIN_UPDATE_TIME = 0.001f;
-    protected static final float MAX_UPDATE_TIME = 5.0f;
+    // Limits for parameters
+    public static final Range<Integer> FFT_SIZE_RANGE = new Range<>(64, 32768);
+    public static final Range<Float> UPDATE_TIME_RANGE = new Range<>(0.001f, 1.0f);
+    public static final Range<Float> SPECTRUM_DECAY_FACTOR_RANGE = new Range<>(0.0f, 1.0f);
+    public static final Range<Float> SPECTRUM_SMOOTHNESS_RANGE = new Range<>(0.0f, 1.0f);
 
-    protected static final int MIN_FFT_SIZE = 64;
-    protected static final int MAX_FFT_SIZE = 16384;
+    public static final Range<Float> NORMALIZER_PEAK_FACTOR_RANGE = new Range<>(1.0f, 2.0f);
+    public static final Range<Float> NORMALIZER_THRESHOLD_RANGE = new Range<>(0.0f, 1.0f);
+    public static final Range<Float> NORMALIZER_DECAY_FACTOR_RANGE = new Range<>(0.0f, 1.0f);
+    public static final Range<Float> SPECTRUM_EXPONENT_RANGE = new Range<>(0.0f, 6.0f);
 
-    protected static final float MIN_DIVIDER = 0.0f;
-    protected static final float MAX_DIVIDER = 1.0f;
-    protected static final float MIN_AMPLITUDE_POWER = 0.25f;
-    protected static final float MAX_AMPLITUDE_POWER = 10.0f;
+    public static final Range<Float> FIXED_WIDTH_BAR_WIDTH_RANGE = new Range<>(0.0f, 1.0f);
 
-    protected static final float MIN_DIVIDER_DECAY_SPEED = 0.0f;
-    protected static final float MAX_DIVIDER_DECAY_SPEED = 1.0f;
-
-    protected final List<float[]> audioBuffers = new ArrayList<>(10);
-    protected float[] recentAudioWindow = new float[channelToShow];
-    private float[] window = null;
-
-    protected SpectrogramRender spectrogramRender;
+    private float[] fftRingBuffer = null;
+    private final AtomicBoolean shouldRedraw = new AtomicBoolean(false);
 
     protected class SpectrogramRender extends AudioVisualizer.Render {
 
         private BufferedImage spectrogramBuffer;
         private int[] specPixels;
 
-        private float[] fftInputBuffer;
         private float[] fftSpectrum;
         private float[] mappingPositions;
         private float[] interpolatedSpectrum;
         private float[] real, imag;
-
         private float lastFrequencyScale = -1;
+
         private float timeSinceLastShift = 0f;
         private long lastRenderTime = System.nanoTime();
 
@@ -104,11 +100,88 @@ public class SpectrogramVisualizer extends GainedAudioVisualizer {
         @Override
         protected void invalidate() {
             super.invalidate();
-            fftInputBuffer = null;
+            lastFrequencyScale = -1;
             fftSpectrum = null;
             mappingPositions = null;
             interpolatedSpectrum = null;
             real = null; imag = null;
+        }
+
+        @Override
+        protected void paint(Graphics2D g2d) {
+            // Do nothing if there is not enough samples
+            if (fftRingBuffer == null || fftRingBuffer.length == 0 || !shouldRedraw.get()) {
+                if (spectrogramBuffer != null)
+                    g2d.drawImage(spectrogramBuffer, 0, 0, null);
+                return;
+            }
+
+            long now = System.nanoTime();
+            float deltaTime = (now - lastRenderTime) * 1e-9f;
+            lastRenderTime = now;
+
+            timeSinceLastShift += deltaTime;
+
+            int shiftPixels = 0;
+            while (timeSinceLastShift >= updateTime) {
+                timeSinceLastShift -= updateTime;
+                shiftPixels++;
+            }
+
+            int w = getWidth();
+            int h = getHeight();
+
+            if (w <= 0 || h <= 0) return;
+
+            ensureBuffers();
+            int[] pixels = specPixels;
+
+
+            int shift = Math.min(shiftPixels, w);
+            if (shiftPixels > 0) {
+                for (int y = 0; y < h; y++) {
+                    int base = y * w;
+
+                    System.arraycopy(
+                        pixels, base + shift,
+                        pixels, base,
+                        w - shift
+                    );
+                }
+            }
+
+            for (int x = 0; x < shift; x++) { // x = 0..shift-1
+                int targetX = w - shift + x;
+                for (int y = 0; y < h; y++) {
+                    float amp = MathUtilities.clamp(interpolatedSpectrum[y], 0f, 1f);
+                    int row = h - y - 1;
+                    pixels[row * w + targetX] = volumeColorProcessor.getColor(amp);
+                }
+            }
+
+            g2d.drawImage(spectrogramBuffer, 0, 0, null);
+            shouldRedraw.set(false);
+        }
+
+        private void ensureBuffers() {
+            ensureSpectrogramBuffer();
+
+            fftSpectrum = ensureBuffer(fftSpectrum, fftWindowSize / 2);
+            getSpectrum(fftRingBuffer, fftSpectrum);
+
+            interpolatedSpectrum = ensureBuffer(interpolatedSpectrum, getHeight());
+
+            if (mappingPositions == null || mappingPositions.length != fftSpectrum.length) {
+                mappingPositions = new float[fftSpectrum.length];
+                lastFrequencyScale = frequencyScale;
+                getScaledPositions(mappingPositions, getHeight(), frequencyScale);
+            }
+
+            if (lastFrequencyScale != frequencyScale) {
+                lastFrequencyScale = frequencyScale;
+                getScaledPositions(mappingPositions, getHeight(), frequencyScale);
+            }
+            mapSpectrumCubic(fftSpectrum, mappingPositions, interpolatedSpectrum);
         }
 
         private void ensureSpectrogramBuffer() {
@@ -139,99 +212,13 @@ public class SpectrogramVisualizer extends GainedAudioVisualizer {
             }
         }
 
-        @Override
-        protected void paint(Graphics2D g2d) {
-            long now = System.nanoTime();
-            float deltaTime = (now - lastRenderTime) * 1e-9f;
-            lastRenderTime = now;
-
-            timeSinceLastShift += deltaTime;
-
-            int shiftPixels = 0;
-            while (timeSinceLastShift >= updateTime) {
-                timeSinceLastShift -= updateTime;
-                shiftPixels++;
-            }
-
-            if (recentAudioWindow == null) {
-                return;
-            }
-
-            ensureSpectrogramBuffer();
-
-            int w = getWidth();
-            int h = getHeight();
-
-            if (w <= 0 || h <= 0) return;
-
-            int offset = getSamplesOffset();
-            offset = Math.max(0, Math.min(offset, recentAudioWindow.length - fftWindowSize));
-
-            if (fftInputBuffer == null || fftInputBuffer.length != fftWindowSize) {
-                fftInputBuffer = new float[fftWindowSize];
-            }
-            System.arraycopy(recentAudioWindow, offset, fftInputBuffer, 0, fftWindowSize);
-
-            if (fftSpectrum == null || fftSpectrum.length != fftWindowSize / 2)
-                fftSpectrum = new float[fftWindowSize / 2];
-
-            getSpectrum(fftInputBuffer, fftSpectrum);
-
-            if (interpolatedSpectrum == null || interpolatedSpectrum.length != h)
-                interpolatedSpectrum = new float[h];
-
-            if (mappingPositions == null || mappingPositions.length != fftSpectrum.length) {
-                mappingPositions = new float[fftSpectrum.length];
-                getScaledPositions(mappingPositions, h, frequencyScale);
-                lastFrequencyScale = frequencyScale;
-            }
-
-            if (lastFrequencyScale != frequencyScale) {
-                getScaledPositions(mappingPositions, h, frequencyScale);
-                lastFrequencyScale = frequencyScale;
-            }
-
-            mapSpectrumCubic(fftSpectrum, mappingPositions, interpolatedSpectrum);
-
-            int[] pixels = specPixels;
-
-            if (shiftPixels > 0) {
-                int shift = Math.min(shiftPixels, w);
-
-                for (int y = 0; y < h; y++) {
-                    int base = y * w;
-
-                    System.arraycopy(
-                        pixels, base + shift,
-                        pixels, base,
-                        w - shift
-                    );
-                }
-            }
-
-            int lastX = w - 1;
-            for (int y = 0; y < h; y++) {
-                float amp = MathUtilities.clamp(interpolatedSpectrum[y], 0f, 1f);
-                int col = volumeColorProcessor.getColor(amp);
-
-                int row = (h - y - 1);
-                pixels[row * w + lastX] = col;
-            }
-
-            g2d.drawImage(spectrogramBuffer, 0, 0, null);
-        }
-
         private void getSpectrum(float[] inputSamples, float[] outputSpectrum) {
             if (inputSamples.length == 0) return;
 
             int fftLength = fftWindowSize;
 
-            if (real == null || real.length != fftLength) {
-                real = new float[fftLength];
-            }
-            if (imag == null || imag.length != fftLength) {
-                imag = new float[fftLength];
-            }
+            real = ensureBuffer(real, fftLength);
+            imag = ensureBuffer(imag, fftLength);
 
             System.arraycopy(inputSamples, 0, real, 0, inputSamples.length);
             Arrays.fill(imag, 0.0f);
@@ -243,29 +230,30 @@ public class SpectrogramVisualizer extends GainedAudioVisualizer {
             }
 
             WindowFunction.applyInPlace(real, windowType);
-
             FFT.fft(real, imag);
 
             float maxAmplitude = 0.0f;
-            float minNormalizerRoot = (float) Math.pow(minAmplitudeNormalizer, 1 / amplitudeExponent);
 
-            int spectrumLength = Math.min(real.length / 2, outputSpectrum.length);
-            for (int i = 0; i < spectrumLength; i++) {
+            for (int i = 0; i < fftLength / 2; i++) {
                 float magnitude = (float) Math.sqrt(real[i] * real[i] + imag[i] * imag[i]);
-                outputSpectrum[i] = (float) Math.log1p(Math.pow(magnitude, amplitudeExponent));
+
+                float value = (float) Math.log1p(magnitude);
+                outputSpectrum[i] = (float) Math.pow(value, spectrumExponent);
                 if (outputSpectrum[i] > maxAmplitude) maxAmplitude = outputSpectrum[i];
             }
 
-            currentAmplitudeNormalizer -= normalizerDecaySpeed;
-            maxAmplitude = Math.max(minNormalizerRoot, maxAmplitude) * 1.25f;
+            maxAmplitude = Math.max(minNormalizer, maxAmplitude);
 
-            if (currentAmplitudeNormalizer < maxAmplitude) {
-                currentAmplitudeNormalizer = maxAmplitude;
-                normalizerDecaySpeed = 0.0f;
+            if (maxAmplitude > currentNormalizer) {
+                currentNormalizer = maxAmplitude;
             }
+            if (currentNormalizer > maxAmplitude * normalizerThreshold) {
+                currentNormalizer *= normalizerDecayFactor;
+            }
+            if (currentNormalizer < minNormalizer) currentNormalizer = minNormalizer;
 
-            for (int i = 0; i < spectrumLength; i++) {
-                outputSpectrum[i] = MathUtilities.clamp(outputSpectrum[i] / currentAmplitudeNormalizer, 0.0f, 1.0f);
+            for (int i = 0; i < fftLength / 2; i++) {
+                outputSpectrum[i] = MathUtilities.clamp(outputSpectrum[i] / currentNormalizer, 0.0f, 1.0f);
             }
         }
     }
@@ -299,63 +287,58 @@ public class SpectrogramVisualizer extends GainedAudioVisualizer {
     @Override
     protected void initialize() {
         JPanel panel = getPanel();
-        spectrogramRender = new SpectrogramRender(panel.getWidth(), panel.getHeight());
-        setRender(spectrogramRender);
+        SpectrogramRender render = new SpectrogramRender(panel.getWidth(), panel.getHeight());
+        setRender(render);
     }
 
     @Override
     protected void onBufferUpdate() {
         float[] newSamples = getSamplesBuffer()[channelToShow];
-        audioBuffers.add(newSamples);
+        fftRingBuffer = ensureBuffer(fftRingBuffer, fftWindowSize);
+        int bufferLength = fftRingBuffer.length;
 
-        int requiredSamples = fftWindowSize + getBufferLength();
+        int copyLen = Math.min(newSamples.length, bufferLength);
 
-        int totalSamples = 0;
-        for (float[] buf : audioBuffers)
-            totalSamples += buf.length;
-
-        while (totalSamples > requiredSamples && audioBuffers.size() > 1) {
-            totalSamples -= audioBuffers.remove(0).length;
+        // Move old data to the left, freeing up space for new data
+        if (copyLen < bufferLength) {
+            System.arraycopy(fftRingBuffer, copyLen, fftRingBuffer, 0, bufferLength - copyLen);
         }
 
-        if (window == null || window.length != requiredSamples) {
-            window = new float[requiredSamples];
-        }
-        if (window.length > totalSamples) {
-            Arrays.fill(window, 0.0f);
-        }
-        int pos = 0;
-        int minLength = Math.min(requiredSamples, totalSamples);
-        for (float[] buf : audioBuffers) {
-            int copyLen = Math.min(buf.length, minLength - pos);
-            System.arraycopy(buf, buf.length - copyLen, window, pos, copyLen);
-            pos += copyLen;
-            if (pos >= window.length) break;
-        }
+        // Copy the new samples to the end of the buffer
+        System.arraycopy(newSamples, newSamples.length - copyLen, fftRingBuffer, bufferLength - copyLen, copyLen);
 
-        this.recentAudioWindow = window;
+        shouldRedraw.set(true);
+    }
+
+    private float[] ensureBuffer(float[] buffer, int size) {
+        if (buffer == null || buffer.length != size) {
+            buffer = new float[size];
+        }
+        return buffer;
     }
 
     /**
-     * Sets the frequency scale of the spectogram visualizer.
+     * Sets the frequency scale of the spectrum visualizer.
      * The frequency scale is used to determine the frequency range of the
-     * spectogram that is displayed. The frequency scale is relative to the
+     * spectrum that is displayed. The frequency scale is relative to the
      * sampling rate of the audio signal, with a frequency scale of 1.0f
      * representing the full frequency range of the sampling rate and a
      * frequency scale of 0.5f representing half of the full frequency range.
      * A frequency scale of 2.0f would represent twice the full frequency range
      * of the sampling rate.
      *
-     * @param frequencyScale The frequency scale of the spectrogram visualizer
+     * @param frequencyScale The frequency scale of the spectrum visualizer, must be non-negative
      */
     public void setFrequencyScale(float frequencyScale) {
-        this.frequencyScale = MathUtilities.clamp(frequencyScale, MIN_SCALE, MAX_SCALE);
+        this.frequencyScale = Math.max(frequencyScale, 0.0f);
     }
 
     /**
-     * Returns the frequency scale of the spectogram visualizer.
+     * Returns the frequency scale of the spectrum visualizer.
+     * The frequency scale is used to determine the frequency range of the
+     * spectrum that is displayed.
      *
-     * @return The frequency scale of the spectogram visualizer
+     * @return The frequency scale of the spectrum visualizer
      */
     public float getFrequencyScale() {
         return frequencyScale;
@@ -371,7 +354,7 @@ public class SpectrogramVisualizer extends GainedAudioVisualizer {
      * @see #getUpdateTime()
      */
     public void setUpdateTime(float updateTime) {
-        this.updateTime = MathUtilities.clamp(updateTime, MIN_UPDATE_TIME, MAX_UPDATE_TIME);
+        this.updateTime = UPDATE_TIME_RANGE.clamp(updateTime);
     }
 
     /**
@@ -406,89 +389,86 @@ public class SpectrogramVisualizer extends GainedAudioVisualizer {
     }
 
     /**
-     * Sets the minimum amplitude normalizer of the visualizer.
-     * The minimum amplitude normalizer is used to scale the amplitude of the
-     * spectrum before it is displayed. The amplitude normalizer is calculated
-     * as follows: amplitude = Math.max(minNormalizerRoot, maxAmplitude) * 1.25f;
-     * where minNormalizerRoot is the square root of the minimum amplitude normalizer
-     * and maxAmplitude is the maximum amplitude of the spectrum.
-     *
-     * @param divider The minimum amplitude normalizer of the visualizer
-     */
-    public void setMinAmplitudeNormalizer(float divider) {
-        this.minAmplitudeNormalizer = MathUtilities.clamp(divider, MIN_DIVIDER, MAX_DIVIDER);
+    * Sets the minimum amplitude normalizer.
+    * This value prevents the spectrum from disappearing when the signal is very quiet.
+    * The actual normalizer used is scaled with the amplitude exponent.
+    *
+    * @param min minimum amplitude normalizer
+    * @throws IllegalArgumentException if the divider is less than or equal to 0
+    */
+    public void setMinNormalizer(float min) {
+        if (min <= 0) {
+            throw new IllegalArgumentException("Minimum normalizer must be greater than 0.");
+        }
+        this.minNormalizer = min;
     }
 
     /**
-     * Returns the minimum amplitude normalizer of the visualizer.
+     * Returns the minimum amplitude normalizer.
      *
-     * @return The minimum amplitude normalizer of the visualizer
+     * @return minimum amplitude normalizer
      */
-    public float getMinAmplitudeNormalizer() {
-        return minAmplitudeNormalizer;
+    public float getMinNormalizer() {
+        return minNormalizer;
     }
 
     /**
-     * Sets the amplitude exponent of the visualizer.
-     * The amplitude exponent is used to scale the amplitude of the spectrum before it is
-     * displayed. The amplitude exponent is applied as follows: amplitude =
-     * Math.pow(amplitude, amplitudeExponent).
-     * A higher amplitude exponent will result in a more dramatic amplitude scaling.
-     * A lower amplitude exponent will result in a less dramatic amplitude scaling.
+     * Sets the amplitude exponent used to scale the spectrum.
+     * Values &gt; 1 emphasize stronger peaks, values &lt; 1 make quieter components more visible.
      *
-     * @param power The amplitude exponent of the visualizer
+     * @param power amplitude exponent, clamped in range [0.25, 6.0]
      */
-    public void setAmplitudeExponent(float power) {
-        this.amplitudeExponent = MathUtilities.clamp(power, MIN_AMPLITUDE_POWER, MAX_AMPLITUDE_POWER);
+    public void setSpectrumExponent(float power) {
+        this.spectrumExponent = SPECTRUM_EXPONENT_RANGE.clamp(power);
     }
 
     /**
-     * Returns the amplitude exponent of the visualizer.
+     * Returns the amplitude exponent.
      *
-     * @return the amplitude exponent of the visualizer
+     * @return amplitude exponent
      */
-    public float getAmplitudeExponent() {
-        return amplitudeExponent;
+    public float getSpectrumExponent() {
+        return spectrumExponent;
     }
 
     /**
      * Sets the decay speed of the amplitude normalizer.
-     * A decay speed of 0.0f will cause the amplitude normalizer to recover
-     * instantly, while a decay speed of 1.0f will cause the amplitude normalizer
-     * to recover very slowly.
+     * Determines how quickly the normalizer decreases over time:
+     * <p>- 0.0f: normalizer adapts instantly to new peaks (no decay)
+     * <p>- 1.0f: normalizer decreases quickly (fast decay)
      *
-     * @param speed The decay speed of the amplitude normalizer
+     * @param decay decay speed, clamped in range [0.0, 1.0]
      */
-    public void setNormalizerDecaySpeed(float speed) {
-        this.normalizerDecaySpeed = MathUtilities.clamp(speed, MIN_DIVIDER_DECAY_SPEED, MAX_DIVIDER_DECAY_SPEED);
+    public void setNormalizerFallSpeed(float decay) {
+        this.normalizerDecayFactor = NORMALIZER_DECAY_FACTOR_RANGE.clamp(decay);
     }
 
     /**
      * Returns the decay speed of the amplitude normalizer.
      *
-     * @return The decay speed of the amplitude normalizer
+     * @return decay speed
      */
-    public float getNormalizerDecaySpeed() {
-        return normalizerDecaySpeed;
+    public float getNormalizerDecayFactor() {
+        return normalizerDecayFactor;
     }
 
     /**
-     * Sets the size of the FFT used to generate the spectrogram.
-     * A larger FFT size will provide a more detailed spectrogram, but will also
-     * increase the computational cost of generating the spectrogram, and may cause
+     * Sets the size of the FFT used to generate the spectrum.
+     * A larger FFT size will provide a more detailed spectrum, but will also
+     * increase the computational cost of generating the spectrum, and may cause
      * lower time resolution.
      *
-     * @param size The size of the FFT to use
+     * @param size The size of the FFT to use, must be a power of 2, in range [64, 32768]
      */
     public void setFftWindowSize(int size) {
-        this.fftWindowSize = MathUtilities.clamp(size, MIN_FFT_SIZE, MAX_FFT_SIZE);
-        if (getPanel() != null) {
-            getPanel().invalidate();
+        if (!MathUtilities.isPowerOf2(size)) {
+            throw new IllegalArgumentException("FFT size must be a power of 2");
         }
+        this.fftWindowSize = FFT_SIZE_RANGE.clamp(size);
     }
 
     /**
-     * Returns the size of the FFT used to generate the spectrogram.
+     * Returns the size of the FFT used to generate the spectrum.
      *
      * @return the size of the FFT used
      */
@@ -499,12 +479,16 @@ public class SpectrogramVisualizer extends GainedAudioVisualizer {
     /**
      * Sets the window type used before the FFT is applied.
      *
-     * @param type the type of window function to apply
+     * <p>
+     * Window functions are commonly applied to signals to reduce spectral leakage
+     * when performing Fourier transforms. Each window type provides a different
+     * trade-off between main lobe width and side lobe attenuation.
+     *
+     * @param type the type of window function to apply before the FFT
      * @throws NullPointerException if the window type is null
      */
     public void setWindowType(WindowType type) {
-        Objects.requireNonNull(type);
-        this.windowType = type;
+        this.windowType = Objects.requireNonNull(type);
     }
 
     /**
