@@ -186,65 +186,17 @@ public final class MathUtilities {
     }
 
     /**
-     * Returns the cotangent of a given angle in radians.
+     * Checks if a given integer is a power of 2.
      *
-     * @param x The angle in radians
-     * @return The cotangent of the angle
-     */
-    public static double cot(double x) {
-        return 1.0 / Math.tan(x);
-    }
-
-    /**
-     * Returns the secant of a given angle in radians.
+     * A power of 2 is an integer of the form 2^n, where n is an integer, e.g. 1, 2, 4, 8, 16, etc.
      *
-     * @param x The angle in radians
-     * @return The secant of the angle
-     */
-    public static double sec(double x) {
-        return 1.0 / Math.cos(x);
-    }
-
-    /**
-     * Returns the cosecant of a given angle in radians.
+     * This method uses the bitwise AND (&) operator to check if the given integer is a power of 2.
+     * The expression x > 0 && (x & (x - 1)) == 0 is true if and only if x is a power of 2 and positive.
      *
-     * @param x The angle in radians
-     * @return The cosecant of the angle
+     * @param x The integer to check
+     * @return true if x is a power of 2, false otherwise
      */
-    public static double csc(double x) {
-        return 1.0 / Math.sin(x);
-    }
-
-    /**
-     * Returns the hyperbolic cotangent of a number.
-     * The hyperbolic cotangent is defined as 1/tanh(x).
-     *
-     * @param x The number
-     * @return The hyperbolic cotangent
-     */
-    public static double coth(double x) {
-        return 1.0 / Math.tanh(x);
-    }
-
-    /**
-     * Returns the hyperbolic secant of a given number.
-     * The hyperbolic secant is defined as 1/cosh(x).
-     *
-     * @param x The number
-     * @return The hyperbolic secant of the number
-     */
-    public static double sech(double x) {
-        return 1.0 / Math.cosh(x);
-    }
-
-    /**
-     * Returns the hyperbolic cosecant of a given number.
-     * The hyperbolic cosecant is defined as 1/sinh(x).
-     *
-     * @param x The number
-     * @return The hyperbolic cosecant of the number
-     */
-    public static double csch(double x) {
-        return 1.0 / Math.sinh(x);
+    public static boolean isPowerOf2(int x) {
+        return x > 0 && (x & (x - 1)) == 0;
     }
 }
