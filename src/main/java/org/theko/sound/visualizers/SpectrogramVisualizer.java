@@ -32,8 +32,8 @@ import javax.swing.JPanel;
 import org.theko.sound.dsp.FFT;
 import org.theko.sound.dsp.WindowFunction;
 import org.theko.sound.dsp.WindowType;
+import org.theko.sound.structs.Range;
 import org.theko.sound.util.MathUtilities;
-import org.theko.sound.util.Range;
 
 /**
  * A class that represents a spectrogram visualizer.
