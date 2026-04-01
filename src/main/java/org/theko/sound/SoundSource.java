@@ -456,7 +456,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * @param loop {@code true} to loop the sound source, {@code false} otherwise
      * @throws IllegalStateException if the sound source is not initialized
      */
-    public void setLoop(boolean loop) {
+    public void setLooping(boolean loop) {
         if (!isInitialized()) {
             throw new IllegalStateException("Sound source is not initialized.");
         }
@@ -479,7 +479,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * Returns the inner mixer of the sound source.
      * The inner mixer is a mixer that contains the playback node and resampler effect.
      * It is used to process audio samples and apply effects to the sound source.
-     * 
+     *
      * @return The inner mixer of the sound source
      * @throws IllegalStateException if the sound source is not initialized
      */
