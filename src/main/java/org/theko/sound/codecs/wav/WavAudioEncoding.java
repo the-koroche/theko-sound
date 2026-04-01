@@ -19,7 +19,7 @@ package org.theko.sound.codecs.wav;
 /**
  * Enum representing the various audio encoding formats used in WAVE files.
  *
- * @since 0.1.3-beta
+ * @since 0.3.0-beta
  * @author Theko
  */
 public enum WavAudioEncoding {
