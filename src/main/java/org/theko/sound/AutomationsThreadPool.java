@@ -53,7 +53,7 @@ class AutomationsThreadPool {
 
     static {
         startPool();
-        Runtime.getRuntime().addShutdownHook(new Thread(poolShutdownHook, "Automations-Pool Shutdown Hook"));
+        Runtime.getRuntime().addShutdownHook(new Thread(poolShutdownHook, "AutomationsPool-ShutdownHook"));
     }
 
     /**
