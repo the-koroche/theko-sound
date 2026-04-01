@@ -17,6 +17,7 @@
 package org.theko.sound;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -58,8 +59,8 @@ public final class AudioClassRegister {
         WavCodec.class, FFmpegCodec.class
     );
 
-    private static Set<Class<? extends AudioBackend>> registeredBackends;
-    private static Set<Class<? extends AudioCodec>> registeredCodecs;
+    private static Set<Class<? extends AudioBackend>> registeredBackends = new HashSet<>(definedBackends);
+    private static Set<Class<? extends AudioCodec>> registeredCodecs = new HashSet<>(definedCodecs);
 
     /**
      * Adds a new audio backend class to the backends set.
