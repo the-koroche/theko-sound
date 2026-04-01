@@ -44,6 +44,8 @@ class ThekoSound_WASAPIPortHandle {
         jmethodID mtd__equals_java_lang_Object;
         // public java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.getHandle()
         jmethodID mtd__getHandle;
+        // public java.lang.Class org.theko.sound.backends.wasapi.WASAPIPortHandle.getRelatedBackend()
+        jmethodID mtd__getRelatedBackend;
         // public java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.toString()
         jmethodID mtd__toString;
 
@@ -83,6 +85,12 @@ class ThekoSound_WASAPIPortHandle {
             if (!mtd__getHandle) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
                 env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getHandle'");
+                return;
+            }
+            mtd__getRelatedBackend = env->GetMethodID(clazz_local, "getRelatedBackend", "()Ljava/lang/Class;");
+            if (!mtd__getRelatedBackend) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'getRelatedBackend'");
                 return;
             }
             mtd__toString = env->GetMethodID(clazz_local, "toString", "()Ljava/lang/String;");
@@ -165,6 +173,11 @@ class ThekoSound_WASAPIPortHandle {
             if (!self || !self->isValid()) return nullptr;
             return self->mtd__getHandle;
         }
+        inline static jmethodID getmtd__getRelatedBackend(JNIEnv* env) {
+            ThekoSound_WASAPIPortHandle* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__getRelatedBackend;
+        }
         inline static jmethodID getmtd__toString(JNIEnv* env) {
             ThekoSound_WASAPIPortHandle* self = get(env);
             if (!self || !self->isValid()) return nullptr;
@@ -198,6 +211,15 @@ class ThekoSound_WASAPIPortHandle {
             jmethodID mtd = self->mtd__getHandle;
             if (!mtd) return nullptr;
             return (jstring) env->CallObjectMethod(obj, mtd);
+        }
+
+        // Fabric method for public java.lang.Class org.theko.sound.backends.wasapi.WASAPIPortHandle.getRelatedBackend()
+        inline static jobject getRelatedBackend(JNIEnv* env, jobject obj) {
+            ThekoSound_WASAPIPortHandle* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__getRelatedBackend;
+            if (!mtd) return nullptr;
+            return env->CallObjectMethod(obj, mtd);
         }
 
         // Fabric method for public java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.toString()
