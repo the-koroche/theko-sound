@@ -158,6 +158,7 @@ public class SoundPlayer extends SoundSource {
      * @param bufferSize The buffer size to use
      * @throws FileNotFoundException If the specified audio file is not found
      * @throws AudioCodecNotFoundException If the specified audio file is not supported
+     * @throws RuntimeException If decoding fails for other reasons or adding the resampler effect fails
      */
     public void open(File file, AudioPort port, AudioMeasure bufferSize) throws FileNotFoundException, AudioCodecNotFoundException {
         super.open(file);
@@ -184,6 +185,7 @@ public class SoundPlayer extends SoundSource {
      * @param port The audio port to use
      * @throws FileNotFoundException If the specified audio file is not found
      * @throws AudioCodecNotFoundException If the specified audio file is not supported
+     * @throws RuntimeException If decoding fails for other reasons or adding the resampler effect fails
      */
     public void open(File file, AudioPort port) throws FileNotFoundException, AudioCodecNotFoundException {
         super.open(file);
@@ -219,6 +221,7 @@ public class SoundPlayer extends SoundSource {
      * @param file The audio file to open
      * @throws FileNotFoundException If the audio file is not found
      * @throws AudioCodecNotFoundException If the audio codec is not found
+     * @throws RuntimeException If decoding fails for other reasons or adding the resampler effect fails
      */
     @Override
     public void open(File file) throws FileNotFoundException, AudioCodecNotFoundException {
@@ -236,13 +239,6 @@ public class SoundPlayer extends SoundSource {
         }
     }
 
-    private void reopenAOL() throws IllegalArgumentException, AudioBackendException, UnsupportedAudioFormatException, AudioPortsNotFoundException {
-        if (this.outputLayer.isOpen()) {
-            this.outputLayer.close();
-        }
-        this.outputLayer.open(getAudioFormat());
-    }
-
     /**
      * Opens an audio file and decodes it into samples data.
      * Opens the audio output layer with the specified format.
@@ -250,10 +246,18 @@ public class SoundPlayer extends SoundSource {
      * @param file The audio file path to open
      * @throws FileNotFoundException If the audio file is not found
      * @throws AudioCodecNotFoundException If the audio codec is not found
+     * @throws RuntimeException If decoding fails for other reasons or adding the resampler effect fails
      */
     @Override
     public void open(String file) throws FileNotFoundException, AudioCodecNotFoundException {
         this.open(new File(file));
+    }
+
+    private void reopenAOL() throws IllegalArgumentException, AudioBackendException, UnsupportedAudioFormatException, AudioPortsNotFoundException {
+        if (this.outputLayer.isOpen()) {
+            this.outputLayer.close();
+        }
+        this.outputLayer.open(getAudioFormat());
     }
 
     /**
