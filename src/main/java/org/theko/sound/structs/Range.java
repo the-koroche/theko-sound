@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package org.theko.sound.util;
+package org.theko.sound.structs;
+
+import java.io.Serializable;
 
 /**
  * A utility class representing a range of values.
@@ -33,7 +35,7 @@ package org.theko.sound.util;
  * @author Theko
  * @since 0.3.0-beta
  */
-public class Range<T extends Comparable<T>> {
+public class Range<T extends Comparable<T>> implements Serializable {
 
     private final T min;
     private final T max;
