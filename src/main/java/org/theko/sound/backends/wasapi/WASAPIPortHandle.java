@@ -16,6 +16,7 @@
 
 package org.theko.sound.backends.wasapi;
 
+import org.theko.sound.backends.AudioBackend;
 import org.theko.sound.backends.AudioPortLink;
 
 /**
@@ -45,6 +46,11 @@ public class WASAPIPortHandle implements AudioPortLink {
      */
     public String getHandle() {
         return handle;
+    }
+
+    @Override
+    public Class<? extends AudioBackend> getRelatedBackend() {
+        return WASAPISharedBackend.class;
     }
 
     @Override

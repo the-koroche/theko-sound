@@ -16,6 +16,7 @@
 
 package org.theko.sound.backends.dummy;
 
+import org.theko.sound.backends.AudioBackend;
 import org.theko.sound.backends.AudioPortLink;
 
 /**
@@ -25,6 +26,12 @@ import org.theko.sound.backends.AudioPortLink;
  * @author Theko
  */
 public class DummyPortLink implements AudioPortLink {
+
+    @Override
+    public Class<? extends AudioBackend> getRelatedBackend() {
+        return DummyAudioBackend.class;
+    }
+
     @Override
     public String toString() {
         return "DummyPortLink{hash=" + hashCode() + "}";

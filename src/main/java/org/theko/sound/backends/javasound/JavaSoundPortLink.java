@@ -18,6 +18,7 @@ package org.theko.sound.backends.javasound;
 
 import javax.sound.sampled.Mixer;
 
+import org.theko.sound.backends.AudioBackend;
 import org.theko.sound.backends.AudioPortLink;
 
 /**
@@ -37,6 +38,19 @@ public class JavaSoundPortLink implements AudioPortLink {
 
     public Mixer.Info getMixerInfo() {
         return info;
+    }
+
+    @Override
+    public Class<? extends AudioBackend> getRelatedBackend() {
+        return JavaSoundBackend.class;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        JavaSoundPortLink that = (JavaSoundPortLink) o;
+        return info.equals(that.info);
     }
 
     @Override
