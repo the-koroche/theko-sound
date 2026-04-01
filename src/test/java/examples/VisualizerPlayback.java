@@ -53,8 +53,7 @@ public class VisualizerPlayback {
     private BitcrusherEffect bitcrusher;
 
     private class OverlayPanel extends JPanel {
-        final Font font = new Font("Monospaced", Font.BOLD, 14);
-        final Color alphaBlack = new Color(0, 0, 0, 63);
+        final Font font = new Font("SansSerif", Font.BOLD, 12);
         final Color alphaLightGray = new Color(128, 128, 128, 128);
         final Color alphaOrange = new Color(255, 128, 0, 128);
         final Color alphaMagenta = new Color(0, 255, 255, 128);
@@ -68,29 +67,33 @@ public class VisualizerPlayback {
             g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+            if (!player.isOpen()) {
+                g2d.setColor(Color.BLACK);
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+            }
+
             g2d.setFont(font);
-            drawStatus(g2d);
+            FontMetrics fm = g2d.getFontMetrics();
+            drawStatus(g2d, fm);
 
             g2d.setColor(Color.WHITE);
-            drawMultilineText(g2d, getPlayerInfo(), 10, g2d.getFontMetrics().getHeight(), font.getSize() + 2);
-            drawMessage(g2d);
+            drawMultilineText(g2d, getPlayerInfo(), 10, fm.getHeight(), fm.getAscent());
+            drawMessage(g2d, fm);
         }
 
         private void drawMultilineText(Graphics2D g2d, String text, int x, int y, int lineHeight) {
             String[] lines = text.split("\n");
             for (int i = 0; i < lines.length; i++) {
-                g2d.drawString(lines[i], x, y + i * lineHeight);
+                shadowString(g2d, g2d.getColor(), lines[i], x, y + i * lineHeight, 1);
             }
         }
 
-        private void drawStatus(Graphics2D g2d) {
-            FontMetrics fm = g2d.getFontMetrics();
-
+        private void drawStatus(Graphics2D g2d, FontMetrics fm) {
             int y = fm.getHeight();
-            int x = getWidth() - fm.stringWidth("IPLBT__"); // add padding
+            int x = getWidth() - fm.stringWidth("UPLBT__"); // add padding
 
             x = drawStatusText(!player.isInitialized() || !player.hasAudioData(),
-                    g2d, fm, alphaLightGray, "I", x, y);
+                    g2d, fm, alphaLightGray, "U", x, y);
             x = drawStatusText(player.isPlaying(),
                     g2d, fm, alphaWhite, "P", x, y);
             x = drawStatusText(player.isLooping(),
@@ -106,18 +109,31 @@ public class VisualizerPlayback {
             if (!cond) return x;
 
             int w = fm.stringWidth(txt);
-            // background rect
-            g2d.setColor(alphaBlack);
-            g2d.fillRect(x, y - fm.getAscent(), w, fm.getHeight());
-            g2d.setColor(color);
-            g2d.drawString(txt, x, y);
+            shadowString(g2d, color, txt, x, y, 1);
             return x + w;
         }
 
-        private void drawMessage(Graphics2D g2d) {
+        private void shadowString(Graphics2D g2d, Color color, String text, int x, int y, int offset) {
+            Color current = g2d.getColor();
+            g2d.setColor(Color.BLACK);
+            g2d.drawString(text, x + offset, y + offset);
+            g2d.setColor(color);
+            g2d.drawString(text, x, y);
+            g2d.setColor(current);
+        }
+
+        private void drawMessage(Graphics2D g2d, FontMetrics fm) {
             if (!message.isEmpty() && System.currentTimeMillis() - messageTimestamp < messageDisplayDuration) {
-                int msgWidth = g2d.getFontMetrics().stringWidth(message);
-                int msgHeight = g2d.getFontMetrics().getHeight();
+                String[] lines = message.split("\n");
+
+                int lineHeight = fm.getHeight();
+
+                int msgWidth = 0;
+                for (String line : lines) {
+                    int w = fm.stringWidth(line);
+                    if (w > msgWidth) msgWidth = w;
+                }
+                int msgHeight = lineHeight * lines.length;
 
                 int w = getWidth();
                 int h = getHeight();
@@ -125,11 +141,19 @@ public class VisualizerPlayback {
                 int y = (h - msgHeight) / 2;
 
                 float alpha = getMessageAlpha();
-
                 g2d.setColor(new Color(0, 0, 0, (int) (150 * alpha)));
-                g2d.fillRoundRect(x - 10, y - 20, msgWidth + 20, 30, 10, 10);
+                g2d.fillRoundRect(
+                        x - 10,
+                        y - lineHeight,
+                        msgWidth + 20,
+                        msgHeight + lineHeight,
+                        10, 10
+                );
                 g2d.setColor(new Color(255, 255, 255, (int) (255 * alpha)));
-                g2d.drawString(message, x, y);
+
+                for (int i = 0; i < lines.length; i++) {
+                    g2d.drawString(lines[i], x, y + i * lineHeight);
+                }
             }
         }
 
@@ -138,11 +162,6 @@ public class VisualizerPlayback {
             float alpha = 1.0f - (float)(System.currentTimeMillis() - messageTimestamp) / messageDisplayDuration;
             return Math.max(0f, Math.min(1f, alpha));
         }
-    }
-
-    private void message(String msg) {
-        message = msg;
-        messageTimestamp = System.currentTimeMillis();
     }
 
     private VisualizerPlayback() {
@@ -212,6 +231,8 @@ public class VisualizerPlayback {
         }
     }
 
+    // Opening methods
+
     private boolean openAudio(File file, boolean background) throws FileNotFoundException, AudioCodecNotFoundException {
         final File audioFile = (file == null ? FileChooserHelper.chooseAudioFile() : file);
         if (audioFile == null)
@@ -228,10 +249,7 @@ public class VisualizerPlayback {
 
                 @Override
                 protected Void doInBackground() throws Exception {
-                    player.open(audioFile);
-                    if (wasPlaying)
-                        player.start();
-                    trackInfo = getTrackInfo(player);
+                    openPlayer(audioFile, wasPlaying);
                     return null;
                 }
 
@@ -248,13 +266,36 @@ public class VisualizerPlayback {
             worker.execute();
             frame.requestFocusInWindow();
         } else {
-            player.open(audioFile);
-            if (wasPlaying)
-                player.start();
-            trackInfo = getTrackInfo(player);
+            openPlayer(audioFile, wasPlaying);
         }
         return true;
     }
+
+    private void openPlayer(File audioFile, boolean play) throws FileNotFoundException, AudioCodecNotFoundException {
+        player.open(audioFile);
+        if (play) player.start();
+        trackInfo = getTrackInfo(player);
+    }
+
+    private boolean ensureOpen() {
+        if (!player.isInitialized() || !player.hasAudioData()) {
+            message("Not opened.\nPress 'O' to open an audio file.");
+            return false;
+        }
+        if (!player.isOpen()) {
+            System.out.println("Reopening output layer...");
+            try {
+                player.reopen();
+                return true;
+            } catch (Exception ex) {
+                message("Failed to open output layer.");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Playback info methods
 
     private String getPlayerInfo() {
         if (!player.isInitialized() || !player.hasAudioData()) {
@@ -297,33 +338,6 @@ public class VisualizerPlayback {
         );
     }
 
-    private static String formatTime(int seconds) {
-        return "%02d:%02d".formatted(seconds / 60, seconds % 60);
-    }
-
-    private String getReadableName(String name) {
-        if (name == null || name.isEmpty()) return name;
-        return name.replaceAll("(?<!^)([A-Z])", " $1");
-    }
-
-    private boolean ensureOpen() {
-        if (!player.isInitialized() || !player.hasAudioData()) {
-            message("Not opened.\nPress 'O' to open an audio file.");
-            return false;
-        }
-        if (!player.isOpen()) {
-            System.out.println("Reopening output layer...");
-            try {
-                player.reopen();
-                return true;
-            } catch (Exception ex) {
-                message("Failed to open output layer.");
-                return false;
-            }
-        }
-        return true;
-    }
-
     // UI methods
 
     private void addKeyListeners() {
@@ -339,18 +353,18 @@ public class VisualizerPlayback {
                     else player.start();
                 }
                 // Speed controls
-                case KeyEvent.VK_A, KeyEvent.VK_LEFT ->     speed.setValue(0.5f);
-                case KeyEvent.VK_D, KeyEvent.VK_RIGHT ->    speed.setValue(2.0f);
-                case KeyEvent.VK_S, KeyEvent.VK_DOWN ->     speed.setValue(speed.getValue() - 0.01f);
-                case KeyEvent.VK_W, KeyEvent.VK_UP ->       speed.setValue(speed.getValue() + 0.01f);
+                case KeyEvent.VK_A, KeyEvent.VK_LEFT ->  speed.setValue(0.5f);
+                case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> speed.setValue(2.0f);
+                case KeyEvent.VK_S, KeyEvent.VK_DOWN ->  speed.setValue(speed.getValue() - 0.01f);
+                case KeyEvent.VK_W, KeyEvent.VK_UP ->    speed.setValue(speed.getValue() + 0.01f);
                 // Reset position
-                case KeyEvent.VK_R, KeyEvent.VK_HOME, KeyEvent.VK_BACK_SPACE -> {
+                case KeyEvent.VK_HOME, KeyEvent.VK_BACK_SPACE -> {
                     player.setFramePosition(0);
                     message("Restarted track");
                 }
                 // Loop toggle
                 case KeyEvent.VK_L -> {
-                    player.setLoop(!player.isLooping());
+                    player.setLooping(!player.isLooping());
                     message("Looping %s".formatted(player.isLooping() ? "enabled" : "disabled"));
                 }
                 // Bitcrusher toggle
@@ -410,6 +424,22 @@ public class VisualizerPlayback {
                 }
             }
         });
+    }
+
+    private void message(String msg) {
+        message = msg;
+        messageTimestamp = System.currentTimeMillis();
+    }
+
+    // Formatting methods
+
+    private static String formatTime(int seconds) {
+        return "%02d:%02d".formatted(seconds / 60, seconds % 60);
+    }
+
+    private String getReadableName(String name) {
+        if (name == null || name.isEmpty()) return name;
+        return name.replaceAll("(?<!^)([A-Z])", " $1");
     }
 
     public static void main(String[] args) {
