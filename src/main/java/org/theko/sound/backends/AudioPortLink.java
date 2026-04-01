@@ -19,7 +19,24 @@ package org.theko.sound.backends;
 import org.theko.sound.AudioPort;
 
 /**
- * Marker interface for audio ports links.
+ * Interface for objects that hold backend-specific data used to identify an audio port.
+ * <p>This helps link a port to the audio backend it belongs to.
+ *
+ * <p>Example:
+ * <pre>
+ * public class MyAudioBackendPortLink implements AudioPortLink {
+ *     private final String portId;
+ *
+ *     public MyAudioBackendPortLink(String portId) {
+ *         this.portId = portId;
+ *     }
+ *
+ *     &#64;Override
+ *     public Class&lt;? extends AudioBackend&gt; getRelatedBackend() {
+ *         return MyAudioBackend.class;
+ *     }
+ * }
+ * </pre>
  *
  * @see AudioPort
  *
@@ -27,5 +44,12 @@ import org.theko.sound.AudioPort;
  * @author Theko
  */
 public interface AudioPortLink {
-    // Marker interface
+
+    /**
+     * Returns the related audio backend class that is associated with this port link.
+     * This method is used to determine which audio backend is associated with a given port link.
+     *
+     * @return the related audio backend class
+     */
+    Class<? extends AudioBackend> getRelatedBackend();
 }
