@@ -353,13 +353,13 @@ public class VisualizerPlayback {
                     else player.start();
                 }
                 // Speed controls
-                case KeyEvent.VK_A, KeyEvent.VK_LEFT ->  speed.setValue(0.5f);
-                case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> speed.setValue(2.0f);
+                case KeyEvent.VK_A, KeyEvent.VK_LEFT ->  player.seekSeconds(player.getSecondsPosition() - 5.0);
+                case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> player.seekSeconds(player.getSecondsPosition() + 5.0);
                 case KeyEvent.VK_S, KeyEvent.VK_DOWN ->  speed.setValue(speed.getValue() - 0.01f);
                 case KeyEvent.VK_W, KeyEvent.VK_UP ->    speed.setValue(speed.getValue() + 0.01f);
                 // Reset position
                 case KeyEvent.VK_HOME, KeyEvent.VK_BACK_SPACE -> {
-                    player.setFramePosition(0);
+                    player.reset();
                     message("Restarted track");
                 }
                 // Loop toggle
@@ -388,15 +388,6 @@ public class VisualizerPlayback {
                     frame.setAlwaysOnTop(!frame.isAlwaysOnTop());
                     message("Always on top %s".formatted(frame.isAlwaysOnTop() ? "enabled" : "disabled"));
                 }
-            }
-        }
-
-        @Override
-        public void keyReleased(KeyEvent e) {
-            var speed = player.getSpeedControl();
-            switch (e.getKeyCode()) {
-                case KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT ->
-                    speed.setValue(1.0f);
             }
         }
     });
