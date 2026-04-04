@@ -16,6 +16,7 @@
 
 package org.theko.sound.controls;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -37,7 +38,7 @@ import java.util.stream.Stream;
  * @author Theko
  */
 @SuppressWarnings("rawtypes")
-public class AudioControlGroup {
+public class AudioControlGroup implements Serializable {
 
     protected final List<FloatControl> floatControls = new CopyOnWriteArrayList<>();
     protected final List<BooleanControl> booleanControls = new CopyOnWriteArrayList<>();

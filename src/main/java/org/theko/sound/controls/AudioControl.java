@@ -16,6 +16,7 @@
 
 package org.theko.sound.controls;
 
+import java.io.Serializable;
 import java.text.Normalizer;
 
 import org.theko.events.EventDispatcher;
@@ -40,7 +41,7 @@ import org.theko.sound.events.AudioControlListener;
  * @author Theko
  */
 public abstract class AudioControl implements
-        ListenersManageable<AudioControlEvent, AudioControlListener, AudioControlEventType> {
+        ListenersManageable<AudioControlEvent, AudioControlListener, AudioControlEventType>, Serializable {
 
     protected final String name;
     protected final EventDispatcher<AudioControlEvent, AudioControlListener, AudioControlEventType> eventDispatcher;
