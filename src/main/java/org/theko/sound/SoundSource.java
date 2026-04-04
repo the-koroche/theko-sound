@@ -47,6 +47,7 @@ import org.theko.sound.events.SoundSourceEventType;
 import org.theko.sound.events.SoundSourceListener;
 import org.theko.sound.samples.SamplesValidation;
 import org.theko.sound.util.AudioBufferUtilities;
+import org.theko.sound.util.MathUtilities;
 
 /**
  * The {@code SoundSource} class represents an audio source that can be controlled
@@ -554,6 +555,42 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     }
 
     /**
+     * Seeks the sound source to a specified frame position.
+     * <p>
+     * If the sound source is not opened, an {@link IllegalStateException} is thrown.
+     * <p>
+     * The frame position is clamped to a valid range between 0 and the length of the sound source.
+     * A {@link SoundSourceEventType#POSITION_CHANGE} event is dispatched after the frame position is changed.
+     * @param frames The frame position to seek to
+     * @throws IllegalStateException if the sound source is not opened
+     */
+    public void seekFrames(int frames) {
+        if (!hasAudioData()) {
+            throw new IllegalStateException("Sound source is not opened.");
+        }
+        playedFrames = MathUtilities.clamp(frames, 0, samplesData[0].length);
+        dispatch(SoundSourceEventType.POSITION_CHANGE);
+    }
+
+    /**
+     * Seeks the sound source to a specified position in seconds.
+     * <p>
+     * If the sound source is not opened, an {@link IllegalStateException} is thrown.
+     * <p>
+     * The position is clamped to a valid range between 0 and the length of the sound source.
+     * A {@link SoundSourceEventType#POSITION_CHANGE} event is dispatched after the position is changed.
+     * @param seconds The position in seconds to seek to
+     * @throws IllegalStateException if the sound source is not opened
+     */
+    public void seekSeconds(double seconds) {
+        if (!hasAudioData()) {
+            throw new IllegalStateException("Sound source is not opened.");
+        }
+        int frames = (int)AudioUnitsConverter.microsecondsToFrames((long)(seconds * 1_000_000.0), audioFormat.getSampleRate());
+        seekFrames(frames);
+    }
+
+    /**
      * Sets the frame position of the sound source.
      * @param position The frame position to set
      * @throws IllegalArgumentException if the position is out of bounds
@@ -564,8 +601,8 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
             throw new IllegalStateException("Sound source is not opened.");
         }
         if (position < 0 || position > samplesData[0].length) {
-            logger.error("Position must be between 0 and {}", samplesData[0].length);
-            throw new IllegalArgumentException("Position must be between 0 and " + samplesData[0].length);
+            logger.error("Position {} must be between 0 and {}", position, samplesData[0].length);
+            throw new IllegalArgumentException("Position " + position + " must be between 0 and " + samplesData[0].length);
         }
         playedFrames = position;
         dispatch(SoundSourceEventType.POSITION_CHANGE);
@@ -590,6 +627,10 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     public void setSecondsPosition(double seconds) {
         if (!hasAudioData()) {
             throw new IllegalStateException("Sound source is not opened.");
+        }
+        if (seconds < 0 || seconds > getDuration()) {
+            logger.error("Seconds position {} must be between 0 and {}", seconds, getDuration());
+            throw new IllegalArgumentException("Seconds position " + seconds + " must be between 0 and " + getDuration());
         }
         int samples = (int)AudioUnitsConverter.microsecondsToFrames((long)(seconds * 1_000_000.0), audioFormat.getSampleRate());
         setFramePosition(samples);
