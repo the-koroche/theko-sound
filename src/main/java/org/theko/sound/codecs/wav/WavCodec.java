@@ -292,17 +292,23 @@ public class WavCodec extends AudioCodec {
      */
     protected static WaveFormat parseFormatChunk(byte[] fmtData) throws AudioCodecException {
         ByteBuffer bb = ByteBuffer.wrap(fmtData).order(ByteOrder.LITTLE_ENDIAN);
-        int audioFormat = bb.getShort() & 0xffff;
-        int channels = bb.getShort() & 0xffff;
-        int sampleRate = bb.getInt();
-        int byteRate = bb.getInt();
-        int blockAlign = bb.getShort() & 0xffff;
-        int bitsPerSample = bb.getShort() & 0xffff;
+        int wFormatTag = bb.getShort() & 0xffff;
+        int nChannels = bb.getShort() & 0xffff;
+        int nSamplesPerSec = bb.getInt();
+        int nAvgBytesPerSec = bb.getInt();
+        int nBlockAlign = bb.getShort() & 0xffff;
+        int wBitsPerSample = bb.getShort() & 0xffff;
+
+        int cbSize = 0;
+        if (bb.remaining() >= 2) {
+            cbSize = bb.getShort() & 0xffff;
+        }
         WavAudioEncoding encoding;
 
-        switch (audioFormat) {
+        switch (wFormatTag) {
             case 0x0001: // PCM
-                switch (bitsPerSample) {
+                logger.trace("Parsing PCM format chunk...");
+                switch (wBitsPerSample) {
                     case 8:
                         encoding = WavAudioEncoding.PCM_UNSIGNED_8;
                         break;
@@ -316,48 +322,84 @@ public class WavCodec extends AudioCodec {
                         encoding = WavAudioEncoding.PCM_SIGNED_32;
                         break;
                     default:
-                        logger.error("Unsupported PCM bit depth '{}'.", bitsPerSample);
+                        logger.error("Unsupported PCM bit depth '{}'.", wBitsPerSample);
                         throw new AudioCodecException(
                             new UnsupportedAudioEncodingException("Unsupported PCM bit depth."));
                 }
                 break;
 
             case 0x0003: // IEEE Float
-                if (bitsPerSample == 32) {
+                logger.trace("Parsing IEEE Float format chunk...");
+                if (wBitsPerSample == 32) {
                     encoding = WavAudioEncoding.IEEE_FLOAT_32;
-                } else if (bitsPerSample == 64) {
+                } else if (wBitsPerSample == 64) {
                     encoding = WavAudioEncoding.IEEE_FLOAT_64;
                 } else {
-                    logger.error("Unsupported float bit depth '{}'.", bitsPerSample);
+                    logger.error("Unsupported float bit depth '{}'.", wBitsPerSample);
                     throw new AudioCodecException(
                         new UnsupportedAudioEncodingException("Unsupported float bit depth."));
                 }
                 break;
 
             case 0x0006: // ALAW
+                logger.trace("Parsing ALAW format chunk...");
                 encoding = WavAudioEncoding.ALAW;
                 break;
 
             case 0x0007: // μLAW
+                logger.trace("Parsing μLAW format chunk...");
                 encoding = WavAudioEncoding.ULAW;
                 break;
 
+            case 0xFFFE: // WAVE_FORMAT_EXTENSIBLE
+                logger.trace("Parsing WAVE_FORMAT_EXTENSIBLE format chunk...");
+                
+                // cbSize must be at least 22
+                if (cbSize < 22) {
+                    throw new AudioCodecException(new UnsupportedAudioEncodingException("Invalid EXTENSIBLE cbSize: " + cbSize));
+                }
+
+                int wValidBitsPerSample = bb.getShort() & 0xffff;
+                @SuppressWarnings("unused") int dwChannelMask = bb.getInt();
+                int subFormatCode = bb.getShort() & 0xffff;
+                
+                // Skip the rest of the GUID (14 bytes)
+                bb.position(bb.position() + 14);
+
+                if (subFormatCode == 0x0001) { // PCM
+                    encoding = switch (wValidBitsPerSample) {
+                        case 8 -> WavAudioEncoding.PCM_UNSIGNED_8;
+                        case 16 -> WavAudioEncoding.PCM_SIGNED_16;
+                        case 24 -> WavAudioEncoding.PCM_SIGNED_24;
+                        case 32 -> WavAudioEncoding.PCM_SIGNED_32;
+                        default -> throw new AudioCodecException(new UnsupportedAudioEncodingException("Unsupported PCM bit depth: " + wValidBitsPerSample));
+                    };
+                } else if (subFormatCode == 0x0003) { // Float
+                    if (wValidBitsPerSample == 32) encoding = WavAudioEncoding.IEEE_FLOAT_32;
+                    else if (wValidBitsPerSample == 64) encoding = WavAudioEncoding.IEEE_FLOAT_64;
+                    else throw new AudioCodecException(new UnsupportedAudioEncodingException("Unsupported float bit depth: " + wValidBitsPerSample));
+                } else {
+                    throw new AudioCodecException(new UnsupportedAudioEncodingException("Unsupported SubFormat: " + subFormatCode));
+                }
+
+                wBitsPerSample = wValidBitsPerSample; 
+                break;
+
             default:
-                logger.error("Not supported audio format '{}'.", audioFormat);
+                logger.error("Not supported audio format '{}'.", wFormatTag);
                 throw new AudioCodecException(
                     new UnsupportedAudioEncodingException("Not supported audio format."));
         }
 
         AudioFormat format = new AudioFormat(
-            sampleRate,
-            bitsPerSample,
-            channels,
-            null,
-            false,
-            blockAlign,
-            byteRate
+            nSamplesPerSec,
+            wBitsPerSample,
+            nChannels,
+            null, // no default encoding, will be determined by the WavAudioEncoding
+            false, // always little-endian for WAV
+            nBlockAlign,
+            nAvgBytesPerSec
         );
-
         return new WaveFormat(format, encoding);
     }
 
