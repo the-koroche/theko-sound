@@ -60,7 +60,7 @@ import org.theko.sound.samples.SamplesValidation;
     name = "FFmpeg",
     extensions = {
         "aac", "ac3", "aiff", "aif", "alac", "amr",
-        "flac", "m4a", "mp2", "mp3", "oga", "ogg",
+        "flac", "mp2", "mp3", "oga", "ogg",
         "opus", "wma", "wv", "caf"
     }
 )
@@ -69,8 +69,8 @@ public class FFmpegCodec extends AudioCodec {
     private static final Logger logger = LoggerFactory.getLogger(FFmpegCodec.class);
     private static final Logger ffmpegLogger = LoggerFactory.getLogger("FFmpeg");
 
-    private static final AudioCodec DECODER_CODEC = new WavCodec();
-    private static final String DECODER_CODEC_NAME = DECODER_CODEC.getClass().getSimpleName();
+    private static final AudioCodec WAV_CODEC = new WavCodec();
+    private static final String WAV_CODEC_NAME = WAV_CODEC.getClass().getSimpleName();
 
     @Override
     public AudioDecodeResult decode(InputStream is) throws AudioCodecException {
@@ -100,6 +100,7 @@ public class FFmpegCodec extends AudioCodec {
                         stdin.write(buf, 0, read);
                     }
                     stdin.flush();
+                    stdin.close();
                 } catch (IOException e) {
                     logger.debug("IOException while writing to stdin.", e);
                 }
@@ -127,18 +128,19 @@ public class FFmpegCodec extends AudioCodec {
                 }
             }
 
-            logger.trace("Waiting for writer and stderr threads to finish...");
+            logger.trace("Waiting for writer thread to finish...");
             writerThread.join();
+            logger.trace("Waiting for stderr thread to finish...");
             stderrThread.join();
             logger.trace("Waiting for FFmpeg to finish...");
             waitForProcess(ffmpeg, "FFmpeg", 60, TimeUnit.SECONDS);
             
             byte[] wavData = stdoutBuffer.toByteArray();
 
-            logger.trace("Starting {} decode with {} bytes", DECODER_CODEC_NAME, wavData.length);
+            logger.trace("Starting {} decode with {} bytes", WAV_CODEC_NAME, wavData.length);
             AudioDecodeResult adr = null;
             try (ByteArrayInputStream bais = new ByteArrayInputStream(wavData)) {
-                adr = DECODER_CODEC.decode(bais);
+                adr = WAV_CODEC.decode(bais);
             }
             if (adr == null) {
                 throw new AudioCodecException("FFmpeg decode failed");
