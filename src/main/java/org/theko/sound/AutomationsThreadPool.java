@@ -17,15 +17,16 @@
 package org.theko.sound;
 
 import static org.theko.sound.properties.AudioSystemProperties.AUTOMATIONS_THREADS;
+import static org.theko.sound.properties.AudioSystemProperties.AUTOMATIONS_THREAD_POOL_SHUTDOWN_TIMEOUT;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.theko.sound.properties.TimeMeasure;
 
 /**
  * This class is responsible for managing the thread pool used to execute
@@ -121,7 +122,8 @@ class AutomationsThreadPool {
         logger.debug("Shutting down automations pool.");
         executor.shutdown();
         try {
-            if (!executor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
+            final TimeMeasure timeout = AUTOMATIONS_THREAD_POOL_SHUTDOWN_TIMEOUT;
+            if (!executor.awaitTermination(timeout.getTime(), timeout.getUnit())) {
                 logger.warn("Automations pool shutdown timed out, forcing shutdown.");
                 executor.shutdownNow();
             }

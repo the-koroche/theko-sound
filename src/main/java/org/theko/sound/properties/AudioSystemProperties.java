@@ -19,6 +19,7 @@ package org.theko.sound.properties;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,21 +118,58 @@ public final class AudioSystemProperties {
 
     /* Structures/Classes parsing */
 
-    @SuppressWarnings("unused")
-    private static ThreadType getThreadType(String key, ThreadType defaultValue) {
+    private static TimeMeasure getTimeMeasure(String key, TimeMeasure defaultValue) {
         String value = getString(key, null);
-        if (value == null) {
+        if (value == null || value.isBlank()) {
             return defaultValue;
         }
 
-        String lowerCaseValue = value.toLowerCase(Locale.US);
-        switch (lowerCaseValue) {
-            case "platform", "p" -> { return ThreadType.PLATFORM; }
-            case "virtual", "v" -> { return ThreadType.VIRTUAL; }
-            default -> {
-                logger.warn("Invalid ThreadType value '{}' for '{}'. Using default {}", value, key, defaultValue);
-                return defaultValue;
+        value = value.trim().toLowerCase();
+
+        try {
+            // obtains the number and the unit by iterating through the string until we find a non-digit character (or dot/comma)
+            int i = 0;
+            while (i < value.length() && (Character.isDigit(value.charAt(i)) || value.charAt(i) == '.' || value.charAt(i) == ',')) {
+                i++;
             }
+            if (i == 0) return defaultValue;
+
+            String numberPart = value.substring(0, i).replace(',', '.'); // replace comma with dot for parsing
+            double numericValue = Double.parseDouble(numberPart);
+
+            String unitPart = value.substring(i).trim();
+
+            TimeUnit unit;
+            switch (unitPart) {
+                case "ns": case "nano": case "nanos": case "nanosecond": case "nanoseconds":
+                    unit = TimeUnit.NANOSECONDS;
+                    break;
+                case "us": case "micro": case "micros": case "microsecond": case "microseconds":
+                    unit = TimeUnit.MICROSECONDS;
+                    break;
+                case "ms": case "milli": case "millis": case "millisecond": case "milliseconds":
+                    unit = TimeUnit.MILLISECONDS;
+                    break;
+                case "s": case "sec": case "secs": case "second": case "seconds":
+                    unit = TimeUnit.MILLISECONDS;
+                    numericValue *= 1000;
+                    break;
+                case "m": case "min": case "mins": case "minute": case "minutes":
+                    unit = TimeUnit.MILLISECONDS;
+                    numericValue *= 60_000;
+                    break;
+                case "h": case "hr": case "hrs": case "hour": case "hours":
+                    unit = TimeUnit.MILLISECONDS;
+                    numericValue *= 3_600_000;
+                    break;
+                default:
+                    return defaultValue;
+            }
+
+            long longValue = (long) numericValue;
+            return new TimeMeasure(longValue, unit);
+        } catch (Exception e) {
+            return defaultValue;
         }
     }
 
@@ -243,8 +281,8 @@ public final class AudioSystemProperties {
     public static final ThreadConfiguration AOL_PLAYBACK_THREAD = getThreadConfig(
         "org.theko.sound.outputLayer.thread", new ThreadConfiguration(ThreadType.PLATFORM, 7));
 
-    public static final int AOL_PLAYBACK_STOP_TIMEOUT = getIntInRange(
-        "org.theko.sound.outputLayer.stopTimeout", 10, 60000, true /* clamp */, 1000);
+    public static final TimeMeasure AOL_PLAYBACK_STOP_TIMEOUT = getTimeMeasure(
+        "org.theko.sound.outputLayer.stopTimeout", new TimeMeasure(1000, TimeUnit.MILLISECONDS));
 
     public static final int AOL_MAX_LENGTH_MISMATCHES = getIntInRange(
         "org.theko.sound.outputLayer.maxLengthMismatches", 1, Integer.MAX_VALUE,
@@ -286,6 +324,9 @@ public final class AudioSystemProperties {
 
     public static final int AUTOMATIONS_THREADS = getIntInRange(
         "org.theko.sound.automation.threads", 1, CPU_AVAILABLE_CORES*4, true, CPU_AVAILABLE_CORES);
+
+    public static final TimeMeasure AUTOMATIONS_THREAD_POOL_SHUTDOWN_TIMEOUT = getTimeMeasure(
+        "org.theko.sound.automation.threadPoolShutdownTimeout", new TimeMeasure(5, TimeUnit.SECONDS));
 
     public static final int AUTOMATIONS_UPDATE_TIME = getIntInRange(
         "org.theko.sound.automation.updateTime", 0, Integer.MAX_VALUE,
@@ -346,6 +387,7 @@ public final class AudioSystemProperties {
                 "  Resampler (Shared): {}\n" +
                 "  Resampler (Effect, default): {}\n" +
                 "  Automation threads: {}\n" +
+                "  Automation thread pool shutdown timeout: {}\n" +
                 "  Automation update time: {} ms\n" +
                 "  Mixer (default): Enable effects: {}, Swap channels: {}, Reverse polarity: {}\n" +
                 "  Wave Codec: Clean tags text: {}",
@@ -353,13 +395,14 @@ public final class AudioSystemProperties {
                 FormatUtilities.formatThreadInfo(AOL_PLAYBACK_THREAD),
                 AOL_DEFAULT_BUFFER,
                 AOL_RESAMPLER,
-                AOL_PLAYBACK_STOP_TIMEOUT,
+                AOL_PLAYBACK_STOP_TIMEOUT.toString(),
                 AOL_MAX_LENGTH_MISMATCHES, AOL_RESET_LENGTH_MISMATCHES,
                 AOL_MAX_WRITE_ERRORS, AOL_RESET_WRITE_ERRORS,
                 AOL_ENABLE_SHUTDOWN_HOOK,
                 SHARED_RESAMPLER,
                 RESAMPLER_EFFECT,
                 AUTOMATIONS_THREADS,
+                AUTOMATIONS_THREAD_POOL_SHUTDOWN_TIMEOUT.toString(),
                 AUTOMATIONS_UPDATE_TIME,
                 MIXER_DEFAULT_ENABLE_EFFECTS, MIXER_DEFAULT_SWAP_CHANNELS, MIXER_DEFAULT_REVERSE_POLARITY,
                 WAVE_CODEC_CLEAN_TAG_TEXT

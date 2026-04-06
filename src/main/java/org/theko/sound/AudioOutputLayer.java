@@ -474,7 +474,7 @@ public class AudioOutputLayer implements AutoCloseable,
         try {
             if (playbackThread != null && playbackThread.isAlive()) {
                 logger.debug("Waiting for playback thread to stop.");
-                playbackThread.join(AOL_PLAYBACK_STOP_TIMEOUT);
+                playbackThread.join(AOL_PLAYBACK_STOP_TIMEOUT.asMillis());
             }
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
@@ -684,7 +684,6 @@ public class AudioOutputLayer implements AutoCloseable,
         int lengthMismatchCounter = 0;
 
         long bufferNsWait = Math.min(bufferTimeMicros - 1000, 100) * 1000L;
-
         long renderStartNs, renderDurNs;
 
         while (!Thread.currentThread().isInterrupted() && !isPlaybackInterrupted) {
@@ -696,11 +695,7 @@ public class AudioOutputLayer implements AutoCloseable,
                     continue;
                 }
 
-                try {
-                    snapshot.render(sampleBuffer, (int)(sourceFormat.getSampleRate()));
-                } catch (MixingException ex) {
-                    logger.error("Mixing error caught.", ex);
-                }
+                snapshot.render(sampleBuffer, (int)(sourceFormat.getSampleRate()));
 
                 // if changed the channels or samples length
                 if (SamplesValidation.isValidSamples(sampleBuffer) != ValidationResult.VALID || !SamplesValidation.checkLength(sampleBuffer, renderBufferSize)) {
@@ -732,8 +727,9 @@ public class AudioOutputLayer implements AutoCloseable,
                     }
                     SamplesConverter.fromSamples(resampled, rawBytes, openedFormat);
                 } catch (IllegalArgumentException ex) {
-                    logger.error("Passed wrong arguments to the resamping or conversion methods (internal error?).", ex);
-                    throw new ProcessingException("Internal error. Passed wrong arguments to the resamping or conversion methods.", ex);
+                    assert false : "Internal error: wrong arguments passed to resampling/conversion methods";
+                    logger.error("Passed wrong arguments to the resamping or conversion methods.", ex);
+                    throw new ProcessingException("Passed wrong arguments to the resamping or conversion methods.", ex);
                 }
 
                 if (aob.write(rawBytes, 0, rawBytes.length) == -1) {
@@ -780,7 +776,6 @@ public class AudioOutputLayer implements AutoCloseable,
                 // Already logged
                 throw new RuntimeException(ex);
             } catch (ProcessingException ex) {
-                logger.error("Processing error.", ex);
                 eventDispatcher.dispatch(OutputLayerEventType.PLAYBACK_EXCEPTION, getEvent());
                 throw ex;
             } catch (InterruptedException ex) {

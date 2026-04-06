@@ -2,19 +2,28 @@
 
 ## 1. Structures & Classes
 
-### ThreadType
+### TimeMeasure
 
-**Values:**
+**Format:**
 
-* `virtual`
-* `platform`
+```
+<time><unit>
+```
 
-**Aliases:**
+**Fields:**
 
-| Name     | Aliases |
-| -------- | ------- |
-| virtual  | `v`     |
-| platform | `p`     |
+* **time** - `long` or `double`
+* **unit** - `TimeUnit` with aliases
+
+**Examples:**
+
+```
+-Dkey=1s
+-Dkey=1.5s
+-Dkey=100ms
+-Dkey=1000nanos
+-Dkey=0.6h
+```
 
 ---
 
@@ -125,7 +134,7 @@
 | Property                                            | Type                 | Description                                   |
 | --------------------------------------------------- | -------------------- | --------------------------------------------- |
 | `org.theko.sound.outputLayer.thread`                | ThreadConfig         | Playback thread configuration                 |
-| `org.theko.sound.outputLayer.timeout`               | int                  | Timeout (ms) for stopping the playback thread |
+| `org.theko.sound.outputLayer.timeout`               | TimeMeasure          | Timeout for stopping the playback thread      |
 | `org.theko.sound.outputLayer.defaultBuffer`         | AudioMeasure         | Default buffer size                           |
 | `org.theko.sound.outputLayer.resampler`             | ResampleMethod       | Resampler method used for output              |
 | `org.theko.sound.outputLayer.maxLengthMismatches`   | int ≥ 0              | Max ignored render-length mismatches          |
@@ -166,9 +175,10 @@
 
 ## Miscellaneous
 
-| Property                                | Type                     | Description                       |
-| --------------------------------------- | ------------------------ | --------------------------------- |
-| `org.theko.sound.automation.threads`    | int (≥1 & < CPU_CORES×4) | Number of automation/LFO threads  |
-| `org.theko.sound.automation.updateTime` | int > 0                  | Automation update interval (ms)   |
-| `org.theko.sound.cleaner.thread`        | ThreadConfig             | Thread config for cleaners        |
-| `org.theko.sound.effects.resampler`     | ResampleMethod           | Default ResamplerEffect resampler |
+| Property                                               | Type                     | Description                                 |
+| ------------------------------------------------------ | ------------------------ | ------------------------------------------- |
+| `org.theko.sound.automation.threads`                   | int (≥1 & < CPU_CORES×4) | Number of automation/LFO threads            |
+| `org.theko.sound.automation.updateTime`                | int > 0                  | Automation update interval (ms)             |
+| `org.theko.sound.automation.threadPoolShutdownTimeout` | TimeMeasure              | Shutdown timeout for automation thread pool |
+| `org.theko.sound.cleaner.thread`                       | ThreadConfig             | Thread config for cleaners                  |
+| `org.theko.sound.effects.resampler`                    | ResampleMethod           | Default ResamplerEffect resampler           |
