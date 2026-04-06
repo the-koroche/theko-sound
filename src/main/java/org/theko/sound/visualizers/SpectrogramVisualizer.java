@@ -109,6 +109,11 @@ public class SpectrogramVisualizer extends GainedAudioVisualizer {
 
         @Override
         protected void paint(Graphics2D g2d) {
+            // Do not count the time spent while stopped, to prevent big time delta after resuming
+            if (!shouldRedraw.get()) {
+                lastRenderTime = System.nanoTime();
+            }
+
             // Do nothing if there is not enough samples
             if (fftRingBuffer == null || fftRingBuffer.length == 0 || !shouldRedraw.get()) {
                 if (spectrogramBuffer != null)
