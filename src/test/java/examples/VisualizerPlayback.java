@@ -34,6 +34,7 @@ import org.theko.sound.effects.ResamplerEffect;
 import org.theko.sound.events.OutputLayerEventType;
 import org.theko.sound.properties.AudioSystemProperties;
 import org.theko.sound.resamplers.CubicResampleMethod;
+import org.theko.sound.resamplers.ResampleMethod;
 import org.theko.sound.visualizers.AudioVisualizer;
 import org.theko.sound.visualizers.ColorGradient;
 import org.theko.sound.visualizers.SpectrumVisualizer;
@@ -42,13 +43,17 @@ import helpers.FileChooserHelper;
 
 public class VisualizerPlayback {
     private static final int messageDisplayDuration = 2000;
+    private static final ResampleMethod resampleMethod = new CubicResampleMethod();
+
     private String message = "";
     private long messageTimestamp = 0;
 
     private SoundPlayer player = new SoundPlayer();
     private String trackInfo = "";
+    private String fileName = "";
 
     private JFrame frame;
+    private String frameTitle = "Visualizer Playback";
     private AudioVisualizer visualizer;
     private BitcrusherEffect bitcrusher;
 
@@ -66,11 +71,6 @@ public class VisualizerPlayback {
             Graphics2D g2d = (Graphics2D) g;
             g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            if (!player.isOpen()) {
-                g2d.setColor(Color.BLACK);
-                g2d.fillRect(0, 0, getWidth(), getHeight());
-            }
 
             g2d.setFont(font);
             FontMetrics fm = g2d.getFontMetrics();
@@ -167,9 +167,9 @@ public class VisualizerPlayback {
     private VisualizerPlayback() {
         try {
             player.initialize();
-            openAudio(null, false);
+            frame = new JFrame();
 
-            ResamplerEffect resampler = new ResamplerEffect(new CubicResampleMethod());
+            ResamplerEffect resampler = new ResamplerEffect(resampleMethod);
             player.setResamplerEffect(resampler);
 
             AudioMixer mixer = player.getInnerMixer();
@@ -189,7 +189,8 @@ public class VisualizerPlayback {
             visualizer = spectrum;
 
             SwingUtilities.invokeLater(() -> {
-                frame = new JFrame(getReadableName(visualizer.getClass().getSimpleName()));
+                frameTitle = getReadableName(visualizer.getClass().getSimpleName());
+                frame.setTitle(frameTitle);
                 frame.setSize(800, 400);
                 frame.setMinimumSize(new Dimension(150, 100));
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -218,6 +219,7 @@ public class VisualizerPlayback {
                 frame.requestFocusInWindow();
                 frame.setVisible(true);
             });
+            openAudio(null, false);
 
             player.getOutputLayerListeners().addConsumer(
                 OutputLayerEventType.DEVICE_INVALIDATED, (type, event) -> {
@@ -242,8 +244,7 @@ public class VisualizerPlayback {
         boolean wasPlaying = player.isPlaying() || (!player.isInitialized() || !player.hasAudioData());
 
         if (background) {
-            String frameTitle = frame.getTitle();
-            frame.setTitle("Opening...");
+            frame.setTitle("Opening " + getNameWithoutExtension(audioFile.getName()) + "...");
 
             SwingWorker<Void, Void> worker = new SwingWorker<>() {
 
@@ -255,7 +256,7 @@ public class VisualizerPlayback {
 
                 @Override
                 protected void done() {
-                    frame.setTitle(frameTitle);
+                    frame.setTitle(frameTitle + " | " + getTrackInfo());
                     try {
                         get();
                     } catch (Exception e) {
@@ -267,14 +268,17 @@ public class VisualizerPlayback {
             frame.requestFocusInWindow();
         } else {
             openPlayer(audioFile, wasPlaying);
+            if (frame != null)
+                frame.setTitle(frameTitle + " | " + getTrackInfo());
         }
         return true;
     }
 
     private void openPlayer(File audioFile, boolean play) throws FileNotFoundException, AudioCodecNotFoundException {
         player.open(audioFile);
+        fileName = getNameWithoutExtension(audioFile.getName());
         if (play) player.start();
-        trackInfo = getTrackInfo(player);
+        trackInfo = getTrackInfo();
     }
 
     private boolean ensureOpen() {
@@ -303,16 +307,19 @@ public class VisualizerPlayback {
         }
         String playbackInfo = getPlaybackInfo(player);
         if (trackInfo == null || trackInfo.isEmpty()) {
-            trackInfo = getTrackInfo(player);
+            trackInfo = getTrackInfo();
         }
         return "%s\n%s".formatted(trackInfo, playbackInfo);
     }
 
-    private static String getTrackInfo(SoundPlayer player) {
+    private String getTrackInfo() {
         String title = player.getMetadata().getValue(AudioTag.TITLE);
+        if (title == null || title.isEmpty()) {
+            title = fileName != null ? fileName : "Unknown Track";
+        }
         String artist = player.getMetadata().getValue(AudioTag.ARTIST);
         return "%s\n%s".formatted(
-            title != null ? title : "Unknown Title",
+            title,
             artist != null ? artist : "Unknown Artist"
         );
     }
@@ -353,14 +360,20 @@ public class VisualizerPlayback {
                     else player.start();
                 }
                 // Speed controls
-                case KeyEvent.VK_A, KeyEvent.VK_LEFT ->  player.seekSeconds(player.getSecondsPosition() - 5.0);
-                case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> player.seekSeconds(player.getSecondsPosition() + 5.0);
+                case KeyEvent.VK_A, KeyEvent.VK_LEFT ->  player.seekSeconds(player.getSecondsPosition() - 15.0);
+                case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> player.seekSeconds(player.getSecondsPosition() + 30.0);
                 case KeyEvent.VK_S, KeyEvent.VK_DOWN ->  speed.setValue(speed.getValue() - 0.01f);
                 case KeyEvent.VK_W, KeyEvent.VK_UP ->    speed.setValue(speed.getValue() + 0.01f);
                 // Reset position
                 case KeyEvent.VK_HOME, KeyEvent.VK_BACK_SPACE -> {
                     player.reset();
                     message("Restarted track");
+                }
+                // Reset position and speed
+                case KeyEvent.VK_R -> {
+                    player.reset();
+                    speed.setValue(1f);
+                    message("Reset track and speed");
                 }
                 // Loop toggle
                 case KeyEvent.VK_L -> {
@@ -407,6 +420,7 @@ public class VisualizerPlayback {
                 try {
                     Transferable t = support.getTransferable();
                     List<File> f = (List<File>) t.getTransferData(DataFlavor.javaFileListFlavor);
+                    if (f == null || f.isEmpty()) return false;
                     openAudio(f.get(0), true);
                     return true;
                 } catch (Exception e) {
@@ -428,9 +442,18 @@ public class VisualizerPlayback {
         return "%02d:%02d".formatted(seconds / 60, seconds % 60);
     }
 
-    private String getReadableName(String name) {
+    private static String getReadableName(String name) {
         if (name == null || name.isEmpty()) return name;
         return name.replaceAll("(?<!^)([A-Z])", " $1");
+    }
+
+    private static String getNameWithoutExtension(String fileName) {
+        if (fileName == null) return null;
+        int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex > 0) {
+            return fileName.substring(0, dotIndex);
+        }
+        return fileName;
     }
 
     public static void main(String[] args) {
