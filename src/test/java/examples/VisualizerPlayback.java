@@ -42,8 +42,15 @@ import org.theko.sound.visualizers.SpectrumVisualizer;
 import helpers.FileChooserHelper;
 
 public class VisualizerPlayback {
-    private static final int messageDisplayDuration = 2000;
-    private static final ResampleMethod resampleMethod = new CubicResampleMethod();
+    private static final Font OVERLAY_FONT = new Font("SansSerif", Font.BOLD, 12);
+    private static final int STATUS_TEXT_ALPHA = 128;
+    private static final int TEXT_SHADOW_OFFSET = Math.max(1, OVERLAY_FONT.getSize() / 10);
+    private static final int MESSAGE_DISPLAY_DURATION = 2000;
+
+    private static final ResampleMethod RESAMPLE_METHOD = new CubicResampleMethod();
+    private static final float SEEK_BACKWARD_SECONDS = 15.0f;
+    private static final float SEEK_FORWARD_SECONDS = 30.0f;
+    private static final float SPEED_STEP = 0.01f;
 
     private String message = "";
     private long messageTimestamp = 0;
@@ -58,12 +65,11 @@ public class VisualizerPlayback {
     private BitcrusherEffect bitcrusher;
 
     private class OverlayPanel extends JPanel {
-        final Font font = new Font("SansSerif", Font.BOLD, 12);
-        final Color alphaLightGray = new Color(128, 128, 128, 128);
-        final Color alphaOrange = new Color(255, 128, 0, 128);
-        final Color alphaMagenta = new Color(0, 255, 255, 128);
-        final Color alphaWhite = new Color(255, 255, 255, 128);
-        final Color alphaPurple = new Color(255, 0, 191, 128);
+        final Color alphaLightGray = new Color(128, 128, 128, STATUS_TEXT_ALPHA);
+        final Color alphaOrange = new Color(255, 128, 0, STATUS_TEXT_ALPHA);
+        final Color alphaMagenta = new Color(0, 255, 255, STATUS_TEXT_ALPHA);
+        final Color alphaWhite = new Color(255, 255, 255, STATUS_TEXT_ALPHA);
+        final Color alphaPurple = new Color(255, 0, 191, STATUS_TEXT_ALPHA);
 
         @Override
         protected void paintComponent(Graphics g) {
@@ -72,7 +78,7 @@ public class VisualizerPlayback {
             g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            g2d.setFont(font);
+            g2d.setFont(OVERLAY_FONT);
             FontMetrics fm = g2d.getFontMetrics();
             drawStatus(g2d, fm);
 
@@ -84,7 +90,7 @@ public class VisualizerPlayback {
         private void drawMultilineText(Graphics2D g2d, String text, int x, int y, int lineHeight) {
             String[] lines = text.split("\n");
             for (int i = 0; i < lines.length; i++) {
-                shadowString(g2d, g2d.getColor(), lines[i], x, y + i * lineHeight, 1);
+                shadowString(g2d, g2d.getColor(), lines[i], x, y + i * lineHeight, TEXT_SHADOW_OFFSET);
             }
         }
 
@@ -109,21 +115,12 @@ public class VisualizerPlayback {
             if (!cond) return x;
 
             int w = fm.stringWidth(txt);
-            shadowString(g2d, color, txt, x, y, 1);
+            shadowString(g2d, color, txt, x, y, TEXT_SHADOW_OFFSET);
             return x + w;
         }
 
-        private void shadowString(Graphics2D g2d, Color color, String text, int x, int y, int offset) {
-            Color current = g2d.getColor();
-            g2d.setColor(Color.BLACK);
-            g2d.drawString(text, x + offset, y + offset);
-            g2d.setColor(color);
-            g2d.drawString(text, x, y);
-            g2d.setColor(current);
-        }
-
         private void drawMessage(Graphics2D g2d, FontMetrics fm) {
-            if (!message.isEmpty() && System.currentTimeMillis() - messageTimestamp < messageDisplayDuration) {
+            if (!message.isEmpty() && System.currentTimeMillis() - messageTimestamp < MESSAGE_DISPLAY_DURATION) {
                 String[] lines = message.split("\n");
 
                 int lineHeight = fm.getHeight();
@@ -139,28 +136,28 @@ public class VisualizerPlayback {
                 int h = getHeight();
                 int x = (w - msgWidth) / 2;
                 int y = (h - msgHeight) / 2;
-
+                
                 float alpha = getMessageAlpha();
-                g2d.setColor(new Color(0, 0, 0, (int) (150 * alpha)));
-                g2d.fillRoundRect(
-                        x - 10,
-                        y - lineHeight,
-                        msgWidth + 20,
-                        msgHeight + lineHeight,
-                        10, 10
-                );
-                g2d.setColor(new Color(255, 255, 255, (int) (255 * alpha)));
-
+                Color textColor = new Color(255, 255, 255, (int)(255 * alpha));
                 for (int i = 0; i < lines.length; i++) {
-                    g2d.drawString(lines[i], x, y + i * lineHeight);
+                    shadowString(g2d, textColor, lines[i], x, y + i * lineHeight, TEXT_SHADOW_OFFSET);
                 }
             }
         }
 
         private float getMessageAlpha() {
             if (message.isEmpty()) return 0f;
-            float alpha = 1.0f - (float)(System.currentTimeMillis() - messageTimestamp) / messageDisplayDuration;
+            float alpha = 1.0f - (float)(System.currentTimeMillis() - messageTimestamp) / MESSAGE_DISPLAY_DURATION;
             return Math.max(0f, Math.min(1f, alpha));
+        }
+
+        private void shadowString(Graphics2D g2d, Color color, String text, int x, int y, int offset) {
+            Color current = g2d.getColor();
+            g2d.setColor(new Color(0, 0, 0, color.getAlpha()));
+            g2d.drawString(text, x + offset, y + offset);
+            g2d.setColor(color);
+            g2d.drawString(text, x, y);
+            g2d.setColor(current);
         }
     }
 
@@ -169,7 +166,7 @@ public class VisualizerPlayback {
             player.initialize();
             frame = new JFrame();
 
-            ResamplerEffect resampler = new ResamplerEffect(resampleMethod);
+            ResamplerEffect resampler = new ResamplerEffect(RESAMPLE_METHOD);
             player.setResamplerEffect(resampler);
 
             AudioMixer mixer = player.getInnerMixer();
@@ -265,11 +262,11 @@ public class VisualizerPlayback {
                 }
             };
             worker.execute();
-            frame.requestFocusInWindow();
+            frame.requestFocus();
         } else {
             openPlayer(audioFile, wasPlaying);
             if (frame != null)
-                frame.setTitle(frameTitle + " | " + getTrackInfo());
+                SwingUtilities.invokeLater(() -> frame.setTitle(frameTitle + " | " + getTrackInfo()));
         }
         return true;
     }
@@ -360,10 +357,10 @@ public class VisualizerPlayback {
                     else player.start();
                 }
                 // Speed controls
-                case KeyEvent.VK_A, KeyEvent.VK_LEFT ->  player.seekSeconds(player.getSecondsPosition() - 15.0);
-                case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> player.seekSeconds(player.getSecondsPosition() + 30.0);
-                case KeyEvent.VK_S, KeyEvent.VK_DOWN ->  speed.setValue(speed.getValue() - 0.01f);
-                case KeyEvent.VK_W, KeyEvent.VK_UP ->    speed.setValue(speed.getValue() + 0.01f);
+                case KeyEvent.VK_A, KeyEvent.VK_LEFT ->  player.seekSeconds(player.getSecondsPosition() - SEEK_BACKWARD_SECONDS);
+                case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> player.seekSeconds(player.getSecondsPosition() + SEEK_FORWARD_SECONDS);
+                case KeyEvent.VK_S, KeyEvent.VK_DOWN ->  speed.setValue(speed.getValue() - SPEED_STEP);
+                case KeyEvent.VK_W, KeyEvent.VK_UP ->    speed.setValue(speed.getValue() + SPEED_STEP);
                 // Reset position
                 case KeyEvent.VK_HOME, KeyEvent.VK_BACK_SPACE -> {
                     player.reset();
