@@ -555,9 +555,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     }
 
     /**
-     * Seeks the sound source to a specified frame position.
-     * <p>
-     * If the sound source is not opened, an {@link IllegalStateException} is thrown.
+     * Sets the sound source to a specified frame position.
      * <p>
      * The frame position is clamped to a valid range between 0 and the length of the sound source.
      * A {@link SoundSourceEventType#POSITION_CHANGE} event is dispatched after the frame position is changed.
@@ -573,9 +571,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
     }
 
     /**
-     * Seeks the sound source to a specified position in seconds.
-     * <p>
-     * If the sound source is not opened, an {@link IllegalStateException} is thrown.
+     * Sets the sound source to a specified position in seconds.
      * <p>
      * The position is clamped to a valid range between 0 and the length of the sound source.
      * A {@link SoundSourceEventType#POSITION_CHANGE} event is dispatched after the position is changed.
@@ -595,6 +591,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * @param position The frame position to set
      * @throws IllegalArgumentException if the position is out of bounds
      * @throws IllegalStateException if the sound source is not opened
+     * @see #seekFrames(int) for clamping the position to a valid range
      */
     public void setFramePosition(int position) {
         if (!hasAudioData()) {
@@ -623,6 +620,8 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * Sets the seconds position of the sound source.
      * @param seconds The seconds position to set
      * @throws IllegalStateException if the sound source is not opened
+     * @throws IllegalArgumentException if the seconds position is out of bounds
+     * @see #seekSeconds(double) for clamping the seconds position to a valid range
      */
     public void setSecondsPosition(double seconds) {
         if (!hasAudioData()) {
