@@ -13,11 +13,6 @@ public class SoundPlayback {
     public static void main(String[] args) {
         SoundPlayer player = new SoundPlayer();
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (player != null && player.isOpen()) {
-                player.close();
-            }
-        }));
         try {
             File audioFile = FileChooserHelper.chooseAudioFile();
             if (audioFile == null) {
