@@ -155,7 +155,7 @@ public class LFO implements Controllable {
      */
     protected void process() {
         long startTime = System.nanoTime();
-        while (!Thread.currentThread().isInterrupted()) {
+        while (!Thread.currentThread().isInterrupted() && isPlaying) {
             long currentTime = System.nanoTime();
             float timeDelta = (currentTime - startTime) / 1_000_000_000.0f;
             float value = getValue(timeDelta);

@@ -347,7 +347,7 @@ public class Automation {
     protected void process() {
         long lastTime = System.nanoTime();
 
-        while (isPlaying && !Thread.currentThread().isInterrupted()) {
+        while (!Thread.currentThread().isInterrupted() && isPlaying) {
             long now = System.nanoTime();
             float deltaTime = (now - lastTime) / 1_000_000_000f * timeScale;
             lastTime = now;
