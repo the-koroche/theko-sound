@@ -367,11 +367,21 @@ public class JNIClassCacheGenerator {
                 sb.append(indent(3)).append("if (!self || !self->isValid()) return nullptr;\n");
                 sb.append(indent(3)).append("jmethodID ctor = self->").append(constructorFieldName(c)).append(";\n");
                 sb.append(indent(3)).append("if (!ctor) return nullptr;\n");
-                sb.append(indent(3)).append("return env->NewObject(self->clazz, ctor");
+                sb.append(indent(3)).append("jobject ret = env->NewObject(self->clazz, ctor");
                 for (int i = 0; i < c.getParameterCount(); i++) {
                     sb.append(", ").append(PARAM_PREFIX).append(i);
                 }
                 sb.append(");\n");
+
+                // Check for exceptions
+                sb.append(indent(3)).append("if (env->ExceptionCheck()) {\n");
+                sb.append(indent(4)).append("env->ExceptionDescribe();\n");
+                sb.append(indent(4)).append("env->ExceptionClear();\n");
+                sb.append(indent(4)).append("return nullptr;\n");
+                sb.append(indent(3)).append("}\n");
+
+                // Return
+                sb.append(indent(3)).append("return ret;\n");
                 sb.append(indent(2)).append("}\n\n");
             }
         }
@@ -420,13 +430,25 @@ public class JNIClassCacheGenerator {
 
                 // Method call
                 sb.append(indent(3));
-                if (shouldReturn) sb.append("return ");
+                if (shouldReturn) sb.append(retJNI).append(" ret = ");
                 if (shouldCast) sb.append("(").append(retJNI).append(") ");
                 sb.append(targetMethod).append("(").append(callTarget).append(", mtd");
                 for (int i = 0; i < m.getParameterCount(); i++) {
                     sb.append(", ").append(PARAM_PREFIX).append(i);
                 }
                 sb.append(");\n");
+                
+                // Check for exceptions
+                sb.append(indent(3)).append("if (env->ExceptionCheck()) {\n");
+                sb.append(indent(4)).append("env->ExceptionDescribe();\n");
+                sb.append(indent(4)).append("env->ExceptionClear();\n");
+                if (shouldReturn)
+                    sb.append(indent(4)).append("return ").append(defaultReturnFromJNIType(retJNI)).append(";\n");
+                sb.append(indent(3)).append("}\n");
+
+                // Return
+                if (shouldReturn)
+                    sb.append(indent(3)).append("return ret;\n");
                 sb.append(indent(2)).append("}\n\n");
             }
         }

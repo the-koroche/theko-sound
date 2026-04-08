@@ -399,7 +399,13 @@ class ThekoSound_AudioPort {
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__org_theko_sound_backends_AudioPortLink__org_theko_sound_AudioFlow__boolean__org_theko_sound_AudioFormat__java_lang_String__java_lang_String;
             if (!ctor) return nullptr;
-            return env->NewObject(self->clazz, ctor, v0, v1, v2, v3, v4, v5);
+            jobject ret = env->NewObject(self->clazz, ctor, v0, v1, v2, v3, v4, v5);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Instance creation method for public org.theko.sound.AudioPort(org.theko.sound.backends.AudioPortLink,org.theko.sound.AudioFlow,org.theko.sound.AudioFormat,java.lang.String,java.lang.String,java.lang.String,java.lang.String)
@@ -408,7 +414,13 @@ class ThekoSound_AudioPort {
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__org_theko_sound_backends_AudioPortLink__org_theko_sound_AudioFlow__org_theko_sound_AudioFormat__java_lang_String__java_lang_String__java_lang_String__java_lang_String;
             if (!ctor) return nullptr;
-            return env->NewObject(self->clazz, ctor, v0, v1, v2, v3, v4, v5, v6);
+            jobject ret = env->NewObject(self->clazz, ctor, v0, v1, v2, v3, v4, v5, v6);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Instance creation method for public org.theko.sound.AudioPort(org.theko.sound.backends.AudioPortLink,org.theko.sound.AudioFlow,boolean,org.theko.sound.AudioFormat,java.lang.String,java.lang.String,java.lang.String,java.lang.String)
@@ -417,7 +429,13 @@ class ThekoSound_AudioPort {
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__org_theko_sound_backends_AudioPortLink__org_theko_sound_AudioFlow__boolean__org_theko_sound_AudioFormat__java_lang_String__java_lang_String__java_lang_String__java_lang_String;
             if (!ctor) return nullptr;
-            return env->NewObject(self->clazz, ctor, v0, v1, v2, v3, v4, v5, v6, v7);
+            jobject ret = env->NewObject(self->clazz, ctor, v0, v1, v2, v3, v4, v5, v6, v7);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Method wrappers
@@ -427,7 +445,13 @@ class ThekoSound_AudioPort {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__equals_java_lang_Object;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public java.lang.String org.theko.sound.AudioPort.getDescription()
@@ -436,7 +460,13 @@ class ThekoSound_AudioPort {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getDescription;
             if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
+            jstring ret = (jstring) env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public org.theko.sound.AudioFlow org.theko.sound.AudioPort.getFlow()
@@ -445,7 +475,13 @@ class ThekoSound_AudioPort {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getFlow;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
+            jobject ret = env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public org.theko.sound.backends.AudioPortLink org.theko.sound.AudioPort.getLink()
@@ -454,7 +490,13 @@ class ThekoSound_AudioPort {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getLink;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
+            jobject ret = env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public java.lang.String org.theko.sound.AudioPort.getLinkAsString()
@@ -463,7 +505,13 @@ class ThekoSound_AudioPort {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getLinkAsString;
             if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
+            jstring ret = (jstring) env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public org.theko.sound.AudioFormat org.theko.sound.AudioPort.getMixFormat()
@@ -472,7 +520,13 @@ class ThekoSound_AudioPort {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getMixFormat;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
+            jobject ret = env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public java.lang.String org.theko.sound.AudioPort.getName()
@@ -481,7 +535,13 @@ class ThekoSound_AudioPort {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getName;
             if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
+            jstring ret = (jstring) env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public java.lang.String org.theko.sound.AudioPort.getVendor()
@@ -490,7 +550,13 @@ class ThekoSound_AudioPort {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getVendor;
             if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
+            jstring ret = (jstring) env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public java.lang.String org.theko.sound.AudioPort.getVersion()
@@ -499,7 +565,13 @@ class ThekoSound_AudioPort {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getVersion;
             if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
+            jstring ret = (jstring) env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public boolean org.theko.sound.AudioPort.isActive()
@@ -508,7 +580,13 @@ class ThekoSound_AudioPort {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isActive;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd);
+            jboolean ret = env->CallBooleanMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public java.lang.String org.theko.sound.AudioPort.toString()
@@ -517,7 +595,13 @@ class ThekoSound_AudioPort {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__toString;
             if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
+            jstring ret = (jstring) env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
     // End of class declaration

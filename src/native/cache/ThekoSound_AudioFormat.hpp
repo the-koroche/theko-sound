@@ -542,7 +542,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean;
             if (!ctor) return nullptr;
-            return env->NewObject(self->clazz, ctor, v0, v1, v2, v3, v4);
+            jobject ret = env->NewObject(self->clazz, ctor, v0, v1, v2, v3, v4);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Instance creation method for public org.theko.sound.AudioFormat(int,int,int,org.theko.sound.AudioFormat$Encoding,boolean,int,int)
@@ -551,7 +557,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean__int__int;
             if (!ctor) return nullptr;
-            return env->NewObject(self->clazz, ctor, v0, v1, v2, v3, v4, v5, v6);
+            jobject ret = env->NewObject(self->clazz, ctor, v0, v1, v2, v3, v4, v5, v6);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Method wrappers
@@ -561,7 +573,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__convertTo_org_theko_sound_AudioFormat_Encoding;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0);
+            jobject ret = env->CallObjectMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public boolean org.theko.sound.AudioFormat.equals(java.lang.Object)
@@ -570,7 +588,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__equals_java_lang_Object;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public int org.theko.sound.AudioFormat.getBitsPerSample()
@@ -579,7 +603,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return (jint)0;
             jmethodID mtd = self->mtd__getBitsPerSample;
             if (!mtd) return (jint)0;
-            return env->CallIntMethod(obj, mtd);
+            jint ret = env->CallIntMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return (jint)0;
+            }
+            return ret;
         }
 
         // Fabric method for public int org.theko.sound.AudioFormat.getByteRate()
@@ -588,7 +618,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return (jint)0;
             jmethodID mtd = self->mtd__getByteRate;
             if (!mtd) return (jint)0;
-            return env->CallIntMethod(obj, mtd);
+            jint ret = env->CallIntMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return (jint)0;
+            }
+            return ret;
         }
 
         // Fabric method for public int org.theko.sound.AudioFormat.getBytesPerSample()
@@ -597,7 +633,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return (jint)0;
             jmethodID mtd = self->mtd__getBytesPerSample;
             if (!mtd) return (jint)0;
-            return env->CallIntMethod(obj, mtd);
+            jint ret = env->CallIntMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return (jint)0;
+            }
+            return ret;
         }
 
         // Fabric method for public int org.theko.sound.AudioFormat.getChannels()
@@ -606,7 +648,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return (jint)0;
             jmethodID mtd = self->mtd__getChannels;
             if (!mtd) return (jint)0;
-            return env->CallIntMethod(obj, mtd);
+            jint ret = env->CallIntMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return (jint)0;
+            }
+            return ret;
         }
 
         // Fabric method for public org.theko.sound.AudioFormat$Encoding org.theko.sound.AudioFormat.getEncoding()
@@ -615,7 +663,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getEncoding;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
+            jobject ret = env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public int org.theko.sound.AudioFormat.getFrameSize()
@@ -624,7 +678,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return (jint)0;
             jmethodID mtd = self->mtd__getFrameSize;
             if (!mtd) return (jint)0;
-            return env->CallIntMethod(obj, mtd);
+            jint ret = env->CallIntMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return (jint)0;
+            }
+            return ret;
         }
 
         // Fabric method for public int org.theko.sound.AudioFormat.getSampleRate()
@@ -633,7 +693,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return (jint)0;
             jmethodID mtd = self->mtd__getSampleRate;
             if (!mtd) return (jint)0;
-            return env->CallIntMethod(obj, mtd);
+            jint ret = env->CallIntMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return (jint)0;
+            }
+            return ret;
         }
 
         // Fabric method for public int org.theko.sound.AudioFormat.hashCode()
@@ -642,7 +708,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return (jint)0;
             jmethodID mtd = self->mtd__hashCode;
             if (!mtd) return (jint)0;
-            return env->CallIntMethod(obj, mtd);
+            jint ret = env->CallIntMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return (jint)0;
+            }
+            return ret;
         }
 
         // Fabric method for public boolean org.theko.sound.AudioFormat.isBigEndian()
@@ -651,7 +723,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isBigEndian;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd);
+            jboolean ret = env->CallBooleanMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public boolean org.theko.sound.AudioFormat.isHighResolution()
@@ -660,7 +738,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isHighResolution;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd);
+            jboolean ret = env->CallBooleanMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public boolean org.theko.sound.AudioFormat.isLossless()
@@ -669,7 +753,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isLossless;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd);
+            jboolean ret = env->CallBooleanMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public boolean org.theko.sound.AudioFormat.isMono()
@@ -678,7 +768,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isMono;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd);
+            jboolean ret = env->CallBooleanMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public boolean org.theko.sound.AudioFormat.isSameFormat(org.theko.sound.AudioFormat)
@@ -687,7 +783,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isSameFormat_org_theko_sound_AudioFormat;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public boolean org.theko.sound.AudioFormat.isStereo()
@@ -696,7 +798,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isStereo;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd);
+            jboolean ret = env->CallBooleanMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public java.lang.String org.theko.sound.AudioFormat.toString()
@@ -705,7 +813,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__toString;
             if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
+            jstring ret = (jstring) env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public org.theko.sound.AudioFormat org.theko.sound.AudioFormat.withEndian(boolean)
@@ -714,7 +828,13 @@ class ThekoSound_AudioFormat {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__withEndian_boolean;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0);
+            jobject ret = env->CallObjectMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric field get for public static final org.theko.sound.AudioFormat org.theko.sound.AudioFormat.HIGH_QUALITY_FORMAT

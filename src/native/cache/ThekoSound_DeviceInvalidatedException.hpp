@@ -185,7 +185,13 @@ class ThekoSound_DeviceInvalidatedException {
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__java_lang_String;
             if (!ctor) return nullptr;
-            return env->NewObject(self->clazz, ctor, v0);
+            jobject ret = env->NewObject(self->clazz, ctor, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Instance creation method for public org.theko.sound.backends.DeviceInvalidatedException(java.lang.Throwable)
@@ -194,7 +200,13 @@ class ThekoSound_DeviceInvalidatedException {
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__java_lang_Throwable;
             if (!ctor) return nullptr;
-            return env->NewObject(self->clazz, ctor, v0);
+            jobject ret = env->NewObject(self->clazz, ctor, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Instance creation method for public org.theko.sound.backends.DeviceInvalidatedException(java.lang.String,java.lang.Throwable)
@@ -203,7 +215,13 @@ class ThekoSound_DeviceInvalidatedException {
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__java_lang_String__java_lang_Throwable;
             if (!ctor) return nullptr;
-            return env->NewObject(self->clazz, ctor, v0, v1);
+            jobject ret = env->NewObject(self->clazz, ctor, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Method wrappers
@@ -213,7 +231,13 @@ class ThekoSound_DeviceInvalidatedException {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__equals_java_lang_Object;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public java.lang.String java.lang.Throwable.getMessage()
@@ -222,7 +246,13 @@ class ThekoSound_DeviceInvalidatedException {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getMessage;
             if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
+            jstring ret = (jstring) env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public java.lang.String java.lang.Throwable.toString()
@@ -231,7 +261,13 @@ class ThekoSound_DeviceInvalidatedException {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__toString;
             if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
+            jstring ret = (jstring) env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
     // End of class declaration

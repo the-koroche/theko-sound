@@ -503,7 +503,13 @@ class SLF4J_LoggerFactory {
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__;
             if (!ctor) return nullptr;
-            return env->NewObject(self->clazz, ctor);
+            jobject ret = env->NewObject(self->clazz, ctor);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Method wrappers
@@ -513,7 +519,13 @@ class SLF4J_LoggerFactory {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__equals_java_lang_Object;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public static org.slf4j.ILoggerFactory org.slf4j.LoggerFactory.getILoggerFactory()
@@ -522,7 +534,13 @@ class SLF4J_LoggerFactory {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getILoggerFactory;
             if (!mtd) return nullptr;
-            return env->CallStaticObjectMethod(self->clazz, mtd);
+            jobject ret = env->CallStaticObjectMethod(self->clazz, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public static org.slf4j.Logger org.slf4j.LoggerFactory.getLogger(java.lang.Class)
@@ -531,7 +549,13 @@ class SLF4J_LoggerFactory {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getLogger_java_lang_Class;
             if (!mtd) return nullptr;
-            return env->CallStaticObjectMethod(self->clazz, mtd, v0);
+            jobject ret = env->CallStaticObjectMethod(self->clazz, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public static org.slf4j.Logger org.slf4j.LoggerFactory.getLogger(java.lang.String)
@@ -540,7 +564,13 @@ class SLF4J_LoggerFactory {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getLogger_java_lang_String;
             if (!mtd) return nullptr;
-            return env->CallStaticObjectMethod(self->clazz, mtd, v0);
+            jobject ret = env->CallStaticObjectMethod(self->clazz, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric field get for public static final java.lang.String org.slf4j.LoggerFactory.PROVIDER_PROPERTY_KEY

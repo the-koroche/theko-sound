@@ -204,7 +204,13 @@ class ThekoSound_AudioFlow {
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__java_lang_String__int;
             if (!ctor) return nullptr;
-            return env->NewObject(self->clazz, ctor, v0, v1);
+            jobject ret = env->NewObject(self->clazz, ctor, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Method wrappers
@@ -214,7 +220,13 @@ class ThekoSound_AudioFlow {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__fromBoolean_boolean;
             if (!mtd) return nullptr;
-            return env->CallStaticObjectMethod(self->clazz, mtd, v0);
+            jobject ret = env->CallStaticObjectMethod(self->clazz, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public java.lang.String org.theko.sound.AudioFlow.toString()
@@ -223,7 +235,13 @@ class ThekoSound_AudioFlow {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__toString;
             if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
+            jstring ret = (jstring) env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public static org.theko.sound.AudioFlow org.theko.sound.AudioFlow.valueOf(java.lang.String)
@@ -232,7 +250,13 @@ class ThekoSound_AudioFlow {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__valueOf_java_lang_String;
             if (!mtd) return nullptr;
-            return env->CallStaticObjectMethod(self->clazz, mtd, v0);
+            jobject ret = env->CallStaticObjectMethod(self->clazz, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public static org.theko.sound.AudioFlow[] org.theko.sound.AudioFlow.values()
@@ -241,7 +265,13 @@ class ThekoSound_AudioFlow {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__values;
             if (!mtd) return nullptr;
-            return (jobjectArray) env->CallStaticObjectMethod(self->clazz, mtd);
+            jobjectArray ret = (jobjectArray) env->CallStaticObjectMethod(self->clazz, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric field get for public static final org.theko.sound.AudioFlow org.theko.sound.AudioFlow.IN

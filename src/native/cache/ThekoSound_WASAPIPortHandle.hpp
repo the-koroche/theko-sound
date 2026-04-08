@@ -191,7 +191,13 @@ class ThekoSound_WASAPIPortHandle {
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__java_lang_String;
             if (!ctor) return nullptr;
-            return env->NewObject(self->clazz, ctor, v0);
+            jobject ret = env->NewObject(self->clazz, ctor, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Method wrappers
@@ -201,7 +207,13 @@ class ThekoSound_WASAPIPortHandle {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__equals_java_lang_Object;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.getHandle()
@@ -210,7 +222,13 @@ class ThekoSound_WASAPIPortHandle {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getHandle;
             if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
+            jstring ret = (jstring) env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public java.lang.Class org.theko.sound.backends.wasapi.WASAPIPortHandle.getRelatedBackend()
@@ -219,7 +237,13 @@ class ThekoSound_WASAPIPortHandle {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getRelatedBackend;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
+            jobject ret = env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public java.lang.String org.theko.sound.backends.wasapi.WASAPIPortHandle.toString()
@@ -228,7 +252,13 @@ class ThekoSound_WASAPIPortHandle {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__toString;
             if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
+            jstring ret = (jstring) env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
     // End of class declaration

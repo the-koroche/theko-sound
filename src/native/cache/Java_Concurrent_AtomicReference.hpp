@@ -503,7 +503,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__;
             if (!ctor) return nullptr;
-            return env->NewObject(self->clazz, ctor);
+            jobject ret = env->NewObject(self->clazz, ctor);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Instance creation method for public java.util.concurrent.atomic.AtomicReference(java.lang.Object)
@@ -512,7 +518,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return nullptr;
             jmethodID ctor = self->ctor__java_lang_Object;
             if (!ctor) return nullptr;
-            return env->NewObject(self->clazz, ctor, v0);
+            jobject ret = env->NewObject(self->clazz, ctor, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Method wrappers
@@ -522,7 +534,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__accumulateAndGet_java_lang_Object__java_util_function_BinaryOperator;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0, v1);
+            jobject ret = env->CallObjectMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.compareAndExchange(java.lang.Object,java.lang.Object)
@@ -531,7 +549,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__compareAndExchange_java_lang_Object__java_lang_Object;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0, v1);
+            jobject ret = env->CallObjectMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.compareAndExchangeAcquire(java.lang.Object,java.lang.Object)
@@ -540,7 +564,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__compareAndExchangeAcquire_java_lang_Object__java_lang_Object;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0, v1);
+            jobject ret = env->CallObjectMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.compareAndExchangeRelease(java.lang.Object,java.lang.Object)
@@ -549,7 +579,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__compareAndExchangeRelease_java_lang_Object__java_lang_Object;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0, v1);
+            jobject ret = env->CallObjectMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.compareAndSet(java.lang.Object,java.lang.Object)
@@ -558,7 +594,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__compareAndSet_java_lang_Object__java_lang_Object;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0, v1);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public boolean java.lang.Object.equals(java.lang.Object)
@@ -567,7 +609,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__equals_java_lang_Object;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.get()
@@ -576,7 +624,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__get;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
+            jobject ret = env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAcquire()
@@ -585,7 +639,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getAcquire;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
+            jobject ret = env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndAccumulate(java.lang.Object,java.util.function.BinaryOperator)
@@ -594,7 +654,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getAndAccumulate_java_lang_Object__java_util_function_BinaryOperator;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0, v1);
+            jobject ret = env->CallObjectMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndSet(java.lang.Object)
@@ -603,7 +669,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getAndSet_java_lang_Object;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0);
+            jobject ret = env->CallObjectMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getAndUpdate(java.util.function.UnaryOperator)
@@ -612,7 +684,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getAndUpdate_java_util_function_UnaryOperator;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0);
+            jobject ret = env->CallObjectMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getOpaque()
@@ -621,7 +699,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getOpaque;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
+            jobject ret = env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.getPlain()
@@ -630,7 +714,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getPlain;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
+            jobject ret = env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.lazySet(java.lang.Object)
@@ -640,6 +730,10 @@ class Java_Concurrent_AtomicReference {
             jmethodID mtd = self->mtd__lazySet_java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.set(java.lang.Object)
@@ -649,6 +743,10 @@ class Java_Concurrent_AtomicReference {
             jmethodID mtd = self->mtd__set_java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.setOpaque(java.lang.Object)
@@ -658,6 +756,10 @@ class Java_Concurrent_AtomicReference {
             jmethodID mtd = self->mtd__setOpaque_java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.setPlain(java.lang.Object)
@@ -667,6 +769,10 @@ class Java_Concurrent_AtomicReference {
             jmethodID mtd = self->mtd__setPlain_java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public final void java.util.concurrent.atomic.AtomicReference.setRelease(java.lang.Object)
@@ -676,6 +782,10 @@ class Java_Concurrent_AtomicReference {
             jmethodID mtd = self->mtd__setRelease_java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public java.lang.String java.util.concurrent.atomic.AtomicReference.toString()
@@ -684,7 +794,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__toString;
             if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
+            jstring ret = (jstring) env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public final java.lang.Object java.util.concurrent.atomic.AtomicReference.updateAndGet(java.util.function.UnaryOperator)
@@ -693,7 +809,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__updateAndGet_java_util_function_UnaryOperator;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0);
+            jobject ret = env->CallObjectMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSet(java.lang.Object,java.lang.Object)
@@ -702,7 +824,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__weakCompareAndSet_java_lang_Object__java_lang_Object;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0, v1);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetAcquire(java.lang.Object,java.lang.Object)
@@ -711,7 +839,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__weakCompareAndSetAcquire_java_lang_Object__java_lang_Object;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0, v1);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetPlain(java.lang.Object,java.lang.Object)
@@ -720,7 +854,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__weakCompareAndSetPlain_java_lang_Object__java_lang_Object;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0, v1);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetRelease(java.lang.Object,java.lang.Object)
@@ -729,7 +869,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__weakCompareAndSetRelease_java_lang_Object__java_lang_Object;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0, v1);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public final boolean java.util.concurrent.atomic.AtomicReference.weakCompareAndSetVolatile(java.lang.Object,java.lang.Object)
@@ -738,7 +884,13 @@ class Java_Concurrent_AtomicReference {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__weakCompareAndSetVolatile_java_lang_Object__java_lang_Object;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0, v1);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
     // End of class declaration

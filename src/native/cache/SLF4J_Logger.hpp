@@ -1016,7 +1016,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__atDebug;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
+            jobject ret = env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atError()
@@ -1025,7 +1031,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__atError;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
+            jobject ret = env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atInfo()
@@ -1034,7 +1046,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__atInfo;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
+            jobject ret = env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atLevel(org.slf4j.event.Level)
@@ -1043,7 +1061,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__atLevel_org_slf4j_event_Level;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0);
+            jobject ret = env->CallObjectMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atTrace()
@@ -1052,7 +1076,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__atTrace;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
+            jobject ret = env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.atWarn()
@@ -1061,7 +1091,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__atWarn;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd);
+            jobject ret = env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.debug(java.lang.String)
@@ -1071,6 +1107,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__debug_java_lang_String;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.debug(java.lang.String,java.lang.Object[])
@@ -1080,6 +1120,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__debug_java_lang_String__ArrayOf_java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.debug(java.lang.String,java.lang.Object)
@@ -1089,6 +1133,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__debug_java_lang_String__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.debug(java.lang.String,java.lang.Throwable)
@@ -1098,6 +1146,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__debug_java_lang_String__java_lang_Throwable;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String)
@@ -1107,6 +1159,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__debug_org_slf4j_Marker__java_lang_String;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.debug(java.lang.String,java.lang.Object,java.lang.Object)
@@ -1116,6 +1172,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__debug_java_lang_String__java_lang_Object__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String,java.lang.Object[])
@@ -1125,6 +1185,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__debug_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String,java.lang.Object)
@@ -1134,6 +1198,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String,java.lang.Throwable)
@@ -1143,6 +1211,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.debug(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
@@ -1152,6 +1224,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__debug_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2, v3);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.error(java.lang.String)
@@ -1161,6 +1237,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__error_java_lang_String;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.error(java.lang.String,java.lang.Object[])
@@ -1170,6 +1250,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__error_java_lang_String__ArrayOf_java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.error(java.lang.String,java.lang.Object)
@@ -1179,6 +1263,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__error_java_lang_String__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.error(java.lang.String,java.lang.Throwable)
@@ -1188,6 +1276,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__error_java_lang_String__java_lang_Throwable;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.error(org.slf4j.Marker,java.lang.String)
@@ -1197,6 +1289,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__error_org_slf4j_Marker__java_lang_String;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.error(java.lang.String,java.lang.Object,java.lang.Object)
@@ -1206,6 +1302,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__error_java_lang_String__java_lang_Object__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.error(org.slf4j.Marker,java.lang.String,java.lang.Object[])
@@ -1215,6 +1315,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__error_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.error(org.slf4j.Marker,java.lang.String,java.lang.Object)
@@ -1224,6 +1328,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.error(org.slf4j.Marker,java.lang.String,java.lang.Throwable)
@@ -1233,6 +1341,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.error(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
@@ -1242,6 +1354,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__error_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2, v3);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract java.lang.String org.slf4j.Logger.getName()
@@ -1250,7 +1366,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__getName;
             if (!mtd) return nullptr;
-            return (jstring) env->CallObjectMethod(obj, mtd);
+            jstring ret = (jstring) env->CallObjectMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.info(java.lang.String)
@@ -1260,6 +1382,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__info_java_lang_String;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.info(java.lang.String,java.lang.Object[])
@@ -1269,6 +1395,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__info_java_lang_String__ArrayOf_java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.info(java.lang.String,java.lang.Object)
@@ -1278,6 +1408,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__info_java_lang_String__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.info(java.lang.String,java.lang.Throwable)
@@ -1287,6 +1421,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__info_java_lang_String__java_lang_Throwable;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.info(org.slf4j.Marker,java.lang.String)
@@ -1296,6 +1434,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__info_org_slf4j_Marker__java_lang_String;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.info(java.lang.String,java.lang.Object,java.lang.Object)
@@ -1305,6 +1447,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__info_java_lang_String__java_lang_Object__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.info(org.slf4j.Marker,java.lang.String,java.lang.Object[])
@@ -1314,6 +1460,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__info_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.info(org.slf4j.Marker,java.lang.String,java.lang.Object)
@@ -1323,6 +1473,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__info_org_slf4j_Marker__java_lang_String__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.info(org.slf4j.Marker,java.lang.String,java.lang.Throwable)
@@ -1332,6 +1486,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__info_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.info(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
@@ -1341,6 +1499,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__info_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2, v3);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract boolean org.slf4j.Logger.isDebugEnabled()
@@ -1349,7 +1511,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isDebugEnabled;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd);
+            jboolean ret = env->CallBooleanMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public abstract boolean org.slf4j.Logger.isDebugEnabled(org.slf4j.Marker)
@@ -1358,7 +1526,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isDebugEnabled_org_slf4j_Marker;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public default boolean org.slf4j.Logger.isEnabledForLevel(org.slf4j.event.Level)
@@ -1367,7 +1541,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isEnabledForLevel_org_slf4j_event_Level;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public abstract boolean org.slf4j.Logger.isErrorEnabled()
@@ -1376,7 +1556,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isErrorEnabled;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd);
+            jboolean ret = env->CallBooleanMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public abstract boolean org.slf4j.Logger.isErrorEnabled(org.slf4j.Marker)
@@ -1385,7 +1571,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isErrorEnabled_org_slf4j_Marker;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public abstract boolean org.slf4j.Logger.isInfoEnabled()
@@ -1394,7 +1586,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isInfoEnabled;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd);
+            jboolean ret = env->CallBooleanMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public abstract boolean org.slf4j.Logger.isInfoEnabled(org.slf4j.Marker)
@@ -1403,7 +1601,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isInfoEnabled_org_slf4j_Marker;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public abstract boolean org.slf4j.Logger.isTraceEnabled()
@@ -1412,7 +1616,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isTraceEnabled;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd);
+            jboolean ret = env->CallBooleanMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public abstract boolean org.slf4j.Logger.isTraceEnabled(org.slf4j.Marker)
@@ -1421,7 +1631,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isTraceEnabled_org_slf4j_Marker;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public abstract boolean org.slf4j.Logger.isWarnEnabled()
@@ -1430,7 +1646,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isWarnEnabled;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd);
+            jboolean ret = env->CallBooleanMethod(obj, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public abstract boolean org.slf4j.Logger.isWarnEnabled(org.slf4j.Marker)
@@ -1439,7 +1661,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return JNI_FALSE;
             jmethodID mtd = self->mtd__isWarnEnabled_org_slf4j_Marker;
             if (!mtd) return JNI_FALSE;
-            return env->CallBooleanMethod(obj, mtd, v0);
+            jboolean ret = env->CallBooleanMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return JNI_FALSE;
+            }
+            return ret;
         }
 
         // Fabric method for public default org.slf4j.spi.LoggingEventBuilder org.slf4j.Logger.makeLoggingEventBuilder(org.slf4j.event.Level)
@@ -1448,7 +1676,13 @@ class SLF4J_Logger {
             if (!self || !self->isValid()) return nullptr;
             jmethodID mtd = self->mtd__makeLoggingEventBuilder_org_slf4j_event_Level;
             if (!mtd) return nullptr;
-            return env->CallObjectMethod(obj, mtd, v0);
+            jobject ret = env->CallObjectMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.trace(java.lang.String)
@@ -1458,6 +1692,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__trace_java_lang_String;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.trace(java.lang.String,java.lang.Object[])
@@ -1467,6 +1705,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__trace_java_lang_String__ArrayOf_java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.trace(java.lang.String,java.lang.Object)
@@ -1476,6 +1718,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__trace_java_lang_String__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.trace(java.lang.String,java.lang.Throwable)
@@ -1485,6 +1731,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__trace_java_lang_String__java_lang_Throwable;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.trace(org.slf4j.Marker,java.lang.String)
@@ -1494,6 +1744,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__trace_org_slf4j_Marker__java_lang_String;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.trace(java.lang.String,java.lang.Object,java.lang.Object)
@@ -1503,6 +1757,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__trace_java_lang_String__java_lang_Object__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.trace(org.slf4j.Marker,java.lang.String,java.lang.Object[])
@@ -1512,6 +1770,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__trace_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.trace(org.slf4j.Marker,java.lang.String,java.lang.Object)
@@ -1521,6 +1783,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.trace(org.slf4j.Marker,java.lang.String,java.lang.Throwable)
@@ -1530,6 +1796,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.trace(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
@@ -1539,6 +1809,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__trace_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2, v3);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.warn(java.lang.String)
@@ -1548,6 +1822,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__warn_java_lang_String;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.warn(java.lang.String,java.lang.Object[])
@@ -1557,6 +1835,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__warn_java_lang_String__ArrayOf_java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.warn(java.lang.String,java.lang.Object)
@@ -1566,6 +1848,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__warn_java_lang_String__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.warn(java.lang.String,java.lang.Throwable)
@@ -1575,6 +1861,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__warn_java_lang_String__java_lang_Throwable;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.warn(org.slf4j.Marker,java.lang.String)
@@ -1584,6 +1874,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__warn_org_slf4j_Marker__java_lang_String;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.warn(java.lang.String,java.lang.Object,java.lang.Object)
@@ -1593,6 +1887,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__warn_java_lang_String__java_lang_Object__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.warn(org.slf4j.Marker,java.lang.String,java.lang.Object[])
@@ -1602,6 +1900,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__warn_org_slf4j_Marker__java_lang_String__ArrayOf_java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.warn(org.slf4j.Marker,java.lang.String,java.lang.Object)
@@ -1611,6 +1913,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.warn(org.slf4j.Marker,java.lang.String,java.lang.Throwable)
@@ -1620,6 +1926,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Throwable;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric method for public abstract void org.slf4j.Logger.warn(org.slf4j.Marker,java.lang.String,java.lang.Object,java.lang.Object)
@@ -1629,6 +1939,10 @@ class SLF4J_Logger {
             jmethodID mtd = self->mtd__warn_org_slf4j_Marker__java_lang_String__java_lang_Object__java_lang_Object;
             if (!mtd) return;
             env->CallVoidMethod(obj, mtd, v0, v1, v2, v3);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+            }
         }
 
         // Fabric field get for public static final java.lang.String org.slf4j.Logger.ROOT_LOGGER_NAME
