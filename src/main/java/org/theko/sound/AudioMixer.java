@@ -344,10 +344,9 @@ public class AudioMixer implements AudioNode, Controllable {
         }
 
         int outputLength = samples[0].length;
-
-        boolean enableEffects = enableEffectsControl.getValue();
         int inputLength = outputLength;
         try {
+            // Length of input for varying-size effect to produce exactly outputLength
             inputLength = getTargetInputLength(outputLength);
         } catch (LengthMismatchException ex) {
             logger.error("Input length is not valid.", ex);
@@ -358,7 +357,7 @@ public class AudioMixer implements AudioNode, Controllable {
         int channels = samples.length;
         float[][] mixed = null;
 
-        // Skip input collection and mixing if the varying-size effect requires zero-length input.
+        // Process input and effects only if we have a positive input length
         if (inputLength > 0) {
             CollectedInputs collectedInputs = collectInputs(sampleRate, inputLength, channels);
             try {
@@ -368,11 +367,13 @@ public class AudioMixer implements AudioNode, Controllable {
                 throw new MixingException(ex);
             }
 
+            // Mix all valid inputs together into the mixed buffer, applying pre-gain
             mixed = mixInputs(collectedInputs, inputLength, channels);
-
             AudioBufferUtilities.adjustGain(mixed, mixed, preGainControl.getValue());
 
-            if (enableEffects) {
+            if (enableEffectsControl.getValue()) {
+                // Process effects before the VaryingSizeEffect (if any)
+                // with the required input length for the varying size effect
                 int firstEffectsEnd = varyingSizeEffectIndex == -1 ? effects.size() : varyingSizeEffectIndex;
                 processEffectChain(mixed, sampleRate, 0, firstEffectsEnd);
 
@@ -381,12 +382,19 @@ public class AudioMixer implements AudioNode, Controllable {
                         mixed = AudioBufferUtilities.padArray(mixed, channels, outputLength, true /* fill new with last value */);
                     }
                     processEffect(mixed, sampleRate, effects.get(varyingSizeEffectIndex));
+                    // Cut the mixed buffer to the output length
+                    // if the varying size effect produced a longer buffer than the output
+                    if (inputLength > outputLength) {
+                        mixed = AudioBufferUtilities.cutArray(mixed, channels, outputLength);
+                    }
+                    // Process remaining effects
                     processEffectChain(mixed, sampleRate, varyingSizeEffectIndex + 1, effects.size());
                 }
             }
+        // Else if inputLength is zero, generate silence, and process effects if enabled
         } else {
             mixed = new float[channels][outputLength];
-            if (enableEffects) {
+            if (enableEffectsControl.getValue()) {
                 processEffectChain(mixed, sampleRate, varyingSizeEffectIndex + 1, effects.size());
             }
         }

@@ -43,18 +43,18 @@ public final class AudioBufferUtilities {
      * with either the last available element in each row or with a default value (0.0f).
      *
      * @param original The original 2D float array to pad
-     * @param newLengthD1 The new length for the first dimension (rows)
-     * @param newLengthD2 The new length for the second dimension (columns)
+     * @param channels The new length for the channels (rows)
+     * @param frames The new length for the frames (columns)
      * @param fillNewWithLast If true, the new array will be padded with the last available element in each row
      * If false, the new array will be padded with the default value (0.0f).
      * @return A new 2D float array padded to the specified dimensions
      * @throws IllegalArgumentException if the original array is null or if the new lengths are less than or equal to zero
      */
-    public static float[][] padArray(float[][] original, int newLengthD1, int newLengthD2, boolean fillNewWithLast) {
+    public static float[][] padArray(float[][] original, int channels, int frames, boolean fillNewWithLast) {
         if (original == null) throw new IllegalArgumentException("Original array cannot be null.");
-        if (newLengthD1 <= 0 || newLengthD2 <= 0) throw new IllegalArgumentException("New lengths must be > 0.");
+        if (channels <= 0 || frames <= 0) throw new IllegalArgumentException("New lengths must be > 0.");
 
-        float[][] padded = new float[newLengthD1][newLengthD2];
+        float[][] padded = new float[channels][frames];
 
         float defaultValue = 0.0f; // default value
         float lastOriginalValue = 0.0f;
@@ -69,8 +69,8 @@ public final class AudioBufferUtilities {
             }
         }
 
-        for (int i = 0; i < newLengthD1; i++) {
-            float[] row = new float[newLengthD2];
+        for (int i = 0; i < channels; i++) {
+            float[] row = new float[frames];
             float[] srcRow = i < original.length ? original[i] : null;
 
             float fillValue = fillNewWithLast
@@ -78,14 +78,14 @@ public final class AudioBufferUtilities {
                     : defaultValue;
 
             if (srcRow != null) {
-                int copyLength = Math.min(srcRow.length, newLengthD2);
+                int copyLength = Math.min(srcRow.length, frames);
                 System.arraycopy(srcRow, 0, row, 0, copyLength);
 
-                for (int j = copyLength; j < newLengthD2; j++) {
+                for (int j = copyLength; j < frames; j++) {
                     row[j] = fillValue;
                 }
             } else {
-                for (int j = 0; j < newLengthD2; j++) {
+                for (int j = 0; j < frames; j++) {
                     row[j] = fillValue;
                 }
             }
@@ -93,6 +93,36 @@ public final class AudioBufferUtilities {
             padded[i] = row;
         }
         return padded;
+    }
+
+    /**
+     * Cuts a 2D float array to a new specified length in both dimensions.
+     * If the original array is larger than the new dimensions, it will be cut
+     * to the specified length. If it is smaller, the resulting array will be padded
+     * with the default value (0.0f).
+     *
+     * @param original The original 2D float array to cut
+     * @param channels The new length for the channels (rows)
+     * @param frames The new length for the frames (columns)
+     * @return A new 2D float array cut to the specified dimensions
+     * @throws IllegalArgumentException if the original array is null or if the new lengths are less than or equal to zero
+     */
+    public static float[][] cutArray(float[][] original, int channels, int frames) {
+        if (original == null) throw new IllegalArgumentException("Original array cannot be null.");
+        if (channels <= 0 || frames <= 0) throw new IllegalArgumentException("New lengths must be > 0.");
+
+        float[][] cut = new float[channels][frames];
+
+        for (int i = 0; i < channels; i++) {
+            float[] srcRow = i < original.length ? original[i] : null;
+            cut[i] = new float[frames];
+
+            if (srcRow != null) {
+                int copyLength = Math.min(srcRow.length, frames);
+                System.arraycopy(srcRow, 0, cut[i], 0, copyLength);
+            }
+        }
+        return cut;
     }
 
     /**
@@ -181,7 +211,8 @@ public final class AudioBufferUtilities {
             throw new IllegalArgumentException("All input and output channels must have the same frames length.");   
         }
         if (sourceChannels > source.length || targetChannels > target.length) {
-            throw new IllegalArgumentException("Channel count does not match.");
+            throw new IllegalArgumentException("Channel count does not match. Samples channels(" + source.length + " -> " + target.length +
+                    "), Passed channels(" + sourceChannels + " -> " + targetChannels + ").");
         }
         if (sourceChannels == targetChannels) {
             copyArray(source, target);
