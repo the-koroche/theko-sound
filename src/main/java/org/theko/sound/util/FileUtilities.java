@@ -36,7 +36,6 @@ public final class FileUtilities {
      * If the {@code dir} is {@code null} or not a directory, this method
      * returns {@code false}.
      *
-     *
      * @param dir   the directory to search in (may be {@code null})
      * @param names the file names to check (must not be {@code null})
      * @return {@code true} if at least one file exists in the directory, {@code false} otherwise
@@ -48,5 +47,45 @@ public final class FileUtilities {
             if (file.exists()) return true;
         }
         return false;
+    }
+
+    /**
+     * Retrieves the file extension of the given file name.
+     * <p>
+     * If the file name is {@code null} or does not contain a dot (".") character,
+     * this method returns an empty string.
+     * <p>
+     * If the file name ends with a dot (".") character, this method returns an empty string.
+     *
+     * @param fileName the file name to retrieve the extension from (may be {@code null})
+     * @return the file extension, or an empty string if no extension is available
+     */
+    public static String getFileExtension(String fileName) {
+        if (fileName == null) return null;
+        int lastDotIndex = fileName.lastIndexOf('.');
+        if (lastDotIndex == -1 || lastDotIndex == fileName.length() - 1) {
+            return ""; // No extension or empty extension
+        }
+        return fileName.substring(lastDotIndex + 1);
+    }
+
+    /**
+     * Retrieves the file name without the extension of the given file name.
+     * <p>
+     * If the file name is {@code null} or does not contain a dot (".") character,
+     * this method returns the original file name.
+     * <p>
+     * If the file name ends with a dot (".") character, this method returns the original file name.
+     *
+     * @param fileName the file name to retrieve the name without extension from (may be {@code null})
+     * @return the file name without extension, or the original file name if no extension is available
+     */
+    public static String getFileNameWithoutExtension(String fileName) {
+        if (fileName == null) return null;
+        int lastDotIndex = fileName.lastIndexOf('.');
+        if (lastDotIndex == -1) {
+            return fileName; // No extension
+        }
+        return fileName.substring(0, lastDotIndex);
     }
 }
