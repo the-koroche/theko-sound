@@ -35,6 +35,7 @@ import org.theko.sound.events.OutputLayerEventType;
 import org.theko.sound.properties.AudioSystemProperties;
 import org.theko.sound.resamplers.CubicResampleMethod;
 import org.theko.sound.resamplers.ResampleMethod;
+import org.theko.sound.util.FileUtilities;
 import org.theko.sound.visualizers.AudioVisualizer;
 import org.theko.sound.visualizers.ColorGradient;
 import org.theko.sound.visualizers.SpectrumVisualizer;
@@ -241,7 +242,7 @@ public class VisualizerPlayback {
         boolean wasPlaying = player.isPlaying() || (!player.isInitialized() || !player.hasAudioData());
 
         if (background) {
-            frame.setTitle("Opening " + getNameWithoutExtension(audioFile.getName()) + "...");
+            frame.setTitle("Opening " + FileUtilities.getFileNameWithoutExtension(audioFile.getName()) + "...");
 
             SwingWorker<Void, Void> worker = new SwingWorker<>() {
 
@@ -273,7 +274,7 @@ public class VisualizerPlayback {
 
     private void openPlayer(File audioFile, boolean play) throws FileNotFoundException, AudioCodecNotFoundException {
         player.open(audioFile);
-        fileName = getNameWithoutExtension(audioFile.getName());
+        fileName = FileUtilities.getFileNameWithoutExtension(audioFile.getName());
         if (play) player.start();
         trackInfo = getTrackInfo();
     }
@@ -315,10 +316,8 @@ public class VisualizerPlayback {
             title = fileName != null ? fileName : "Unknown Track";
         }
         String artist = player.getMetadata().getValue(AudioTag.ARTIST);
-        return "%s\n%s".formatted(
-            title,
-            artist != null ? artist : "Unknown Artist"
-        );
+        boolean hasArtist = artist != null && !artist.isEmpty();
+        return title + (hasArtist ? "\n" + artist : "");
     }
 
     private static String getPlaybackInfo(SoundPlayer player) {
@@ -442,15 +441,6 @@ public class VisualizerPlayback {
     private static String getReadableName(String name) {
         if (name == null || name.isEmpty()) return name;
         return name.replaceAll("(?<!^)([A-Z])", " $1");
-    }
-
-    private static String getNameWithoutExtension(String fileName) {
-        if (fileName == null) return null;
-        int dotIndex = fileName.lastIndexOf('.');
-        if (dotIndex > 0) {
-            return fileName.substring(0, dotIndex);
-        }
-        return fileName;
     }
 
     public static void main(String[] args) {
