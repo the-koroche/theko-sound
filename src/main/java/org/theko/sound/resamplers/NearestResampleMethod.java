@@ -27,6 +27,11 @@ public class NearestResampleMethod implements ResampleMethod {
 
     @Override
     public void resample(float[] input, float[] output, int targetLength) {
+        if (targetLength <= 0) return;
+        if (targetLength == 1) {
+            output[0] = input[0];
+            return;
+        }
         int inputLength = input.length;
 
         for (int i = 0; i < targetLength; i++) {

@@ -38,23 +38,31 @@ public class LanczosResampleMethod implements ResampleMethod {
 
     @Override
     public void resample(float[] input, float[] output, int targetLength) {
+        if (targetLength <= 0) return;
+        if (targetLength == 1) {
+            output[0] = input[0];
+            return;
+        }
         int inLen = input.length;
 
         for (int i = 0; i < targetLength; i++) {
             // Compute the corresponding index in the original input array
-            float index = (i + 0.5f) * inLen / targetLength - 0.5f;
+            float index = (float) i * (inLen - 1) / (targetLength - 1);
             int i0 = (int) Math.floor(index);
 
-            float sum = 0f;
-
             // Perform the Lanczos interpolation with a window around the current index
+            float sum = 0f;
+            float wsum = 0f;
+
             for (int j = -a; j <= a; j++) {
                 int idx = i0 + j;
                 if (idx >= 0 && idx < inLen) {
-                    sum += input[idx] * lanczosKernel(index - idx, a);
+                    float w = lanczosKernel(index - idx, a);
+                    sum += input[idx] * w;
+                    wsum += w;
                 }
             }
-            output[i] = sum;
+            output[i] = wsum != 0f ? (sum / wsum) : 0f;
         }
     }
 
