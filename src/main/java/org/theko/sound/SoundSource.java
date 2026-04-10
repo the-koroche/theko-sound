@@ -46,7 +46,9 @@ import org.theko.sound.events.SoundSourceEvent;
 import org.theko.sound.events.SoundSourceEventType;
 import org.theko.sound.events.SoundSourceListener;
 import org.theko.sound.samples.SamplesValidation;
+import org.theko.sound.samples.SamplesValidation.ValidationResult;
 import org.theko.sound.util.AudioBufferUtilities;
+import org.theko.sound.util.FileUtilities;
 import org.theko.sound.util.MathUtilities;
 
 /**
@@ -797,44 +799,47 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
 
     private void decodeAndOpenAudioFile(File file) throws FileNotFoundException, AudioCodecNotFoundException, AudioCodecException {
         try {
-            int dot = file.getName().lastIndexOf('.');
-            if (dot < 0 || dot == file.getName().length() - 1) {
-                throw new AudioCodecException("File has no valid extension: " + file.getName());
-            }
-            String fileExtension = file.getName().substring(dot + 1);
-
+            String fileExtension = FileUtilities.getFileExtension(file.getName());
             if (fileExtension == null || fileExtension.isEmpty()) {
                 logger.error("File has no extension: {}", file.getName());
                 throw new AudioCodecException("File has no extension: " + file.getName());
             }
-            logger.debug("Decoding audio file: {} with extension: {}", file.getName(), fileExtension);
+
+            logger.debug("Decoding audio file {}, with extension: {}", file.getName(), fileExtension);
             AudioCodecInfo codec = AudioCodecs.fromExtension(fileExtension);
 
             logger.debug("Using codec: {}", codec.getName());
             AudioCodec audioCodec = AudioCodecs.getCodec(codec);
 
-            AudioDecodeResult decodeResult = audioCodec.decode(
-                new BufferedInputStream(new FileInputStream(file), 1024 * 256)
-            );
-
-            if (decodeResult == null ||
-                    decodeResult.getSamples() == null || decodeResult.getSamples().length == 0 ||
-                    decodeResult.getAudioFormat() == null) {
-                logger.error("Failed to decode audio file: {}", file.getName());
-                throw new AudioCodecException("Failed to decode audio file: " + file.getName());
+            AudioDecodeResult decodeResult = null;
+            try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file), 1024 * 256)) {
+                decodeResult = audioCodec.decode(bis);
+            } catch (FileNotFoundException e) {
+                logger.error("File not found: {}", file.getName(), e);
+                throw new AudioCodecException("File not found: " + file.getName(), e);
+            } catch (Exception e) {
+                logger.error("Failed to decode audio file: {}", file.getName(), e);
+                throw new AudioCodecException("Failed to decode audio file: " + file.getName(), e);
             }
-            logger.trace("Decoded audio file: {}", file.getName());
 
+            // Check decoded result
+            if (decodeResult == null ||
+                SamplesValidation.isValidSamples(decodeResult.getSamples()) != ValidationResult.VALID ||
+                decodeResult.getAudioFormat() == null) {
+                logger.error("Failed to decode audio file, result is invalid: {}", file.getName());
+                throw new AudioCodecException("Failed to decode audio file, result is invalid: " + file.getName());
+            }
+            logger.trace("Successfully decoded audio file: {}", file.getName());
+
+            // Open this sound source with the decoded audio data
             this.open(decodeResult.getSamples(), decodeResult.getAudioFormat(), decodeResult.getMetadata());
+
             logger.trace("Opened audio file: {}", file.getName());
         } catch (AudioCodecNotFoundException ex) {
             logger.error("Audio codec not found: {}. {}", file.getName(), ex.getMessage());
             throw ex;
-         }catch (AudioCodecException ex) {
+        } catch (AudioCodecException ex) {
             logger.error("Failed to decode audio file: {}. {}", file.getName(), ex.getMessage());
-            throw ex;
-        } catch (FileNotFoundException ex) {
-            logger.error("Failed to open audio file: {}. {}", file.getName(), ex.getMessage());
             throw ex;
         }
     }
