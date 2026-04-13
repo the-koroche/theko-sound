@@ -17,6 +17,7 @@
 package org.theko.sound.visualizers;
 
 import java.awt.Color;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -26,7 +27,7 @@ import java.util.List;
  * @since 0.2.3-beta
  * @author Theko
  */
-public class ColorGradient {
+public class ColorGradient implements Serializable {
 
     private static final List<Color> GRAYSCALE_COLORS = List.of(
         new Color(0, 0, 0),      // Black   #000000
