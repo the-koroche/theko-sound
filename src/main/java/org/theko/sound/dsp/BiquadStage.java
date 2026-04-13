@@ -27,7 +27,7 @@ package org.theko.sound.dsp;
  */
 public class BiquadStage implements AudioFilter {
 
-    private static final float SMOOTH_FACTOR = 0.2f;
+    private static final float SMOOTH_FACTOR = 0.02f;
 
     // current coefficients
     private float b0c, b1c, b2c, a1c, a2c;
@@ -51,7 +51,7 @@ public class BiquadStage implements AudioFilter {
         this.q = q;
         this.gain = gain;
 
-        float A = gain;
+        float A = (float)Math.sqrt(gain);
         float omega = (float) (2.0 * Math.PI * cutoff / sampleRate);
         float sn = (float) Math.sin(omega);
         float cs = (float) Math.cos(omega);
