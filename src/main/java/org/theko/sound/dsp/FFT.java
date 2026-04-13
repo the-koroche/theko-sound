@@ -37,7 +37,7 @@ package org.theko.sound.dsp;
  * @since 0.1.3-beta
  * @author Theko
  */
-public class FFT {
+public final class FFT {
 
     private FFT() {
         throw new UnsupportedOperationException("This class cannot be instantiated.");
