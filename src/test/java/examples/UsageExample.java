@@ -7,7 +7,7 @@ import org.theko.sound.AudioOutputLayer;
 import org.theko.sound.LFO;
 import org.theko.sound.SoundSource;
 import org.theko.sound.UnsupportedAudioFormatException;
-import org.theko.sound.WaveformType;
+import org.theko.sound.Waveform;
 import org.theko.sound.backends.AudioBackendCreationException;
 import org.theko.sound.backends.AudioBackendNotFoundException;
 import org.theko.sound.codecs.AudioCodecNotFoundException;
@@ -73,8 +73,8 @@ public class UsageExample {
 
             // Create an LFO to modulate the bitcrusher's mix level
             LFO lfo = new LFO(Arrays.asList(bitcrusher.getMixLevelControl()));
-            lfo.getWaveformType().setEnumValue(WaveformType.TRIANGLE);
-            lfo.getSpeed().setValue(0.05f);
+            lfo.setWaveformType(Waveform.TRIANGLE);
+            lfo.getSpeed().setValue(0.2f);
             lfo.start();
 
             out.addConsumer(OutputLayerEventType.STOPPED, (event, type) -> {
