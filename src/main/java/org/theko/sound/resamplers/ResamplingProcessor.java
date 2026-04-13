@@ -16,10 +16,7 @@
 
 package org.theko.sound.resamplers;
 
-import static org.theko.sound.properties.AudioSystemProperties.SHARED_RESAMPLER;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.theko.sound.properties.AudioSystemProperties;
 import org.theko.sound.samples.SamplesValidation;
 import org.theko.sound.util.MathUtilities;
 
@@ -32,28 +29,26 @@ import org.theko.sound.util.MathUtilities;
  * @since 0.1.1-beta
  * @author Theko
  */
-public class AudioResampler {
-
-    private static final Logger logger = LoggerFactory.getLogger(AudioResampler.class);
+public class ResamplingProcessor {
 
     /**
      * A shared instance of AudioResampler with default settings.
      * This instance can be used for quick access without needing to create a new one.
      */
-    public static final AudioResampler SHARED = new AudioResampler();
+    public static final Resampler SHARED_RESAMPLER = AudioSystemProperties.SHARED_RESAMPLER;
 
     /**
      * The resample method used for audio resampling.
      * It can be set to different algorithms like Lanczos, Linear, or Cubic.
      */
-    protected final ResampleMethod resampleMethod;
+    protected final Resampler resampleMethod;
 
     /**
      * Constructs an AudioResampler with the specified resample method.
      *
      * @param resamplerMethod The resample method to use for audio resampling
      */
-    public AudioResampler(ResampleMethod resamplerMethod) {
+    public ResamplingProcessor(Resampler resamplerMethod) {
         this.resampleMethod = resamplerMethod;
     }
 
@@ -61,7 +56,7 @@ public class AudioResampler {
      * Constructs an AudioResampler with the default shared method and quality.
      * The default method is set to the shared resample method defined in AudioSystemProperties.
      */
-    public AudioResampler() {
+    public ResamplingProcessor() {
         this(SHARED_RESAMPLER);
     }
 
@@ -83,6 +78,7 @@ public class AudioResampler {
      * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels
      */
     public float[][] resample(float[][] samples, float speedMultiplier) {
+        SamplesValidation.validateSamples(samples);
         return resample(samples, (int) (samples[0].length / speedMultiplier));
     }
 
@@ -95,7 +91,9 @@ public class AudioResampler {
      * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels
      */
     public float[][] resample(float[][] samples, int newLength) {
+        SamplesValidation.validateSamples(samples);
         newLength = MathUtilities.clamp(newLength, 1, samples[0].length * 50);
+
         float[][] output = new float[samples.length][newLength];
         resample(samples, output, newLength);
         return output;
@@ -110,6 +108,7 @@ public class AudioResampler {
      * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels
      */
     public void resample(float[][] samples, float[][] output, float speedMultiplier) {
+        SamplesValidation.validateSamples(samples);
         resample(samples, output, (int) (samples[0].length / speedMultiplier));
     }
 
@@ -128,29 +127,7 @@ public class AudioResampler {
         if (samples.length != output.length) {
             throw new IllegalArgumentException("Input and output arrays must have the same number of channels.");
         }
-        for (int ch = 0; ch < samples.length; ch++) {
-            if (!timeScale(samples[ch], output[ch], newLength)) {
-                if (samples[ch].length != newLength) {
-                    throw new RuntimeException("Error resampling audio.");
-                }
-                System.arraycopy(samples[ch], 0, output[ch], 0, samples[ch].length);
-            }
-        }
-    }
-
-    private boolean timeScale(float[] input, float[] output, int newLength) {
-        if (input.length == newLength)
-            return false;
-
-        if (newLength <= 0)
-            throw new IllegalArgumentException("New length must be greater than zero.");
-
-        if (resampleMethod == null) {
-            logger.error("Resample method is null.");
-            throw new IllegalArgumentException("Resample method is null.");
-        }
-
-        resampleMethod.resample(input, output, newLength);
-        return true;
+        
+        resampleMethod.resample(samples, output, newLength);
     }
 }

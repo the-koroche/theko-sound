@@ -24,8 +24,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.theko.sound.AudioMeasure;
-import org.theko.sound.resamplers.LinearResampleMethod;
-import org.theko.sound.resamplers.ResampleMethod;
+import org.theko.sound.resamplers.LinearResampler;
+import org.theko.sound.resamplers.Resampler;
 import org.theko.sound.util.FormatUtilities;
 import org.theko.sound.util.MathUtilities;
 import org.theko.sound.util.PlatformUtilities;
@@ -227,7 +227,7 @@ public final class AudioSystemProperties {
         }
     }
 
-    private static ResampleMethod getResampleMethod(String key, ResampleMethod defaultValue) {
+    private static Resampler getResampleMethod(String key, Resampler defaultValue) {
         String value = getString(key, null);
         if (value == null || value.isBlank()) {
             return defaultValue;
@@ -240,7 +240,7 @@ public final class AudioSystemProperties {
             return defaultValue;
         }
 
-        ResampleMethod resampleMethod;
+        Resampler resampleMethod;
         try {
             Class<?> clazz;
             try {
@@ -251,11 +251,11 @@ public final class AudioSystemProperties {
                 clazz = Class.forName(resampleMethodStr);
             }
 
-            if (!ResampleMethod.class.isAssignableFrom(clazz)) {
+            if (!Resampler.class.isAssignableFrom(clazz)) {
                 logger.warn("Class '{}' is not a ResampleMethod, for '{}'. Using default {}", resampleMethodStr, key, defaultValue);
                 return defaultValue;
             }
-            resampleMethod = (ResampleMethod) clazz.getDeclaredConstructor().newInstance();
+            resampleMethod = (Resampler) clazz.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             logger.warn("Failed to instantiate '{}' for '{}'. Using default {}", resampleMethodStr, key, defaultValue);
             logger.debug("Stack trace:", e);
@@ -301,14 +301,14 @@ public final class AudioSystemProperties {
     public static final AudioMeasure AOL_DEFAULT_BUFFER = getAudioMeasure(
         "org.theko.sound.outputLayer.defaultBuffer", AudioMeasure.ofFrames(2048));
 
-    public static final ResampleMethod AOL_RESAMPLER = getResampleMethod(
-        "org.theko.sound.outputLayer.resampler", new LinearResampleMethod());
+    public static final Resampler AOL_RESAMPLER = getResampleMethod(
+        "org.theko.sound.outputLayer.resampler", new LinearResampler());
 
     public static final boolean AOL_ENABLE_SHUTDOWN_HOOK = getBoolean(
         "org.theko.sound.outputLayer.enableShutdownHook", true);
 
-    public static final ResampleMethod SHARED_RESAMPLER = getResampleMethod(
-        "org.theko.sound.resampler.shared", new LinearResampleMethod());
+    public static final Resampler SHARED_RESAMPLER = getResampleMethod(
+        "org.theko.sound.resampler.shared", new LinearResampler());
 
     public static final boolean MIXER_DEFAULT_ENABLE_EFFECTS = getBoolean(
         "org.theko.sound.mixer.default.enableEffects", true);
@@ -335,8 +335,8 @@ public final class AudioSystemProperties {
     public static final ThreadConfiguration CLEANERS_THREAD = getThreadConfig(
         "org.theko.sound.cleaner.thread", new ThreadConfiguration(ThreadType.VIRTUAL, 1));
 
-    public static final ResampleMethod RESAMPLER_EFFECT = getResampleMethod(
-        "org.theko.sound.effects.resampler", new LinearResampleMethod());
+    public static final Resampler RESAMPLER_EFFECT = getResampleMethod(
+        "org.theko.sound.effects.resampler", new LinearResampler());
 
     static {
         logProperties();

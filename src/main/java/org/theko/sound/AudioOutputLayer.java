@@ -48,7 +48,7 @@ import org.theko.sound.events.OutputLayerEvent;
 import org.theko.sound.events.OutputLayerEventType;
 import org.theko.sound.events.OutputLayerListener;
 import org.theko.sound.properties.ThreadType;
-import org.theko.sound.resamplers.AudioResampler;
+import org.theko.sound.resamplers.ResamplingProcessor;
 import org.theko.sound.samples.SamplesConverter;
 import org.theko.sound.samples.SamplesValidation;
 import org.theko.sound.samples.SamplesValidation.ValidationResult;
@@ -128,7 +128,7 @@ public class AudioOutputLayer implements AutoCloseable,
     private boolean isPlaying;
     private boolean isPlaybackInterrupted;
     private float resamplingFactor = 1.0f;
-    private AudioResampler resampler;
+    private ResamplingProcessor resampler;
 
     /* Shutdown hook */
     private final Runnable shutdownHook;
@@ -168,7 +168,7 @@ public class AudioOutputLayer implements AutoCloseable,
             Runtime.getRuntime().addShutdownHook(shutdownHookThread);
         }
 
-        resampler = new AudioResampler(AOL_RESAMPLER);
+        resampler = new ResamplingProcessor(AOL_RESAMPLER);
 
         eventDispatcher = new EventDispatcher<>();
         var eventMap = eventDispatcher.createEventMap();

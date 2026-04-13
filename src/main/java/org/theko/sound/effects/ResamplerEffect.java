@@ -19,8 +19,8 @@ package org.theko.sound.effects;
 import static org.theko.sound.properties.AudioSystemProperties.RESAMPLER_EFFECT;
 
 import org.theko.sound.controls.FloatControl;
-import org.theko.sound.resamplers.AudioResampler;
-import org.theko.sound.resamplers.ResampleMethod;
+import org.theko.sound.resamplers.ResamplingProcessor;
+import org.theko.sound.resamplers.Resampler;
 
 /**
  * ResamplerEffect is an audio effect that allows for real-time resampling of audio samples.
@@ -33,15 +33,15 @@ import org.theko.sound.resamplers.ResampleMethod;
 public class ResamplerEffect extends AudioEffect implements VaryingSizeEffect {
 
     protected final FloatControl speedControl = new FloatControl("Speed", 0.0f, 50.0f, 1.0f);
-    protected AudioResampler resampler;
+    protected ResamplingProcessor resampler;
 
     /**
      * Constructs a new ResamplerEffect with the specified resampling method.
      * @param method The resampling method to use
      */
-    public ResamplerEffect(ResampleMethod method) {
+    public ResamplerEffect(Resampler method) {
         super(Type.REALTIME);
-        resampler = new AudioResampler(method);
+        resampler = new ResamplingProcessor(method);
         addEffectControl(speedControl);
     }
 
