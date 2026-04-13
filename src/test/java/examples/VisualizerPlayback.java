@@ -33,9 +33,10 @@ import org.theko.sound.effects.BitcrusherEffect;
 import org.theko.sound.effects.ResamplerEffect;
 import org.theko.sound.events.OutputLayerEventType;
 import org.theko.sound.properties.AudioSystemProperties;
-import org.theko.sound.resamplers.CubicResampleMethod;
-import org.theko.sound.resamplers.ResampleMethod;
+import org.theko.sound.resamplers.KochanekBartelsResampler;
+import org.theko.sound.resamplers.Resampler;
 import org.theko.sound.util.FileUtilities;
+import org.theko.sound.util.FormatUtilities;
 import org.theko.sound.visualizers.AudioVisualizer;
 import org.theko.sound.visualizers.ColorGradient;
 import org.theko.sound.visualizers.SpectrumVisualizer;
@@ -48,10 +49,14 @@ public class VisualizerPlayback {
     private static final int TEXT_SHADOW_OFFSET = Math.max(1, OVERLAY_FONT.getSize() / 10);
     private static final int MESSAGE_DISPLAY_DURATION = 2000;
 
-    private static final ResampleMethod RESAMPLE_METHOD = new CubicResampleMethod();
-    private static final float SEEK_BACKWARD_SECONDS = 15.0f;
-    private static final float SEEK_FORWARD_SECONDS = 30.0f;
+    private static final Resampler RESAMPLE_METHOD =
+            new KochanekBartelsResampler(0.25f, 0.0f, -0.1f); // new CubicResampler();
+    private static final double SEEK_BACKWARD_SECONDS = 15.0;
+    private static final double SEEK_FORWARD_SECONDS = 30.0;
+    private static final double SEEK_PRECISE_SECONDS = 5.0;
     private static final float SPEED_STEP = 0.01f;
+    private static final float SPEED_PRECISE_STEP = 0.001f;
+    private static final int SPEED_DECIMAL_PLACES = 3;
 
     private String message = "";
     private long messageTimestamp = 0;
@@ -192,6 +197,7 @@ public class VisualizerPlayback {
                 frame.setSize(800, 400);
                 frame.setMinimumSize(new Dimension(150, 100));
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                frame.setLocationRelativeTo(null);
 
                 JPanel visualizerPanel = visualizer.getPanel();
                 visualizerPanel.setDoubleBuffered(true);
@@ -273,8 +279,10 @@ public class VisualizerPlayback {
     }
 
     private void openPlayer(File audioFile, boolean play) throws FileNotFoundException, AudioCodecNotFoundException {
+        player.stop();
         player.open(audioFile);
         fileName = FileUtilities.getFileNameWithoutExtension(audioFile.getName());
+        
         if (play) player.start();
         trackInfo = getTrackInfo();
     }
@@ -328,7 +336,8 @@ public class VisualizerPlayback {
         boolean isPlaying = player.isPlaying();
 
         String stopped = isPlaying ? "" : " [Stopped]";
-        String speedStr = speed != 1f ? "\nSpeed: x%.2f".formatted(speed) : "";
+        String speedValue = FormatUtilities.formatAdaptive(speed, SPEED_DECIMAL_PLACES);
+        String speedStr = speed != 1f ? "\nSpeed: " + speedValue + "x" : "";
 
         String realDur = "";
         if (speed != 1f) {
@@ -356,10 +365,24 @@ public class VisualizerPlayback {
                     else player.start();
                 }
                 // Speed controls
-                case KeyEvent.VK_A, KeyEvent.VK_LEFT ->  player.seekSeconds(player.getSecondsPosition() - SEEK_BACKWARD_SECONDS);
-                case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> player.seekSeconds(player.getSecondsPosition() + SEEK_FORWARD_SECONDS);
-                case KeyEvent.VK_S, KeyEvent.VK_DOWN ->  speed.setValue(speed.getValue() - SPEED_STEP);
-                case KeyEvent.VK_W, KeyEvent.VK_UP ->    speed.setValue(speed.getValue() + SPEED_STEP);
+                case KeyEvent.VK_LEFT ->  {
+                    double seekSeconds = e.isShiftDown() ? SEEK_PRECISE_SECONDS : SEEK_BACKWARD_SECONDS;
+                    player.seekSeconds(player.getSecondsPosition() - seekSeconds);
+                }
+                case KeyEvent.VK_RIGHT -> {
+                    double seekSeconds = e.isShiftDown() ? SEEK_PRECISE_SECONDS : SEEK_FORWARD_SECONDS;
+                    player.seekSeconds(player.getSecondsPosition() + seekSeconds);
+                }
+                case KeyEvent.VK_DOWN ->  {
+                    float step = e.isShiftDown() ? SPEED_PRECISE_STEP : SPEED_STEP;
+                    float round = round(step, SPEED_DECIMAL_PLACES);
+                    speed.setValue(speed.getValue() - round);
+                }
+                case KeyEvent.VK_UP ->    {
+                    float step = e.isShiftDown() ? SPEED_PRECISE_STEP : SPEED_STEP;
+                    float round = round(step, SPEED_DECIMAL_PLACES);
+                    speed.setValue(speed.getValue() + round);
+                }
                 // Reset position
                 case KeyEvent.VK_HOME, KeyEvent.VK_BACK_SPACE -> {
                     player.reset();
@@ -443,6 +466,14 @@ public class VisualizerPlayback {
         return name.replaceAll("(?<!^)([A-Z])", " $1");
     }
 
+    // Utility methods
+
+    private static float round(float value, int places) {
+        float scale = (float) Math.pow(10, places);
+        return Math.round(value * scale) / scale;
+    }
+
+    // Main entry point
     public static void main(String[] args) {
         AudioSystemProperties.runStaticInit();
         new VisualizerPlayback();
