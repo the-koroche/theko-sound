@@ -190,8 +190,7 @@ public final class MathUtilities {
      *
      * A power of 2 is an integer of the form 2^n, where n is an integer, e.g. 1, 2, 4, 8, 16, etc.
      *
-     * This method uses the bitwise AND (&) operator to check if the given integer is a power of 2.
-     * The expression x > 0 && (x & (x - 1)) == 0 is true if and only if x is a power of 2 and positive.
+     * This method uses the bitwise AND operator to check if the given integer is a power of 2 and positive.
      *
      * @param x The integer to check
      * @return true if x is a power of 2, false otherwise
