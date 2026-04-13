@@ -289,7 +289,7 @@ extern "C" {
 
         if (hr == S_OK) {
             logger->trace(env, "Format is supported.");
-        } else if (hr == S_FALSE && closestFormat) {
+        } else if (closestFormat) { 
             logger->debug(env, "Format is not supported, using closest match: %s" , WAVEFORMATEX_toText(closestFormat));
             logger->trace(env, "Closest format pointer: %s", FORMAT_PTR(closestFormat));
             
@@ -322,7 +322,7 @@ extern "C" {
         logger->trace(env, "IAudioClient::Initialize called. Result: %s", fmtHR(hr));
         if (hr == AUDCLNT_E_DEVICE_IN_USE) {
             cleanupAndThrowError(env, logger, context, hr, "Device is in use.");
-            return 0;
+            return 0; 
         } else if (FAILED(hr)) {
             cleanupAndThrowError(env, logger, context, hr, "Failed to initialize IAudioClient.");
             return 0;
