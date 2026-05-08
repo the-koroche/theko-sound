@@ -725,7 +725,7 @@ public class AudioOutputLayer implements AutoCloseable,
                     if (sourceFormat.getChannels() != openedFormat.getChannels()) {
                         resampled = AudioBufferUtilities.channelsConvert(resampled, sourceFormat.getChannels(), openedFormat.getChannels());
                     }
-                    SamplesConverter.fromSamples(resampled, rawBytes, openedFormat);
+                    SamplesConverter.toBytes(resampled, rawBytes, openedFormat);
                 } catch (IllegalArgumentException ex) {
                     assert false : "Internal error: wrong arguments passed to resampling/conversion methods";
                     logger.error("Passed wrong arguments to the resamping or conversion methods.", ex);

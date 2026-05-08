@@ -93,7 +93,7 @@ public final class SamplesConverter {
     /**
      * Converts a 2D array of normalized floating-point samples into a newly allocated PCM byte array.
      *
-     * <p>This is a convenience wrapper around {@link #fromSamples(float[][], byte[], AudioFormat)},
+     * <p>This is a convenience wrapper around {@link #toBytes(float[][], byte[], AudioFormat)},
      * which allocates the output array automatically.
      *
      * <p>The input samples are expected in the range [-1.0, 1.0] and organized as [channels][frames].
@@ -112,7 +112,7 @@ public final class SamplesConverter {
         int channels = audioFormat.getChannels();
         int samplesLength = samples[0].length;
         byte[] data = new byte[samplesLength * channels * audioFormat.getBytesPerSample()];
-        fromSamples(samples, data, audioFormat);
+        toBytes(samples, data, audioFormat);
 
         return data;
     }
@@ -266,7 +266,7 @@ public final class SamplesConverter {
      * @throws IllegalArgumentException if {@code outputBytes} length is inconsistent with
      *                                  {@code samples.length}, frame count, or {@code targetFormat}.
      */
-    public static void fromSamples(float[][] samples, byte[] outputBytes, AudioFormat targetFormat) {
+    public static void toBytes(float[][] samples, byte[] outputBytes, AudioFormat targetFormat) {
         if (samples == null || targetFormat == null || outputBytes == null) {
             throw new IllegalArgumentException("Samples, target format, and output bytes must not be null.");
         }
@@ -296,7 +296,7 @@ public final class SamplesConverter {
             case PCM_UNSIGNED:
                 for (int i = 0; i < samplesLength; i++) {
                     for (int ch = 0; ch < channels; ch++) {
-                        floatToUnsigned(buffer, MathUtilities.clamp(samples[ch][i], -1.0f, 1.0f), bytesPerSample);
+                        floatToUnsigned(buffer, samples[ch][i], bytesPerSample);
                     }
                 }
                 break;
@@ -322,7 +322,7 @@ public final class SamplesConverter {
                 } else {
                     for (int i = 0; i < samplesLength; i++) {
                         for (int ch = 0; ch < channels; ch++) {
-                            floatToSigned(buffer, MathUtilities.clamp(samples[ch][i], -1.0f, 1.0f), bytesPerSample);
+                            floatToSigned(buffer, samples[ch][i], bytesPerSample);
                         }
                     }
                 }
@@ -390,7 +390,8 @@ public final class SamplesConverter {
     }
 
     private static void floatToUlaw(ByteBuffer buffer, float sample) {
-        sample = Math.max(-1.0f, Math.min(1.0f, sample));
+        if (sample < -1.0f) sample = -1.0f;
+        else if (sample > 1.0f) sample = 1.0f;
         sample *= 32768.0f;
 
         int sign = sample < 0 ? 0x80 : 0x00;
@@ -407,7 +408,8 @@ public final class SamplesConverter {
     }
 
     private static void floatToAlaw(ByteBuffer buffer, float sample) {
-        sample = Math.max(-1.0f, Math.min(1.0f, sample));
+        if (sample < -1.0f) sample = -1.0f;
+        else if (sample > 1.0f) sample = 1.0f;
         sample *= 32768.0f;
 
         int sign = sample < 0 ? 0x80 : 0x00;
@@ -466,13 +468,23 @@ public final class SamplesConverter {
     }
 
     private static void floatToUnsigned(ByteBuffer buffer, float sample, int bytesPerSample) {
-        long value = (long) (sample * ((1L << (bytesPerSample * 8)) - 1));
-        for (int i = bytesPerSample - 1; i >= 0; i--) {
+        if (sample > 1.0f) sample = 1.0f;
+        else if (sample < -1.0f) sample = -1.0f;
+
+        // [-1, 1] -> [0, 1]
+        float shifted = (sample + 1.0f) / 2.0f;
+
+        long maxVal = (1L << (bytesPerSample * 8)) - 1;
+        long value = Math.round(shifted * maxVal);
+
+        for (int i = 0; i < bytesPerSample; i++) {
             buffer.put((byte) ((value >> (i * 8)) & 0xFF));
         }
     }
 
     private static void floatToSigned(ByteBuffer buffer, float sample, int bytesPerSample) {
+        if (sample > 1.0f) sample = 1.0f;
+        else if (sample < -1.0f) sample = -1.0f;
         int bits = bytesPerSample * 8;
         long fullRange = 1L << (bits - 1);
         long value = Math.round(sample * fullRange);
