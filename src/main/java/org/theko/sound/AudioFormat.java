@@ -53,6 +53,143 @@ import org.theko.sound.util.FormatUtilities;
  */
 public class AudioFormat implements Serializable {
 
+    /**
+     * Builder class for creating AudioFormat instances.
+     * @since 0.3.1-beta
+     */
+    public static class Builder {
+
+        private int sampleRate = 44100;
+        private int bitsPerSample = 16;
+        private int channels = 2;
+        private Encoding encoding = Encoding.PCM_SIGNED;
+        private boolean bigEndian = false;
+
+        /**
+         * Sets the sample rate for the audio format.
+         * @param sampleRate Sample rate in Hz
+         * @return This builder
+         */
+        public AudioFormat.Builder rate(int sampleRate) {
+            this.sampleRate = sampleRate;
+            return this;
+        }
+
+        /**
+         * Sets the number of bits per sample for the audio format.
+         * @param bitsPerSample Number of bits
+         * @return This builder
+         */
+        public AudioFormat.Builder bits(int bitsPerSample) {
+            this.bitsPerSample = bitsPerSample;
+            return this;
+        }
+
+        /**
+         * Sets the number of audio channels for the audio format.
+         * @param channels Number of channels
+         * @return This builder
+         */
+        public AudioFormat.Builder channels(int channels) {
+            this.channels = channels;
+            return this;
+        }
+
+        /**
+         * Sets the endianness for the audio format.
+         * @param bigEndian True for big endian, false for little endian
+         * @return This builder
+         */
+        public AudioFormat.Builder bigEndian(boolean bigEndian) {
+            this.bigEndian = bigEndian;
+            return this;
+        }
+
+        /**
+         * Sets the encoding type for the audio format.
+         * Changes the number of bits per sample based on the selected encoding.
+         * @param encoding Encoding type
+         * @return This builder
+         */
+        public AudioFormat.Builder encoding(Encoding encoding) {
+            this.encoding = encoding;
+            switch (encoding) {
+                case PCM_SIGNED:    return this;
+                case PCM_UNSIGNED:  return bits(8);
+                case PCM_FLOAT:     return bits(Math.max(bitsPerSample, 32));
+                case ULAW: case ALAW: return bits(8);
+                default:
+                    throw new IllegalArgumentException("Unsupported encoding: " + encoding);
+            }
+        }
+
+        /**
+         * Sets the audio format to mono, e.g. 1 channel.
+         * @return This builder
+         */
+        public AudioFormat.Builder mono() {return channels(1); }
+
+        /**
+         * Sets the audio format to stereo, e.g. 2 channels.
+         * @return This builder
+         */
+        public AudioFormat.Builder stereo() { return channels(2); }
+
+        /**
+         * Sets the encoding to unsigned PCM.
+         * @return This builder
+         */
+        public AudioFormat.Builder unsigned() { return encoding(Encoding.PCM_UNSIGNED); }
+
+        /**
+         * Sets the encoding to signed PCM.
+         * @return This builder
+         */
+        public AudioFormat.Builder signed() { return encoding(Encoding.PCM_SIGNED); }
+
+        /**
+         * Sets the encoding to float PCM.
+         * @return This builder
+         */
+        public AudioFormat.Builder pcmFloat() { return encoding(Encoding.PCM_FLOAT); }
+
+        /**
+         * Sets the encoding to ULAW.
+         * @return This builder
+         */
+        public AudioFormat.Builder ulaw() { return encoding(Encoding.ULAW); }
+
+        /**
+         * Sets the encoding to ALAW.
+         * @return This builder
+         */
+        public AudioFormat.Builder alaw() { return encoding(Encoding.ALAW); }
+
+        /**
+         * Sets the endianness to little endian.
+         * @return This builder
+         */
+        public AudioFormat.Builder littleEndian() { return bigEndian(false); }
+
+        /**
+         * Sets the endianness to big endian.
+         * @return This builder
+         */
+        public AudioFormat.Builder bigEndian() { return bigEndian(true); }
+
+        /**
+         * Builds the audio format.
+         * @return The audio format
+         */
+        public AudioFormat build() { return new AudioFormat(sampleRate, bitsPerSample, channels, encoding, bigEndian); }
+    }
+
+    /**
+     * Returns a new builder for creating AudioFormat instances.
+     * @return The builder
+     */
+    public static final AudioFormat.Builder builder() { return new AudioFormat.Builder(); }
+
     private static final int BITS_PER_SEC_PRECISION = 2; // Precision for formatting bits per second
 
     /** 8 kHz, 8-bit, mono, unsigned PCM (very low quality, small size). */
