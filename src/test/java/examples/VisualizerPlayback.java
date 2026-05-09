@@ -1,3 +1,26 @@
+/*
+ * Audio player demo with visualization.
+ *
+ * Controls:
+ * O          - Open audio file
+ * Space / P  - Play / Pause
+ * Home       - Reset position
+ * Backspace  - Reset position
+ * R          - Reset position + reset speed
+ *
+ * ← / →      - Seek backward / forward
+ * ↑ / ↓      - Increase / decrease playback speed
+ * Shift + ↑↓ - Fine speed control
+ * Shift + ←→ - Fine seek control
+ *
+ * Overlay states:
+ * U - Unloaded
+ * P - Playing
+ * L - Looping
+ * B - Bitcrusher enabled
+ * T - Always on top
+ */
+
 package examples;
 
 import java.awt.Color;
@@ -44,13 +67,15 @@ import org.theko.sound.visualizers.SpectrumVisualizer;
 import helpers.FileChooserHelper;
 
 public class VisualizerPlayback {
+
     private static final Font OVERLAY_FONT = new Font("SansSerif", Font.BOLD, 12);
     private static final int STATUS_TEXT_ALPHA = 128;
     private static final int TEXT_SHADOW_OFFSET = Math.max(1, OVERLAY_FONT.getSize() / 10);
     private static final int MESSAGE_DISPLAY_DURATION = 2000;
 
     private static final Resampler RESAMPLE_METHOD =
-            new KochanekBartelsResampler(0.25f, 0.0f, -0.1f); // new CubicResampler();
+            new KochanekBartelsResampler(0.25f, 0.0f, -0.1f);
+
     private static final double SEEK_BACKWARD_SECONDS = 15.0;
     private static final double SEEK_FORWARD_SECONDS = 30.0;
     private static final double SEEK_PRECISE_SECONDS = 5.0;
@@ -142,7 +167,7 @@ public class VisualizerPlayback {
                 int h = getHeight();
                 int x = (w - msgWidth) / 2;
                 int y = (h - msgHeight) / 2;
-                
+
                 float alpha = getMessageAlpha();
                 Color textColor = new Color(255, 255, 255, (int)(255 * alpha));
                 for (int i = 0; i < lines.length; i++) {
@@ -231,7 +256,6 @@ public class VisualizerPlayback {
                     player.stop();
                 }
             );
-            player.start();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -260,7 +284,7 @@ public class VisualizerPlayback {
 
                 @Override
                 protected void done() {
-                    frame.setTitle(frameTitle + " | " + getTrackInfo());
+                    frame.setTitle(frameTitle + " | " + getTrackTitle());
                     try {
                         get();
                     } catch (Exception e) {
@@ -273,7 +297,7 @@ public class VisualizerPlayback {
         } else {
             openPlayer(audioFile, wasPlaying);
             if (frame != null)
-                SwingUtilities.invokeLater(() -> frame.setTitle(frameTitle + " | " + getTrackInfo()));
+                SwingUtilities.invokeLater(() -> frame.setTitle(frameTitle + " | " + getTrackTitle()));
         }
         return true;
     }
@@ -282,7 +306,7 @@ public class VisualizerPlayback {
         player.stop();
         player.open(audioFile);
         fileName = FileUtilities.getFileNameWithoutExtension(audioFile.getName());
-        
+
         if (play) player.start();
         trackInfo = getTrackInfo();
     }
@@ -318,14 +342,26 @@ public class VisualizerPlayback {
         return "%s\n%s".formatted(trackInfo, playbackInfo);
     }
 
-    private String getTrackInfo() {
+    private String getTrackTitle() {
         String title = player.getMetadata().getValue(AudioTag.TITLE);
         if (title == null || title.isEmpty()) {
             title = fileName != null ? fileName : "Unknown Track";
         }
+        return title;
+    }
+
+    private String getArtist() {
         String artist = player.getMetadata().getValue(AudioTag.ARTIST);
-        boolean hasArtist = artist != null && !artist.isEmpty();
-        return title + (hasArtist ? "\n" + artist : "");
+        if (artist == null || artist.isEmpty()) {
+            artist = "Unknown Artist";
+        }
+        return artist;
+    }
+
+    private String getTrackInfo() {
+        String title = getTrackTitle();
+        String artist = getArtist();
+        return "%s\n%s".formatted(artist, title);
     }
 
     private static String getPlaybackInfo(SoundPlayer player) {
