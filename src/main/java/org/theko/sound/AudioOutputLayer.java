@@ -18,6 +18,7 @@ package org.theko.sound;
 
 import static org.theko.sound.properties.AudioSystemProperties.AOL_DEFAULT_BUFFER;
 import static org.theko.sound.properties.AudioSystemProperties.AOL_ENABLE_SHUTDOWN_HOOK;
+import static org.theko.sound.properties.AudioSystemProperties.AOL_IGNORE_PLAYBACK_EXCEPTIONS;
 import static org.theko.sound.properties.AudioSystemProperties.AOL_MAX_LENGTH_MISMATCHES;
 import static org.theko.sound.properties.AudioSystemProperties.AOL_MAX_WRITE_ERRORS;
 import static org.theko.sound.properties.AudioSystemProperties.AOL_PLAYBACK_STOP_TIMEOUT;
@@ -784,7 +785,9 @@ public class AudioOutputLayer implements AutoCloseable,
             } catch (Exception ex) {
                 logger.error("Exception in playback thread.", ex);
                 eventDispatcher.dispatch(OutputLayerEventType.PLAYBACK_EXCEPTION, getEvent());
-                // Ignore
+                if (!AOL_IGNORE_PLAYBACK_EXCEPTIONS) {
+                    throw new RuntimeException("Exception in playback thread.", ex);
+                }
             }
         }
     }

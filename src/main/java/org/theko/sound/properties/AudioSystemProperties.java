@@ -275,7 +275,7 @@ public final class AudioSystemProperties {
     public static final long TOTAL_MEMORY = Runtime.getRuntime().totalMemory();
     public static final long MAX_MEMORY = Runtime.getRuntime().maxMemory();
 
-    public static final boolean BACKENDS_DETECT_REQUIRE_DUPLEX = getBoolean("org.theko.sound.backends.detectRequireDuplex",
+    public static final boolean BACKENDS_REQUIRE_DUPLEX_SELECT = getBoolean("org.theko.sound.backends.requireDuplexSelect",
         false /* allow different backends for input and output */);
 
     public static final ThreadConfiguration AOL_PLAYBACK_THREAD = getThreadConfig(
@@ -297,6 +297,9 @@ public final class AudioSystemProperties {
 
     public static final boolean AOL_RESET_WRITE_ERRORS = getBoolean(
         "org.theko.sound.outputLayer.resetWriteErrors", true);
+
+    public static final boolean AOL_IGNORE_PLAYBACK_EXCEPTIONS = getBoolean(
+        "org.theko.sound.outputLayer.ignorePlaybackExceptions", false);
 
     public static final AudioMeasure AOL_DEFAULT_BUFFER = getAudioMeasure(
         "org.theko.sound.outputLayer.defaultBuffer", AudioMeasure.ofFrames(2048));
@@ -376,13 +379,14 @@ public final class AudioSystemProperties {
             // Audio system properties
             logger.info(
                 "Audio system properties:\n" +
-                "  Backends require platform duplex: {}\n" +
+                "  Backends require duplex select: {}\n" +
                 "  OutputLayer playback thread: {}\n" +
                 "  OutputLayer default buffer: {}\n" +
                 "  OutputLayer resampler: {}\n" +
                 "  OutputLayer playback thread stop timeout: {} ms\n" +
                 "  OutputLayer max length mismatches: {}, reset after valid render: {}\n" +
                 "  OutputLayer max write errors: {}, reset after successful write: {}\n" +
+                "  OutputLayer ignore playback exceptions: {}\n" +
                 "  OutputLayer shutdown hook enabled: {}\n" +
                 "  Resampler (Shared): {}\n" +
                 "  Resampler (Effect, default): {}\n" +
@@ -391,13 +395,14 @@ public final class AudioSystemProperties {
                 "  Automation update time: {} ms\n" +
                 "  Mixer (default): Enable effects: {}, Swap channels: {}, Reverse polarity: {}\n" +
                 "  Wave Codec: Clean tags text: {}",
-                BACKENDS_DETECT_REQUIRE_DUPLEX,
+                BACKENDS_REQUIRE_DUPLEX_SELECT,
                 FormatUtilities.formatThreadInfo(AOL_PLAYBACK_THREAD),
                 AOL_DEFAULT_BUFFER,
                 AOL_RESAMPLER,
                 AOL_PLAYBACK_STOP_TIMEOUT.toString(),
                 AOL_MAX_LENGTH_MISMATCHES, AOL_RESET_LENGTH_MISMATCHES,
                 AOL_MAX_WRITE_ERRORS, AOL_RESET_WRITE_ERRORS,
+                AOL_IGNORE_PLAYBACK_EXCEPTIONS,
                 AOL_ENABLE_SHUTDOWN_HOOK,
                 SHARED_RESAMPLER,
                 RESAMPLER_EFFECT,

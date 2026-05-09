@@ -123,43 +123,44 @@
 
 ## Audio Backends
 
-| Property                                            | Type                 | Description                                   |
-| --------------------------------------------------- | -------------------- | --------------------------------------------- |
-| `org.theko.sound.backends.detectRequireDuplex`      | boolean              | Require duplex platform backend selection     |
+| Property                                            | Type                 | Default | Description                                   |
+| --------------------------------------------------- | -------------------- | ------- | --------------------------------------------- |
+| `org.theko.sound.backends.requireDuplexSelect`      | boolean              | false   | Autoselect backend with both IO support       |
 
 ---
 
 ## Audio Output Layer
 
-| Property                                            | Type                 | Description                                   |
-| --------------------------------------------------- | -------------------- | --------------------------------------------- |
-| `org.theko.sound.outputLayer.thread`                | ThreadConfig         | Playback thread configuration                 |
-| `org.theko.sound.outputLayer.timeout`               | TimeMeasure          | Timeout for stopping the playback thread      |
-| `org.theko.sound.outputLayer.defaultBuffer`         | AudioMeasure         | Default buffer size                           |
-| `org.theko.sound.outputLayer.resampler`             | ResampleMethod       | Resampler method used for output              |
-| `org.theko.sound.outputLayer.maxLengthMismatches`   | int ≥ 0              | Max ignored render-length mismatches          |
-| `org.theko.sound.outputLayer.resetLengthMismatches` | boolean              | Reset mismatch counter after success          |
-| `org.theko.sound.outputLayer.maxWriteErrors`        | int ≥ 0              | Max ignored write errors                      |
-| `org.theko.sound.outputLayer.resetWriteErrors`      | boolean              | Reset write error counter after success       |
-| `org.theko.sound.outputLayer.enableShutdownHook`    | boolean              | Enables/disables JVM shutdown hook            |
+| Property                                               | Type                 | Default     | Description                                   |
+| ------------------------------------------------------ | -------------------- | ----------- | --------------------------------------------- |
+| `org.theko.sound.outputLayer.thread`                   | ThreadConfig         | Platform:7  | Playback thread configuration                 |
+| `org.theko.sound.outputLayer.timeout`                  | TimeMeasure          | 1000 ms     | Timeout for stopping the playback thread      |
+| `org.theko.sound.outputLayer.defaultBuffer`            | AudioMeasure         | 2048 frames | Default buffer size                           |
+| `org.theko.sound.outputLayer.resampler`                | ResampleMethod       | linear      | Resampler method used for output              |
+| `org.theko.sound.outputLayer.maxLengthMismatches`      | int ≥ 0              | 10          | Max ignored render-length mismatches          |
+| `org.theko.sound.outputLayer.resetLengthMismatches`    | boolean              | true        | Reset mismatch counter after success          |
+| `org.theko.sound.outputLayer.maxWriteErrors`           | int ≥ 0              | 10          | Max ignored write errors                      |
+| `org.theko.sound.outputLayer.resetWriteErrors`         | boolean              | true        | Reset write error counter after success       |
+| `org.theko.sound.outputLayer.ignorePlaybackExceptions` | boolean              | false       | Ignore exceptions occured in playback thread  |
+| `org.theko.sound.outputLayer.enableShutdownHook`       | boolean              | true        | Enables/disables JVM shutdown hook            |
 
 ---
 
 ## Shared Resampler
 
-| Property                           | Type                 | Description                    |
-| ---------------------------------- | -------------------- | ------------------------------ |
-| `org.theko.sound.resampler.shared` | ResampleMethod       | Shared resampler method        |
+| Property                           | Type                 | Default | Description                    |
+| ---------------------------------- | -------------------- | ------- | ------------------------------ |
+| `org.theko.sound.resampler.shared` | ResampleMethod       | linear  | Shared resampler method        |
 
 ---
 
 ## Audio Mixer
 
-| Property                                        | Type    | Description              |
-| ----------------------------------------------- | ------- | ------------------------ |
-| `org.theko.sound.mixer.default.enableEffects`   | boolean | Enables effects globally |
-| `org.theko.sound.mixer.default.swapChannels`    | boolean | Swaps stereo channels    |
-| `org.theko.sound.mixer.default.reversePolarity` | boolean | Reverses polarity        |
+| Property                                        | Type    | Default | Description              |
+| ----------------------------------------------- | ------- | ------- | ------------------------ |
+| `org.theko.sound.mixer.default.enableEffects`   | boolean | true    | Enables effects globally |
+| `org.theko.sound.mixer.default.swapChannels`    | boolean | false   | Swaps stereo channels    |
+| `org.theko.sound.mixer.default.reversePolarity` | boolean | false   | Reverses polarity        |
 
 ---
 
@@ -167,18 +168,18 @@
 
 ### WAVE
 
-| Property                                 | Type    | Description                    |
-| ---------------------------------------- | ------- | ------------------------------ |
-| `org.theko.sound.waveCodec.cleanTagText` | boolean | Clean tag text from LIST chunk |
+| Property                                 | Type    | Default | Description                    |
+| ---------------------------------------- | ------- | ------- | ------------------------------ |
+| `org.theko.sound.waveCodec.cleanTagText` | boolean | true    | Clean tag text from LIST chunk |
 
 ---
 
 ## Miscellaneous
 
-| Property                                               | Type                     | Description                                 |
-| ------------------------------------------------------ | ------------------------ | ------------------------------------------- |
-| `org.theko.sound.automation.threads`                   | int (≥1 & < CPU_CORES×4) | Number of automation/LFO threads            |
-| `org.theko.sound.automation.updateTime`                | int > 0                  | Automation update interval (ms)             |
-| `org.theko.sound.automation.threadPoolShutdownTimeout` | TimeMeasure              | Shutdown timeout for automation thread pool |
-| `org.theko.sound.cleaner.thread`                       | ThreadConfig             | Thread config for cleaners                  |
-| `org.theko.sound.effects.resampler`                    | ResampleMethod           | Default ResamplerEffect resampler           |
+| Property                                               | Type                     | Default   | Description                                 |
+| ------------------------------------------------------ | ------------------------ | --------- | ------------------------------------------- |
+| `org.theko.sound.automation.threads`                   | int (≥1 & < CPU_CORES×4) | CPU_CORES | Number of automation/LFO threads            |
+| `org.theko.sound.automation.updateTime`                | int > 0                  | 15 ms     | Automation update interval (ms)             |
+| `org.theko.sound.automation.threadPoolShutdownTimeout` | TimeMeasure              | 5 sec     | Shutdown timeout for automation thread pool |
+| `org.theko.sound.cleaner.thread`                       | ThreadConfig             | Virtual:1 | Thread config for cleaners                  |
+| `org.theko.sound.effects.resampler`                    | ResampleMethod           | linear    | Default ResamplerEffect resampler           |

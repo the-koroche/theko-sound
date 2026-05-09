@@ -112,7 +112,7 @@ public final class AudioBackends {
         }
 
         try {
-            detectPlatformBackends(AudioSystemProperties.BACKENDS_DETECT_REQUIRE_DUPLEX);
+            detectPlatformBackends(AudioSystemProperties.BACKENDS_REQUIRE_DUPLEX_SELECT);
         } catch (AudioBackendNotFoundException | AudioBackendCreationException e) {
             logger.error("Failed to create platform-specific audio backend.", e);
         }
