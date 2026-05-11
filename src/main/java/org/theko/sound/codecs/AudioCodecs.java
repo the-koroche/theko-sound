@@ -49,7 +49,7 @@ public final class AudioCodecs {
     private static final Collection<AudioCodecInfo> audioCodecs = Collections.synchronizedSet(new LinkedHashSet<>());
 
     static {
-        registerCodecs();
+        AudioClassRegister.registerClasses();
     }
 
     private AudioCodecs() {

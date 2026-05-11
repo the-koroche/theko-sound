@@ -47,6 +47,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.TransferHandler;
 
+import org.theko.sound.AudioClassRegister;
 import org.theko.sound.AudioMixer;
 import org.theko.sound.SoundPlayer;
 import org.theko.sound.codecs.AudioCodecNotFoundException;
@@ -511,7 +512,9 @@ public class VisualizerPlayback {
 
     // Main entry point
     public static void main(String[] args) {
+        // Force static initialization
         AudioSystemProperties.runStaticInit();
+        AudioClassRegister.registerClasses();
         new VisualizerPlayback();
     }
 }

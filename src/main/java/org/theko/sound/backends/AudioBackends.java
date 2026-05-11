@@ -89,7 +89,7 @@ public final class AudioBackends {
     private static final Collection<AudioBackendInfo> audioBackends = Collections.synchronizedSet(new LinkedHashSet<>());
 
     static {
-        registerBackends();
+        AudioClassRegister.registerClasses();
     }
 
     /**

@@ -62,39 +62,48 @@ public final class AudioClassRegister {
     private static Set<Class<? extends AudioBackend>> registeredBackends = new HashSet<>(definedBackends);
     private static Set<Class<? extends AudioCodec>> registeredCodecs = new HashSet<>(definedCodecs);
 
+    private static boolean changed = true; // First time registration
+
     /**
      * Adds a new audio backend class to the backends set.
-     * If the class is already in the set, a warning message is logged.
+     * If the class is already in the set, an info message is logged.
      *
      * @param backend The class of the audio backend to add
      */
     public static void addBackend(Class<? extends AudioBackend> backend) {
         if (registeredBackends.contains(backend)) {
-            logger.warn("Duplicate audio backend: {}", backend.getSimpleName());
+            logger.info("Duplicate audio backend: {}", backend.getSimpleName());
             return;
         }
         registeredBackends.add(backend);
+        changed = true;
     }
 
     /**
      * Adds a new audio codec class to the codecs set.
-     * If the class is already in the set, a warning message is logged.
+     * If the class is already in the set, an info message is logged.
      *
      * @param codec The class of the audio codec to add
      */
     public static void addCodec(Class<? extends AudioCodec> codec) {
         if (registeredCodecs.contains(codec)) {
-            logger.warn("Duplicate audio codec: {}", codec.getSimpleName());
+            logger.info("Duplicate audio codec: {}", codec.getSimpleName());
             return;
         }
         registeredCodecs.add(codec);
+        changed = true;
     }
 
     /**
      * Registers all audio backend and codec classes.
      * This method should be called during the initialization phase of the application.
+     * <p>If no changes were made to the registered classes, this method does nothing.
      */
     public static void registerClasses() {
+        if (!changed) {
+            return;
+        }
+        changed = false;
         AudioBackends.registerBackends();
         AudioCodecs.registerCodecs();
     }
