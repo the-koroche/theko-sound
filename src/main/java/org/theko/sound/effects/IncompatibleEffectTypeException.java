@@ -18,15 +18,15 @@ package org.theko.sound.effects;
 
 /**
  * This exception is thrown when an audio effect is incompatible with the expected type.
- * It extends the Exception class to provide a specific context for errors related to
- * audio effects that do not match the required type or format.
+ * It extends the RuntimeException class to provide a specific context for errors related to
+ * audio effects that do not match the required type.
  * Usually this exception is used when an effect is offline processing,
  * but it is added to an AudioMixer that expects an real-time effect.
  *
  * @since 0.2.0-beta
  * @author Theko
  */
-public class IncompatibleEffectTypeException extends Exception {
+public class IncompatibleEffectTypeException extends RuntimeException {
 
     public IncompatibleEffectTypeException() {
         super();

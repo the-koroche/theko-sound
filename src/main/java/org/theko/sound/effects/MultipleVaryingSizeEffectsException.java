@@ -17,7 +17,7 @@
 package org.theko.sound.effects;
 
 /**
- * This exception is thrown when multiple effects of varying sizes are added
+ * This exception is thrown when multiple effects implementing the {@link VaryingSizeEffect} are added
  * to an audio mixer.
  * <p>It indicates that the effects cannot be processed together due to their
  * differing output sizes.
@@ -25,7 +25,7 @@ package org.theko.sound.effects;
  * @since 0.2.0-beta
  * @author Theko
  */
-public class MultipleVaryingSizeEffectsException extends Exception {
+public class MultipleVaryingSizeEffectsException extends RuntimeException {
 
     public MultipleVaryingSizeEffectsException() {
         super();

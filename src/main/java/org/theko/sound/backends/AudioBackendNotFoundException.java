@@ -18,7 +18,6 @@ package org.theko.sound.backends;
 
 /**
  * This exception is thrown to indicate that an audio backend could not be found.
- * It extends the {@link Exception} class and provides constructors for various use cases.
  *
  * <p>Possible scenarios where this exception might be used include:
  * <ul>
@@ -29,7 +28,7 @@ package org.theko.sound.backends;
  * @since 0.1.0-beta
  * @author Theko
  */
-public class AudioBackendNotFoundException extends Exception {
+public class AudioBackendNotFoundException extends RuntimeException {
 
     public AudioBackendNotFoundException() {
         super();
