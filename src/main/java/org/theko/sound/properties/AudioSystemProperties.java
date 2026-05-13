@@ -275,9 +275,11 @@ public final class AudioSystemProperties {
     public static final long TOTAL_MEMORY = Runtime.getRuntime().totalMemory();
     public static final long MAX_MEMORY = Runtime.getRuntime().maxMemory();
 
+    // Backends
     public static final boolean BACKENDS_REQUIRE_DUPLEX_SELECT = getBoolean("org.theko.sound.backends.requireDuplexSelect",
         false /* allow different backends for input and output */);
 
+    // Output Layer
     public static final ThreadConfiguration AOL_PLAYBACK_THREAD = getThreadConfig(
         "org.theko.sound.outputLayer.thread", new ThreadConfiguration(ThreadType.PLATFORM, 7));
 
@@ -310,9 +312,14 @@ public final class AudioSystemProperties {
     public static final boolean AOL_ENABLE_SHUTDOWN_HOOK = getBoolean(
         "org.theko.sound.outputLayer.enableShutdownHook", true);
 
+    // Resampler
     public static final Resampler SHARED_RESAMPLER = getResampleMethod(
         "org.theko.sound.resampler.shared", new LinearResampler());
 
+    public static final Resampler RESAMPLER_EFFECT = getResampleMethod(
+        "org.theko.sound.effects.resampler", new LinearResampler());
+
+    // Mixer
     public static final boolean MIXER_DEFAULT_ENABLE_EFFECTS = getBoolean(
         "org.theko.sound.mixer.default.enableEffects", true);
 
@@ -322,9 +329,14 @@ public final class AudioSystemProperties {
     public static final boolean MIXER_DEFAULT_REVERSE_POLARITY = getBoolean(
         "org.theko.sound.mixer.default.reversePolarity", false);
 
+    // Codec
     public static final boolean WAVE_CODEC_CLEAN_TAG_TEXT = getBoolean(
-        "org.theko.sound.waveCodec.cleanTagText", true);
+        "org.theko.sound.codecs.wave.cleanTagText", true);
 
+    public static final boolean LOG_METADATA = getBoolean(
+        "org.theko.sound.codecs.log.metadata", true);
+
+    // Misc
     public static final int AUTOMATIONS_THREADS = getIntInRange(
         "org.theko.sound.automation.threads", 1, CPU_AVAILABLE_CORES*4, true, CPU_AVAILABLE_CORES);
 
@@ -337,9 +349,6 @@ public final class AudioSystemProperties {
 
     public static final ThreadConfiguration CLEANERS_THREAD = getThreadConfig(
         "org.theko.sound.cleaner.thread", new ThreadConfiguration(ThreadType.VIRTUAL, 1));
-
-    public static final Resampler RESAMPLER_EFFECT = getResampleMethod(
-        "org.theko.sound.effects.resampler", new LinearResampler());
 
     static {
         logProperties();
@@ -390,11 +399,12 @@ public final class AudioSystemProperties {
                 "  OutputLayer shutdown hook enabled: {}\n" +
                 "  Resampler (Shared): {}\n" +
                 "  Resampler (Effect, default): {}\n" +
+                "  Mixer (default): Enable effects: {}, Swap channels: {}, Reverse polarity: {}\n" +
+                "  Log metadata in codecs: {}\n" +
+                "  Wave codec clean metadata text: {}\n" +
                 "  Automation threads: {}\n" +
                 "  Automation thread pool shutdown timeout: {}\n" +
-                "  Automation update time: {} ms\n" +
-                "  Mixer (default): Enable effects: {}, Swap channels: {}, Reverse polarity: {}\n" +
-                "  Wave Codec: Clean tags text: {}",
+                "  Automation update time: {} ms",
                 BACKENDS_REQUIRE_DUPLEX_SELECT,
                 FormatUtilities.formatThreadInfo(AOL_PLAYBACK_THREAD),
                 AOL_DEFAULT_BUFFER,
@@ -406,11 +416,14 @@ public final class AudioSystemProperties {
                 AOL_ENABLE_SHUTDOWN_HOOK,
                 SHARED_RESAMPLER,
                 RESAMPLER_EFFECT,
+                MIXER_DEFAULT_ENABLE_EFFECTS,
+                MIXER_DEFAULT_SWAP_CHANNELS,
+                MIXER_DEFAULT_REVERSE_POLARITY,
+                LOG_METADATA,
+                WAVE_CODEC_CLEAN_TAG_TEXT,
                 AUTOMATIONS_THREADS,
-                AUTOMATIONS_THREAD_POOL_SHUTDOWN_TIMEOUT.toString(),
-                AUTOMATIONS_UPDATE_TIME,
-                MIXER_DEFAULT_ENABLE_EFFECTS, MIXER_DEFAULT_SWAP_CHANNELS, MIXER_DEFAULT_REVERSE_POLARITY,
-                WAVE_CODEC_CLEAN_TAG_TEXT
+                AUTOMATIONS_THREAD_POOL_SHUTDOWN_TIMEOUT,
+                AUTOMATIONS_UPDATE_TIME
             );
         }
 

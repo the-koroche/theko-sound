@@ -134,7 +134,7 @@ public class FFmpegCodec extends AudioCodec {
             stderrThread.join();
             logger.trace("Waiting for FFmpeg to finish...");
             waitForProcess(ffmpeg, "FFmpeg", 60, TimeUnit.SECONDS);
-            
+
             byte[] wavData = stdoutBuffer.toByteArray();
 
             logger.trace("Starting {} decode with {} bytes", WAV_CODEC_NAME, wavData.length);

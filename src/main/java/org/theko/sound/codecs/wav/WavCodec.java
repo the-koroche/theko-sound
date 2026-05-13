@@ -16,6 +16,8 @@
 
 package org.theko.sound.codecs.wav;
 
+import static org.theko.sound.properties.AudioSystemProperties.LOG_METADATA;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -273,7 +275,8 @@ public class WavCodec extends AudioCodec {
                 decoded.append("  format=").append(format.toString()).append(",\n");
                 decoded.append("  samples=").append(audioData.length / format.getFrameSize()).append(" frames,\n");
                 decoded.append("  duration=").append(FormatUtilities.formatTimeMillis(ms, 3)).append("\n");
-                decoded.append("  metadata=").append(tags).append("");
+                if (LOG_METADATA)
+                    decoded.append("  metadata=").append(tags).append("");
                 logger.debug(decoded.toString());
             }
 
@@ -353,7 +356,7 @@ public class WavCodec extends AudioCodec {
 
             case 0xFFFE: // WAVE_FORMAT_EXTENSIBLE
                 logger.trace("Parsing WAVE_FORMAT_EXTENSIBLE format chunk...");
-                
+
                 // cbSize must be at least 22
                 if (cbSize < 22) {
                     throw new AudioCodecException(new UnsupportedAudioEncodingException("Invalid EXTENSIBLE cbSize: " + cbSize));
@@ -362,7 +365,7 @@ public class WavCodec extends AudioCodec {
                 int wValidBitsPerSample = bb.getShort() & 0xffff;
                 @SuppressWarnings("unused") int dwChannelMask = bb.getInt();
                 int subFormatCode = bb.getShort() & 0xffff;
-                
+
                 // Skip the rest of the GUID (14 bytes)
                 bb.position(bb.position() + 14);
 

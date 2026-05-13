@@ -166,11 +166,10 @@
 
 ## Codecs
 
-### WAVE
-
-| Property                                 | Type    | Default | Description                    |
-| ---------------------------------------- | ------- | ------- | ------------------------------ |
-| `org.theko.sound.waveCodec.cleanTagText` | boolean | true    | Clean tag text from LIST chunk |
+| Property                                   | Type    | Default | Description                    |
+| ------------------------------------------ | ------- | ------- | ------------------------------ |
+| `org.theko.sound.codecs.wave.cleanTagText` | boolean | true    | Clean tag text from LIST chunk |
+| `org.theko.sound.codecs.log.metadata`      | boolean | true    | Log metadata in codecs         |
 
 ---
 
