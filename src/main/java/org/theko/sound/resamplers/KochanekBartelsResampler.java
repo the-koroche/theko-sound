@@ -25,7 +25,7 @@ package org.theko.sound.resamplers;
  * @since 0.3.0-beta
  * @author Theko
  */
-public class KochanekBartelsResampler implements Resampler {
+public class KochanekBartelsResampler extends CubicResampler {
 
     private final float T; // Tension: Adjusts how sharply the curve bends
     private final float C; // Continuity: Adjusts the sharpness of changes in velocity
@@ -48,56 +48,19 @@ public class KochanekBartelsResampler implements Resampler {
         this(0f, 0f, 0f); 
     }
 
-    @Override
-    public void resample(float[][] input, float[][] output, int targetLength) {
-        if (input == null || input.length == 0 || targetLength <= 0) return;
-
-        int numChannels = input.length;
-        int sourceLength = input[0].length;
-
-        // Handle single-sample output case
-        if (targetLength == 1) {
-            for (int ch = 0; ch < numChannels; ch++) {
-                output[ch][0] = input[ch][0];
-            }
-            return;
-        }
-
-        // Scale factor based on total frame count
-        float scale = (float) (sourceLength - 1) / (targetLength - 1);
-
-        for (int i = 0; i < targetLength; i++) {
-            float pos = i * scale;
-            int i1 = (int) pos; // The primary sample index
-            float t = pos - i1; // The fractional offset between samples
-
-            for (int ch = 0; ch < numChannels; ch++) {
-                // Cubic interpolation requires 4 points: p0 (previous), p1, p2 (current span), p3 (next)
-                float p0 = getSample(input[ch], i1 - 1);
-                float p1 = getSample(input[ch], i1);
-                float p2 = getSample(input[ch], i1 + 1);
-                float p3 = getSample(input[ch], i1 + 2);
-
-                output[ch][i] = tcb(p0, p1, p2, p3, t);
-            }
-        }
-    }
-
-    /**
-     * Safely retrieves a sample from the channel data, clamping indices 
-     * to the first or last sample to avoid bounds errors.
-     */
-    private float getSample(float[] channelData, int index) {
-        if (index < 0) return channelData[0];
-        if (index >= channelData.length) return channelData[channelData.length - 1];
-        return channelData[index];
-    }
 
     /**
      * Calculates the interpolated value using the Kochanek-Bartels formula.
      * This involves computing the incoming (m1) and outgoing (m2) tangents.
+     * @param p0 The sample before the current interval.
+     * @param p1 The first sample of the current interval.
+     * @param p2 The second sample of the current interval.
+     * @param p3 The sample after the current interval.
+     * @param t The fractional distance between p1 and p2 (0 <= t <= 1).
+     * @return The interpolated sample value at position 't'.
      */
-    private float tcb(float p0, float p1, float p2, float p3, float t) {
+    @Override
+    protected float interpolate(float p0, float p1, float p2, float p3, float t) {
         float t2 = t * t;
         float t3 = t2 * t;
 

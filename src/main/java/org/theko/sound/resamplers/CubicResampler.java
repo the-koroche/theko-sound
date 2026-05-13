@@ -61,7 +61,7 @@ public class CubicResampler implements Resampler {
                 float p2 = getSample(input[ch], i1 + 1);
                 float p3 = getSample(input[ch], i1 + 2);
 
-                output[ch][i] = catmullRom(p0, p1, p2, p3, t);
+                output[ch][i] = interpolate(p0, p1, p2, p3, t);
             }
         }
     }
@@ -82,8 +82,14 @@ public class CubicResampler implements Resampler {
     /**
      * Standard Catmull-Rom spline interpolation formula.
      * Calculates the point at distance 't' between p1 and p2.
+     * @param p0 The sample before the current interval.
+     * @param p1 The first sample of the current interval.
+     * @param p2 The second sample of the current interval.
+     * @param p3 The sample after the current interval.
+     * @param t The fractional distance between p1 and p2 (0 <= t <= 1).
+     * @return The interpolated sample value at position 't'.
      */
-    private float catmullRom(float p0, float p1, float p2, float p3, float t) {
+    protected float interpolate(float p0, float p1, float p2, float p3, float t) {
         float t2 = t * t;
         float t3 = t2 * t;
 
