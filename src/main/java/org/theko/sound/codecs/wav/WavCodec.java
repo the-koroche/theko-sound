@@ -556,7 +556,7 @@ public class WavCodec extends AudioCodec {
             writeRiffHeader(outputStream);
             writeChunk(outputStream, FORMAT_BYTES, fmtChunkData);
 
-            byte[] pcm = SamplesConverter.fromSamples(samples, targetFormat);
+            byte[] pcm = SamplesConverter.toBytes(samples, targetFormat);
             writeChunk(outputStream, DATA_BYTES, pcm);
             if (listChunkData.length > 4) {
                 writeChunk(outputStream, LIST_BYTES, listChunkData);

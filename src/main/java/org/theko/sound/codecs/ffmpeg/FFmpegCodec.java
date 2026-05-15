@@ -166,7 +166,7 @@ public class FFmpegCodec extends AudioCodec {
         }
         SamplesValidation.validateSamples(samples);
 
-        byte[] pcmData = SamplesConverter.fromSamples(samples, samplesFormat);
+        byte[] pcmData = SamplesConverter.toBytes(samples, samplesFormat);
 
         List<String> cmd = new ArrayList<>();
         cmd.add("ffmpeg");

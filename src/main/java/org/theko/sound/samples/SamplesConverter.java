@@ -38,13 +38,13 @@ import org.theko.sound.util.MathUtilities;
  * byte[] data = ...;
  * AudioFormat format = ...;
  * float[][] samples = SamplesConverter.toSamples(data, format); // in [channels][frames] format
- * 
+ *
  * int size = format.getByteRate() * format.getFrameSize();
  * byte[] converted = new byte[size];
- * SamplesConverter.fromSamples(samples, converted, format);
- * 
+ * SamplesConverter.toBytes(samples, converted, format);
+ *
  * // or
- * converted = SamplesConverter.fromSamples(samples, format);
+ * converted = SamplesConverter.toBytes(samples, format);
  * </pre>
  *
  * @see AudioFormat
@@ -104,7 +104,7 @@ public final class SamplesConverter {
      * @return a newly allocated byte array containing PCM audio data
      * @throws IllegalArgumentException if samples or audioFormat is null, or array dimensions are inconsistent
      */
-    public static byte[] fromSamples(float[][] samples, AudioFormat audioFormat) {
+    public static byte[] toBytes(float[][] samples, AudioFormat audioFormat) {
         if (samples == null || audioFormat == null) {
             throw new IllegalArgumentException("Samples and audio format must not be null.");
         }
