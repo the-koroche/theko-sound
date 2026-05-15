@@ -18,7 +18,7 @@ package org.theko.sound.resamplers;
 
 /**
  * NearestResampler implements a nearest-neighbor resampling algorithm.
- * This method maps the output sample index to the closest corresponding 
+ * This method maps the output sample index to the closest corresponding
  * index in the source array, providing a fast but "blocky" interpolation.
  *
  * @since 0.2.3-beta
@@ -31,9 +31,9 @@ public class NearestResampler implements Resampler {
 
         // Early exit if the target length is invalid
         if (targetLength <= 0) return;
-        
+
         int inputLength = input[0].length;
-        
+
         // Edge case: If only one sample is requested, take the first sample from the input
         if (targetLength == 1) {
             for (int ch = 0; ch < input.length; ch++) {
@@ -44,10 +44,10 @@ public class NearestResampler implements Resampler {
 
         // Main resampling loop
         for (int i = 0; i < targetLength; i++) {
-            // Calculate the nearest source index using floating-point math 
+            // Calculate the nearest source index using floating-point math
             // to maintain ratio precision, then rounding to the closest integer.
             int nearestIndex = Math.round((i * (inputLength - 1f)) / (targetLength - 1f));
-            
+
             // Ensure the index doesn't exceed the bounds of the input array
             nearestIndex = Math.min(nearestIndex, inputLength - 1);
 

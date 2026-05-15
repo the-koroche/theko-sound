@@ -53,7 +53,7 @@ public class CubicResampler implements Resampler {
             for (int ch = 0; ch < numChannels; ch++) {
                 /*
                  * Extract 4 neighboring samples for the current channel.
-                 * p1 and p2 represent the current interval; p0 and p3 are the 
+                 * p1 and p2 represent the current interval; p0 and p3 are the
                  * "control points" used to determine the curve's tangents.
                  */
                 float p0 = getSample(input[ch], i1 - 1);
@@ -67,16 +67,25 @@ public class CubicResampler implements Resampler {
     }
 
     /**
-     * Retrieves a sample from a specific channel array.
-     * Clamps the index to the array bounds to handle edges safely.
-     * * @param channelData The sample data for a single audio channel.
-     * @param index The requested sample index.
-     * @return The sample value, or the nearest boundary sample if out of bounds.
+     * Retrieves the sample at the specified index,
+     * or a predicted value if the index is out of bounds,
+     * using Catmull-Rom spline interpolation.
+     * @param data The array of samples.
+     * @param index The index of the sample to retrieve.
+     * @return The sample value at the specified index.
      */
-    private float getSample(float[] channelData, int index) {
-        if (index < 0) return channelData[0];
-        if (index >= channelData.length) return channelData[channelData.length - 1];
-        return channelData[index];
+    protected float getSample(float[] data, int index) {
+        int last = data.length - 1;
+        if (index <= last) return data[(index > 0 ? index : 0)];
+
+        if (index == last + 1 && last >= 3) {
+            float p0 = data[last];
+            float p1 = data[last - 1];
+            float p2 = data[last - 2];
+
+            return extrapolate(p0, p1, p2, index);
+        }
+        return data[last];
     }
 
     /**
@@ -89,7 +98,7 @@ public class CubicResampler implements Resampler {
      * @param t The fractional distance between p1 and p2 (0 <= t <= 1).
      * @return The interpolated sample value at position 't'.
      */
-    protected float interpolate(float p0, float p1, float p2, float p3, float t) {
+    public static float interpolate(float p0, float p1, float p2, float p3, float t) {
         float t2 = t * t;
         float t3 = t2 * t;
 
@@ -99,5 +108,19 @@ public class CubicResampler implements Resampler {
             (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
             (3 * p1 - p0 - 3 * p2 + p3) * t3
         );
+    }
+
+    /**
+     * Computes the predicted value of the sample at the specified index.
+     * @param p0 The sample before the current interval.
+     * @param p1 The first sample of the current interval.
+     * @param p2 The second sample of the current interval.
+     * @param index The index of the sample to extrapolate.
+     * @return The predicted sample value at the specified index.
+     */
+    public static float extrapolate(float p0, float p1, float p2, int index) {
+        float delta = p0 - p1;
+        float curvature = (p0 - 2 * p1 + p2) * 0.5f;
+        return p0 + delta + curvature * (index - 1);
     }
 }

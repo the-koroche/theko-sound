@@ -18,8 +18,9 @@ package org.theko.sound.resamplers;
 
 /**
  * LanczosResampler implements a high-quality resampling algorithm using the Lanczos kernel.
- * It provides superior anti-aliasing and sharpness compared to linear interpolation by 
+ * It provides superior anti-aliasing and sharpness compared to linear interpolation by
  * using a sinc-based windowed filter.
+ * Best for offline processing, and doesn't have extrapolation.
  *
  * @since 0.1.4-beta
  * @author Theko
@@ -83,7 +84,7 @@ public class LanczosResampler implements Resampler {
                         wsum += weight;
                     }
                 }
-                
+
                 // Normalize the result by the sum of weights to maintain signal amplitude
                 output[ch][i] = (wsum != 0f) ? (sum / wsum) : 0f;
             }
