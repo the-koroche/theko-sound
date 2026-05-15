@@ -6,13 +6,13 @@ import java.util.Arrays;
 import org.theko.sound.AudioClassRegister;
 import org.theko.sound.AudioMixer;
 import org.theko.sound.AudioOutputLayer;
-import org.theko.sound.AudioPortsNotFoundException;
 import org.theko.sound.LFO;
 import org.theko.sound.SoundSource;
 import org.theko.sound.UnsupportedAudioFormatException;
 import org.theko.sound.Waveform;
 import org.theko.sound.backends.AudioBackendCreationException;
 import org.theko.sound.backends.AudioBackends;
+import org.theko.sound.backends.PortNotFoundException;
 import org.theko.sound.codecs.AudioCodecNotFoundException;
 import org.theko.sound.codecs.AudioCodecs;
 import org.theko.sound.codecs.AudioTag;
@@ -56,7 +56,7 @@ public class UsageExample {
 
             // Open the audio output with the same format as the source
             // Uses default output device and buffer size
-            // Can throw UnsupportedAudioFormatException, AudioPortsNotFoundException
+            // Can throw UnsupportedAudioFormatException,
             aol.open(sound.getAudioFormat());
 
             // Get metadata and duration
@@ -132,7 +132,7 @@ public class UsageExample {
             System.err.println("Audio backend creation failed.");
         } catch (FileNotFoundException | AudioCodecNotFoundException e) {
             System.err.println("File or audio codec not found.");
-        } catch (UnsupportedAudioFormatException | AudioPortsNotFoundException e) {
+        } catch (UnsupportedAudioFormatException | PortNotFoundException e) {
             System.err.println("Unsupported audio format or output device not found, while opening audio file.");
         } catch (InterruptedException e) {
             // When the playback is interrupted

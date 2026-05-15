@@ -16,6 +16,8 @@
 
 package org.theko.sound.backends.dummy;
 
+import static org.theko.sound.AudioFormat.Encoding.PCM_UNSIGNED;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,16 +27,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.theko.sound.AudioFlow;
 import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioFormat.Encoding;
+import org.theko.sound.AudioPort;
+import org.theko.sound.AudioPorts;
+import org.theko.sound.UnsupportedAudioFormatException;
 import org.theko.sound.backends.AudioBackend;
 import org.theko.sound.backends.AudioBackendType;
 import org.theko.sound.backends.AudioInputBackend;
 import org.theko.sound.backends.AudioOutputBackend;
-
-import static org.theko.sound.AudioFormat.Encoding.*;
-import org.theko.sound.AudioPort;
-import org.theko.sound.AudioPorts;
-import org.theko.sound.AudioPortsNotFoundException;
-import org.theko.sound.UnsupportedAudioFormatException;
 
 /**
  * Dummy implementation of an audio backend that does not produce or capture any real audio.
@@ -90,13 +89,12 @@ public class DummyAudioBackend implements AudioBackend {
     }
 
     @Override
-    public Collection<AudioPort> getAvailablePorts(AudioFlow flow, AudioFormat audioFormat)
-            throws AudioPortsNotFoundException, UnsupportedAudioFormatException {
+    public Collection<AudioPort> getAvailablePorts(AudioFlow flow, AudioFormat audioFormat) {
         return new AudioPorts(getAllPorts()).filter(flow).filter(audioFormat);
     }
 
     @Override
-    public Collection<AudioPort> getAvailablePorts(AudioFlow flow) throws AudioPortsNotFoundException {
+    public Collection<AudioPort> getAvailablePorts(AudioFlow flow) {
         return new AudioPorts(getAllPorts()).filter(flow);
     }
 
@@ -130,13 +128,13 @@ public class DummyAudioBackend implements AudioBackend {
     }
 
     @Override
-    public Optional<AudioPort> getDefaultPort(AudioFlow flow) throws AudioPortsNotFoundException {
+    public Optional<AudioPort> getDefaultPort(AudioFlow flow) {
         return getAvailablePorts(flow).stream().findFirst();
     }
 
     @Override
     public Optional<AudioPort> getPort(AudioFlow flow, AudioFormat audioFormat)
-            throws AudioPortsNotFoundException, UnsupportedAudioFormatException {
+            throws UnsupportedAudioFormatException {
         return getAvailablePorts(flow, audioFormat).stream().findFirst();
     }
 

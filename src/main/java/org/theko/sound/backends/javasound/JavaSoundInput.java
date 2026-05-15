@@ -16,7 +16,10 @@
 
 package org.theko.sound.backends.javasound;
 
-import javax.sound.sampled.*;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
+import javax.sound.sampled.TargetDataLine;
 
 import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioPort;
@@ -24,6 +27,7 @@ import org.theko.sound.UnsupportedAudioFormatException;
 import org.theko.sound.backends.AudioBackendException;
 import org.theko.sound.backends.AudioInputBackend;
 import org.theko.sound.backends.BackendNotOpenException;
+import org.theko.sound.backends.PortNotFoundException;
 
 /**
  * The {@code JavaSoundInput} class is an implementation of the {@link AudioInputBackend}
@@ -83,30 +87,34 @@ public final class JavaSoundInput extends JavaSoundBackend implements AudioInput
     private AudioPort currentPort;
 
     @Override
-    public AudioFormat open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException {
+    public AudioFormat open(AudioPort port, AudioFormat audioFormat, int bufferSize)
+        throws AudioBackendException, UnsupportedAudioFormatException {
         try {
-            DataLine.Info info = new DataLine.Info(TargetDataLine.class, getJavaSoundAudioFormat(audioFormat), bufferSize);
+            javax.sound.sampled.AudioFormat javaSoundAudioFormat = getJavaSoundAudioFormat(audioFormat);
+            DataLine.Info info = new DataLine.Info(TargetDataLine.class, javaSoundAudioFormat, bufferSize);
             Mixer mixer = getMixerForPort(port);
 
-            if (mixer == null || !mixer.isLineSupported(info)) {
-                throw new AudioBackendException("Unsupported audio port or format.");
+            if (mixer == null) {
+                throw new PortNotFoundException("Unsupported audio port or format.");
+            }
+            if (!mixer.isLineSupported(info)) {
+                throw new UnsupportedAudioFormatException("Unsupported audio format.");
             }
 
             targetDataLine = (TargetDataLine) mixer.getLine(info);
-            targetDataLine.open(getJavaSoundAudioFormat(audioFormat), bufferSize);
+            targetDataLine.open(javaSoundAudioFormat, bufferSize);
             this.currentPort = port;
             open = true;
 
             return audioFormat;
         } catch (LineUnavailableException ex) {
             throw new AudioBackendException("Failed to open audio output line.", ex);
-        } catch (UnsupportedAudioFormatException ex) {
-            throw new AudioBackendException("Unsupported audio format.", ex);
         }
     }
 
     @Override
-    public AudioFormat open(AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
+    public AudioFormat open(AudioPort port, AudioFormat audioFormat)
+        throws AudioBackendException, UnsupportedAudioFormatException {
         return open(port, audioFormat, audioFormat.getByteRate() / 2 /* 0.5 seconds */);
     }
 

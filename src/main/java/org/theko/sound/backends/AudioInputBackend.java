@@ -18,6 +18,7 @@ package org.theko.sound.backends;
 
 import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioPort;
+import org.theko.sound.UnsupportedAudioFormatException;
 /**
  * The {@code AudioInputBackend} interface represents an audio input backend capable of
  * handling audio data input operations. It extends {@link AudioBackend} and {@link AutoCloseable}
@@ -55,8 +56,8 @@ public interface AudioInputBackend extends AudioBackend, AutoCloseable {
      * @return The {@link AudioFormat} of the opened output
      * @throws AudioBackendException If an error occurs while opening the backend
      */
-    AudioFormat open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException;
-
+    AudioFormat open(AudioPort port, AudioFormat audioFormat, int bufferSize)
+        throws AudioBackendException, UnsupportedAudioFormatException;
     /**
      * Opens the audio input backend with the specified audio port and format.
      *
@@ -65,7 +66,8 @@ public interface AudioInputBackend extends AudioBackend, AutoCloseable {
      * @return The {@link AudioFormat} of the opened output
      * @throws AudioBackendException If an error occurs while opening the backend
      */
-    AudioFormat open(AudioPort port, AudioFormat audioFormat) throws AudioBackendException;
+    AudioFormat open(AudioPort port, AudioFormat audioFormat)
+        throws AudioBackendException, UnsupportedAudioFormatException;
 
     /**
      * Checks if the audio input backend is currently open.

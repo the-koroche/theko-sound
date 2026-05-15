@@ -16,14 +16,13 @@
 
 package org.theko.sound.backends;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.theko.sound.AudioFlow;
 import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioPort;
-import org.theko.sound.AudioPortsNotFoundException;
 import org.theko.sound.UnsupportedAudioFormatException;
 
 /**
@@ -43,7 +42,7 @@ import org.theko.sound.UnsupportedAudioFormatException;
  * @see AudioInputBackend
  * @see AudioOutputBackend
  * @see AudioBackendException
- * @see AudioPortsNotFoundException
+ * @see PortNotFoundException
  * @see UnsupportedAudioFormatException
  *
  * @since 0.1.0-beta
@@ -95,11 +94,10 @@ public interface AudioBackend {
      * @param flow the direction of the audio flow (input or output)
      * @param audioFormat the desired audio format for compatibility
      * @return a collection of {@link AudioPort}s matching the given criteria
-     * @throws AudioPortsNotFoundException if no ports are found for the given flow
+     * @throws  if no ports are found for the given flow
      * @throws UnsupportedAudioFormatException if the format is not supported by the backend or ports
      */
-    Collection<AudioPort> getAvailablePorts(AudioFlow flow, AudioFormat audioFormat)
-        throws AudioPortsNotFoundException, UnsupportedAudioFormatException;
+    Collection<AudioPort> getAvailablePorts(AudioFlow flow, AudioFormat audioFormat);
 
     /**
      * Returns a collection of audio ports that are compatible with the specified
@@ -107,10 +105,9 @@ public interface AudioBackend {
      *
      * @param flow the direction of the audio flow (input or output)
      * @return a collection of {@link AudioPort}s matching the given criteria
-     * @throws AudioPortsNotFoundException if no ports are found for the given flow
+     * @throws  if no ports are found for the given flow
      */
-    Collection<AudioPort> getAvailablePorts(AudioFlow flow)
-        throws AudioPortsNotFoundException;
+    Collection<AudioPort> getAvailablePorts(AudioFlow flow);
 
     /**
      * Checks if a specific audio port supports the provided audio format.
@@ -136,10 +133,9 @@ public interface AudioBackend {
      *
      * @param flow the desired audio flow (input or output)
      * @return an {@link Optional} containing the default port if found; empty otherwise
-     * @throws AudioPortsNotFoundException if no matching ports are available
+     * @throws  if no matching ports are available
      */
-    Optional<AudioPort> getDefaultPort(AudioFlow flow)
-        throws AudioPortsNotFoundException;
+    Optional<AudioPort> getDefaultPort(AudioFlow flow);
 
     /**
      * Retrieves the audio port that supports the specified audio flow and audio format.
@@ -147,11 +143,11 @@ public interface AudioBackend {
      * @param flow the desired audio flow (input or output)
      * @param audioFormat the desired audio format
      * @return an {@link Optional} containing the supporting port if found; empty otherwise
-     * @throws AudioPortsNotFoundException if no matching ports are available
+     * @throws  if no matching ports are available
      * @throws UnsupportedAudioFormatException if the format is not supported by the backend or ports
      */
     Optional<AudioPort> getPort(AudioFlow flow, AudioFormat audioFormat)
-        throws AudioPortsNotFoundException, UnsupportedAudioFormatException;
+        throws UnsupportedAudioFormatException;
 
     /**
      * Returns the input backend associated with this audio backend, allowing

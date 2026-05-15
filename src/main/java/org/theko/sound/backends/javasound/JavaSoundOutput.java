@@ -16,7 +16,10 @@
 
 package org.theko.sound.backends.javasound;
 
-import javax.sound.sampled.*;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
+import javax.sound.sampled.SourceDataLine;
 
 import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioPort;
@@ -24,6 +27,7 @@ import org.theko.sound.UnsupportedAudioFormatException;
 import org.theko.sound.backends.AudioBackendException;
 import org.theko.sound.backends.AudioOutputBackend;
 import org.theko.sound.backends.BackendNotOpenException;
+import org.theko.sound.backends.PortNotFoundException;
 
 /**
  * The {@code JavaSoundOutput} class is an implementation of the {@link AudioOutputBackend}
@@ -84,8 +88,11 @@ public final class JavaSoundOutput extends JavaSoundBackend implements AudioOutp
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, getJavaSoundAudioFormat(audioFormat), bufferSize);
             Mixer mixer = getMixerForPort(port);
 
-            if (mixer == null || !mixer.isLineSupported(info)) {
-                throw new AudioBackendException("Unsupported audio port or format.");
+            if (mixer == null) {
+                throw new PortNotFoundException("Unsupported audio port or format.");
+            }
+            if (!mixer.isLineSupported(info)) {
+                throw new UnsupportedAudioFormatException("Unsupported audio format.");
             }
 
             sourceDataLine = (SourceDataLine) mixer.getLine(info);

@@ -24,6 +24,7 @@ import org.theko.sound.AudioFlow;
 import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioPort;
 import org.theko.sound.AudioUnitsConverter;
+import org.theko.sound.UnsupportedAudioFormatException;
 import org.theko.sound.backends.AudioBackendException;
 import org.theko.sound.backends.AudioOutputBackend;
 import org.theko.sound.backends.BackendNotOpenException;
@@ -50,7 +51,8 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
     private AudioPort port = null;
 
     @Override
-    public synchronized AudioFormat open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException {
+    public synchronized AudioFormat open(AudioPort port, AudioFormat audioFormat, int bufferSize)
+        throws AudioBackendException, UnsupportedAudioFormatException {
         if (isOpen()) throw new AudioBackendException("Backend is already open.");
         if (port == null) {
             // Get default output port
@@ -60,7 +62,7 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
         if (port.getFlow() != AudioFlow.OUT) throw new IllegalArgumentException("Port is not an output port.");
         if (port.getLink() == null) throw new IllegalArgumentException("Port link is null.");
         if (audioFormat == null) throw new IllegalArgumentException("Audio format is null.");
-        if (audioFormat.isBigEndian()) throw new AudioBackendException("Big endian audio format is not supported.");
+        if (audioFormat.isBigEndian()) throw new UnsupportedAudioFormatException("Big endian audio format is not supported.");
         if (bufferSize <= 0) throw new IllegalArgumentException("Buffer size is less than or equal to zero.");
 
         if (!isInitialized()) {
@@ -81,7 +83,8 @@ public final class WASAPISharedOutput extends WASAPISharedBackend implements Aud
     }
 
     @Override
-    public AudioFormat open(AudioPort port, AudioFormat audioFormat) throws AudioBackendException {
+    public AudioFormat open(AudioPort port, AudioFormat audioFormat)
+        throws AudioBackendException, UnsupportedAudioFormatException {
         return this.open(port, audioFormat, audioFormat.getByteRate() / 4 /* 0.25 seconds */);
     }
 

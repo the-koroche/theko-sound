@@ -19,7 +19,6 @@ package org.theko.sound.backends.dummy;
 import org.theko.sound.AudioFlow;
 import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioPort;
-import org.theko.sound.AudioPortsNotFoundException;
 import org.theko.sound.AudioUnitsConverter;
 import org.theko.sound.backends.AudioBackendException;
 import org.theko.sound.backends.AudioOutputBackend;
@@ -50,11 +49,8 @@ public class DummyOutputBackend extends DummyAudioBackend implements AudioOutput
     public AudioFormat open(AudioPort port, AudioFormat audioFormat, int bufferSize) throws AudioBackendException {
         if (port == null) {
             // Using default output port
-            try {
-                port = getDefaultPort(AudioFlow.OUT).orElse(null);
-            } catch (AudioPortsNotFoundException e) {
-                throw new AudioBackendException("Default output port not found.", e);
-            }
+            port = getDefaultPort(AudioFlow.OUT).orElse(null);
+            if (port == null) throw new AudioBackendException("Default output port not found.");
         }
         if (port.getFlow() != AudioFlow.OUT) throw new IllegalArgumentException("Port is not an output port.");
         if (port.getLink() == null) throw new IllegalArgumentException("Port link is null.");

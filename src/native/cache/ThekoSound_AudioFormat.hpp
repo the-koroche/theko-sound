@@ -66,6 +66,8 @@ class ThekoSound_AudioFormat {
         jmethodID ctor__int__int__int__org_theko_sound_AudioFormat_Encoding__boolean__int__int;
 
         // jmethodID cache
+        // public org.theko.sound.AudioFormat.Builder org.theko.sound.AudioFormat.builder()
+        jmethodID mtd__builder;
         // public org.theko.sound.AudioFormat org.theko.sound.AudioFormat.convertTo(org.theko.sound.AudioFormat.Encoding)
         jmethodID mtd__convertTo_org_theko_sound_AudioFormat_Encoding;
         // public boolean org.theko.sound.AudioFormat.equals(java.lang.Object)
@@ -207,6 +209,12 @@ class ThekoSound_AudioFormat {
             }
 
             // Methods
+            mtd__builder = env->GetStaticMethodID(clazz_local, "builder", "()Lorg/theko/sound/AudioFormat$Builder;");
+            if (!mtd__builder) {
+                if (clazz_local) env->DeleteLocalRef(clazz_local);
+                env->ThrowNew(env->FindClass("java/lang/NullPointerException"), "Failed to get method 'builder'");
+                return;
+            }
             mtd__convertTo_org_theko_sound_AudioFormat_Encoding = env->GetMethodID(clazz_local, "convertTo", "(Lorg/theko/sound/AudioFormat$Encoding;)Lorg/theko/sound/AudioFormat;");
             if (!mtd__convertTo_org_theko_sound_AudioFormat_Encoding) {
                 if (clazz_local) env->DeleteLocalRef(clazz_local);
@@ -444,6 +452,11 @@ class ThekoSound_AudioFormat {
         }
 
         // Method getters
+        inline static jmethodID getmtd__builder(JNIEnv* env) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            return self->mtd__builder;
+        }
         inline static jmethodID getmtd__convertTo_org_theko_sound_AudioFormat_Encoding(JNIEnv* env) {
             ThekoSound_AudioFormat* self = get(env);
             if (!self || !self->isValid()) return nullptr;
@@ -567,6 +580,21 @@ class ThekoSound_AudioFormat {
         }
 
         // Method wrappers
+        // Fabric method for public static final org.theko.sound.AudioFormat$Builder org.theko.sound.AudioFormat.builder()
+        inline static jobject builder(JNIEnv* env) {
+            ThekoSound_AudioFormat* self = get(env);
+            if (!self || !self->isValid()) return nullptr;
+            jmethodID mtd = self->mtd__builder;
+            if (!mtd) return nullptr;
+            jobject ret = env->CallStaticObjectMethod(self->clazz, mtd);
+            if (env->ExceptionCheck()) {
+                env->ExceptionDescribe();
+                env->ExceptionClear();
+                return nullptr;
+            }
+            return ret;
+        }
+
         // Fabric method for public org.theko.sound.AudioFormat org.theko.sound.AudioFormat.convertTo(org.theko.sound.AudioFormat$Encoding)
         inline static jobject convertTo(JNIEnv* env, jobject obj, jobject v0) {
             ThekoSound_AudioFormat* self = get(env);

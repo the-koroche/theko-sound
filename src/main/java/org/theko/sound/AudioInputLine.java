@@ -61,7 +61,7 @@ public class AudioInputLine implements AudioNode {
             this.bufferSize = bufferSizInFrames;
             logger.debug("Opened audio input line with {} port, {} format, and {} buffer size",
                     targetPort, audioFormat, bufferSize);
-        } catch (AudioBackendException | AudioPortsNotFoundException ex) {
+        } catch (AudioBackendException ex) {
             throw new AudioBackendException("Failed to open audio input line.", ex);
         } catch (UnsupportedAudioFormatException ex) {
             throw new AudioBackendException("Unsupported audio format.", ex);
@@ -83,10 +83,10 @@ public class AudioInputLine implements AudioNode {
      * Opens the audio input line with the specified format.
      * @param audioFormat The {@link AudioFormat} for audio data
      * @throws AudioBackendException If an error occurs while opening the backend
-     * @throws AudioPortsNotFoundException If no compatible audio ports are available
+     * @throws  If no compatible audio ports are available
      * @throws UnsupportedAudioFormatException If the specified audio format is not supported
      */
-    public void open(AudioFormat audioFormat) throws AudioBackendException, AudioPortsNotFoundException, UnsupportedAudioFormatException {
+    public void open(AudioFormat audioFormat) throws AudioBackendException, UnsupportedAudioFormatException {
         this.open(null, audioFormat);
     }
 

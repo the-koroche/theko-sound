@@ -22,18 +22,12 @@ package org.theko.sound.backends;
  *
  * <p>
  * The {@code AudioBackendCreationException} class provides constructors to specify
- * an error message, a cause, or both. It extends the {@code Exception} class,
- * making it a checked exception that must be declared in a method or constructor's
- * {@code throws} clause if it can be thrown during execution.
- *
- * <p>
- * Usage examples include handling errors when initializing or configuring audio
- * backends in an application.
+ * an error message, a cause, or both.
  *
  * @since 0.1.0-beta
  * @author Theko
  */
-public class AudioBackendCreationException extends Exception {
+public class AudioBackendCreationException extends RuntimeException {
 
     public AudioBackendCreationException() {
         super();

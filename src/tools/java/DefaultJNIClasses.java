@@ -35,12 +35,12 @@ public class DefaultJNIClasses {
             new ClassInfo(org.theko.sound.AudioFormat.class, "ThekoSound_AudioFormat"),
             new ClassInfo(org.theko.sound.AudioFormat.Encoding.class, "ThekoSound_AudioFormat_Encoding"),
             new ClassInfo(org.theko.sound.AudioPort.class, "ThekoSound_AudioPort"),
-            new ClassInfo(org.theko.sound.AudioPortsNotFoundException.class, "ThekoSound_AudioPortsNotFoundException"),
             new ClassInfo(org.theko.sound.UnsupportedAudioEncodingException.class, "ThekoSound_UnsupportedAudioEncodingException"),
             new ClassInfo(org.theko.sound.UnsupportedAudioFormatException.class, "ThekoSound_UnsupportedAudioFormatException"),
             new ClassInfo(org.theko.sound.backends.AudioBackendException.class, "ThekoSound_AudioBackendException"),
             new ClassInfo(org.theko.sound.backends.DeviceInactiveException.class, "ThekoSound_DeviceInactiveException"),
             new ClassInfo(org.theko.sound.backends.DeviceInvalidatedException.class, "ThekoSound_DeviceInvalidatedException"),
+            new ClassInfo(org.theko.sound.backends.PortNotFoundException.class, "ThekoSound_PortNotFoundException"),
             new ClassInfo(org.theko.sound.backends.wasapi.WASAPIPortHandle.class, "ThekoSound_WASAPIPortHandle")
         );
 

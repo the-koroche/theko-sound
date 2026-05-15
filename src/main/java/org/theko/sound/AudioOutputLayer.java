@@ -45,6 +45,7 @@ import org.theko.sound.backends.AudioOutputBackend;
 import org.theko.sound.backends.BackendNotOpenException;
 import org.theko.sound.backends.DeviceInactiveException;
 import org.theko.sound.backends.DeviceInvalidatedException;
+import org.theko.sound.backends.PortNotFoundException;
 import org.theko.sound.events.OutputLayerEvent;
 import org.theko.sound.events.OutputLayerEventType;
 import org.theko.sound.events.OutputLayerListener;
@@ -219,9 +220,10 @@ public class AudioOutputLayer implements AutoCloseable,
      * @throws UnsupportedAudioFormatException If the specified audio format is not supported
      * @throws IllegalArgumentException If the audio port, audio format, buffer size, or buffer count are invalid
      * @throws AudioBackendException If an error occurs while opening the backend
-     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output
+     * @throws  If no compatible audio ports are found for the default output
      */
-    public void open(AudioPort port, AudioFormat audioFormat, AudioMeasure bufferSize, boolean reopen) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioPortsNotFoundException, AudioBackendException {
+    public void open(AudioPort port, AudioFormat audioFormat, AudioMeasure bufferSize, boolean reopen)
+        throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException {
         if (isOpened && !reopen) {
             logger.info("Audio output layer is already open.");
             return;
@@ -246,7 +248,7 @@ public class AudioOutputLayer implements AutoCloseable,
 
         AudioPort targetPort = (port == null ? aob.getDefaultPort(AudioFlow.OUT).get() : port);
         if (targetPort == null) {
-            throw new AudioPortsNotFoundException("No default output port was found.");
+            throw new PortNotFoundException("No default output port was found.");
         }
         if (port == null) {
             logger.debug("Using default output port: {}.", targetPort);
@@ -382,9 +384,10 @@ public class AudioOutputLayer implements AutoCloseable,
      * @throws UnsupportedAudioFormatException If the specified audio format is not supported
      * @throws IllegalArgumentException If the audio format is null
      * @throws AudioBackendException If an error occurs while opening the backend
-     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output
+     * @throws  If no compatible audio ports are found for the default output
      */
-    public void open(AudioPort port, AudioFormat audioFormat, AudioMeasure bufferSize) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException, AudioPortsNotFoundException {
+    public void open(AudioPort port, AudioFormat audioFormat, AudioMeasure bufferSize)
+        throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException {
         this.open(port, audioFormat, bufferSize, false /* don't reopen */);
     }
 
@@ -396,9 +399,10 @@ public class AudioOutputLayer implements AutoCloseable,
      * @throws UnsupportedAudioFormatException If the specified audio format is not supported
      * @throws IllegalArgumentException If the audio format is null
      * @throws AudioBackendException If an error occurs while opening the backend
-     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output
+     * @throws  If no compatible audio ports are found for the default output
      */
-    public void open(AudioPort port, AudioFormat audioFormat) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException, AudioPortsNotFoundException {
+    public void open(AudioPort port, AudioFormat audioFormat)
+        throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException {
         this.open(port, audioFormat, AOL_DEFAULT_BUFFER);
     }
 
@@ -409,13 +413,14 @@ public class AudioOutputLayer implements AutoCloseable,
      * @throws UnsupportedAudioFormatException If the specified audio format is not supported
      * @throws IllegalArgumentException If the audio format is null
      * @throws AudioBackendException If an error occurs while opening the backend
-     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output
+     * @throws  If no compatible audio ports are found for the default output
      */
-    public void open(AudioFormat audioFormat) throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException, AudioPortsNotFoundException {
+    public void open(AudioFormat audioFormat)
+        throws UnsupportedAudioFormatException, IllegalArgumentException, AudioBackendException {
         this.open(null /* default output port */, audioFormat);
     }
 
-    public void reopen() throws UnsupportedAudioFormatException, AudioBackendException, AudioPortsNotFoundException {
+    public void reopen() throws UnsupportedAudioFormatException, AudioBackendException {
         // Using sourceFormat to get correct resampling factor
         this.open(openedPort, sourceFormat, AudioMeasure.ofFrames(renderBufferSize), true /* reopen */);
     }

@@ -140,12 +140,9 @@ public class SoundPlayer extends SoundSource {
             }
             this.outputLayer.open(port, getAudioFormat(), bufferSize);
         } catch (AudioBackendException e) {
-            throw new RuntimeException("Audio backend creation failed.", e);
+            throw new RuntimeException("Failed to open audio output layer.", e);
         } catch (UnsupportedAudioFormatException ex) {
             logger.error("Unsupported audio format.", ex);
-            throw new RuntimeException(ex);
-        } catch (AudioPortsNotFoundException ex) {
-            logger.error("Default output audio port not found.", ex);
             throw new RuntimeException(ex);
         }
     }
@@ -168,12 +165,9 @@ public class SoundPlayer extends SoundSource {
             }
             this.outputLayer.open(port, getAudioFormat(), bufferSize);
         } catch (AudioBackendException e) {
-            throw new RuntimeException("Audio backend creation failed.", e);
+            throw new RuntimeException("Failed to open audio output layer.", e);
         } catch (UnsupportedAudioFormatException ex) {
             logger.error("Unsupported audio format.", ex);
-            throw new RuntimeException(ex);
-        } catch (AudioPortsNotFoundException ex) {
-            logger.error("Default output audio port not found.", ex);
             throw new RuntimeException(ex);
         }
     }
@@ -196,9 +190,6 @@ public class SoundPlayer extends SoundSource {
         } catch (UnsupportedAudioFormatException ex) {
             logger.error("Unsupported audio format.", ex);
             throw new RuntimeException(ex);
-        } catch (AudioPortsNotFoundException ex) {
-            logger.error("Default output audio port not found.", ex);
-            throw new RuntimeException(ex);
         }
     }
 
@@ -206,11 +197,11 @@ public class SoundPlayer extends SoundSource {
      * Reopens the audio output layer with the same port and format as before.
      *
      * @throws AudioBackendException If an error occurs while reopening the backend
-     * @throws AudioPortsNotFoundException If no compatible audio ports are found for the default output
+     * @throws  If no compatible audio ports are found for the default output
      * @throws UnsupportedAudioFormatException If the specified audio format is not supported
      * @throws IllegalArgumentException If the buffer size is less than or equal to zero
      */
-    public void reopen() throws AudioBackendException, AudioPortsNotFoundException, UnsupportedAudioFormatException, IllegalArgumentException {
+    public void reopen() throws AudioBackendException, UnsupportedAudioFormatException, IllegalArgumentException {
         this.outputLayer.reopen();
     }
 
@@ -233,9 +224,6 @@ public class SoundPlayer extends SoundSource {
         } catch (UnsupportedAudioFormatException ex) {
             logger.error("Unsupported audio format.", ex);
             throw new RuntimeException(ex);
-        } catch (AudioPortsNotFoundException ex) {
-            logger.error("Default output audio port not found.", ex);
-            throw new RuntimeException(ex);
         }
     }
 
@@ -253,7 +241,7 @@ public class SoundPlayer extends SoundSource {
         this.open(new File(file));
     }
 
-    private void reopenAOL() throws IllegalArgumentException, AudioBackendException, UnsupportedAudioFormatException, AudioPortsNotFoundException {
+    private void reopenAOL() throws IllegalArgumentException, AudioBackendException, UnsupportedAudioFormatException {
         if (this.outputLayer.isOpen()) {
             this.outputLayer.close();
         }

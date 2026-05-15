@@ -39,7 +39,6 @@ import org.theko.sound.AudioFlow;
 import org.theko.sound.AudioFormat;
 import org.theko.sound.AudioFormat.Encoding;
 import org.theko.sound.AudioPort;
-import org.theko.sound.AudioPortsNotFoundException;
 import org.theko.sound.UnsupportedAudioFormatException;
 import org.theko.sound.backends.AudioBackend;
 import org.theko.sound.backends.AudioBackendType;
@@ -142,7 +141,7 @@ public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundIn
     }
 
     @Override
-    public Collection<AudioPort> getAvailablePorts(AudioFlow flow, AudioFormat audioFormat) throws AudioPortsNotFoundException, UnsupportedAudioFormatException {
+    public Collection<AudioPort> getAvailablePorts(AudioFlow flow, AudioFormat audioFormat) {
         List<AudioPort> availablePorts = new ArrayList<>();
 
         for (AudioPort port : getAllPorts()) {
@@ -153,15 +152,14 @@ public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundIn
         }
 
         if (availablePorts.isEmpty()) {
-            logger.warn("No compatible audio ports found for the specified flow and format.");
-            throw new AudioPortsNotFoundException("No compatible audio ports found for the specified flow and format.");
+            logger.debug("No compatible audio ports found for the specified flow and format.");
         }
 
         return Collections.unmodifiableList(availablePorts);
     }
 
     @Override
-    public Collection<AudioPort> getAvailablePorts(AudioFlow flow) throws AudioPortsNotFoundException {
+    public Collection<AudioPort> getAvailablePorts(AudioFlow flow) {
         List<AudioPort> availablePorts = new ArrayList<>();
 
         for (AudioPort port : getAllPorts()) {
@@ -172,8 +170,7 @@ public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundIn
         }
 
         if (availablePorts.isEmpty()) {
-            logger.warn("No compatible audio ports found for the specified flow and format.");
-            throw new AudioPortsNotFoundException("No compatible audio ports found for the specified flow and format.");
+            logger.debug("No compatible audio ports found for the specified flow and format.");
         }
 
         return Collections.unmodifiableList(availablePorts);
@@ -202,13 +199,13 @@ public sealed class JavaSoundBackend implements AudioBackend permits JavaSoundIn
     }
 
     @Override
-    public Optional<AudioPort> getDefaultPort(AudioFlow flow) throws AudioPortsNotFoundException {
+    public Optional<AudioPort> getDefaultPort(AudioFlow flow) {
         Collection<AudioPort> availablePorts = getAvailablePorts(flow);
         return availablePorts.stream().findFirst();
     }
 
     @Override
-    public Optional<AudioPort> getPort(AudioFlow flow, AudioFormat audioFormat) throws AudioPortsNotFoundException, UnsupportedAudioFormatException {
+    public Optional<AudioPort> getPort(AudioFlow flow, AudioFormat audioFormat) throws UnsupportedAudioFormatException {
         Collection<AudioPort> availablePorts = getAvailablePorts(flow, audioFormat);
         return availablePorts.stream().findFirst();
     }
