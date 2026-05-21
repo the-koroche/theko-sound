@@ -2,6 +2,8 @@ package examples;
 
 import java.io.File;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.theko.sound.AudioFlow;
 import org.theko.sound.AudioFormat;
@@ -21,64 +23,58 @@ import helpers.FileChooserHelper;
 
 public class DirectBackendWrite {
 
-    static class Wrap<T> {
-        T x;
-        public Wrap(T val) { this.x = val; }
-        public T get() { return x; }
-        public void set(T val) { this.x = val; }
-    }
-
     public static void main(String[] args) {
-        Wrap<AudioOutputBackend> outputWrap = new Wrap<>(null);
-        SoundSource source = null;
+        AtomicReference<AudioOutputBackend> output = new AtomicReference<>();
+        AtomicReference<SoundSource> source = new AtomicReference<>();
 
         try {
             // Get and open the output backend
             AudioBackendInfo backendInfo = AudioBackends.getPlatformBackend();
             AudioBackend backend = AudioBackends.getBackend(backendInfo);
-            outputWrap.set(backend.getOutputBackend());
+            output.set(backend.getOutputBackend());
 
             // Prepare source and mixer
-            source = new SoundSource();
+            source.set(new SoundSource());
             AudioMixer mixer = new AudioMixer();
-            mixer.addInput(source);
+            mixer.addInput(source.get());
 
             File file = FileChooserHelper.chooseAudioFile();
             if (file == null) return;
 
-            source.open(file);
+            source.get().open(file);
             System.out.println("Opened file: " + file.getAbsolutePath());
 
-            AudioFormat sourceFormat = source.getAudioFormat();
+            AudioFormat sourceFormat = source.get().getAudioFormat();
             System.out.println("Sound source format: " + sourceFormat);
 
             // Open the output port
             AudioMeasure bufferSize = AudioMeasure.ofFrames(1024).onFormat(sourceFormat);
-            Optional<AudioPort> outPort = outputWrap.get().getDefaultPort(AudioFlow.OUT);
+            Optional<AudioPort> outPort = output.get().getDefaultPort(AudioFlow.OUT);
 
             if (outPort.isEmpty()) {
                 System.err.println("Output port not found.");
                 return;
             }
 
-            AudioFormat outputFormat = outputWrap.get().open(outPort.get(), sourceFormat, (int) bufferSize.getBytes());
+            AudioFormat outputFormat = output.get().open(outPort.get(), sourceFormat, (int) bufferSize.getBytes());
             System.out.println("Opened audio format: " + outputFormat);
 
             double resamplingFactor = (double) sourceFormat.getSampleRate() / outputFormat.getSampleRate();
             System.out.println("Resampling factor: " + resamplingFactor);
 
             // Launch the playback
-            outputWrap.get().start();
-            source.start();
+            output.get().start();
+            source.get().start();
 
             // Start playback thread
-            Wrap<Boolean> isPlaying = new Wrap<Boolean>(true);
+            AtomicBoolean isPlaying = new AtomicBoolean(true);
             Thread playbackThread = new Thread(() -> {
                 float[][] buffer = new float[outputFormat.getChannels()][(int) bufferSize.getFrames()];
                 ResamplingProcessor resampler = new ResamplingProcessor(new LinearResampler());
+                int written = 0;
 
                 try {
-                    while (!Thread.currentThread().isInterrupted() && outputWrap.get().isOpen()
+                    while (!Thread.currentThread().isInterrupted() && output.get().isOpen()
                             && isPlaying.get()) {
                         // Use source sample rate, because we are doing resampling
                         mixer.render(buffer, sourceFormat.getSampleRate());
@@ -86,7 +82,8 @@ public class DirectBackendWrite {
                         float[][] resampled = resampler.resample(buffer, (float) resamplingFactor);
                         byte[] data = SamplesConverter.toBytes(resampled, outputFormat);
 
-                        outputWrap.get().write(data, 0, data.length);
+                        written += output.get().write(data, 0, data.length);
+                        System.out.print("\rWrote " + written + " bytes | " + getPlaybackInfo(source.get()));
                     }
                 } catch (Exception e) {
                     if (!(e instanceof InterruptedException)) {
@@ -94,9 +91,11 @@ public class DirectBackendWrite {
                     }
                 }
             }, "Playback-Thread");
-            playbackThread.start();
 
+            // print before "\rWrote ..." to avoid clearing this line
             System.out.println("Playback started. Press Enter to stop...");
+
+            playbackThread.start();
             System.in.read();
 
             isPlaying.set(false);
@@ -104,11 +103,29 @@ public class DirectBackendWrite {
             playbackThread.interrupt();
             playbackThread.join(2000);
 
+            int clearLineWidth = 20;
+            String clearLine = " ".repeat(clearLineWidth);
+            System.out.println("\rPlayback stopped." + clearLine);
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (source != null) source.close();
-            if (outputWrap != null) outputWrap.get().close();
+            if (source != null) source.get().close();
+            if (output != null) output.get().close();
         }
+    }
+
+    private static String getPlaybackInfo(SoundSource sound) {
+        int posSec = (int) sound.getSecondsPosition();
+        int durSec = (int) sound.getDuration();
+
+        int posMin = posSec / 60;
+        int posRemSec = posSec % 60;
+
+        int durMin = durSec / 60;
+        int durRemSec = durSec % 60;
+
+        return "%02d:%02d / %02d:%02d".formatted(
+            posMin, posRemSec, durMin, durRemSec);
     }
 }
