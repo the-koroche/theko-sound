@@ -24,8 +24,8 @@ import org.theko.sound.samples.SamplesValidation;
  *
  * <p>This interface provides methods for processing single audio samples and arrays of audio samples.
  *
- * @see BiquadStage
- * @see CascadeFilter
+ * @see Stage
+ * @see BiquadCascadeFilter
  * @see ChannelSplittedFilter
  *
  * @since 0.2.4-beta

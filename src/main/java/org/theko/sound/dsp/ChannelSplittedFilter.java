@@ -30,7 +30,7 @@ import org.theko.sound.samples.SamplesValidation;
  * @param <T> the type of audio filter used for each channel
  *
  * @see AudioFilter
- * @see CascadeFilter
+ * @see BiquadFilter
  *
  * @since 0.2.4-beta
  * @author Theko

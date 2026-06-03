@@ -19,10 +19,9 @@ package org.theko.sound.effects;
 import java.util.List;
 
 import org.theko.sound.controls.AudioControl;
-import org.theko.sound.controls.BooleanControl;
 import org.theko.sound.controls.FloatControl;
-import org.theko.sound.dsp.CascadeFilter;
 import org.theko.sound.dsp.ChannelSplittedFilter;
+import org.theko.sound.dsp.CutoffAudioFilter;
 import org.theko.sound.dsp.FilterType;
 
 /**
@@ -40,46 +39,51 @@ import org.theko.sound.dsp.FilterType;
  * @since 0.2.3-beta
  * @author Theko
  */
-public class AudioFilterEffect extends AudioEffect {
+public class AudioFilterEffect<T extends CutoffAudioFilter> extends AudioEffect {
 
-    private static final int SINGLE_PASS_ORDERS = 4;
-    private static final int DOUBLE_PASS_ORDERS = 8;
+    protected final FloatControl
+        cutoff = new FloatControl("Cutoff", 10, 22000, 1000),
+        passes = new FloatControl("Passes", 1, 32, 4);
 
-    protected final FloatControl cutoff = new FloatControl("Cutoff", 10, 22000, 1000);
-    protected final FloatControl bandwidth = new FloatControl("Bandwidth", 0.1f, 3.0f, 1.92f);
-    protected final FloatControl gain = new FloatControl("Gain", 0.0f, 10.0f, 1.0f);
-
-    protected final FloatControl lowPass = new FloatControl("Low Pass", 0.0f, 1.0f, 1.0f);
-    protected final FloatControl highPass = new FloatControl("High Pass", 0.0f, 1.0f, 0.5f);
-    protected final FloatControl bandPass = new FloatControl("Band Pass", 0.0f, 1.0f, 0.0f);
-
-    protected final BooleanControl doublePass = new BooleanControl("Double Pass", false);
+    protected final FloatControl
+            lowPass = new FloatControl("Low Pass", 0.0f, 1.0f, 1.0f),
+            highPass = new FloatControl("High Pass", 0.0f, 1.0f, 0.5f),
+            bandPass = new FloatControl("Band Pass", 0.0f, 1.0f, 0.0f);
 
     protected final List<AudioControl> filterControls = List.of(
-        cutoff, bandwidth, gain,
-        lowPass, highPass, bandPass,
-        doublePass
+        cutoff, passes,
+        lowPass, highPass, bandPass
     );
 
-    protected ChannelSplittedFilter<CascadeFilter> lowPassFilter;
-    protected ChannelSplittedFilter<CascadeFilter> bandPassFilter;
-    protected ChannelSplittedFilter<CascadeFilter> highPassFilter;
+    private final Class<T> filterClass;
+    protected ChannelSplittedFilter<T> lowPassFilter;
+    protected ChannelSplittedFilter<T> bandPassFilter;
+    protected ChannelSplittedFilter<T> highPassFilter;
 
-    private float lastCutoff = -1;
-    private float lastBandwidth = -1;
-    private float lastGain = -1;
-    private boolean lastDoublePass = false;
-    private int lastSampleRate = -1;
     private int lastChannels = -1;
 
     /**
      * Creates a new instance of the {@link AudioFilterEffect} class.
      */
-    public AudioFilterEffect() {
+    public AudioFilterEffect(Class<T> filterClass) {
         super(Type.REALTIME);
+        this.filterClass = filterClass;
         addEffectControls(filterControls);
 
         createNewFilters(2 /* default channels */);
+
+        cutoff.addConsumer((event, type) -> {
+            synchronized (this) {
+                lowPassFilter.getFilters().forEach(filter -> filter.setCutoffValue(cutoff.getValue()));
+                bandPassFilter.getFilters().forEach(filter -> filter.setCutoffValue(cutoff.getValue()));
+                highPassFilter.getFilters().forEach(filter -> filter.setCutoffValue(cutoff.getValue()));
+            }
+        });
+        passes.addConsumer((event, type) -> {
+            synchronized (this) {
+                createNewFilters(lastChannels);
+            }
+        });
     }
 
     /**
@@ -93,23 +97,13 @@ public class AudioFilterEffect extends AudioEffect {
     }
 
     /**
-     * Returns the bandwidth control of the audio filter effect.
-     * This control allows adjusting the bandwidth of the filter in octaves.
+     * Returns the passes control of the audio filter effect.
+     * This control allows adjusting the number of passes of the filter.
      *
-     * @return The FloatControl representing the bandwidth control of the audio filter effect
+     * @return The FloatControl representing the passes control of the audio filter effect
      */
-    public FloatControl getBandwidthControl() {
-        return bandwidth;
-    }
-
-    /**
-     * Returns the gain control of the audio filter effect.
-     * This control allows adjusting the overall gain of the filter, with a value of 1.0 being unity gain.
-     *
-     * @return The FloatControl representing the gain control of the audio filter effect
-     */
-    public FloatControl getGainControl() {
-        return gain;
+    public FloatControl getPassesControl() {
+        return passes;
     }
 
     /**
@@ -145,31 +139,14 @@ public class AudioFilterEffect extends AudioEffect {
         return bandPass;
     }
 
-    /**
-     * Returns the double-pass control of the audio filter effect.
-     * This control allows enabling or disabling double-pass filtering, which can
-     * provide a more intense filtering effect.
-     *
-     * @return The BooleanControl representing the double-pass control of the audio filter effect
-     */
-    public BooleanControl getDoublePassControl() {
-        return doublePass;
-    }
-
     @Override
     public void effectRender(float[][] samples, int sampleRate) {
-        float cutoffVal = cutoff.getValue();
-        float bandwidthVal = bandwidth.getValue();
-        float gainVal = gain.getValue();
-
-        if (lastChannels != samples.length ||
-            lastDoublePass != doublePass.getValue()) {
-            createNewFilters(samples.length);
+        if (lastChannels != samples.length) {
+            synchronized (this) {
+                createNewFilters(samples.length);
+            }
             lastChannels = samples.length;
-            lastDoublePass = doublePass.getValue();
         }
-        updateFiltersCoefficients(cutoffVal, bandwidthVal, gainVal, sampleRate);
-
         for (int ch = 0; ch < samples.length; ch++) {
             for (int i = 0; i < samples[ch].length; i++) {
                 float input = samples[ch][i];
@@ -191,45 +168,36 @@ public class AudioFilterEffect extends AudioEffect {
      * @param channels the number of channels to create filters for
      */
     protected void createNewFilters(int channels) {
-        int order = (doublePass.getValue() ? DOUBLE_PASS_ORDERS : SINGLE_PASS_ORDERS);
-        lowPassFilter = new ChannelSplittedFilter<>(new CascadeFilter(FilterType.LOWPASS, order), channels);
-        bandPassFilter = new ChannelSplittedFilter<>(new CascadeFilter(FilterType.BANDPASS, order), channels);
-        highPassFilter = new ChannelSplittedFilter<>(new CascadeFilter(FilterType.HIGHPASS, order), channels);
-    }
-
-    /**
-     * Updates the filters used by the effect with the given cutoff frequency, bandwidth, and gain.
-     * The update is only performed if the sample rate has changed, to avoid unnecessary computation.
-     *
-     * @param cutoff the cutoff frequency
-     * @param bandwidth the bandwidth
-     * @param gain the gain
-     * @param sampleRate the sample rate in Hz
-     */
-    protected void updateFiltersCoefficients(float cutoff, float bandwidth, float gain, int sampleRate) {
-        if (isDirty(sampleRate)) {
-            updateEachFilter(lowPassFilter, cutoff, bandwidth, gain, sampleRate);
-            updateEachFilter(bandPassFilter, cutoff, bandwidth, gain, sampleRate);
-            updateEachFilter(highPassFilter, cutoff, bandwidth, gain, sampleRate);
-
-            lastCutoff = cutoff;
-            lastBandwidth = bandwidth;
-            lastGain = gain;
-            lastSampleRate = sampleRate;
+        try {
+            lowPassFilter = new ChannelSplittedFilter<>(
+                filterClass.getDeclaredConstructor(FilterType.class, int.class)
+                    .newInstance(FilterType.LOWPASS, (int)passes.getValue()),
+                channels
+            );
+            bandPassFilter = new ChannelSplittedFilter<>(
+                filterClass.getDeclaredConstructor(FilterType.class, int.class)
+                    .newInstance(FilterType.BANDPASS, (int)passes.getValue()),
+                channels
+            );
+            highPassFilter = new ChannelSplittedFilter<>(
+                filterClass.getDeclaredConstructor(FilterType.class, int.class)
+                    .newInstance(FilterType.HIGHPASS, (int)passes.getValue()),
+                channels
+            );
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private static void updateEachFilter(ChannelSplittedFilter<CascadeFilter> filters, float cutoff, float bandwidth, float gain,int sampleRate) {
-        for (CascadeFilter filter : filters.getFilters()) {
-            filter.update(cutoff, bandwidth, gain, sampleRate);
-        }
+    public ChannelSplittedFilter<T> getLowPassFilter() {
+        return lowPassFilter;
     }
 
-    private boolean isDirty(int sampleRate) {
-        return lastCutoff != cutoff.getValue() ||
-                lastBandwidth != bandwidth.getValue() ||
-                lastGain != gain.getValue() ||
-                lastSampleRate != sampleRate ||
-                lastDoublePass != doublePass.getValue();
+    public ChannelSplittedFilter<T> getBandPassFilter() {
+        return bandPassFilter;
+    }
+
+    public ChannelSplittedFilter<T> getHighPassFilter() {
+        return highPassFilter;
     }
 }
