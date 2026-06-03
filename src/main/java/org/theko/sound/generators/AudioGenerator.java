@@ -35,6 +35,14 @@ public abstract class AudioGenerator implements AudioNode {
      */
     public AudioGenerator() {}
 
+
+    /**
+     * Renders the audio generator's output into the provided sample buffer.
+     * <p>Usually, adds a value to samples buffer, instead of replacing it.
+     *
+     * @param samples The sample buffer to render into
+     * @param sampleRate The sample rate of the audio
+     */
     @Override
     public abstract void render(float[][] samples, int sampleRate);
 }

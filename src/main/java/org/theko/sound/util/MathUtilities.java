@@ -40,7 +40,7 @@ public final class MathUtilities {
      * @param outMax The maximum of the output range
      * @return The remapped value
      */
-    public static float remapUnclamped(float x, float inMin, float inMax, float outMin, float outMax) {
+    public static double remapUnclamped(double x, double inMin, double inMax, double outMin, double outMax) {
         if (inMax == inMin) return outMin;
         return ((x - inMin) / (inMax - inMin)) * (outMax - outMin) + outMin;
     }
@@ -55,23 +55,9 @@ public final class MathUtilities {
      * @param outMax The maximum of the output range
      * @return The remapped value
      */
-    public static double remapUnclamped(double x, double inMin, double inMax, double outMin, double outMax) {
+    public static float remapUnclamped(float x, float inMin, float inMax, float outMin, float outMax) {
         if (inMax == inMin) return outMin;
         return ((x - inMin) / (inMax - inMin)) * (outMax - outMin) + outMin;
-    }
-
-    /**
-     * Remaps a value from one range to another, clamping the result to the output range.
-     *
-     * @param x The value to remap
-     * @param inMin The minimum of the input range
-     * @param inMax The maximum of the input range
-     * @param outMin The minimum of the output range
-     * @param outMax The maximum of the output range
-     * @return The remapped value, clamped to the output range
-     */
-    public static float remapClamped(float x, float inMin, float inMax, float outMin, float outMax) {
-        return Math.min(outMax, Math.max(outMin, remapUnclamped(x, inMin, inMax, outMin, outMax)));
     }
 
     /**
@@ -92,15 +78,17 @@ public final class MathUtilities {
     }
 
     /**
-     * Linearly interpolates between two values based on a parameter t.
+     * Remaps a value from one range to another, clamping the result to the output range.
      *
-     * @param a The start value
-     * @param b The end value
-     * @param t The interpolation parameter, typically in the range [0, 1]
-     * @return The interpolated value
+     * @param x The value to remap
+     * @param inMin The minimum of the input range
+     * @param inMax The maximum of the input range
+     * @param outMin The minimum of the output range
+     * @param outMax The maximum of the output range
+     * @return The remapped value, clamped to the output range
      */
-    public static float lerp(float a, float b, float t) {
-        return a + (b - a) * t;
+    public static float remapClamped(float x, float inMin, float inMax, float outMin, float outMax) {
+        return Math.min(outMax, Math.max(outMin, remapUnclamped(x, inMin, inMax, outMin, outMax)));
     }
 
     /**
@@ -116,14 +104,15 @@ public final class MathUtilities {
     }
 
     /**
-     * Quantizes a floating-point value to the nearest multiple of a specified step size.
+     * Linearly interpolates between two values based on a parameter t.
      *
-     * @param x The value to quantize
-     * @param step The step size for quantization
-     * @return The quantized value
+     * @param a The start value
+     * @param b The end value
+     * @param t The interpolation parameter, typically in the range [0, 1]
+     * @return The interpolated value
      */
-    public static float quantize(float x, float step) {
-        return Math.round(x / step) * step;
+    public static float lerp(float a, float b, float t) {
+        return a + (b - a) * t;
     }
 
     /**
@@ -137,18 +126,19 @@ public final class MathUtilities {
         return Math.round(x / step) * step;
     }
 
-    /** Clamps a value within a specified range.
+    /**
+     * Quantizes a floating-point value to the nearest multiple of a specified step size.
      *
-     * @param x The value to clamp
-     * @param min The minimum value of the range
-     * @param max The maximum value of the range
-     * @return The clamped value
+     * @param x The value to quantize
+     * @param step The step size for quantization
+     * @return The quantized value
      */
-    public static float clamp(float x, float min, float max) {
-        return Math.min(max, Math.max(min, x));
+    public static float quantize(float x, float step) {
+        return Math.round(x / step) * step;
     }
 
-    /** Clamps a value within a specified range.
+    /**
+     * Clamps a value within a specified range.
      *
      * @param x The value to clamp
      * @param min The minimum value of the range
@@ -159,7 +149,20 @@ public final class MathUtilities {
         return Math.min(max, Math.max(min, x));
     }
 
-    /** Clamps a value within a specified range.
+    /**
+     * Clamps a value within a specified range.
+     *
+     * @param x The value to clamp
+     * @param min The minimum value of the range
+     * @param max The maximum value of the range
+     * @return The clamped value
+     */
+    public static float clamp(float x, float min, float max) {
+        return Math.min(max, Math.max(min, x));
+    }
+
+    /**
+     * Clamps a value within a specified range.
      *
      * @param x The value to clamp
      * @param min The minimum value of the range
@@ -168,6 +171,45 @@ public final class MathUtilities {
      */
     public static int clamp(int x, int min, int max) {
         return Math.min(max, Math.max(min, x));
+    }
+
+    /**
+     * Wraps a value within a specified range.
+     *
+     * @param x The value to wrap
+     * @param min The minimum value of the range
+     * @param max The maximum value of the range
+     * @return The wrapped value
+     */
+    public static double wrap(double x, double min, double max) {
+        double range = max - min;
+        while (x < min) x += range;
+        while (x > max) x -= range;
+        return x;
+    }
+
+    /**
+     * Wraps a value within a specified range.
+     *
+     * @param x The value to wrap
+     * @param min The minimum value of the range
+     * @param max The maximum value of the range
+     * @return The wrapped value
+     */
+    public static float wrap(float x, float min, float max) {
+        return (float) wrap((double) x, (double) min, (double) max);
+    }
+
+    /**
+     * Wraps a value within a specified range.
+     *
+     * @param x The value to wrap
+     * @param min The minimum value of the range
+     * @param max The maximum value of the range
+     * @return The wrapped value
+     */
+    public static int wrap(int x, int min, int max) {
+        return (int) wrap((double) x, (double) min, (double) max);
     }
 
     /**

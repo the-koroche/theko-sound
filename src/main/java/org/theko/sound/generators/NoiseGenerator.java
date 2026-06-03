@@ -25,11 +25,35 @@ package org.theko.sound.generators;
  * @author Theko
  */
 public class NoiseGenerator extends AudioGenerator {
+
+    private float volume = 1f;
+
+    /** Creates a new noise generator with default volume of 1. */
+    public NoiseGenerator() {}
+
+    /**
+     * Creates a new noise generator with the specified volume.
+     * @param volume The volume of the noise
+     */
+    public NoiseGenerator(float volume) {
+        this.volume = volume;
+    }
+
+    /** Sets the volume of this noise generator. */
+    public void setVolume(float volume) {
+        this.volume = volume;
+    }
+
+    /** Returns the volume of this noise generator. */
+    public float getVolume() {
+        return volume;
+    }
+
     @Override
     public void render(float[][] samples, int sampleRate) {
         for (int ch = 0; ch < samples.length; ch++) {
             for (int i = 0; i < samples[ch].length; i++) {
-                samples[ch][i] = (float) Math.random() * 2 - 1;
+                samples[ch][i] += ((float) Math.random() * 2 - 1) * volume;
             }
         }
     }
