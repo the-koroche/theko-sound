@@ -122,6 +122,16 @@
                             <exclude>org.slf4j:slf4j-simple</exclude>
                         </excludes>
                     </artifactSet>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>**/*.offr</exclude>
+                                <exclude>DefaultJNIClasses*.class</exclude>
+                                <exclude>JNIClassCacheGenerator.class</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                 </configuration>
             </plugin>
 
