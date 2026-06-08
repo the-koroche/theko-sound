@@ -33,7 +33,7 @@ public abstract class Waveform {
     public static class Sine extends Waveform {
         @Override
         public float generate(float t) {
-            return (float)Math.sin(t * Math.PI * 2);
+            return (float)Math.sin(t);
         }
     }
 
