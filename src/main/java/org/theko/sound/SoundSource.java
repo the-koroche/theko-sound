@@ -677,14 +677,14 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
 
     /**
      * Returns the audio format of the sound source.
-     * May be null if the sound source is not initialized.
-     * 
+     * May be null if the sound source is not opened.
+     *
      * @return The audio format of the sound source
-     * @throws IllegalStateException if the sound source is not initialized
+     * @throws IllegalStateException if the sound source is not opened
      */
     public AudioFormat getAudioFormat() {
         if (audioFormat == null) {
-            throw new IllegalStateException("Sound source is not initialized.");
+            throw new IllegalStateException("Sound source is not opened.");
         }
         return audioFormat;
     }
@@ -693,11 +693,11 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * Returns the metadata of the sound source.
      * May be null if the sound source is not initialized, or has no metadata.
      * @return The metadata of the sound source
-     * @throws IllegalStateException if the sound source is not initialized
+     * @throws IllegalStateException if the sound source is not opened
      */
     public AudioMetadata getMetadata() {
         if (!hasAudioData()) {
-            throw new IllegalStateException("Sound source is not initialized.");
+            throw new IllegalStateException("Sound source is not opened.");
         }
         return tags;
     }
