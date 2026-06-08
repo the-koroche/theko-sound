@@ -77,7 +77,7 @@ public class ResamplingProcessor {
      * @return A 2D float array containing the resampled audio samples
      * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels
      */
-    public float[][] resample(float[][] samples, float speedMultiplier) {
+    public float[][] resample(float[][] samples, double speedMultiplier) {
         SamplesValidation.validateSamples(samples);
         return resample(samples, (int) (samples[0].length / speedMultiplier));
     }
@@ -107,7 +107,7 @@ public class ResamplingProcessor {
      * @param speedMultiplier The speed multiplier for the resampling process
      * @throws IllegalArgumentException if the new length is less than or equal to zero, or the input and output arrays do not have the same number of channels
      */
-    public void resample(float[][] samples, float[][] output, float speedMultiplier) {
+    public void resample(float[][] samples, float[][] output, double speedMultiplier) {
         SamplesValidation.validateSamples(samples);
         resample(samples, output, (int) (samples[0].length / speedMultiplier));
     }
@@ -127,7 +127,6 @@ public class ResamplingProcessor {
         if (samples.length != output.length) {
             throw new IllegalArgumentException("Input and output arrays must have the same number of channels.");
         }
-        
         resampleMethod.resample(samples, output, newLength);
     }
 }
