@@ -47,7 +47,12 @@ public abstract class AudioVisualizer extends AudioEffect implements Closeable {
     public static final float DEFAULT_BUFFER_RATE = 1.0f / (1024f / 44100f);
 
     private RenderPanel panel;
-    private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = new Thread(r);
+        t.setName("AudioVisualizer-Thread");
+        t.setDaemon(true);
+        return t;
+    });
     private Render render;
     private boolean pendingResize = false;
     private long lastResizeTime = 0;
