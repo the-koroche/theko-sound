@@ -93,6 +93,23 @@ public class Envelope implements Controllable {
     }
 
     /**
+    * Creates an envelope by copying the parameters from another envelope.
+    * @param other the envelope to copy parameters from
+    */
+    public Envelope(Envelope other) {
+        this(
+            other.attack.getValue(),
+            other.attackTension.getValue(),
+            other.hold.getValue(),
+            other.decay.getValue(),
+            other.decayTension.getValue(),
+            other.sustain.getValue(),
+            other.release.getValue(),
+            other.releaseTension.getValue()
+        );
+    }
+
+    /**
      * Creates an envelope with default parameters.
      */
     public Envelope() { }
