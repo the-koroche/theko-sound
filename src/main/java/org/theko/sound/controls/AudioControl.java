@@ -55,7 +55,7 @@ public abstract class AudioControl implements
         this.eventDispatcher = new EventDispatcher<>();
         this.name = name;
         var eventMap = eventDispatcher.createEventMap();
-        eventMap.put(AudioControlEventType.VALUE_CHANGED, AudioControlListener::onValueChanged);
+        eventMap.put(AudioControlEventType.VALUE_CHANGE, AudioControlListener::onValueChange);
         eventDispatcher.setEventMap(eventMap);
     }
 

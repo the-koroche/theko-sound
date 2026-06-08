@@ -31,49 +31,49 @@ public interface SoundSourceListener extends Listener<SoundSourceEvent> {
      * Called when a sound source is opened, and is ready to be played.
      * @param event the event with the sound source
      */
-    default void onOpened(SoundSourceEvent event) { }
+    default void onOpen(SoundSourceEvent event) { }
 
     /**
      * Called when a sound source is closed.
      * @param event the event with the sound source
      */
-    default void onClosed(SoundSourceEvent event) { }
+    default void onClose(SoundSourceEvent event) { }
 
     /**
      * Called when a sound source is started.
      * @param event the event with the sound source
      */
-    default void onStarted(SoundSourceEvent event) { }
+    default void onStart(SoundSourceEvent event) { }
 
     /**
      * Called when a sound source is stopped.
      * @param event the event with the sound source
      */
-    default void onStopped(SoundSourceEvent event) { }
+    default void onStop(SoundSourceEvent event) { }
 
     /**
      * Called when the volume of a sound source is changed.
      * @param event the event with the sound source
      */
-    default void onVolumeChanged(SoundSourceEvent event) { }
+    default void onVolumeChange(SoundSourceEvent event) { }
 
     /**
      * Called when the pan of a sound source is changed.
      * @param event the event with the sound source
      */
-    default void onPanChanged(SoundSourceEvent event) { }
+    default void onPanChange(SoundSourceEvent event) { }
 
     /**
      * Called when the speed of a sound source is changed.
      * @param event the event with the sound source
      */
-    default void onSpeedChanged(SoundSourceEvent event) { }
+    default void onSpeedChange(SoundSourceEvent event) { }
 
     /**
      * Called when the position of a sound source is changed.
      * @param event the event with the sound source
      */
-    default void onPositionChanged(SoundSourceEvent event) { }
+    default void onPositionChange(SoundSourceEvent event) { }
 
     /**
      * Called when the sound source loops.
@@ -85,5 +85,5 @@ public interface SoundSourceListener extends Listener<SoundSourceEvent> {
      * Called when the data of a sound source has ended.
      * @param event the event with the sound source
      */
-    default void onDataEnded(SoundSourceEvent event) { }
+    default void onDataEnd(SoundSourceEvent event) { }
 }

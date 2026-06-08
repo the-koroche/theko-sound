@@ -64,7 +64,7 @@ public class EnumControl<T extends Enum<T>> extends AudioControl {
         int clampedIndex = Math.max(0, Math.min(index, enumValues.length - 1));
         if (value != enumValues[clampedIndex]) {
             this.value = enumValues[clampedIndex];
-            eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGED, new AudioControlEvent(this));
+            eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGE, new AudioControlEvent(this));
         }
     }
 
@@ -88,7 +88,7 @@ public class EnumControl<T extends Enum<T>> extends AudioControl {
     public void setEnumValue(T newValue) {
         if (newValue != null && !newValue.equals(value)) {
             this.value = newValue;
-            eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGED, new AudioControlEvent(this));
+            eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGE, new AudioControlEvent(this));
         }
     }
 

@@ -147,9 +147,12 @@ public class DirectBackendWrite {
 
             // Subscribe to stop event
             // Remove it if you want playback to continue
-            source.get().addConsumer(SoundSourceEventType.DATA_ENDED, (type, event) -> {
+            source.get().addConsumer(SoundSourceEventType.DATA_END, (type, event) -> {
                 isPlaying.set(false);
-                playbackThread.interrupt();
+                exitPlayback(playbackThread);
+                if (output.get() != null) output.get().close();
+                if (source.get() != null) source.get().close();
+                System.exit(0);
             });
 
             // Launch the playback
@@ -166,17 +169,26 @@ public class DirectBackendWrite {
 
             // Interrupt playback
             isPlaying.set(false);
-            playbackThread.interrupt();
-            playbackThread.join(2000);
+            exitPlayback(playbackThread);
+            System.exit(0);
 
-            System.out.printf("%sPlayback stopped.", clearLine);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             // Close the source and output
-            if (source != null) source.get().close();
-            if (output != null) output.get().close();
+            if (output.get() != null) output.get().close();
+            if (source.get() != null) source.get().close();
         }
+    }
+
+    private static void exitPlayback(Thread playbackThread) {
+        playbackThread.interrupt();
+        try {
+            playbackThread.join(2000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        System.out.printf("%sPlayback stopped.\n", clearLine);
     }
 
     // Returns playback info, like "01:23 / 02:57"

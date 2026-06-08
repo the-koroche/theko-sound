@@ -252,7 +252,7 @@ public class VisualizerPlayback {
             openAudio(null, false);
 
             player.getOutputLayerListeners().addConsumer(
-                OutputLayerEventType.DEVICE_INVALIDATED, (type, event) -> {
+                OutputLayerEventType.DEVICE_INVALIDATE, (type, event) -> {
                     message("Audio device invalidated or inaccessible.");
                     player.stop();
                 }

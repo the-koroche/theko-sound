@@ -90,7 +90,7 @@ public class UsageExample {
 
             // Add stop event listener to stop LFO thread
             // Stopped event is triggered when AOL is stopped or closed
-            aol.addConsumer(OutputLayerEventType.STOPPED, (event, type) -> {
+            aol.addConsumer(OutputLayerEventType.STOP, (event, type) -> {
                 System.out.println("Playback stopped.");
                 sound.stop();
                 lfo.stop();

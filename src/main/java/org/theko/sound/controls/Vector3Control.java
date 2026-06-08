@@ -29,8 +29,8 @@ public class Vector3Control extends AudioControl {
 
     private final AudioControlListener valueChangeListener = new AudioControlListener() {
         @Override
-        public void onValueChanged(AudioControlEvent event) {
-            eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGED, new AudioControlEvent(Vector3Control.this));
+        public void onValueChange(AudioControlEvent event) {
+            eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGE, new AudioControlEvent(Vector3Control.this));
         }
     };
 

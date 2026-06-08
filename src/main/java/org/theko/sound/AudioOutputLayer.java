@@ -174,20 +174,19 @@ public class AudioOutputLayer implements AutoCloseable,
 
         eventDispatcher = new EventDispatcher<>();
         var eventMap = eventDispatcher.createEventMap();
-        eventMap.put(OutputLayerEventType.OPENED, OutputLayerListener::onOpened);
-        eventMap.put(OutputLayerEventType.REOPENED, OutputLayerListener::onReopened);
-        eventMap.put(OutputLayerEventType.CLOSED, OutputLayerListener::onClosed);
-        eventMap.put(OutputLayerEventType.STARTED, OutputLayerListener::onStarted);
-        eventMap.put(OutputLayerEventType.STOPPED, OutputLayerListener::onStopped);
-        eventMap.put(OutputLayerEventType.FLUSHED, OutputLayerListener::onFlushed);
-        eventMap.put(OutputLayerEventType.DRAINED, OutputLayerListener::onDrained);
-        eventMap.put(OutputLayerEventType.UNDERRUN, OutputLayerListener::onUnderrun);
-        eventMap.put(OutputLayerEventType.PLAYBACK_INTERRUPTED, OutputLayerListener::onPlaybackInterrupted);
+        eventMap.put(OutputLayerEventType.OPEN, OutputLayerListener::onOpen);
+        eventMap.put(OutputLayerEventType.REOPEN, OutputLayerListener::onReopen);
+        eventMap.put(OutputLayerEventType.CLOSE, OutputLayerListener::onClose);
+        eventMap.put(OutputLayerEventType.START, OutputLayerListener::onStart);
+        eventMap.put(OutputLayerEventType.STOP, OutputLayerListener::onStop);
+        eventMap.put(OutputLayerEventType.FLUSH, OutputLayerListener::onFlush);
+        eventMap.put(OutputLayerEventType.DRAIN, OutputLayerListener::onDrain);
+        eventMap.put(OutputLayerEventType.PLAYBACK_INTERRUPT, OutputLayerListener::onPlaybackInterrupt);
         eventMap.put(OutputLayerEventType.LENGTH_MISMATCH, OutputLayerListener::onLengthMismatch);
         eventMap.put(OutputLayerEventType.UNCHECKED_CLOSE, OutputLayerListener::onUncheckedClose);
         eventMap.put(OutputLayerEventType.PLAYBACK_EXCEPTION, OutputLayerListener::onPlaybackException);
-        eventMap.put(OutputLayerEventType.DEVICE_INVALIDATED, OutputLayerListener::onDeviceInvalidated);
-        eventMap.put(OutputLayerEventType.REOPEN_FAILED, OutputLayerListener::onReopenFailed);
+        eventMap.put(OutputLayerEventType.DEVICE_INVALIDATE, OutputLayerListener::onDeviceInvalidate);
+        eventMap.put(OutputLayerEventType.REOPEN_FAIL, OutputLayerListener::onReopenFail);
         eventDispatcher.setEventMap(eventMap);
     }
 
@@ -319,13 +318,13 @@ public class AudioOutputLayer implements AutoCloseable,
         isOpened = true;
 
         if (reopen) {
-            eventDispatcher.dispatch(OutputLayerEventType.REOPENED, getEvent());
+            eventDispatcher.dispatch(OutputLayerEventType.REOPEN, getEvent());
             if (wasPlaying) {
                 logger.debug("Starting playback after re-opening...");
                 start();
             }
         } else {
-            eventDispatcher.dispatch(OutputLayerEventType.OPENED, getEvent());
+            eventDispatcher.dispatch(OutputLayerEventType.OPEN, getEvent());
         }
     }
 
@@ -464,7 +463,7 @@ public class AudioOutputLayer implements AutoCloseable,
         writeFailures.set(0);
         isPlaying = true;
         logger.trace("Started AOL. Playback thread: {}.", playbackThread);
-        eventDispatcher.dispatch(OutputLayerEventType.STARTED, getEvent());
+        eventDispatcher.dispatch(OutputLayerEventType.START, getEvent());
     }
 
     /**
@@ -493,7 +492,7 @@ public class AudioOutputLayer implements AutoCloseable,
         isPlaying = false;
         isPlaybackInterrupted = false;
         logger.trace("Stopped AOL.");
-        eventDispatcher.dispatch(OutputLayerEventType.STOPPED, getEvent());
+        eventDispatcher.dispatch(OutputLayerEventType.STOP, getEvent());
     }
 
     /**
@@ -525,7 +524,7 @@ public class AudioOutputLayer implements AutoCloseable,
         }
         isOpened = false;
         logger.debug("Closed");
-        eventDispatcher.dispatch(OutputLayerEventType.CLOSED, getEvent());
+        eventDispatcher.dispatch(OutputLayerEventType.CLOSE, getEvent());
     }
 
     /**
@@ -536,7 +535,7 @@ public class AudioOutputLayer implements AutoCloseable,
     public void flush() throws AudioBackendException {
         aob.flush();
         logger.trace("Flushed.");
-        eventDispatcher.dispatch(OutputLayerEventType.FLUSHED, getEvent());
+        eventDispatcher.dispatch(OutputLayerEventType.FLUSH, getEvent());
     }
 
     /**
@@ -547,7 +546,7 @@ public class AudioOutputLayer implements AutoCloseable,
     public void drain() throws AudioBackendException {
         aob.drain();
         logger.trace("Drained.");
-        eventDispatcher.dispatch(OutputLayerEventType.DRAINED, getEvent());
+        eventDispatcher.dispatch(OutputLayerEventType.DRAIN, getEvent());
     }
 
     /**
@@ -756,7 +755,7 @@ public class AudioOutputLayer implements AutoCloseable,
                 return;
             } catch (DeviceInvalidatedException | DeviceInactiveException ex) {
                 logger.error("Device is invalidated or inactive.", ex);
-                eventDispatcher.dispatch(OutputLayerEventType.DEVICE_INVALIDATED, getEvent());
+                eventDispatcher.dispatch(OutputLayerEventType.DEVICE_INVALIDATE, getEvent());
 
                 if (reopenInProgress.compareAndSet(false, true)) {
                     ThreadUtilities.startThread("AudioOutputLayer-Reopen", ThreadType.VIRTUAL, Thread.NORM_PRIORITY, true, () -> {
@@ -765,7 +764,7 @@ public class AudioOutputLayer implements AutoCloseable,
                             reopen();
                         } catch (Exception ex2) {
                             logger.error("Error while reopening device.", ex2);
-                            eventDispatcher.dispatch(OutputLayerEventType.REOPEN_FAILED, getEvent());
+                            eventDispatcher.dispatch(OutputLayerEventType.REOPEN_FAIL, getEvent());
                         } finally {
                             reopenInProgress.set(false);
                         }

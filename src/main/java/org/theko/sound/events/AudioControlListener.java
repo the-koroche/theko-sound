@@ -31,5 +31,5 @@ public interface AudioControlListener extends Listener<AudioControlEvent> {
      * Called when the value of an {@link AudioControl} is changed.
      * @param event the event with the audio control
      */
-    default void onValueChanged(AudioControlEvent event) { }
+    default void onValueChange(AudioControlEvent event) { }
 }

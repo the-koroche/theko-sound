@@ -46,7 +46,7 @@ public class BooleanControl extends AudioControl {
      */
     public void setValue(boolean value) {
         this.value = value;
-        eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGED, new AudioControlEvent(this));
+        eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGE, new AudioControlEvent(this));
     }
 
     /**

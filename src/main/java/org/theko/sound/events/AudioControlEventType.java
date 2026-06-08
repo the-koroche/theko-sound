@@ -26,5 +26,5 @@ import org.theko.sound.controls.AudioControl;
  */
 public enum AudioControlEventType {
 
-    VALUE_CHANGED
+    VALUE_CHANGE
 }

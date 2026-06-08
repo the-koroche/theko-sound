@@ -51,7 +51,7 @@ public class OutputLayerEvent extends Event {
     /**
      * @return The size of the output buffer associated with this event
      */
-    public int getOutBufferSize() {
+    public int getOutputBufferSize() {
         return outBufferSize;
     }
 }

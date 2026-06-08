@@ -26,19 +26,17 @@ import org.theko.sound.AudioOutputLayer;
  */
 public enum OutputLayerEventType {
 
-    OPENED,
-    REOPENED,
-    CLOSED,
-    STARTED,
-    STOPPED,
-    FLUSHED,
-    DRAINED,
-    UNDERRUN,
-    OVERRUN,
+    OPEN,
+    REOPEN,
+    CLOSE,
+    START,
+    STOP,
+    FLUSH,
+    DRAIN,
     LENGTH_MISMATCH,
     UNCHECKED_CLOSE,
-    PLAYBACK_INTERRUPTED,
+    PLAYBACK_INTERRUPT,
     PLAYBACK_EXCEPTION,
-    DEVICE_INVALIDATED,
-    REOPEN_FAILED
+    DEVICE_INVALIDATE,
+    REOPEN_FAIL
 }

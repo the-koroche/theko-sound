@@ -31,55 +31,43 @@ public interface OutputLayerListener extends Listener<OutputLayerEvent> {
      * Called when an output layer is opened, and is ready to be played.
      * @param event the event carrying an immutable snapshot of the output layer state
      */
-    default void onOpened(OutputLayerEvent event) { }
+    default void onOpen(OutputLayerEvent event) { }
 
     /**
      * Called when an output layer is re-opened.
      * @param event the event carrying an immutable snapshot of the output layer state
      */
-    default void onReopened(OutputLayerEvent event) { }
+    default void onReopen(OutputLayerEvent event) { }
 
     /**
      * Called when an output layer is closed.
      * @param event the event carrying an immutable snapshot of the output layer state
      */
-    default void onClosed(OutputLayerEvent event) { }
+    default void onClose(OutputLayerEvent event) { }
 
     /**
      * Called when an output layer is started.
      * @param event the event carrying an immutable snapshot of the output layer state
      */
-    default void onStarted(OutputLayerEvent event) { }
+    default void onStart(OutputLayerEvent event) { }
 
     /**
      * Called when an output layer is stopped.
      * @param event the event carrying an immutable snapshot of the output layer state
      */
-    default void onStopped(OutputLayerEvent event) { }
+    default void onStop(OutputLayerEvent event) { }
 
     /**
      * Called when an output layer is flushed.
      * @param event the event carrying an immutable snapshot of the output layer state
      */
-    default void onFlushed(OutputLayerEvent event) { }
+    default void onFlush(OutputLayerEvent event) { }
 
     /**
      * Called when an output layer is drained.
      * @param event the event carrying an immutable snapshot of the output layer state
      */
-    default void onDrained(OutputLayerEvent event) { }
-
-    /**
-     * Called when an output layer is underrun.
-     * @param event the event carrying an immutable snapshot of the output layer state
-     */
-    default void onUnderrun(OutputLayerEvent event) { }
-
-    /**
-     * Called when an output layer is overrun.
-     * @param event the event carrying an immutable snapshot of the output layer state
-     */
-    default void onOverrun(OutputLayerEvent event) { }
+    default void onDrain(OutputLayerEvent event) { }
 
     /**
      * Called when length mismatch is detected in the processing thread.
@@ -97,7 +85,7 @@ public interface OutputLayerListener extends Listener<OutputLayerEvent> {
      * Called when an output layer's playbacks thread is interrupted.
      * @param event the event carrying an immutable snapshot of the output layer state
      */
-    default void onPlaybackInterrupted(OutputLayerEvent event) { }
+    default void onPlaybackInterrupt(OutputLayerEvent event) { }
 
     /**
      * Called when an output layer's playback thread catches an exception.
@@ -109,11 +97,11 @@ public interface OutputLayerListener extends Listener<OutputLayerEvent> {
      * Called when an output layer's device is invalidated or inactive.
      * @param event the event carrying an immutable snapshot of the output layer state
      */
-    default void onDeviceInvalidated(OutputLayerEvent event) { }
+    default void onDeviceInvalidate(OutputLayerEvent event) { }
 
     /**
      * Called when an output layer's reopen attempt fails.
      * @param event the event carrying an immutable snapshot of the output layer state
      */
-    default void onReopenFailed(OutputLayerEvent event) { }
+    default void onReopenFail(OutputLayerEvent event) { }
 }

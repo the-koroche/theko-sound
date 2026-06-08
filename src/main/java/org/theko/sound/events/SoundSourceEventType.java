@@ -25,7 +25,15 @@ import org.theko.sound.SoundSource;
  * @author Theko
  */
 public enum SoundSourceEventType {
-    OPENED, CLOSED, STARTED, STOPPED,
-    VOLUME_CHANGE, PAN_CHANGE, SPEED_CHANGE, POSITION_CHANGE,
-    LOOP, DATA_ENDED
+
+    OPEN,
+    CLOSE,
+    START,
+    STOP,
+    VOLUME_CHANGE,
+    PAN_CHANGE,
+    SPEED_CHANGE,
+    POSITION_CHANGE,
+    LOOP,
+    DATA_END
 }

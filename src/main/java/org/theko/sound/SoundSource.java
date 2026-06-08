@@ -130,7 +130,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
                     isPlaying = false;
                     playedFrames = 0;
                     AudioBufferUtilities.fill(samples, 0.0f);
-                    dispatch(SoundSourceEventType.DATA_ENDED);
+                    dispatch(SoundSourceEventType.DATA_END);
                     return;
                 }
             }
@@ -200,19 +200,19 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      */
     public SoundSource() {
         var eventMap = eventDispatcher.createEventMap();
-        eventMap.put(SoundSourceEventType.OPENED, SoundSourceListener::onOpened);
-        eventMap.put(SoundSourceEventType.CLOSED, SoundSourceListener::onClosed);
-        eventMap.put(SoundSourceEventType.STARTED, SoundSourceListener::onStarted);
-        eventMap.put(SoundSourceEventType.STOPPED, SoundSourceListener::onStopped);
-        eventMap.put(SoundSourceEventType.VOLUME_CHANGE, SoundSourceListener::onVolumeChanged);
-        eventMap.put(SoundSourceEventType.PAN_CHANGE, SoundSourceListener::onPanChanged);
-        eventMap.put(SoundSourceEventType.SPEED_CHANGE, SoundSourceListener::onSpeedChanged);
-        eventMap.put(SoundSourceEventType.POSITION_CHANGE, SoundSourceListener::onPositionChanged);
+        eventMap.put(SoundSourceEventType.OPEN, SoundSourceListener::onOpen);
+        eventMap.put(SoundSourceEventType.CLOSE, SoundSourceListener::onClose);
+        eventMap.put(SoundSourceEventType.START, SoundSourceListener::onStart);
+        eventMap.put(SoundSourceEventType.STOP, SoundSourceListener::onStop);
+        eventMap.put(SoundSourceEventType.VOLUME_CHANGE, SoundSourceListener::onVolumeChange);
+        eventMap.put(SoundSourceEventType.PAN_CHANGE, SoundSourceListener::onPanChange);
+        eventMap.put(SoundSourceEventType.SPEED_CHANGE, SoundSourceListener::onSpeedChange);
+        eventMap.put(SoundSourceEventType.POSITION_CHANGE, SoundSourceListener::onPositionChange);
         eventMap.put(SoundSourceEventType.LOOP, SoundSourceListener::onLoop);
-        eventMap.put(SoundSourceEventType.DATA_ENDED, SoundSourceListener::onDataEnded);
+        eventMap.put(SoundSourceEventType.DATA_END, SoundSourceListener::onDataEnd);
         eventDispatcher.setEventMap(eventMap);
 
-        speedControl.addConsumer(AudioControlEventType.VALUE_CHANGED, (type, event) -> {
+        speedControl.addConsumer(AudioControlEventType.VALUE_CHANGE, (type, event) -> {
             ResamplerEffect resampler = this.resamplerEffect;
             if (resampler != null) {
                 resampler.getSpeedControl().setValue(speedControl.getValue());
@@ -241,10 +241,10 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
         if (innerMixer == null) {
             innerMixer = new AudioMixer();
 
-            innerMixer.getPostGainControl().addConsumer(AudioControlEventType.VALUE_CHANGED, (type, event) ->
+            innerMixer.getPostGainControl().addConsumer(AudioControlEventType.VALUE_CHANGE, (type, event) ->
                     dispatch(SoundSourceEventType.VOLUME_CHANGE));
 
-            innerMixer.getPanControl().addConsumer(AudioControlEventType.VALUE_CHANGED, (type, event) ->
+            innerMixer.getPanControl().addConsumer(AudioControlEventType.VALUE_CHANGE, (type, event) ->
                     dispatch(SoundSourceEventType.PAN_CHANGE));
         } else if (playback != null) {
             innerMixer.removeInput(playback);
@@ -271,7 +271,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * <p>
      * This method validates the samples and audio format, and then associates the sound source with the given data.
      * It also sets up the inner audio mixer and playback effect, and adds a resampler effect if it is not already present.
-     * Finally, it resets the playback position and dispatches an {@link SoundSourceEventType#OPENED} event.
+     * Finally, it resets the playback position and dispatches an {@link SoundSourceEventType#OPEN} event.
      *
      * @param samples The samples data to open
      * @param format The audio format of the samples data
@@ -290,7 +290,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
 
         initialize();
         reset(); // Reset the playback position
-        dispatch(SoundSourceEventType.OPENED);
+        dispatch(SoundSourceEventType.OPEN);
     }
 
     /**
@@ -366,7 +366,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
         if (playedFrames >= samplesData[0].length) playedFrames = 0;
         isPlaying = true;
         logger.trace("Playback started");
-        dispatch(SoundSourceEventType.STARTED);
+        dispatch(SoundSourceEventType.START);
     }
 
     /**
@@ -376,7 +376,7 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
         if (!isPlaying) return;
         isPlaying = false;
         logger.trace("Playback stopped");
-        dispatch(SoundSourceEventType.STOPPED);
+        dispatch(SoundSourceEventType.STOP);
     }
 
     /**
@@ -404,14 +404,14 @@ public class SoundSource implements AudioNode, Controllable, AutoCloseable,
      * Closes the sound source.
      * <p>
      * This method stops the playback and resets the played position to 0.
-     * It also dispatches a {@link SoundSourceEventType#CLOSED} event.
+     * It also dispatches a {@link SoundSourceEventType#CLOSE} event.
      */
     @Override
     public void close() {
         stop();
         reset();
         logger.trace("Closed");
-        dispatch(SoundSourceEventType.CLOSED);
+        dispatch(SoundSourceEventType.CLOSE);
     }
 
     /**

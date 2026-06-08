@@ -61,7 +61,7 @@ public class FloatControl extends AudioControl {
      */
     public void setValue(float value) {
         this.value = MathUtilities.clamp(value, min, max);
-        eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGED, new AudioControlEvent(this));
+        eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGE, new AudioControlEvent(this));
     }
 
     /**
@@ -75,7 +75,7 @@ public class FloatControl extends AudioControl {
      */
     public void setNormalized(float value) {
         this.value = MathUtilities.remapClamped(value, 0f, 1f, min, max);
-        eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGED, new AudioControlEvent(this));
+        eventDispatcher.dispatch(AudioControlEventType.VALUE_CHANGE, new AudioControlEvent(this));
     }
 
     /**
